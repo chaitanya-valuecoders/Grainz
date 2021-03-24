@@ -1,0 +1,8 @@
+{
+    "1": {
+        "BaseURL": "https://grainzwebapid.azurewebsites.net/api/"
+    },
+    "2": {
+        "BaseURL": "https://grainzwebapid.azurewebsites.net/api/"
+    }
+}
