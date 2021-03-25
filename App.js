@@ -1,6 +1,9 @@
 import React, {Component} from 'react';
 import {SafeAreaView, Text} from 'react-native';
 import Navigation from './src/navigations';
+import {Provider} from 'react-redux';
+import store from './src/redux/reducers';
+import {NavigationContainer} from '@react-navigation/native';
 
 class App extends Component {
   constructor(props) {
@@ -11,7 +14,11 @@ class App extends Component {
   render() {
     return (
       <SafeAreaView style={{flex: 1}}>
-        <Navigation />
+        <NavigationContainer>
+          <Provider store={store}>
+            <Navigation />
+          </Provider>
+        </NavigationContainer>
       </SafeAreaView>
     );
   }

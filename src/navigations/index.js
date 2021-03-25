@@ -1,34 +1,49 @@
-import React, {useEffect, useState} from 'react';
-import {NavigationContainer} from '@react-navigation/native';
+import React, {Component, useState, useEffect} from 'react';
+import AppNavFun from './AppNav';
+import {ActivityIndicator, View} from 'react-native';
+import AuthNavFun from './AuthNav';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {createStackNavigator} from '@react-navigation/stack';
-import LoginScreen from '../screens/Login';
-import AboutUsScreen from '../screens/AboutUs';
-import HomeScreen from '../screens/Home';
+import {connect} from 'react-redux';
+import {UserTokenAction} from '../redux/actions/UserTokenAction';
 
 const Stack = createStackNavigator();
 
-const navigatorOptions = {
-  headerShown: false,
-};
+function HandleNavigation(props) {
+  const [token, setToken] = useState('');
+  const [bool, setBool] = useState(true);
 
-class Navigation extends React.Component {
-  constructor() {
-    super();
-  }
+  useEffect(() => {
+    AsyncStorage.getItem('@appToken').then(token => {
+      if (token === null) {
+        setBool(false);
+        props.UserTokenAction(null);
+      } else {
+        setBool(false);
+        props.UserTokenAction(token);
+      }
+    });
+  }, []);
 
-  render() {
-    return (
-      <NavigationContainer>
-        <Stack.Navigator
-          initialRouteName="Login"
-          screenOptions={navigatorOptions}>
-          <Stack.Screen name="LoginScreen" component={LoginScreen} />
-          <Stack.Screen name="AboutUsScreen" component={AboutUsScreen} />
-          <Stack.Screen name="HomeScreen" component={HomeScreen} />
-        </Stack.Navigator>
-      </NavigationContainer>
-    );
-  }
+  return bool ? (
+    <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+      <ActivityIndicator color="#334646" size="large" />
+    </View>
+  ) : props.UserTokenReducer ? (
+    <Stack.Navigator headerMode="none">
+      <Stack.Screen name="AfterLogin" component={AppNavFun} />
+    </Stack.Navigator>
+  ) : (
+    <Stack.Navigator headerMode="none">
+      <Stack.Screen name="BeforeLogin" component={AuthNavFun} />
+    </Stack.Navigator>
+  );
 }
 
-export default Navigation;
+const mapStateToProps = state => {
+  return {
+    UserTokenReducer: state.UserTokenReducer,
+  };
+};
+
+export default connect(mapStateToProps, {UserTokenAction})(HandleNavigation);
