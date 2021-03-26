@@ -4,7 +4,8 @@ import {
   Text,
   TouchableOpacity,
   TextInput,
-  AppRegistry,
+  Alert,
+  ActivityIndicator,
 } from 'react-native';
 import styles from './style';
 import Header from '../../components/Header';
@@ -13,6 +14,12 @@ import {
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
+import {loginApi} from '../../connectivity/api';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {connect} from 'react-redux';
+import {UserTokenAction} from '../../redux/actions/UserTokenAction';
+
+var querystring = require('querystring');
 
 class index extends Component {
   constructor(props) {
@@ -22,6 +29,7 @@ class index extends Component {
       emailError: '',
       password: '',
       passwordError: '',
+      buttonLoader: false,
     };
   }
 
@@ -51,19 +59,48 @@ class index extends Component {
     }
   };
 
+  storeData = async value => {
+    try {
+      await AsyncStorage.setItem('@appToken', value);
+      this.props.UserTokenAction(value);
+    } catch (e) {
+      console.warn('e', e);
+    }
+  };
+
   signInFun = () => {
     if (this.verification()) {
       const {email, password} = this.state;
-      var formData = new FormData();
-      let payload = {
+      const payload = {
         username: email,
         password: password,
         grant_type: 'password',
-        scope: 'openid email phone profile offline_access roles',
       };
-      formData.append('requestBody', payload);
-      console.warn('PAYLOAD', payload);
-      this.props.navigation.navigate('HomeScreen');
+
+      const finalData = querystring.stringify(payload);
+      this.setState({
+        buttonLoader: true,
+      });
+
+      loginApi(finalData)
+        .then(res => {
+          console.warn('RES', res);
+          this.storeData(res.data.access_token);
+          this.setState({
+            buttonLoader: false,
+          });
+        })
+        .catch(err => {
+          console.warn('ERR', err.response);
+          this.setState({
+            buttonLoader: false,
+          });
+          Alert.alert(
+            'Error',
+            err.response && err.response.data && err.response.data.error,
+            [{text: 'Okay', onPress: () => console.log('OK Pressed')}],
+          );
+        });
     }
   };
 
@@ -162,7 +199,11 @@ class index extends Component {
                     alignItems: 'center',
                     marginTop: hp('8%'),
                   }}>
-                  <Text style={{fontSize: 20, color: '#fff'}}>Sign in</Text>
+                  {this.state.buttonLoader ? (
+                    <ActivityIndicator color="#fff" size="small" />
+                  ) : (
+                    <Text style={{fontSize: 20, color: '#fff'}}>Sign in</Text>
+                  )}
                 </TouchableOpacity>
               </View>
             </View>
@@ -182,4 +223,11 @@ class index extends Component {
   }
 }
 
-export default index;
+const mapStateToProps = state => {
+  return {
+    LoginReducer: state.LoginReducer,
+    SocialLoginReducer: state.SocialLoginReducer,
+  };
+};
+
+export default connect(mapStateToProps, {UserTokenAction})(index);

@@ -42,7 +42,7 @@ class SubHeader extends Component {
               marginTop: '1%',
               borderRadius: 10,
               marginLeft : 23
-            }}><Text style={{color : 'white', fontFamily: 'Roboto-BoldItalic'}} >{item.name}</Text></TouchableOpacity>
+            }}><Text style={{color : 'white'}} >{item.name}</Text></TouchableOpacity>
         </View>)})}
       </View>
     );

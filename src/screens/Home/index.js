@@ -1,9 +1,10 @@
 import React, {Component} from 'react';
-import {View, Text, SafeAreaView, TouchableOpacity, Image} from 'react-native';
-import styles from './style';
+import {View, Text, TouchableOpacity, Image} from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {UserTokenAction} from '../../redux/actions/UserTokenAction';
+import {connect} from 'react-redux';
 import img from '../../constants/images';
-import Header from '../../components/Header'
-import SubHeader from '../../components/SubHeader'
+import SubHeader from '../../components/SubHeader';
 
 class index extends Component {
   constructor(props) {
@@ -23,48 +24,75 @@ class index extends Component {
     };
   }
 
+  getData = async () => {
+    try {
+      const value = await AsyncStorage.getItem('@appToken');
+      if (value !== null) {
+        console.log('VAL', value);
+      }
+    } catch (e) {
+      console.warn('ErrHome', e);
+    }
+  };
+
+  componentDidMount() {
+    this.getData();
+  }
+
+  removeToken = async () => {
+    await AsyncStorage.removeItem('@appToken');
+    this.props.UserTokenAction(null);
+  };
+
   render() {
     return (
-      <SafeAreaView style={styles.container}>
-        <Header/>
-       <SubHeader/>
+      <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+        <SubHeader />
         {this.state.buttons.map(item => {
           return (
-            <View style={{flex: 1, alignItems: 'center'}}>
+            <View
+              style={{
+                flex:1,
+                justifyContent: 'center',
+              }}>
               <TouchableOpacity
-                activeOpacity={0.5}
                 style={{
-                  height: '40%',
+                  paddingVertical:'1%',
+                  flexDirection: 'row',
                   width: '50%',
                   backgroundColor: '#94C036',
                   justifyContent: 'center',
                   alignItems: 'center',
-                  marginTop: '1%',
-                  borderRadius: 10,
-                  flexDirection: 'row',
-                  marginTop : 30
+                  justifyContent: 'center',
+                  borderRadius: 6,
                 }}>
-                <View style={{flex:1, alignItems:'center'}}>
+                <View style={{flex: 1}}>
                   <Image
                     source={item.icon}
                     style={{
-                      height: 25,
-                      width: 25,
-                      resizeMode: 'contain',
+                      height: 20,
+                      width: 20,
                       tintColor: 'white',
+                      resizeMode: 'contain',
                     }}
                   />
                 </View>
                 <View style={{flex: 3}}>
-                  <Text style={{color: 'white'}}>{item.name}</Text>
+                  <Text style={{color: 'white'}}> {item.name} </Text>
                 </View>
               </TouchableOpacity>
             </View>
           );
         })}
-      </SafeAreaView>
+      </View>
     );
   }
 }
 
-export default index;
+const mapStateToProps = state => {
+  return {
+    UserTokenReducer: state.UserTokenReducer,
+  };
+};
+
+export default connect(mapStateToProps, {UserTokenAction})(index);
