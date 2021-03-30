@@ -6,7 +6,7 @@ import {
 
 const styles = StyleSheet.create({
   container: {
-    height: hp('10%'),
+    height: hp('12%'),
   },
 });
 export default styles;

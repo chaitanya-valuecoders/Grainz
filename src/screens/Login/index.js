@@ -84,7 +84,6 @@ class index extends Component {
 
       loginApi(finalData)
         .then(res => {
-          console.warn('RES', res);
           this.storeData(res.data.access_token);
           this.setState({
             buttonLoader: false,

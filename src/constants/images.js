@@ -5,4 +5,5 @@ export default {
   historyIcon: require('../assests/Images/history.png'),
   arrowRightIcon: require('../assests/Images/arrow_right.jpeg'),
   arrowDownIcon: require('../assests/Images/arrow_down.jpeg'),
+  appLogo: require('../assests/Images/logo.png'),
 };

@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {View, Text, Image} from 'react-native';
+import {View, Text, Image, TouchableOpacity} from 'react-native';
 import styles from './style';
 import img from '../../constants/images';
 
@@ -20,27 +20,28 @@ class index extends Component {
             alignItems: 'center',
             borderBottomWidth: 0.5,
           }}>
-          <View
+          <TouchableOpacity
+            onPress={this.props.logoFun}
             style={{
-              flex: 1,
-              justifyContent: 'center',
-              alignItems: 'center',
+              flex: 2,
+              marginLeft: 20,
             }}>
             <Image
-              source={img.drawerIcon}
+              source={img.appLogo}
               style={{
-                height: 25,
-                width: 25,
+                height: 100,
+                width: 150,
                 resizeMode: 'contain',
-                tintColor: 'grey',
               }}
             />
-          </View>
-          <View style={{flex: 3}}>
-            <Text style={{fontSize: 30, color: 'grey'}}>
-              {' '}
-              {this.props.headerTitle}{' '}
-            </Text>
+          </TouchableOpacity>
+          <View style={{flex: 1}}>
+            <TouchableOpacity onPress={this.props.logoutFun}>
+              <Text style={{fontSize: 20, color: 'grey'}}>
+                {' '}
+                {this.props.logout}{' '}
+              </Text>
+            </TouchableOpacity>
           </View>
         </View>
       </View>

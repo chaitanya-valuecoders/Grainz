@@ -10,8 +10,27 @@ import {UserTokenAction} from '../redux/actions/UserTokenAction';
 const Stack = createStackNavigator();
 
 function HandleNavigation(props) {
-  const [token, setToken] = useState('');
   const [bool, setBool] = useState(true);
+
+  const navigatorOptions = {
+    headerShown: false,
+    cardStyle: {backgroundColor: '#fff'},
+    cardStyleInterpolator: ({current: {progress}}) => ({
+      cardStyle: {
+        opacity: progress.interpolate({
+          inputRange: [0, 1],
+          outputRange: [0, 1],
+        }),
+      },
+      overlayStyle: {
+        opacity: progress.interpolate({
+          inputRange: [0, 1],
+          outputRange: [0, 0.5],
+          extrapolate: 'clamp',
+        }),
+      },
+    }),
+  };
 
   useEffect(() => {
     AsyncStorage.getItem('@appToken').then(token => {
@@ -30,7 +49,7 @@ function HandleNavigation(props) {
       <ActivityIndicator color="#334646" size="large" />
     </View>
   ) : props.UserTokenReducer ? (
-    <Stack.Navigator headerMode="none">
+    <Stack.Navigator headerMode="none" screenOptions={navigatorOptions}>
       <Stack.Screen name="AfterLogin" component={AppNavFun} />
     </Stack.Navigator>
   ) : (

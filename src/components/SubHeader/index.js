@@ -2,6 +2,10 @@ import React, {Component} from 'react';
 import {View, Text, Image, TouchableOpacity} from 'react-native';
 import styles from './style';
 import img from '../../constants/images';
+import {
+  widthPercentageToDP as wp,
+  heightPercentageToDP as hp,
+} from 'react-native-responsive-screen';
 
 class SubHeader extends Component {
   constructor(props) {
@@ -13,16 +17,17 @@ class SubHeader extends Component {
   render() {
     return (
       <View
-        style={{ flex:1,
+        style={{
+          height: hp('12%'),
           flexDirection: 'row',
           borderBottomWidth: 1,
           borderBottomColor: 'grey',
           alignItems: 'center',
-          height: '10%',
         }}>
         {this.state.buttons.map(item => {
           return (
-            <View style={{flex: 1}}>
+            <View
+              style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
               <TouchableOpacity
                 style={{
                   height: '50%',
@@ -30,9 +35,7 @@ class SubHeader extends Component {
                   backgroundColor: '#94C036',
                   justifyContent: 'center',
                   alignItems: 'center',
-                  marginTop: '1%',
-                  borderRadius: 10,
-                  marginLeft: 23,
+                  borderRadius: 5,
                 }}>
                 <Text style={{color: 'white'}}>{item.name}</Text>
               </TouchableOpacity>

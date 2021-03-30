@@ -16,3 +16,13 @@ export const loginApi = payload => {
     },
   );
 };
+
+export async function getMyProfileApi() {
+  const token = await AsyncStorage.getItem('@appToken');
+  console.warn;
+  return axios.get(baseURL + '/Account/users/me', {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+}
