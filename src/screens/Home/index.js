@@ -83,7 +83,9 @@ class index extends Component {
           logoFun={() => this.props.navigation.navigate('HomeScreen')}
         />
         <SubHeader />
-        <ScrollView style={{marginTop: hp('2%'), marginBottom: hp('2%')}}>
+        <ScrollView
+          style={{marginTop: hp('2%'), marginBottom: hp('2%')}}
+          showsVerticalScrollIndicator="false">
           {this.state.buttons.map(item => {
             return (
               <View
