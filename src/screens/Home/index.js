@@ -58,9 +58,6 @@ class index extends Component {
       })
       .catch(err => {
         console.warn('ERr', err);
-        // console.warn('BANK ERRR', err.response);
-        // setApiHitting(false);
-        // setCodeError(err.response.data && err.response.data.message);
       });
   };
 
