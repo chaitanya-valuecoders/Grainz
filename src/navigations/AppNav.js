@@ -5,6 +5,7 @@ import MepScreen from '../screens/Mep';
 import StockTakeScreen from '../screens/StockTake';
 import StockTake2Screen from '../screens/StockTake2';
 import ManualLogScreen from '../screens/ManualLog';
+import CasualPurchaseScreen from '../screens/CasualPurchase';
 
 const AppNav = createStackNavigator();
 
@@ -16,6 +17,7 @@ export default function AppNavFun() {
       <AppNav.Screen name="StockTakeScreen" component={StockTakeScreen}/>
       <AppNav.Screen name="StockTake2Screen" component={StockTake2Screen}/>
       <AppNav.Screen name="ManualLogScreen" component={ManualLogScreen}/>
+      <AppNav.Screen name="CasualPurchaseScreen" component={CasualPurchaseScreen}/>
     </AppNav.Navigator>
   );
 }

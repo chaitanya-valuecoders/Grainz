@@ -5,4 +5,9 @@ export default {
   historyIcon: require('../assests/Images/history.png'),
   arrowRightIcon: require('../assests/Images/arrow_right.jpeg'),
   arrowDownIcon: require('../assests/Images/arrow_down.jpeg'),
+  deleteIcon: require('../assests/Images/delete.png'),
+  grainzLogo: require('../assests/Images/logo.png'),
+  profileIcon : require('../assests/Images/profile.png'),
+  cancelIcon : require('../assests/Images/cancel.png'),
+  checkIcon : require('../assests/Images/check.png')
 };

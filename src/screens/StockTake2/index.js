@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import DatePicker from 'react-native-datepicker';
+import DatePicker from '../../components/DatePicker';
 import {View, Text, TouchableOpacity, Image} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {UserTokenAction} from '../../redux/actions/UserTokenAction';
@@ -10,7 +10,7 @@ import img from '../../constants/images';
 class index extends Component {
   constructor(props) {
     super(props);
-    this.state = {date: '2021-03-26'};
+  
   }
 
   render() {
@@ -40,31 +40,8 @@ class index extends Component {
         </View>
         <View style={{flex: 15}}>
           <Text style={{fontSize: 25, color: 'grey'}}>Stock take</Text>
-          <DatePicker
-            style={{width: 200}}
-            date={this.state.date}
-            mode="date"
-            placeholder="select date"
-            format="YYYY-MM-DD"
-            minDate="2016-05-01"
-            maxDate="2016-06-01"
-            confirmBtnText="Confirm"
-            cancelBtnText="Cancel"
-            customStyles={{
-              dateIcon: {
-                position: 'absolute',
-                left: 0,
-                top: 4,
-                marginLeft: 0,
-              },
-              dateInput: {
-                marginLeft: 36,
-              },
-            }}
-            onDateChange={date => {
-              this.setState({date: date});
-            }}
-          />
+          <DatePicker/>
+            
         </View>
         </View>
       </View>

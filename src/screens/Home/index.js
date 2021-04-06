@@ -18,7 +18,7 @@ class index extends Component {
         {name: 'Menu items', icon: img.searchIcon, screen: 'MepScreen'},
         {name: 'Manual log', icon: img.addIcon, screen: 'ManualLogScreen'},
         {name: 'Deliveries', icon: img.addIcon, screen: 'MepScreen'},
-        {name: 'Casual purchase', icon: img.addIcon, screen: 'MepScreen'},
+        {name: 'Casual purchase', icon: img.addIcon, screen: 'CasualPurchaseScreen'},
         {name: 'Stock take', icon: img.addIcon, screen: 'MepScreen'},
         {name: 'Events', icon: img.addIcon, screen: 'MepScreen'},
       ],
