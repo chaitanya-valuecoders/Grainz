@@ -1,5 +1,8 @@
 import React, {Component, useState} from 'react';
-import {NativeModules} from 'react-native';
+import {NativeModules, SafeAreaView} from 'react-native';
+import Accordion from 'react-native-collapsible/Accordion';
+import RNPickerSelect from 'react-native-picker-select';
+
 import {
   View,
   Text,
@@ -8,6 +11,7 @@ import {
   Alert,
   Pressable,
   Modal,
+  TextInput,
   StyleSheet,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -15,76 +19,197 @@ import {UserTokenAction} from '../../redux/actions/UserTokenAction';
 import {connect} from 'react-redux';
 import MepScreen from '../Mep';
 import SubHeader from '../../components/SubHeader';
+import Header2 from '../../components/Header2';
 import HomeScreen from '../Home';
 import img from '../../constants/images';
 import {set} from 'react-native-reanimated';
+import DatePicker from '../../components/DatePicker';
+
+const mockData = [
+  {id: 1, name: 'React Native Developer', checked: true}, // set default checked for render option item
+  {id: 2, name: 'Android Developer'},
+  {id: 3, name: 'iOS Developer'},
+];
+
+var SECTIONS = [
+  {
+    id: 0,
+    content: 'content',
+    title: 'Mon Mar 24 2021',
+    icon1: img.arrowRightIcon,
+    icon2: img.arrowDownIcon,
+    showLog: false,
+    data: [
+      {name: 'eau', type: 'Inventory', units: 20},
+      {name: 'riz', type: 'Inventory', units: 20},
+      {name: 'tomates', type: 'Inventory', units: 20},
+    ],
+  },
+  {
+    id: 1,
+    content: 'content',
+    title: 'Tue Mar 25 2021',
+    icon1: img.arrowRightIcon,
+    icon2: img.arrowDownIcon,
+    showLog: false,
+    data: [
+      {name: 'Veggie burger', type: 'Inventory', units: 20},
+      {name: 'poivrons', type: 'Inventory', units: 20},
+      {name: 'pomme de terre', type: 'Inventory', units: 20},
+    ],
+  },
+  {
+    id: 2,
+    content: 'content',
+    title: 'Wed Mar 26 2021',
+    icon1: img.arrowRightIcon,
+    icon2: img.arrowDownIcon,
+    showLog: false,
+    data: [
+      {name: 'baguette', type: 'Inventory', units: 20},
+      {name: 'baguette', type: 'Inventory', units: 20},
+      {name: 'baguette', type: 'Inventory', units: 20},
+    ],
+  },
+  {
+    id: 3,
+    content: 'content',
+    title: 'Thur Mar 27 2021',
+    icon1: img.arrowRightIcon,
+    icon2: img.arrowDownIcon,
+    showLog: true,
+    data: [
+      {name: 'poichiches', type: 'Inventory', units: 20},
+      {name: 'baguette', type: 'Inventory', units: 20},
+      {name: 'baguette', type: 'Inventory', units: 20},
+    ],
+  },
+];
 
 class index extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      dropdowns: [
-        {
-          id: 0,
-          name: 'Today',
-          icon1: img.arrowRightIcon,
-          icon2: img.arrowDownIcon,
-          showLog: false,
-          data: [
-            {name: 'baguette', type: 'Inventory', units: 20},
-            {name: 'baguette', type: 'Inventory', units: 20},
-            {name: 'baguette', type: 'Inventory', units: 20},
-          ],
-        },
-        {
-          id: 1,
-          name: 'Tuesday',
-          icon1: img.arrowRightIcon,
-          icon2: img.arrowDownIcon,
-          showLog: false,
-          data: [
-            {name: 'baguette', type: 'Inventory', units: 20},
-            {name: 'baguette', type: 'Inventory', units: 20},
-            {name: 'baguette', type: 'Inventory', units: 20},
-          ],
-        },
-        {
-          id: 2,
-          name: 'Wednesday',
-          icon1: img.arrowRightIcon,
-          icon2: img.arrowDownIcon,
-          showLog: false,
-          data: [
-            {name: 'baguette', type: 'Inventory', units: 20},
-            {name: 'baguette', type: 'Inventory', units: 20},
-            {name: 'baguette', type: 'Inventory', units: 20},
-          ],
-        },
-        {
-          id: 3,
-          name: 'Thursday',
-          icon1: img.arrowRightIcon,
-          icon2: img.arrowDownIcon,
-          showLog: false,
-          data: [
-            {name: 'baguette', type: 'Inventory', units: 20},
-            {name: 'baguette', type: 'Inventory', units: 20},
-            {name: 'baguette', type: 'Inventory', units: 20},
-          ],
-        },
-      ],
+      textQuantity: '',
+      note: '',
+      show: false,
+      activeSections: [],
+      newItemModal: false,
+      newItem : '',
+      itemtype: ''
+
     };
   }
 
-  showData(visible, id) {
-    const copied = [...this.state.dropdowns];
-    copied[id].showLog = visible;
-    this.setState({dropdowns: copied});
+  showLog() {
+    this.setState({show: true});
+  }
+
+  _renderSectionTitle = section => {
+    return <View style={{backgroundColor: '#EAEAF0'}}></View>;
+  };
+
+  _renderHeader = section => {
+    var showLog = this.state.show;
+    return (
+      <View
+        style={{
+          backgroundColor: '#EAEAF0',
+          flexDirection: 'row',
+          borderWidth: 1,
+          borderColor: '#D1D1D6',
+          height: 35,
+        }}
+        onPress={this.showLog}>
+        {showLog ? (
+          <Image
+            style={{
+              height: 20,
+              width: 20,
+              resizeMode: 'contain',
+            }}
+            source={section.icon2}
+          />
+        ) : (
+          <Image
+            style={{
+              height: 20,
+              width: 20,
+              resizeMode: 'contain',
+            }}
+            source={section.icon1}
+          />
+        )}
+        <Text>{section.title}</Text>
+      </View>
+    );
+  };
+
+  _renderContent = section => {
+    return (
+      <View style={{flex: 8}}>
+        {section.data.map(item => {
+          return (
+            <View style={{flexDirection: 'row'}}>
+              <View style={{flex: 1, width: '50%'}}>
+                <Text>
+                  {item.name} {item.type} {item.units}units
+                </Text>
+              </View>
+
+              <View style={{marginLeft: '2%'}}>
+                <TouchableOpacity
+                  style={{
+                    width: '12%',
+                  }}>
+                  <View style={{flex: 3}}>
+                    <Image
+                      style={{
+                        height: 18,
+                        width: 18,
+                        tintColor: 'black',
+                        resizeMode: 'contain',
+                      }}
+                      source={img.deleteIcon}
+                    />
+                  </View>
+                </TouchableOpacity>
+              </View>
+            </View>
+          );
+        })}
+      </View>
+    );
+  };
+
+  _updateSections = activeSections => {
+    this.setState({activeSections});
+  };
+
+  openNewItemModal(param) {
+    this.setState({newItemModal: param});
+  }
+
+  selectItem(value){
+      this.setState({newitem : 'new item'})
+  }
+
+  selectType(value){
+      this.setState({itemType : 'type'})
   }
 
   render() {
+    const {newItemModal} = this.state;
     return (
-      <View style={{flex: 1}}>
+      <SafeAreaView style={{flex: 1}}>
+        <View
+          style={{
+            flex: 2,
+            borderBottomColor: '#ada9a9',
+            borderBottomWidth: 1,
+          }}>
+          <Header2 />
+        </View>
         <View style={{flex: 3}}>
           <SubHeader />
         </View>
@@ -96,6 +221,7 @@ class index extends Component {
           </View>
           <View style={{flex: 4, alignItems: 'center'}}>
             <TouchableOpacity
+              onPress={() => this.openNewItemModal(!newItemModal)}
               style={{
                 height: '70%',
                 width: '90%',
@@ -107,6 +233,230 @@ class index extends Component {
               }}>
               <Text style={{color: 'white', fontSize: 17}}>New</Text>
             </TouchableOpacity>
+            <Modal
+              animationType="slide"
+              backDropOpacity={1}
+              visible={newItemModal}
+              onRequestClose={() => {
+                Alert.alert('Modal has been closed.');
+                this.openNewItemModal(!newItemModal);
+              }}>
+              <View
+                style={{
+                  marinTop: 20,
+                  flex: 1,
+
+                  justifyContent: 'center',
+                }}>
+                <View style={{flex: 1, opacity: 0}}></View>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    marginTop: 20,
+                    flex: 2,
+                    backgroundColor: '#412916',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}>
+                  <View style={{flex: 7, marginLeft: 10}}>
+                    <Text style={{color: 'white'}}>
+                      Manual log- Add new item
+                    </Text>
+                  </View>
+                  <View style={{flex: 1}}>
+                    <Pressable
+                      style={{borderRadius: 20, padding: 10, elevation: 2}}
+                      onPress={() => this.openNewItemModal(!newItemModal)}>
+                      <Image
+                        style={{
+                          height: 18,
+                          width: 18,
+                          tintColor: 'white',
+                          resizeMode: 'contain',
+                        }}
+                        source={img.cancelIcon}
+                      />
+                    </Pressable>
+                  </View>
+                </View>
+                <View style={{flex: 20}}>
+                  <View style={{flex: 2, margin: 10}}>
+                    <DatePicker />
+                  </View>
+                  <View
+                    style={{
+                      flex: 1,
+                      margin: 10,
+                      borderWidth: 1,
+                      borderColor: '#A2A2A2',
+                      padding: 10,
+                      justifyContent: 'center',
+                    }}>
+                    <RNPickerSelect
+                     onValueChange={value => this.selectItem(value)}
+                      placeholder={{label: 'Select', value: null}}
+                      items={[
+                        {label: 'Bar', value: 'Bar'},
+                        {label: 'Restaurant', value: 'Restaurant'},
+                        {label: 'Other', value: 'Other'},
+                        {label: 'Retail', value: 'Retail'},
+                      ]}
+                    />
+                  </View>
+                  <View
+                    style={{
+                      flex: 1,
+                      margin: 10,
+                      borderWidth: 1,
+                      borderColor: '#A2A2A2',
+                      padding: 10,
+                      justifyContent: 'center',
+                    }}>
+                    <TextInput
+                      onChangeText={textQuantity =>
+                        this.setState({textQuantity})
+                      }
+                      value={this.state.textQuantity}
+                      placeholder="quantity"
+                    />
+                  </View>
+                  <Text style={{margin: 10}}>Note :</Text>
+                  <View
+                    style={{
+                      flex: 4,
+                      margin: 10,
+                      borderWidth: 1,
+                      borderColor: '#A2A2A2',
+                      padding: 10,
+                    }}>
+                    <TextInput
+                      multiline={true}
+                      numberOfLines={4}
+                      onChangeText={note => this.setState({note})}
+                      value={this.state.note}
+                      placeholder="Notes"
+                    />
+                  </View>
+                  <View
+                    style={{
+                      flex: 1,
+                      margin: 10,
+                      borderWidth: 1,
+                      borderColor: '#A2A2A2',
+                      padding: 10,
+                    }}>
+                    <RNPickerSelect
+                    onValueChange={value => this.selectType(value)}
+                      placeholder={{label: 'Select type', value: null}}
+                      items={[
+                        {label: '', value: 'Bar'},
+                        {label: '', value: 'Restaurant'},
+                        {label: '', value: 'Other'},
+                        {label: '', value: 'Retail'},
+                      ]}
+                    />
+                  </View>
+
+                  <View
+                    style={{
+                      borderWidth: 1,
+                      padding: 10,
+                      borderColor: '#A2A2A2',
+                      marginTop: 15,
+                      flexDirection: 'row',
+                      flex: 12,
+                    }}>
+                    <View style={{flex: 2, alignItems: 'center'}}>
+                      <TouchableOpacity
+                        onPress={() => this.openNewItemModal(!newItemModal)}
+                        style={{
+                          flexDirection: 'row',
+                          height: '15%',
+                          width: '65%',
+                          backgroundColor: '#94C01F',
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                          marginTop: '1%',
+                          borderRadius: 10,
+                        }}>
+                        <View>
+                          <View
+                            style={{
+                              flex: 1,
+                              alignItems: 'center',
+                              flexDirection: 'row',
+                            }}>
+                            <Image
+                              style={{
+                                height: 20,
+                                width: 20,
+                                tintColor: 'white',
+                                resizeMode: 'contain',
+                                marginLeft: 5,
+                              }}
+                              source={img.checkIcon}
+                            />
+                            <Text
+                              style={{
+                                marginLeft: 5,
+                                color: 'white',
+                                fontSize: 18,
+                                fontWeight: 'bold',
+                              }}>
+                              Save
+                            </Text>
+                          </View>
+                        </View>
+                      </TouchableOpacity>
+                    </View>
+
+                    <View style={{flex: 2}}>
+                      <TouchableOpacity
+                        onPress={() => this.openNewItemModal(!newItemModal)}
+                        style={{
+                          flexDirection: 'row',
+                          height: '15%',
+                          width: '65%',
+                          backgroundColor: '#E6940B',
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                          marginTop: '1%',
+                          borderRadius: 10,
+                        }}>
+                        <View>
+                          <View
+                            style={{
+                              flex: 1,
+                              alignItems: 'center',
+                              flexDirection: 'row',
+                            }}>
+                            <Image
+                              style={{
+                                height: 20,
+                                width: 20,
+                                tintColor: 'white',
+                                resizeMode: 'contain',
+                                marginLeft: 5,
+                              }}
+                              source={img.cancelIcon}
+                            />
+                            <Text
+                              style={{
+                                marginLeft: 5,
+                                color: 'white',
+                                fontSize: 18,
+                                fontWeight: 'bold',
+                              }}>
+                              Close
+                            </Text>
+                          </View>
+                        </View>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                </View>
+              </View>
+            </Modal>
           </View>
           <View style={{flex: 4, alignItems: 'center'}}>
             <TouchableOpacity
@@ -120,18 +470,18 @@ class index extends Component {
                 alignItems: 'center',
               }}
               onPress={() => this.props.navigation.navigate('HomeScreen')}>
-              <Text style={{color: 'white', fontSize: 17}}>Back</Text>
+              <Text style={{color: 'white'}}>Back</Text>
             </TouchableOpacity>
           </View>
         </View>
-        <View style={{flex: 25}}>
-          <View style={{flex: 2, alignItems: 'center'}}>
+        <View style={{flex: 6}}>
+          <View style={{flex: 8, alignItems: 'center'}}>
             <TouchableOpacity
               style={{
-                height: '50%',
+                height: '60%',
                 width: '90%',
                 backgroundColor: '#94C036',
-                marginTop: '5%%',
+                marginTop: '3%%',
                 borderRadius: 10,
                 justifyContent: 'center',
                 alignItems: 'center',
@@ -140,54 +490,68 @@ class index extends Component {
             </TouchableOpacity>
           </View>
 
-          {this.state.dropdowns.map(item => {
+          <View style={{flex: 9, marginLeft: 20}}>
+            <Accordion
+              sections={SECTIONS}
+              activeSections={this.state.activeSections}
+              renderSectionTitle={this._renderSectionTitle}
+              renderHeader={this._renderHeader}
+              renderContent={this._renderContent}
+              onChange={this._updateSections}
+            />
+          </View>
+
+          {/* {this.state.dropdowns.map(dropdown => {
             return (
-              <View style={{flex: 3, alignItems: 'center'}}>
-                <TouchableOpacity
-                  onPress={() => this.showData(!item.showLog, item.id)}
-                  style={{
-                    height: '35%',
-                    width: '90%',
-                    backgroundColor: '#EAEAF0',
-                    marginTop: '1%',
-                    borderColor: '#D1D1D6',
-                    borderWidth: 1,
-                    flexDirection: 'row',
-                  }}>
-                  <View>
-                    {item.showLog ? (
-                      <View>
+              <View style={{flex: 2}}>
+                <View style={{flex: 1, alignItems: 'center'}}>
+                  <TouchableOpacity
+                    onPress={() =>
+                      this.showData(!dropdown.showLog, dropdown.id)
+                    }
+                    style={{
+                      height: '90%',
+                      width: '90%',
+                      backgroundColor: '#EAEAF0',
+                      marginTop: '1%',
+                      borderColor: '#D1D1D6',
+                      borderWidth: 1,
+                      flexDirection: 'row',
+                    }}>
+                    <View>
+                      {dropdown.showLog ? (
+                        <View>
+                          <Image
+                            style={{
+                              height: 20,
+                              width: 20,
+                              resizeMode: 'contain',
+                            }}
+                            source={dropdown.icon2}
+                          />
+                        </View>
+                      ) : (
                         <Image
                           style={{
                             height: 20,
                             width: 20,
                             resizeMode: 'contain',
                           }}
-                          source={item.icon2}
+                          source={dropdown.icon1}
                         />
-                        <Text>{item.data.name}</Text>
-                      </View>
-                    ) : (
-                      <Image
-                        style={{
-                          height: 20,
-                          width: 20,
-                          resizeMode: 'contain',
-                        }}
-                        source={item.icon1}
-                      />
-                    )}
-                  </View>
-                  <View>
-                    <Text style={{fontSize: 17}}>{item.name}</Text>
-                  </View>
-                  <View></View>
-                </TouchableOpacity>
+                      )}
+                    </View>
+                    <View>
+                      <Text style={{fontSize: 17}}>{dropdown.title}</Text>
+                    </View>
+                  </TouchableOpacity>
+                </View>
               </View>
             );
-          })}
+          })} */}
         </View>
-      </View>
+        <View style={{flex: 10}}></View>
+      </SafeAreaView>
     );
   }
 }

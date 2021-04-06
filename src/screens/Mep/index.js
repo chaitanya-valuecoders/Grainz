@@ -43,7 +43,6 @@ class index extends Component {
         <View style={{flex: 2}}>
           <SubHeader />
         </View>
-
         <View
           style={{
             backgroundColor: '#412916',
@@ -51,7 +50,9 @@ class index extends Component {
             alignItems: 'center',
             justifyContent: 'center',
           }}>
-          <Text style={{fontSize: 22, color: 'white', marginTop : 8}}>MISE-EN-PLACE</Text>
+          <Text style={{fontSize: 22, color: 'white', marginTop: 8}}>
+            MISE-EN-PLACE
+          </Text>
           {this.state.buttons.map(item => {
             return (
               <View style={{flex: 1, justifyContent: 'center'}}>
@@ -123,8 +124,8 @@ class index extends Component {
             );
           })}
         </View>
-        <View style={{flex:13}}>
-            <Text></Text>
+        <View style={{flex: 13}}>
+          <Text></Text>
         </View>
       </View>
     );
