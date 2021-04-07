@@ -6,6 +6,7 @@ import {
   Image,
   ScrollView,
   ActivityIndicator,
+  Switch,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {connect} from 'react-redux';
@@ -17,7 +18,13 @@ import {
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
 import {UserTokenAction} from '../../redux/actions/UserTokenAction';
-import {getMyProfileApi, getPendingMeps} from '../../connectivity/api';
+import {
+  getMyProfileApi,
+  getPendingMepsApi,
+  deleteMepApi,
+  getMepsHistoryApi,
+  getMepsOldHistoryApi,
+} from '../../connectivity/api';
 import Modal from 'react-native-modal';
 import Accordion from 'react-native-collapsible/Accordion';
 import moment from 'moment';
@@ -36,10 +43,15 @@ class index extends Component {
       firstName: '',
       modalVisibleAdd: false,
       activeSections: [],
-      show: false,
       SECTIONS: [],
       recipeLoader: false,
       modalVisibleRecipeDetails: false,
+      sectionData: {},
+      isMakeMeStatus: true,
+      makeMeText: 'Make me',
+      SECTIONS_HISTORY: [],
+      activeSectionsHistory: [],
+      recipeLoaderHistory: true,
     };
   }
 
@@ -51,9 +63,10 @@ class index extends Component {
     this.setState({modalVisibleAdd: visible});
   };
 
-  setModalVisibleRecipeDetails = visible => {
+  setModalVisibleRecipeDetails = (visible, data) => {
     this.setState({
       modalVisibleRecipeDetails: visible,
+      sectionData: data,
     });
   };
 
@@ -91,7 +104,7 @@ class index extends Component {
         recipeLoader: true,
       },
       () =>
-        getPendingMeps()
+        getPendingMepsApi()
           .then(res => {
             this.setState({
               SECTIONS: res.data,
@@ -111,7 +124,31 @@ class index extends Component {
   componentDidMount() {
     this.getData();
     this.getPendingMepsData();
+    this.getHistoryMepData();
   }
+
+  getHistoryMepData = () => {
+    this.setState(
+      {
+        recipeLoaderHistory: true,
+      },
+      () =>
+        getMepsHistoryApi()
+          .then(res => {
+            this.setState({
+              SECTIONS_HISTORY: res.data,
+              recipeLoaderHistory: false,
+            });
+          })
+          .catch(err => {
+            console.log('ERR MEP', err);
+
+            this.setState({
+              recipeLoaderHistory: false,
+            });
+          }),
+    );
+  };
 
   myProfile = () => {
     this.props.navigation.navigate('MyProfile');
@@ -120,6 +157,7 @@ class index extends Component {
   onPressFun = item => {
     if (item.name === 'History') {
       this.setModalVisible(true);
+      this.getHistoryMepData();
     } else if (item.name === 'Add new') {
       this.setModalVisibleAdd(true);
     } else if (item.name === 'Back') {
@@ -129,20 +167,53 @@ class index extends Component {
 
   onPressCollapseFun = () => {
     this.setState({
-      show: false,
       activeSections: [],
     });
   };
 
-  showLogFun = () => {
-    alert('asd');
+  onPressCollapseHisFun = () => {
     this.setState({
-      show: !this.state.show,
+      activeSectionsHistory: [],
     });
   };
 
   _renderHeader = section => {
-    const {show} = this.state;
+    const finalData = moment(section.productionDate).format(
+      'dddd, MMM DD YYYY',
+    );
+    return (
+      <View
+        style={{
+          backgroundColor: '#EAEAF1',
+          flexDirection: 'row',
+          borderWidth: 1,
+          borderColor: '#D1D1D6',
+          height: 60,
+          marginTop: hp('2%'),
+          alignItems: 'center',
+        }}>
+        <Image
+          style={{
+            height: 18,
+            width: 18,
+            resizeMode: 'contain',
+            marginLeft: wp('2%'),
+          }}
+          source={img.arrowRightIcon}
+        />
+        <Text
+          style={{
+            color: '#98989B',
+            fontSize: 15,
+            fontWeight: 'bold',
+            marginLeft: wp('2%'),
+          }}>
+          {finalData}
+        </Text>
+      </View>
+    );
+  };
+  _renderHeaderHistory = section => {
     const finalData = moment(section.productionDate).format(
       'dddd, MMM DD YYYY',
     );
@@ -186,7 +257,9 @@ class index extends Component {
           <View style={{flexDirection: 'row', alignItems: 'center'}}>
             <View style={{flex: 2}}>
               <TouchableOpacity
-                onPress={() => this.setModalVisibleRecipeDetails(true)}>
+                onPress={() =>
+                  this.setModalVisibleRecipeDetails(true, section)
+                }>
                 <Text
                   style={{
                     fontSize: 14,
@@ -217,14 +290,133 @@ class index extends Component {
     );
   };
 
+  _renderContentHistory = section => {
+    return (
+      <View style={{marginTop: hp('2%')}}>
+        <View>
+          <View style={{flexDirection: 'row', alignItems: 'center'}}>
+            <View style={{flex: 2}}>
+              <TouchableOpacity
+                onPress={() =>
+                  this.setState(
+                    {
+                      modalVisible: false,
+                    },
+                    () =>
+                      setTimeout(() => {
+                        this.setModalVisibleRecipeDetails(true, section);
+                      }, 500),
+                  )
+                }>
+                <Text
+                  numberOfLines={1}
+                  style={{
+                    fontSize: 14,
+                    fontWeight: 'bold',
+                    textAlign: 'center',
+                  }}>
+                  {section.name}
+                </Text>
+              </TouchableOpacity>
+            </View>
+            <View style={{flex: 1, alignItems: 'center'}}>
+              <Text>{section.quantity} g</Text>
+            </View>
+          </View>
+        </View>
+      </View>
+    );
+  };
+
   _updateSections = activeSections => {
     this.setState({
       activeSections,
     });
   };
+  _updateSectionsHistory = activeSectionsHistory => {
+    this.setState({
+      activeSectionsHistory,
+    });
+  };
 
   saveRecipeDetailsFun = () => {
     alert('Details Saved');
+  };
+
+  toggleSwitchNotif = () => {
+    const {isMakeMeStatus} = this.state;
+    if (isMakeMeStatus) {
+      this.setState({
+        isMakeMeStatus: false,
+        makeMeText: 'Done',
+      });
+    } else {
+      this.setState({
+        isMakeMeStatus: true,
+        makeMeText: 'Make me',
+      });
+    }
+  };
+
+  deleteMepFun = () => {
+    const {sectionData} = this.state;
+    console.warn('sect', sectionData);
+    let payload = {
+      id: sectionData.id,
+      recipeVersionId: sectionData.recipeVersionId,
+      userId: sectionData.userId,
+      preparedById: 'string',
+      madeBy: 'string',
+      requestedBy: 'string',
+      preparedBy: 'string',
+      isPrepared: sectionData.isPrepared,
+      isRecycled: sectionData.isRecycled,
+      isTracked: sectionData.isTracked,
+      name: sectionData.name,
+      unit: sectionData.unit,
+      productionDate: sectionData.productionDate,
+      preparedDate: sectionData.preparedDate,
+      recipeId: sectionData.recipeId,
+      quantity: sectionData.quantity,
+      notes: sectionData.notes,
+    };
+    deleteMepApi(payload)
+      .then(res => {
+        this.setState(
+          {
+            modalVisibleRecipeDetails: false,
+            sectionData: '',
+          },
+          () => this.getPendingMepsData(),
+        );
+      })
+      .catch(err => {
+        console.warn('ERRDeleteMep', err);
+      });
+  };
+
+  getOldMepHistoryData = () => {
+    const {SECTIONS_HISTORY} = this.state;
+    this.setState(
+      {
+        recipeLoaderHistory: true,
+      },
+      () =>
+        getMepsOldHistoryApi()
+          .then(res => {
+            this.setState({
+              SECTIONS_HISTORY: [...SECTIONS_HISTORY, ...res.data],
+              recipeLoaderHistory: false,
+            });
+          })
+          .catch(err => {
+            console.log('ERR MEP', err);
+
+            this.setState({
+              recipeLoaderHistory: false,
+            });
+          }),
+    );
   };
 
   render() {
@@ -237,6 +429,12 @@ class index extends Component {
       firstName,
       buttons,
       modalVisibleRecipeDetails,
+      sectionData,
+      isMakeMeStatus,
+      makeMeText,
+      SECTIONS_HISTORY,
+      activeSectionsHistory,
+      recipeLoaderHistory,
     } = this.state;
     return (
       <View style={{flex: 1}}>
@@ -294,7 +492,7 @@ class index extends Component {
                       <View
                         style={{
                           width: wp('80%'),
-                          height: hp('70%'),
+                          height: hp('80%'),
                           backgroundColor: '#fff',
                           alignSelf: 'center',
                         }}>
@@ -334,13 +532,14 @@ class index extends Component {
                             </TouchableOpacity>
                           </View>
                         </View>
-                        <ScrollView>
-                          <View style={{padding: hp('5%')}}>
-                            <View
-                              style={{
-                                height: hp('50%'),
-                              }}>
+                        <ScrollView style={{marginBottom: hp('2%')}}>
+                          <View
+                            style={{
+                              padding: hp('5%'),
+                            }}>
+                            <View style={{}}>
                               <TouchableOpacity
+                                onPress={() => this.onPressCollapseHisFun()}
                                 style={{
                                   height: hp('5%'),
                                   width: wp('50%'),
@@ -354,27 +553,66 @@ class index extends Component {
                                   Collapse All
                                 </Text>
                               </TouchableOpacity>
-                            </View>
-                            <View style={{}}>
-                              <TouchableOpacity
-                                onPress={() => this.setModalVisible(false)}
-                                style={{
-                                  width: wp('15%'),
-                                  height: hp('5%'),
-                                  alignSelf: 'flex-end',
-                                  backgroundColor: '#E7943B',
-                                  justifyContent: 'center',
-                                  alignItems: 'center',
-                                }}>
-                                <Text
+                              {recipeLoaderHistory ? (
+                                <ActivityIndicator
+                                  color="#94C036"
+                                  size="large"
+                                />
+                              ) : (
+                                <View
                                   style={{
-                                    color: '#fff',
-                                    fontSize: 15,
-                                    fontWeight: 'bold',
+                                    marginTop: hp('3%'),
                                   }}>
-                                  Close
-                                </Text>
-                              </TouchableOpacity>
+                                  <Accordion
+                                    expandMultiple
+                                    underlayColor="#fff"
+                                    sections={SECTIONS_HISTORY}
+                                    activeSections={activeSectionsHistory}
+                                    renderHeader={this._renderHeaderHistory}
+                                    renderContent={this._renderContentHistory}
+                                    onChange={this._updateSectionsHistory}
+                                  />
+                                  <TouchableOpacity
+                                    onPress={() => this.getOldMepHistoryData()}
+                                    style={{
+                                      height: hp('8%'),
+                                      width: wp('60%'),
+                                      backgroundColor: '#F5F5F5',
+                                      alignSelf: 'center',
+                                      marginTop: hp('5%'),
+                                      alignItems: 'center',
+                                      justifyContent: 'center',
+                                    }}>
+                                    <Text
+                                      style={{color: '#717171', fontSize: 16}}>
+                                      View More (7 more days)
+                                    </Text>
+                                  </TouchableOpacity>
+                                  <View style={{marginVertical: hp('3%')}}>
+                                    <TouchableOpacity
+                                      onPress={() =>
+                                        this.setModalVisible(false)
+                                      }
+                                      style={{
+                                        width: wp('50%'),
+                                        height: hp('5%'),
+                                        alignSelf: 'center',
+                                        backgroundColor: '#E7943B',
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                      }}>
+                                      <Text
+                                        style={{
+                                          color: '#fff',
+                                          fontSize: 15,
+                                          fontWeight: 'bold',
+                                        }}>
+                                        Close
+                                      </Text>
+                                    </TouchableOpacity>
+                                  </View>
+                                </View>
+                              )}
                             </View>
                           </View>
                         </ScrollView>
@@ -492,7 +730,7 @@ class index extends Component {
                               justifyContent: 'center',
                             }}>
                             <Text style={{fontSize: 16, color: '#fff'}}>
-                              MISE-EN-PLACE BUILDER
+                              MISE-EN-PLACE DETAILS
                             </Text>
                           </View>
                           <View
@@ -525,28 +763,58 @@ class index extends Component {
                               }}>
                               <View
                                 style={{
-                                  height: hp('10%'),
+                                  height: hp('12%'),
                                 }}>
                                 <Text
                                   style={{
-                                    color: 'black',
+                                    color: '#7F7F7F',
                                     fontSize: 16,
                                     fontWeight: 'bold',
-                                    marginLeft: 10,
                                   }}>
-                                  Delete
+                                  {sectionData !== undefined
+                                    ? sectionData.name
+                                    : null}
                                 </Text>
+                                <View
+                                  style={{
+                                    marginTop: hp('1%'),
+                                    flexDirection: 'row',
+                                    alignItems: 'center',
+                                  }}>
+                                  <Switch
+                                    style={{width: '20%'}}
+                                    trackColor={{
+                                      false: '#767577',
+                                      true: '#94C036',
+                                    }}
+                                    value={isMakeMeStatus}
+                                    onValueChange={() =>
+                                      this.toggleSwitchNotif()
+                                    }
+                                    thumbColor="#fff"
+                                  />
+                                  <Text
+                                    style={{
+                                      color: '#7F7F7F',
+                                      marginLeft: wp('4%'),
+                                      fontWeight: '900',
+                                    }}>
+                                    {makeMeText}
+                                  </Text>
+                                </View>
                               </View>
+
                               <TouchableOpacity
                                 style={{
                                   height: hp('5%'),
-                                  width: wp('70%'),
+                                  width: wp('62%'),
                                   backgroundColor: 'red',
                                   alignSelf: 'center',
                                   alignItems: 'center',
                                   justifyContent: 'center',
                                   flexDirection: 'row',
-                                }}>
+                                }}
+                                onPress={() => this.deleteMepFun()}>
                                 <Image
                                   source={img.cancelIcon}
                                   style={{
