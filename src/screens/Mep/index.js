@@ -437,16 +437,14 @@ class index extends Component {
       recipeLoaderHistory,
     } = this.state;
     return (
-      <View style={{flex: 1}}>
+      <View style={{flex: 1, backgroundColor: '#fff'}}>
         <Header
           logout={firstName}
           logoutFun={this.myProfile}
           logoFun={() => this.props.navigation.navigate('HomeScreen')}
         />
         <SubHeader />
-        <ScrollView
-          style={{marginBottom: hp('5%')}}
-          showsVerticalScrollIndicator="false">
+        <ScrollView style={{marginBottom: hp('5%')}}>
           <View
             style={{
               backgroundColor: '#412916',
@@ -458,7 +456,7 @@ class index extends Component {
             </Text>
             {buttons.map((item, index) => {
               return (
-                <View style={{}}>
+                <View style={{}} key={index}>
                   <TouchableOpacity
                     onPress={() => this.onPressFun(item)}
                     style={{
@@ -488,7 +486,7 @@ class index extends Component {
                     </View>
                   </TouchableOpacity>
                   <View>
-                    <Modal isVisible={modalVisible}>
+                    <Modal isVisible={modalVisible} backdropOpacity={0.35}>
                       <View
                         style={{
                           width: wp('80%'),
@@ -618,7 +616,7 @@ class index extends Component {
                         </ScrollView>
                       </View>
                     </Modal>
-                    <Modal isVisible={modalVisibleAdd}>
+                    <Modal isVisible={modalVisibleAdd} backdropOpacity={0.35}>
                       <View
                         style={{
                           width: wp('80%'),
@@ -709,7 +707,9 @@ class index extends Component {
                       </View>
                     </Modal>
 
-                    <Modal isVisible={modalVisibleRecipeDetails}>
+                    <Modal
+                      isVisible={modalVisibleRecipeDetails}
+                      backdropOpacity={0.35}>
                       <View
                         style={{
                           width: wp('80%'),
