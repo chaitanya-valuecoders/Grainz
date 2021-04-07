@@ -26,3 +26,13 @@ export async function getMyProfileApi() {
     },
   });
 }
+
+export async function getPendingMeps() {
+  const token = await AsyncStorage.getItem('@appToken');
+  console.warn;
+  return axios.get(baseURL + '/Recipe/pending meps', {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+}

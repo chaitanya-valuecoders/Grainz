@@ -1,5 +1,12 @@
 import React, {Component} from 'react';
-import {View, Text, TouchableOpacity, Image, ScrollView} from 'react-native';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Image,
+  ScrollView,
+  ActivityIndicator,
+} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {connect} from 'react-redux';
 import img from '../../constants/images';
@@ -10,9 +17,10 @@ import {
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
 import {UserTokenAction} from '../../redux/actions/UserTokenAction';
-import {getMyProfileApi} from '../../connectivity/api';
+import {getMyProfileApi, getPendingMeps} from '../../connectivity/api';
 import Modal from 'react-native-modal';
 import Accordion from 'react-native-collapsible/Accordion';
+import moment from 'moment';
 
 class index extends Component {
   constructor(props) {
@@ -29,27 +37,9 @@ class index extends Component {
       modalVisibleAdd: false,
       activeSections: [],
       show: false,
-      SECTIONS: [
-        {
-          id: 0,
-          title: 'Mon Mar 24 2021',
-          icon1: img.arrowRightIcon,
-          icon2: img.arrowDownIcon,
-          showLog: false,
-          data: [{name: 'Almond', quantity: 20, desc: 'This is note'}],
-        },
-        {
-          id: 1,
-          content: 'content',
-          title: 'Tue Mar 25 2021',
-          icon1: img.arrowRightIcon,
-          icon2: img.arrowDownIcon,
-          showLog: false,
-          data: [
-            {name: 'Veggie burger', quantity: '100', desc: 'This is note new'},
-          ],
-        },
-      ],
+      SECTIONS: [],
+      recipeLoader: false,
+      modalVisibleRecipeDetails: false,
     };
   }
 
@@ -59,6 +49,12 @@ class index extends Component {
 
   setModalVisibleAdd = visible => {
     this.setState({modalVisibleAdd: visible});
+  };
+
+  setModalVisibleRecipeDetails = visible => {
+    this.setState({
+      modalVisibleRecipeDetails: visible,
+    });
   };
 
   getData = async () => {
@@ -89,8 +85,32 @@ class index extends Component {
       });
   };
 
+  getPendingMepsData = () => {
+    this.setState(
+      {
+        recipeLoader: true,
+      },
+      () =>
+        getPendingMeps()
+          .then(res => {
+            this.setState({
+              SECTIONS: res.data,
+              recipeLoader: false,
+            });
+          })
+          .catch(err => {
+            console.log('ERR MEP', err);
+
+            this.setState({
+              recipeLoader: false,
+            });
+          }),
+    );
+  };
+
   componentDidMount() {
     this.getData();
+    this.getPendingMepsData();
   }
 
   myProfile = () => {
@@ -123,6 +143,9 @@ class index extends Component {
 
   _renderHeader = section => {
     const {show} = this.state;
+    const finalData = moment(section.productionDate).format(
+      'dddd, MMM DD YYYY',
+    );
     return (
       <View
         style={{
@@ -134,27 +157,15 @@ class index extends Component {
           marginTop: hp('2%'),
           alignItems: 'center',
         }}>
-        {show ? (
-          <Image
-            style={{
-              height: 18,
-              width: 18,
-              resizeMode: 'contain',
-              marginLeft: wp('2%'),
-            }}
-            source={section.icon2}
-          />
-        ) : (
-          <Image
-            style={{
-              height: 18,
-              width: 18,
-              resizeMode: 'contain',
-              marginLeft: wp('2%'),
-            }}
-            source={section.icon1}
-          />
-        )}
+        <Image
+          style={{
+            height: 18,
+            width: 18,
+            resizeMode: 'contain',
+            marginLeft: wp('2%'),
+          }}
+          source={img.arrowRightIcon}
+        />
         <Text
           style={{
             color: '#98989B',
@@ -162,7 +173,7 @@ class index extends Component {
             fontWeight: 'bold',
             marginLeft: wp('2%'),
           }}>
-          {section.title}
+          {finalData}
         </Text>
       </View>
     );
@@ -171,35 +182,37 @@ class index extends Component {
   _renderContent = section => {
     return (
       <View style={{marginTop: hp('2%')}}>
-        {section.data.map(item => {
-          return (
-            <View>
-              <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                <View style={{flex: 2}}>
-                  <Text style={{fontSize: 14, fontWeight: 'bold'}}>
-                    {item.name}
-                  </Text>
-                </View>
-                <View style={{flex: 1}}>
-                  <Text>{item.quantity} g</Text>
-                </View>
-                <View style={{flex: 1, alignItems: 'center'}}>
-                  <TouchableOpacity
-                    style={{backgroundColor: '#94C036', padding: 5}}>
-                    <Text style={{fontSize: 13, color: '#fff'}}>
-                      View Recipe
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-              <View>
-                <Text style={{fontSize: 12, marginLeft: wp('5%')}}>
-                  {item.desc}
+        <View>
+          <View style={{flexDirection: 'row', alignItems: 'center'}}>
+            <View style={{flex: 2}}>
+              <TouchableOpacity
+                onPress={() => this.setModalVisibleRecipeDetails(true)}>
+                <Text
+                  style={{
+                    fontSize: 14,
+                    fontWeight: 'bold',
+                    textAlign: 'center',
+                  }}>
+                  {section.name}
                 </Text>
-              </View>
+              </TouchableOpacity>
             </View>
-          );
-        })}
+            <View style={{flex: 1, alignItems: 'center'}}>
+              <Text>{section.quantity} g</Text>
+            </View>
+            <View style={{flex: 1, alignItems: 'center'}}>
+              <TouchableOpacity
+                style={{backgroundColor: '#94C036', padding: 5}}>
+                <Text style={{fontSize: 13, color: '#fff'}}>View Recipe</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+          <View>
+            <Text style={{fontSize: 12, marginLeft: wp('5%')}}>
+              {section.notes}
+            </Text>
+          </View>
+        </View>
       </View>
     );
   };
@@ -210,12 +223,25 @@ class index extends Component {
     });
   };
 
+  saveRecipeDetailsFun = () => {
+    alert('Details Saved');
+  };
+
   render() {
-    const {modalVisible, modalVisibleAdd} = this.state;
+    const {
+      modalVisible,
+      modalVisibleAdd,
+      recipeLoader,
+      SECTIONS,
+      activeSections,
+      firstName,
+      buttons,
+      modalVisibleRecipeDetails,
+    } = this.state;
     return (
       <View style={{flex: 1}}>
         <Header
-          logout={this.state.firstName}
+          logout={firstName}
           logoutFun={this.myProfile}
           logoFun={() => this.props.navigation.navigate('HomeScreen')}
         />
@@ -232,7 +258,7 @@ class index extends Component {
             <Text style={{fontSize: 22, color: 'white', marginTop: 8}}>
               MISE-EN-PLACE
             </Text>
-            {this.state.buttons.map((item, index) => {
+            {buttons.map((item, index) => {
               return (
                 <View style={{}}>
                   <TouchableOpacity
@@ -444,6 +470,151 @@ class index extends Component {
                         </ScrollView>
                       </View>
                     </Modal>
+
+                    <Modal isVisible={modalVisibleRecipeDetails}>
+                      <View
+                        style={{
+                          width: wp('80%'),
+                          height: hp('90%'),
+                          backgroundColor: '#fff',
+                          alignSelf: 'center',
+                        }}>
+                        <View
+                          style={{
+                            backgroundColor: '#412916',
+                            height: hp('7%'),
+                            flexDirection: 'row',
+                          }}>
+                          <View
+                            style={{
+                              flex: 3,
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                            }}>
+                            <Text style={{fontSize: 16, color: '#fff'}}>
+                              MISE-EN-PLACE BUILDER
+                            </Text>
+                          </View>
+                          <View
+                            style={{
+                              flex: 1,
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                            }}>
+                            <TouchableOpacity
+                              onPress={() =>
+                                this.setModalVisibleRecipeDetails(false)
+                              }>
+                              <Image
+                                source={img.cancelIcon}
+                                style={{
+                                  height: 22,
+                                  width: 22,
+                                  tintColor: 'white',
+                                  resizeMode: 'contain',
+                                }}
+                              />
+                            </TouchableOpacity>
+                          </View>
+                        </View>
+                        <ScrollView>
+                          <View style={{padding: hp('5%')}}>
+                            <View
+                              style={{
+                                height: hp('80%'),
+                              }}>
+                              <View
+                                style={{
+                                  height: hp('10%'),
+                                }}>
+                                <Text
+                                  style={{
+                                    color: 'black',
+                                    fontSize: 16,
+                                    fontWeight: 'bold',
+                                    marginLeft: 10,
+                                  }}>
+                                  Delete
+                                </Text>
+                              </View>
+                              <TouchableOpacity
+                                style={{
+                                  height: hp('5%'),
+                                  width: wp('70%'),
+                                  backgroundColor: 'red',
+                                  alignSelf: 'center',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  flexDirection: 'row',
+                                }}>
+                                <Image
+                                  source={img.cancelIcon}
+                                  style={{
+                                    height: 22,
+                                    width: 22,
+                                    tintColor: 'white',
+                                    resizeMode: 'contain',
+                                  }}
+                                />
+                                <Text
+                                  style={{
+                                    color: '#fff',
+                                    fontSize: 16,
+                                    fontWeight: 'bold',
+                                    marginLeft: 10,
+                                  }}>
+                                  Delete
+                                </Text>
+                              </TouchableOpacity>
+                            </View>
+                            <View
+                              style={{
+                                flexDirection: 'row',
+                                justifyContent: 'space-between',
+                              }}>
+                              <TouchableOpacity
+                                onPress={() => this.saveRecipeDetailsFun()}
+                                style={{
+                                  width: wp('30%'),
+                                  height: hp('5%'),
+                                  backgroundColor: '#94C036',
+                                  justifyContent: 'center',
+                                  alignItems: 'center',
+                                }}>
+                                <Text
+                                  style={{
+                                    color: '#fff',
+                                    fontSize: 15,
+                                    fontWeight: 'bold',
+                                  }}>
+                                  Save
+                                </Text>
+                              </TouchableOpacity>
+                              <TouchableOpacity
+                                onPress={() =>
+                                  this.setModalVisibleRecipeDetails(false)
+                                }
+                                style={{
+                                  width: wp('30%'),
+                                  height: hp('5%'),
+                                  backgroundColor: '#E7943B',
+                                  justifyContent: 'center',
+                                  alignItems: 'center',
+                                }}>
+                                <Text
+                                  style={{
+                                    color: '#fff',
+                                    fontSize: 15,
+                                    fontWeight: 'bold',
+                                  }}>
+                                  Close
+                                </Text>
+                              </TouchableOpacity>
+                            </View>
+                          </View>
+                        </ScrollView>
+                      </View>
+                    </Modal>
                   </View>
                 </View>
               );
@@ -465,17 +636,21 @@ class index extends Component {
               <Text style={{color: 'white', marginLeft: 5}}>Collapse All</Text>
             </View>
           </TouchableOpacity>
-          <View style={{marginTop: hp('3%'), marginHorizontal: wp('5%')}}>
-            <Accordion
-              expandMultiple
-              underlayColor="#fff"
-              sections={this.state.SECTIONS}
-              activeSections={this.state.activeSections}
-              renderHeader={this._renderHeader}
-              renderContent={this._renderContent}
-              onChange={this._updateSections}
-            />
-          </View>
+          {recipeLoader ? (
+            <ActivityIndicator color="#94C036" size="large" />
+          ) : (
+            <View style={{marginTop: hp('3%'), marginHorizontal: wp('5%')}}>
+              <Accordion
+                expandMultiple
+                underlayColor="#fff"
+                sections={SECTIONS}
+                activeSections={activeSections}
+                renderHeader={this._renderHeader}
+                renderContent={this._renderContent}
+                onChange={this._updateSections}
+              />
+            </View>
+          )}
         </ScrollView>
       </View>
     );
