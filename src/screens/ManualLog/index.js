@@ -2,7 +2,11 @@ import React, {Component, useState} from 'react';
 import {NativeModules, SafeAreaView} from 'react-native';
 import Accordion from 'react-native-collapsible/Accordion';
 import RNPickerSelect from 'react-native-picker-select';
-
+import {
+  widthPercentageToDP as wp,
+  heightPercentageToDP as hp,
+} from 'react-native-responsive-screen';
+import {getManualLogList} from '../../connectivity/api';
 import {
   View,
   Text,
@@ -13,23 +17,18 @@ import {
   Modal,
   TextInput,
   StyleSheet,
+  ActivityIndicator,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {UserTokenAction} from '../../redux/actions/UserTokenAction';
 import {connect} from 'react-redux';
 import MepScreen from '../Mep';
 import SubHeader from '../../components/SubHeader';
-import Header2 from '../../components/Header2';
+import Header from '../../components/Header';
 import HomeScreen from '../Home';
 import img from '../../constants/images';
 import {set} from 'react-native-reanimated';
 import DatePicker from '../../components/DatePicker';
-
-const mockData = [
-  {id: 1, name: 'React Native Developer', checked: true}, // set default checked for render option item
-  {id: 2, name: 'Android Developer'},
-  {id: 3, name: 'iOS Developer'},
-];
 
 var SECTIONS = [
   {
@@ -86,24 +85,41 @@ var SECTIONS = [
   },
 ];
 
+const axios = require('axios');
+
 class index extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      isLoading: true,
+      dataSource: [],
       textQuantity: '',
       note: '',
       show: false,
       activeSections: [],
       newItemModal: false,
-      newItem : '',
-      itemtype: ''
-
+      newItem: '',
+      itemtype: '',
     };
+  }
+
+  componentDidMount() {
+   this.getManualLogListData()
+  }
+
+  getManualLogListData(){
+    getManualLogList()
+    .then(res => this.setState({dataSource : res.data, isLoading : false}))
+     .catch(err => { 
+        console.warn('ERr', err.response);
+      });
   }
 
   showLog() {
     this.setState({show: true});
   }
+
+ 
 
   _renderSectionTitle = section => {
     return <View style={{backgroundColor: '#EAEAF0'}}></View>;
@@ -190,12 +206,12 @@ class index extends Component {
     this.setState({newItemModal: param});
   }
 
-  selectItem(value){
-      this.setState({newitem : 'new item'})
+  selectItem(value) {
+    this.setState({newitem: 'new item'});
   }
 
-  selectType(value){
-      this.setState({itemType : 'type'})
+  selectType(value) {
+    this.setState({itemType: 'type'});
   }
 
   render() {
@@ -208,7 +224,7 @@ class index extends Component {
             borderBottomColor: '#ada9a9',
             borderBottomWidth: 1,
           }}>
-          <Header2 />
+          <Header />
         </View>
         <View style={{flex: 3}}>
           <SubHeader />
@@ -293,7 +309,7 @@ class index extends Component {
                       justifyContent: 'center',
                     }}>
                     <RNPickerSelect
-                     onValueChange={value => this.selectItem(value)}
+                      onValueChange={value => this.selectItem(value)}
                       placeholder={{label: 'Select', value: null}}
                       items={[
                         {label: 'Bar', value: 'Bar'},
@@ -346,14 +362,9 @@ class index extends Component {
                       padding: 10,
                     }}>
                     <RNPickerSelect
-                    onValueChange={value => this.selectType(value)}
+                      onValueChange={value => this.selectType(value)}
                       placeholder={{label: 'Select type', value: null}}
-                      items={[
-                        {label: '', value: 'Bar'},
-                        {label: '', value: 'Restaurant'},
-                        {label: '', value: 'Other'},
-                        {label: '', value: 'Retail'},
-                      ]}
+                      items={this.state.dataSource}
                     />
                   </View>
 
@@ -550,7 +561,25 @@ class index extends Component {
             );
           })} */}
         </View>
-        <View style={{flex: 10}}></View>
+        <View style={{flex: 10}}>
+        <View style={{flex: 3}}>
+          {this.state.isLoading ? (
+            <View>
+              <ActivityIndicator />
+            </View>
+          ) : (
+            <View>
+              {this.state.dataSource.map((item, key) => {
+                return (
+                  <View key={key}>
+                    <Text>{item.name}</Text>
+                  </View>
+                );
+              })}
+            </View>
+          )}
+        </View>
+        </View>
       </SafeAreaView>
     );
   }

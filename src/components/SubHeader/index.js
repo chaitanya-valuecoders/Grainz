@@ -24,9 +24,9 @@ class SubHeader extends Component {
           borderBottomColor: 'grey',
           alignItems: 'center',
         }}>
-        {this.state.buttons.map(item => {
+        {this.state.buttons.map((item,key) => {
           return (
-            <View
+            <View key={key} 
               style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
               <TouchableOpacity
                 style={{

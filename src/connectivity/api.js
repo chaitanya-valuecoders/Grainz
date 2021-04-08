@@ -36,3 +36,13 @@ export async function getPendingMeps() {
     },
   });
 }
+
+export async function getManualLogList() {
+  const token = await AsyncStorage.getItem('@appToken');
+  console.warn;
+  return axios.get(baseURL + '/ManualLog/manual logs', {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+}

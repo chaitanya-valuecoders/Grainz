@@ -3,10 +3,10 @@ import {View, Text, Image, StyleSheet} from 'react-native';
 import DatePicker from 'react-native-datepicker';
 
 class index extends Component {
-    constructor(props){
-        super(props);
-        this.state = {date: '2021-03-26'};
-    }
+  constructor(props) {
+    super(props);
+    this.state = {date: '2021-03-26'};
+  }
   render() {
     return (
       <View>
