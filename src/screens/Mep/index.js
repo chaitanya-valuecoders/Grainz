@@ -7,6 +7,7 @@ import {
   ScrollView,
   ActivityIndicator,
   Switch,
+  TextInput,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {connect} from 'react-redux';
@@ -24,10 +25,19 @@ import {
   deleteMepApi,
   getMepsHistoryApi,
   getMepsOldHistoryApi,
+  getMepRecipesApi,
+  newMepListApi,
 } from '../../connectivity/api';
 import Modal from 'react-native-modal';
 import Accordion from 'react-native-collapsible/Accordion';
 import moment from 'moment';
+import DateTimePickerModal from 'react-native-modal-datetime-picker';
+import {MultipleSelectPicker} from 'react-native-multi-select-picker';
+
+var minTime = new Date();
+minTime.setHours(0);
+minTime.setMinutes(0);
+minTime.setMilliseconds(0);
 
 class index extends Component {
   constructor(props) {
@@ -52,6 +62,13 @@ class index extends Component {
       SECTIONS_HISTORY: [],
       activeSectionsHistory: [],
       recipeLoaderHistory: true,
+      isDatePickerVisible: false,
+      finalDate: '',
+      selectectedItems: [],
+      isShownPicker: false,
+      items: [],
+      productionDate: '',
+      applyStatus: false,
     };
   }
 
@@ -160,6 +177,14 @@ class index extends Component {
       this.getHistoryMepData();
     } else if (item.name === 'Add new') {
       this.setModalVisibleAdd(true);
+      this.setState({
+        selectectedItems: [],
+        preparedDate: '',
+        finalDate: '',
+        items: [],
+        isShownPicker: false,
+        applyStatus: false,
+      });
     } else if (item.name === 'Back') {
       this.props.navigation.goBack();
     }
@@ -360,7 +385,6 @@ class index extends Component {
 
   deleteMepFun = () => {
     const {sectionData} = this.state;
-    console.warn('sect', sectionData);
     let payload = {
       id: sectionData.id,
       recipeVersionId: sectionData.recipeVersionId,
@@ -391,7 +415,7 @@ class index extends Component {
         );
       })
       .catch(err => {
-        console.warn('ERRDeleteMep', err);
+        console.warn('ERRDeleteMep', err.response);
       });
   };
 
@@ -419,6 +443,117 @@ class index extends Component {
     );
   };
 
+  onPressApplyFun = () => {
+    this.setState(
+      {
+        isShownPicker: false,
+        applyStatus: true,
+      },
+      () => this.createpayloadFun(),
+    );
+  };
+
+  createpayloadFun = () => {
+    let newData = [];
+    const {selectectedItems, productionDate} = this.state;
+    selectectedItems.map(item => {
+      console.log('ITEM', item);
+      const obj = {};
+      obj.isSelected = true;
+      obj.notes = '';
+      obj.productionDate = productionDate;
+      obj.quantity = item.quantity;
+      obj.recipeId = item.value;
+      obj.name = item.label;
+      newData = [...newData, obj];
+    });
+    this.setState({
+      selectectedItems: newData,
+    });
+  };
+
+  hideDatePicker = () => {
+    this.setState({
+      isDatePickerVisible: false,
+    });
+  };
+
+  getRecipesData = () => {
+    const {finalDate} = this.state;
+    getMepRecipesApi(finalDate)
+      .then(res => {
+        const {data} = res;
+        let newData = [];
+        data.map(item => {
+          const obj = {};
+          obj.label = item.name;
+          obj.value = item.id;
+          obj.quantity = item.batchQuantity;
+          newData = [...newData, obj];
+        });
+        this.setState({
+          items: newData,
+        });
+      })
+      .catch(err => {
+        console.warn('Err', err);
+      });
+  };
+
+  handleConfirm = date => {
+    let newdate = moment(date).format('L');
+    this.setState(
+      {
+        finalDate: newdate,
+        productionDate: date,
+      },
+      () => this.getRecipesData(),
+    );
+
+    this.hideDatePicker();
+  };
+
+  showDatePickerFun = () => {
+    this.setState({
+      isDatePickerVisible: true,
+    });
+  };
+
+  addMepListFun = () => {
+    const {selectectedItems, productionDate} = this.state;
+
+    if (productionDate === '' || selectectedItems.length === 0) {
+      alert('Please select date and recipe');
+    } else {
+      newMepListApi(selectectedItems)
+        .then(res => {
+          this.setState(
+            {
+              modalVisibleAdd: false,
+              selectectedItems: [],
+            },
+            () => this.getPendingMepsData(),
+          );
+        })
+        .catch(err => {
+          console.warn('ERRDeleteMep', err.response);
+        });
+    }
+  };
+
+  openRecipeDropDown = () => {
+    const {applyStatus} = this.state;
+    if (applyStatus) {
+      this.setState({
+        isShownPicker: false,
+      });
+    } else {
+      this.setState({
+        isShownPicker: true,
+      });
+    }
+  };
+
   render() {
     const {
       modalVisible,
@@ -435,7 +570,14 @@ class index extends Component {
       SECTIONS_HISTORY,
       activeSectionsHistory,
       recipeLoaderHistory,
+      isDatePickerVisible,
+      finalDate,
+      isShownPicker,
+      selectectedItems,
+      items,
+      applyStatus,
     } = this.state;
+
     return (
       <View style={{flex: 1, backgroundColor: '#fff'}}>
         <Header
@@ -620,7 +762,7 @@ class index extends Component {
                       <View
                         style={{
                           width: wp('80%'),
-                          height: hp('70%'),
+                          height: isShownPicker ? hp('90%') : hp('60%'),
                           backgroundColor: '#fff',
                           alignSelf: 'center',
                         }}>
@@ -662,14 +804,101 @@ class index extends Component {
                         </View>
                         <ScrollView>
                           <View style={{padding: hp('5%')}}>
-                            <View
-                              style={{
-                                height: hp('50%'),
-                              }}>
+                            <View style={{}}>
+                              <View style={{marginBottom: 10}}>
+                                <Text>Production Date</Text>
+                              </View>
                               <TouchableOpacity
+                                onPress={() => this.showDatePickerFun()}
+                                style={{
+                                  borderWidth: 1,
+                                  padding: 10,
+                                  marginBottom: hp('4%'),
+                                  flexDirection: 'row',
+                                  justifyContent: 'space-between',
+                                }}>
+                                <TextInput
+                                  placeholder="dd-mm-yy"
+                                  value={finalDate}
+                                  editable={false}
+                                />
+                                <Image
+                                  source={img.calenderIcon}
+                                  style={{
+                                    width: 20,
+                                    height: 20,
+                                    resizeMode: 'contain',
+                                  }}
+                                />
+                              </TouchableOpacity>
+                              <TouchableOpacity
+                                onPress={() => {
+                                  this.openRecipeDropDown();
+                                }}
+                                style={{
+                                  borderWidth: 1,
+                                  padding: 10,
+                                  flexDirection: 'row',
+                                  justifyContent: 'space-between',
+                                }}>
+                                {selectectedItems.length > 0 ? (
+                                  <View>
+                                    {applyStatus ? (
+                                      <View>
+                                        {selectectedItems.map(item => {
+                                          return (
+                                            <View style={{marginTop: hp('1%')}}>
+                                              <Text>{item.name}</Text>
+                                            </View>
+                                          );
+                                        })}
+                                      </View>
+                                    ) : selectectedItems.length > 0 ? (
+                                      <View>
+                                        {selectectedItems.map(item => {
+                                          return (
+                                            <View style={{marginTop: hp('1%')}}>
+                                              <Text>{item.label}</Text>
+                                            </View>
+                                          );
+                                        })}
+                                      </View>
+                                    ) : null}
+                                  </View>
+                                ) : (
+                                  <Text>Select recipe</Text>
+                                )}
+                                <Image
+                                  source={img.arrowDownIcon}
+                                  style={{
+                                    width: 15,
+                                    height: 15,
+                                    resizeMode: 'contain',
+                                  }}
+                                />
+                              </TouchableOpacity>
+                              {isShownPicker ? (
+                                <MultipleSelectPicker
+                                  items={items}
+                                  onSelectionsChange={ele => {
+                                    this.setState({selectectedItems: ele});
+                                  }}
+                                  selectedItems={selectectedItems}
+                                  buttonStyle={{
+                                    height: 100,
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                  }}
+                                  buttonText="hello"
+                                  checkboxStyle={{height: 20, width: 20}}
+                                />
+                              ) : null}
+
+                              <TouchableOpacity
+                                onPress={() => this.onPressApplyFun()}
                                 style={{
                                   height: hp('5%'),
-                                  width: wp('50%'),
+                                  width: wp('60%'),
                                   backgroundColor: '#94C036',
                                   alignSelf: 'center',
                                   marginTop: hp('5%'),
@@ -677,30 +906,67 @@ class index extends Component {
                                   justifyContent: 'center',
                                 }}>
                                 <Text style={{color: '#fff', fontSize: 16}}>
-                                  Collapse All
+                                  Apply
                                 </Text>
                               </TouchableOpacity>
-                            </View>
-                            <View style={{}}>
-                              <TouchableOpacity
-                                onPress={() => this.setModalVisibleAdd(false)}
+                              <View
                                 style={{
-                                  width: wp('15%'),
-                                  height: hp('5%'),
-                                  alignSelf: 'flex-end',
-                                  backgroundColor: '#E7943B',
-                                  justifyContent: 'center',
+                                  flexDirection: 'row',
                                   alignItems: 'center',
+                                  justifyContent: 'flex-end',
+                                  marginTop: hp('5%'),
                                 }}>
-                                <Text
+                                <TouchableOpacity
+                                  onPress={() => this.addMepListFun()}
                                   style={{
-                                    color: '#fff',
-                                    fontSize: 15,
-                                    fontWeight: 'bold',
+                                    width: wp('15%'),
+                                    height: hp('5%'),
+                                    alignSelf: 'flex-end',
+                                    backgroundColor: '#94C036',
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
                                   }}>
-                                  Close
-                                </Text>
-                              </TouchableOpacity>
+                                  <Text
+                                    style={{
+                                      color: '#fff',
+                                      fontSize: 15,
+                                      fontWeight: 'bold',
+                                    }}>
+                                    Save
+                                  </Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity
+                                  onPress={() => this.setModalVisibleAdd(false)}
+                                  style={{
+                                    width: wp('15%'),
+                                    height: hp('5%'),
+                                    alignSelf: 'flex-end',
+                                    backgroundColor: '#E7943B',
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                    marginLeft: wp('2%'),
+                                  }}>
+                                  <Text
+                                    style={{
+                                      color: '#fff',
+                                      fontSize: 15,
+                                      fontWeight: 'bold',
+                                    }}>
+                                    Close
+                                  </Text>
+                                </TouchableOpacity>
+                              </View>
+                              <DateTimePickerModal
+                                // is24Hour={true}
+                                isVisible={isDatePickerVisible}
+                                mode={'date'}
+                                onConfirm={this.handleConfirm}
+                                onCancel={this.hideDatePicker}
+                                minimumDate={minTime}
+
+                                // maximumDate={maxTime}
+                                // minimumDate={new Date()}
+                              />
                             </View>
                           </View>
                         </ScrollView>

@@ -68,7 +68,6 @@ export const deleteMepApi = async payload => {
 export const getMepRecipesApi = async date => {
   let url = baseURL + `/Recipe/mep recipes?productionDate=${date}`;
   const token = await AsyncStorage.getItem('@appToken');
-  console.warn('url', url);
   return axios.get(url, {
     headers: {
       Authorization: `Bearer ${token}`,
