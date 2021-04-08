@@ -65,19 +65,21 @@ export const deleteMepApi = async payload => {
   });
 };
 
-// export const getGraphDetails = async (payload) => {
-//   let {limit, month} = payload;
-//   let url = baseURL + `/users/getAmountEarned`;
-//   const token = await AsyncStorage.getItem('App-Token');
-//   if (month === undefined || month === null) {
-//     url = url + `?limit=${limit}`;
-//   } else {
-//     url = url + `?limit=${limit}&month=${month}`;
-//   }
-//   console.warn('url', url);
-//   return axios.get(url, {
-//     headers: {
-//       Authorization: `Bearer ${token}`,
-//     },
-//   });
-// };
+export const getMepRecipesApi = async date => {
+  let url = baseURL + `/Recipe/mep recipes?productionDate=${date}`;
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.get(url, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+export const newMepListApi = async payload => {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.post(baseURL + '/Recipe/new mep list', payload, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};

@@ -10,4 +10,5 @@ export default {
   grainzLogo: require('../assests/Images/logo.png'),
   cancelIcon: require('../assests/Images/cancel.png'),
   checkIcon: require('../assests/Images/check.png'),
+  calenderIcon: require('../assests/Images/calender.png'),
 };

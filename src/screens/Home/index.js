@@ -22,7 +22,7 @@ class index extends Component {
         {name: 'MISE-EN-PLACE', icon: img.addIcon, screen: 'MepScreen'},
         {name: 'Recipes', icon: img.searchIcon, screen: 'MepScreen'},
         {name: 'Menu items', icon: img.searchIcon, screen: 'MepScreen'},
-        {name: 'Manual log', icon: img.addIcon, screen: 'ManualLogScreen'},
+        {name: 'Manual log', icon: img.addIcon, screen: 'MepScreen'},
         {name: 'Deliveries', icon: img.addIcon, screen: 'MepScreen'},
         {
           name: 'Casual purchase',
