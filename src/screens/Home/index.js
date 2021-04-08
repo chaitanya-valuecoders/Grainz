@@ -24,7 +24,11 @@ class index extends Component {
         {name: 'Menu items', icon: img.searchIcon, screen: 'MepScreen'},
         {name: 'Manual log', icon: img.addIcon, screen: 'ManualLogScreen'},
         {name: 'Deliveries', icon: img.addIcon, screen: 'MepScreen'},
-        {name: 'Casual purchase', icon: img.addIcon, screen: 'CasualPurchaseScreen'},
+        {
+          name: 'Casual purchase',
+          icon: img.addIcon,
+          screen: 'CasualPurchaseScreen',
+        },
         {name: 'Stock take', icon: img.addIcon, screen: 'MepScreen'},
         {name: 'Events', icon: img.addIcon, screen: 'MepScreen'},
       ],
@@ -76,19 +80,18 @@ class index extends Component {
 
   render() {
     return (
-      <View style={{flex: 1}}>
+      <View style={{flex: 1, backgroundColor: '#fff'}}>
         <Header
           logout={this.state.firstName}
           logoutFun={this.myProfile}
           logoFun={() => this.props.navigation.navigate('HomeScreen')}
         />
         <SubHeader />
-        <ScrollView
-          style={{marginTop: hp('2%'), marginBottom: hp('2%')}}
-          showsVerticalScrollIndicator="false">
-          {this.state.buttons.map(item => {
+        <ScrollView style={{marginTop: hp('2%'), marginBottom: hp('2%')}}>
+          {this.state.buttons.map((item, index) => {
             return (
               <View
+                key={index}
                 style={{
                   flex: 1,
                 }}>

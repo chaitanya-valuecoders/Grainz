@@ -6,8 +6,9 @@ import {
 
 const styles = StyleSheet.create({
   container: {
-    marginTop : '10%',
+    marginTop: '10%',
     flex: 1,
+    backgroundColor: '#fff',
   },
   tinyLogo: {
     width: 50,

@@ -74,7 +74,7 @@ class index extends Component {
       lastName,
     } = this.state;
     return (
-      <View style={{flex: 1}}>
+      <View style={{flex: 1, backgroundColor: '#fff'}}>
         <Header
           logout="Log Out"
           logoutFun={this.removeToken}

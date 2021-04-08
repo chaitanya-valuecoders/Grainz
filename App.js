@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {SafeAreaView, Text} from 'react-native';
+import {SafeAreaView, StatusBar} from 'react-native';
 import Navigation from './src/navigations';
 import {Provider} from 'react-redux';
 import store from './src/redux/reducers';
@@ -19,6 +19,11 @@ class App extends Component {
   render() {
     return (
       <SafeAreaView style={{flex: 1}}>
+        <StatusBar
+          animated={true}
+          backgroundColor="#fff"
+          barStyle="dark-content"
+        />
         <NavigationContainer>
           <Provider store={store}>
             <Navigation />

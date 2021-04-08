@@ -72,8 +72,8 @@ class index extends Component {
     if (this.verification()) {
       const {email, password} = this.state;
       const payload = {
-        username: email,
-        password: password,
+        username: email.trim(),
+        password: password.trim(),
         grant_type: 'password',
       };
 
@@ -108,11 +108,13 @@ class index extends Component {
       <View style={styles.container}>
         <Header headerTitle="Grainz" />
         <KeyboardAwareScrollView
-          showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="always"
-          enableOnAndroid
-          contentContainerStyle={{flex: 1}}>
-          <View style={{flex: 1}}>
+          enableOnAndroid>
+          <View
+            style={{
+              height: hp('80%'),
+              justifyContent: 'center',
+            }}>
             <View
               style={{
                 flex: 1,
@@ -207,7 +209,11 @@ class index extends Component {
               </View>
             </View>
             <View
-              style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+              style={{
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginTop: hp('10%'),
+              }}>
               <TouchableOpacity
                 onPress={() => this.props.navigation.navigate('AboutUsScreen')}>
                 <Text style={{fontSize: 25, color: 'grey', fontWeight: 'bold'}}>

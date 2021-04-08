@@ -20,26 +20,22 @@ const index = () => {
         />
       </View>
       <View style={styles.container}>
-          <Picker
-            selectedValue={selectedValue}
-            style={{height: 30, width: '100%'}}
-            onValueChange={(itemValue, itemIndex) =>
-              setSelectedValue(itemValue)
-
-            }>
-            <Picker.Item label="Java" value="java" />
-            <Picker.Item label="JavaScript" value="js" />
-          </Picker>
-        </View>
+        <Picker
+          selectedValue={selectedValue}
+          style={{height: 30, width: '100%'}}
+          onValueChange={(itemValue, itemIndex) => setSelectedValue(itemValue)}>
+          <Picker.Item label="Java" value="java" />
+          <Picker.Item label="JavaScript" value="js" />
+        </Picker>
+      </View>
       <View>
         <View style={{flex: 1, flexDirection: 'row'}}>
           <Text>Nick</Text>
-          <Image
+          {/* <Image
             style={{height: 20, width: 40, resizeMode: 'contain'}}
             source={img.profileIcon}
-          />
+          /> */}
         </View>
-        
       </View>
     </View>
   );

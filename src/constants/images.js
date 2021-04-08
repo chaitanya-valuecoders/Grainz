@@ -8,7 +8,6 @@ export default {
   appLogo: require('../assests/Images/logo.png'),
   deleteIcon: require('../assests/Images/delete.png'),
   grainzLogo: require('../assests/Images/logo.png'),
-  profileIcon: require('../assests/Images/profile.png'),
   cancelIcon: require('../assests/Images/cancel.png'),
   checkIcon: require('../assests/Images/check.png'),
 };
