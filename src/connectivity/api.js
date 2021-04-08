@@ -84,3 +84,13 @@ export const newMepListApi = async payload => {
     },
   });
 };
+
+export async function getManualLogList() {
+  const token = await AsyncStorage.getItem('@appToken');
+  console.warn;
+  return axios.get(baseURL + '/Manuallog/manual logs', {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+}

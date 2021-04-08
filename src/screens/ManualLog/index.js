@@ -30,61 +30,6 @@ import img from '../../constants/images';
 import {set} from 'react-native-reanimated';
 import DatePicker from '../../components/DatePicker';
 
-var SECTIONS = [
-  {
-    id: 0,
-    content: 'content',
-    title: 'Mon Mar 24 2021',
-    icon1: img.arrowRightIcon,
-    icon2: img.arrowDownIcon,
-    showLog: false,
-    data: [
-      {name: 'eau', type: 'Inventory', units: 20},
-      {name: 'riz', type: 'Inventory', units: 20},
-      {name: 'tomates', type: 'Inventory', units: 20},
-    ],
-  },
-  {
-    id: 1,
-    content: 'content',
-    title: 'Tue Mar 25 2021',
-    icon1: img.arrowRightIcon,
-    icon2: img.arrowDownIcon,
-    showLog: false,
-    data: [
-      {name: 'Veggie burger', type: 'Inventory', units: 20},
-      {name: 'poivrons', type: 'Inventory', units: 20},
-      {name: 'pomme de terre', type: 'Inventory', units: 20},
-    ],
-  },
-  {
-    id: 2,
-    content: 'content',
-    title: 'Wed Mar 26 2021',
-    icon1: img.arrowRightIcon,
-    icon2: img.arrowDownIcon,
-    showLog: false,
-    data: [
-      {name: 'baguette', type: 'Inventory', units: 20},
-      {name: 'baguette', type: 'Inventory', units: 20},
-      {name: 'baguette', type: 'Inventory', units: 20},
-    ],
-  },
-  {
-    id: 3,
-    content: 'content',
-    title: 'Thur Mar 27 2021',
-    icon1: img.arrowRightIcon,
-    icon2: img.arrowDownIcon,
-    showLog: true,
-    data: [
-      {name: 'poichiches', type: 'Inventory', units: 20},
-      {name: 'baguette', type: 'Inventory', units: 20},
-      {name: 'baguette', type: 'Inventory', units: 20},
-    ],
-  },
-];
-
 const axios = require('axios');
 
 class index extends Component {
@@ -104,13 +49,13 @@ class index extends Component {
   }
 
   componentDidMount() {
-   this.getManualLogListData()
+    this.getManualLogListData();
   }
 
-  getManualLogListData(){
+  getManualLogListData() {
     getManualLogList()
-    .then(res => this.setState({dataSource : res.data, isLoading : false}))
-     .catch(err => { 
+      .then(res => this.setState({dataSource: res.data, isLoading: false}))
+      .catch(err => {
         console.warn('ERr', err.response);
       });
   }
@@ -118,89 +63,6 @@ class index extends Component {
   showLog() {
     this.setState({show: true});
   }
-
- 
-
-  _renderSectionTitle = section => {
-    return <View style={{backgroundColor: '#EAEAF0'}}></View>;
-  };
-
-  _renderHeader = section => {
-    var showLog = this.state.show;
-    return (
-      <View
-        style={{
-          backgroundColor: '#EAEAF0',
-          flexDirection: 'row',
-          borderWidth: 1,
-          borderColor: '#D1D1D6',
-          height: 35,
-        }}
-        onPress={this.showLog}>
-        {showLog ? (
-          <Image
-            style={{
-              height: 20,
-              width: 20,
-              resizeMode: 'contain',
-            }}
-            source={section.icon2}
-          />
-        ) : (
-          <Image
-            style={{
-              height: 20,
-              width: 20,
-              resizeMode: 'contain',
-            }}
-            source={section.icon1}
-          />
-        )}
-        <Text>{section.title}</Text>
-      </View>
-    );
-  };
-
-  _renderContent = section => {
-    return (
-      <View style={{flex: 8}}>
-        {section.data.map(item => {
-          return (
-            <View style={{flexDirection: 'row'}}>
-              <View style={{flex: 1, width: '50%'}}>
-                <Text>
-                  {item.name} {item.type} {item.units}units
-                </Text>
-              </View>
-
-              <View style={{marginLeft: '2%'}}>
-                <TouchableOpacity
-                  style={{
-                    width: '12%',
-                  }}>
-                  <View style={{flex: 3}}>
-                    <Image
-                      style={{
-                        height: 18,
-                        width: 18,
-                        tintColor: 'black',
-                        resizeMode: 'contain',
-                      }}
-                      source={img.deleteIcon}
-                    />
-                  </View>
-                </TouchableOpacity>
-              </View>
-            </View>
-          );
-        })}
-      </View>
-    );
-  };
-
-  _updateSections = activeSections => {
-    this.setState({activeSections});
-  };
 
   openNewItemModal(param) {
     this.setState({newItemModal: param});
@@ -501,85 +363,33 @@ class index extends Component {
             </TouchableOpacity>
           </View>
 
-          <View style={{flex: 9, marginLeft: 20}}>
-            <Accordion
-              sections={SECTIONS}
-              activeSections={this.state.activeSections}
-              renderSectionTitle={this._renderSectionTitle}
-              renderHeader={this._renderHeader}
-              renderContent={this._renderContent}
-              onChange={this._updateSections}
-            />
-          </View>
-
-          {/* {this.state.dropdowns.map(dropdown => {
-            return (
-              <View style={{flex: 2}}>
-                <View style={{flex: 1, alignItems: 'center'}}>
-                  <TouchableOpacity
-                    onPress={() =>
-                      this.showData(!dropdown.showLog, dropdown.id)
-                    }
-                    style={{
-                      height: '90%',
-                      width: '90%',
-                      backgroundColor: '#EAEAF0',
-                      marginTop: '1%',
-                      borderColor: '#D1D1D6',
-                      borderWidth: 1,
-                      flexDirection: 'row',
-                    }}>
-                    <View>
-                      {dropdown.showLog ? (
-                        <View>
-                          <Image
-                            style={{
-                              height: 20,
-                              width: 20,
-                              resizeMode: 'contain',
-                            }}
-                            source={dropdown.icon2}
-                          />
-                        </View>
-                      ) : (
-                        <Image
-                          style={{
-                            height: 20,
-                            width: 20,
-                            resizeMode: 'contain',
-                          }}
-                          source={dropdown.icon1}
-                        />
-                      )}
-                    </View>
-                    <View>
-                      <Text style={{fontSize: 17}}>{dropdown.title}</Text>
-                    </View>
-                  </TouchableOpacity>
-                </View>
+        </View>
+        {/* <View style={{flex: 10}}>
+          <View style={{flex: 3}}>
+            {this.state.isLoading ? (
+              <View>
+                <ActivityIndicator />
               </View>
-            );
-          })} */}
-        </View>
-        <View style={{flex: 10}}>
-        <View style={{flex: 3}}>
-          {this.state.isLoading ? (
-            <View>
-              <ActivityIndicator />
-            </View>
-          ) : (
-            <View>
-              {this.state.dataSource.map((item, key) => {
-                return (
-                  <View key={key}>
-                    <Text>{item.name}</Text>
-                  </View>
-                );
-              })}
-            </View>
-          )}
-        </View>
-        </View>
+            ) : (
+              <View>
+                {this.state.dataSource.map((item, key) => {
+                  return (
+                    <View key={key}>
+                      <Text>{item.name}</Text>
+                    </View>
+                  );
+                })}
+              </View>
+            )}
+          </View> */}
+        {/* </View>
+         */}
+         <View style={{flex : 10}}>
+           <View>
+             <TouchableOpacity></TouchableOpacity>
+           </View>
+
+         </View>
       </SafeAreaView>
     );
   }
