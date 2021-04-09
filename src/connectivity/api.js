@@ -75,6 +75,26 @@ export const getMepRecipesApi = async date => {
   });
 };
 
+export const getMepRecipeByIdsApi = async id => {
+  let url = baseURL + `/Recipe/mepbyid?Id=${id}`;
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.get(url, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+export const getAdvanceRecipeByIdsApi = async recipeId => {
+  let url = baseURL + `/Recipe/recipe advance details?Id=${recipeId}`;
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.get(url, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
 export const newMepListApi = async payload => {
   const token = await AsyncStorage.getItem('@appToken');
   return axios.post(baseURL + '/Recipe/new mep list', payload, {
@@ -88,6 +108,16 @@ export async function getManualLogList() {
   const token = await AsyncStorage.getItem('@appToken');
   console.warn;
   return axios.get(baseURL + '/Manuallog/manual logs', {
+  headers: {
+    Authorization: `Bearer ${token}`,
+  },
+});
+};
+    
+export const updateMepListApi = async payload => {
+  console.warn('PAY', payload);
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.post(baseURL + '/Recipe/update mep list', payload, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
