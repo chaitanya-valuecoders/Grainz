@@ -93,3 +93,13 @@ export async function getManualLogList() {
     },
   });
 }
+
+export const deleteManualLog = async payload => {
+  const token = await AsyncStorage.getItem('@appToken');
+  console.warn;
+  return axios.post(baseURL + '/ManualLog/delete manual log', payload,{
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+}

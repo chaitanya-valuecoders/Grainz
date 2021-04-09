@@ -2,11 +2,13 @@ import React, {Component, useState} from 'react';
 import {NativeModules, SafeAreaView} from 'react-native';
 import Accordion from 'react-native-collapsible/Accordion';
 import RNPickerSelect from 'react-native-picker-select';
+import ToggleSwitch from 'toggle-switch-react-native';
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
-import {getManualLogList} from '../../connectivity/api';
+import {getManualLogList, deleteManualLog} from '../../connectivity/api';
+import moment from 'moment';
 import {
   View,
   Text,
@@ -31,15 +33,16 @@ import img from '../../constants/images';
 import {set} from 'react-native-reanimated';
 import DatePicker from '../../components/DatePicker';
 
-
 const axios = require('axios');
 
 class index extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      toggle: true,
       isLoading: true,
       SECTIONS: [],
+      sectionData: {},
       textQuantity: '',
       note: '',
       show: false,
@@ -54,6 +57,10 @@ class index extends Component {
     this.getManualLogListData();
   }
 
+  collapseAll() {
+    this.setState({activeSections: []});
+  }
+
   getManualLogListData() {
     getManualLogList()
       .then(res => this.setState({SECTIONS: res.data, isLoading: false}))
@@ -62,16 +69,12 @@ class index extends Component {
       });
   }
 
-  showLog() {
-    this.setState({show: true});
-  }
-
   _renderSectionTitle = section => {
     return <View style={{backgroundColor: '#EAEAF0'}}></View>;
   };
 
   _renderHeader = section => {
-    var showLog = this.state.show;
+    const finalData = moment(section.loggedDate).format('dddd, MMM DD YYYY');
     return (
       <View
         style={{
@@ -82,27 +85,15 @@ class index extends Component {
           borderColor: '#D1D1D6',
           height: 60,
           marginTop: hp('2%'),
-        }}
-        onPress={this.showLog}>
-        {showLog ? (
-          <Image
-            style={{
-              height: 20,
-              width: 20,
-              resizeMode: 'contain',
-            }}
-            source={section.icon2}
-          />
-        ) : (
-          <Image
-            style={{
-              height: 20,
-              width: 20,
-              resizeMode: 'contain',
-            }}
-            source={section.icon1}
-          />
-        )}
+        }}>
+        <Image
+          style={{
+            height: 20,
+            width: 20,
+            resizeMode: 'contain',
+          }}
+          source={section.icon2}
+        />
         <Text
           style={{
             color: '#98989B',
@@ -110,45 +101,114 @@ class index extends Component {
             fontWeight: 'bold',
             marginLeft: wp('2%'),
           }}>
-          {section.title}
+          {finalData}
         </Text>
       </View>
     );
   };
 
+  toggleButton() {
+    this.setState({toggle: !this.state.toggle});
+  }
+
+  deleteLog(param) {
+    let payload = {
+      id: param.id,
+      itemId: param.itemId,
+      name: param.name,
+      loggedDate: param.loggedDate,
+      quantity: param.quantity,
+      itemTypeId: param.itemTypeId,
+      typeId: param.typeId,
+      departmentId: param.departmentId,
+      unitId: param.unitId,
+      departmentName: param.departmentName,
+      category: param.category,
+      itemTypeName: param.itemTypeName,
+      typeName: param.typeName,
+      reviewed: param.reviewed,
+      unit: param.unit,
+      userId: param.userId,
+      userFullName: param.userFullName,
+      units: [
+        {
+          id: param.id,
+          inventoryId: param.inventoryId,
+          name: param.name,
+          isDefault: param.isDefault,
+          isVariable: param.isVariable,
+          quantity: param.quantity,
+          converter: param.converter,
+          notes: param.notes,
+          action: param.action,
+        },
+      ],
+      notes: param.notes,
+      inUse: param.inUse,
+      countInInventory: param.countInInventory,
+    };
+    deleteManualLog(payload)
+      .then(response => {
+        this.setState({isLoading: true});
+        this.getManualLogListData();
+      })
+      .catch(error => {
+        console.warn(error);
+      });
+  }
+
   _renderContent = section => {
     return (
       <View style={{flex: 8}}>
-        {section.data.map(item => {
-          return (
-            <View style={{flexDirection: 'row'}}>
-              <View style={{flex: 1, width: '50%'}}>
-                <Text>
-                  {item.name} {item.type} {item.units}units
-                </Text>
-              </View>
+        <View style={{flex: 4, flexDirection: 'row'}}></View>
+        <View style={{flex: 1}}>
+          <ScrollView horizontal={true}>
+            <ToggleSwitch
+              isOn={this.state.toggle}
+              onColor="#94C01F"
+              offColor="#CCCCCC"
+              size="small"
+              onToggle={isOn => this.toggleButton()}
+            />
+            <Text style={{marginLeft: 15, fontWeight: 'bold'}}>
+              {section.name}
+            </Text>
+            {section.notes ? (
+              <Text style={{marginLeft: 15, color: '#8C8C8C'}}>
+                {section.notes}
+              </Text>
+            ) : null}
+            <Text style={{marginLeft: 15, fontWeight: 'bold'}}>
+              {section.itemTypeName}
+            </Text>
+            <Text style={{marginLeft: 15, fontWeight: 'bold'}}>
+              {section.quantity} Units
+            </Text>
+            <Text style={{marginLeft: 15, fontWeight: 'bold'}}>
+              {section.typeName}
+            </Text>
 
-              <View style={{marginLeft: '2%'}}>
-                <TouchableOpacity
-                  style={{
-                    width: '12%',
-                  }}>
-                  <View style={{flex: 3}}>
-                    <Image
-                      style={{
-                        height: 18,
-                        width: 18,
-                        tintColor: 'black',
-                        resizeMode: 'contain',
-                      }}
-                      source={img.deleteIcon}
-                    />
-                  </View>
-                </TouchableOpacity>
-              </View>
-            </View>
-          );
-        })}
+            <Text style={{marginLeft: 15, fontWeight: 'bold'}}>
+              {section.userFullName}
+            </Text>
+            <TouchableOpacity
+              onPress={section => this.deleteLog(section)}
+              style={{
+                width: '12%',
+                marginLeft: 15,
+              }}>
+              <Image
+                style={{
+                  height: 23,
+                  width: 23,
+                  tintColor: 'red',
+                  resizeMode: 'contain',
+                }}
+                source={img.deleteIcon}
+              />
+            </TouchableOpacity>
+          </ScrollView>
+        </View>
       </View>
     );
   };
@@ -170,7 +230,7 @@ class index extends Component {
   }
 
   render() {
-    const {newItemModal} = this.state;
+    const {newItemModal, SECTIONS, activeSections} = this.state;
     return (
       <SafeAreaView style={{flex: 1}}>
         <ScrollView style={{marginBottom: hp('5%')}}>
@@ -187,7 +247,7 @@ class index extends Component {
           </View>
           <View
             className="header"
-            style={{flex: 8, backgroundColor: '#412916'}}>
+            style={{height: hp('20%'), backgroundColor: '#412916'}}>
             <View style={{flex: 2, alignItems: 'center'}}>
               <Text style={{margin: 5, color: 'white', fontSize: 20}}>
                 MANUAL LOG
@@ -201,7 +261,6 @@ class index extends Component {
                   width: '90%',
                   backgroundColor: '#94C036',
                   marginTop: '1%',
-                  borderRadius: 10,
                   alignItems: 'center',
                   justifyContent: 'center',
                 }}>
@@ -319,11 +378,11 @@ class index extends Component {
                         borderColor: '#A2A2A2',
                         padding: 10,
                       }}>
-                      <RNPickerSelect
+                      {/* <RNPickerSelect
                         onValueChange={value => this.selectType(value)}
                         placeholder={{label: 'Select type', value: null}}
                         items={this.state.dataSource}
-                      />
+                      /> */}
                     </View>
 
                     <View
@@ -346,7 +405,6 @@ class index extends Component {
                             justifyContent: 'center',
                             alignItems: 'center',
                             marginTop: '1%',
-                            borderRadius: 10,
                           }}>
                           <View>
                             <View
@@ -390,7 +448,6 @@ class index extends Component {
                             justifyContent: 'center',
                             alignItems: 'center',
                             marginTop: '1%',
-                            borderRadius: 10,
                           }}>
                           <View>
                             <View
@@ -434,7 +491,6 @@ class index extends Component {
                   width: '90%',
                   backgroundColor: '#94C036',
                   marginTop: '1%',
-                  borderRadius: 10,
                   justifyContent: 'center',
                   alignItems: 'center',
                 }}
@@ -444,14 +500,15 @@ class index extends Component {
             </View>
           </View>
           <View style={{flex: 6}}>
-            <View style={{flex: 8, alignItems: 'center'}}>
+            <View style={{flex: 4, alignItems: 'center'}}>
               <TouchableOpacity
+                onPress={() => this.collapseAll()}
                 style={{
-                  height: '60%',
+                  height: '70%',
                   width: '90%',
                   backgroundColor: '#94C036',
                   marginTop: '3%%',
-                  borderRadius: 10,
+                  marginBottom: '7%',
                   justifyContent: 'center',
                   alignItems: 'center',
                 }}>
@@ -459,86 +516,23 @@ class index extends Component {
               </TouchableOpacity>
             </View>
 
-            <View style={{flex: 9, marginLeft: 20}}>
-              <Accordion
-                expandMultiple
-                sections={this.state.SECTIONS}
-                activeSections={this.state.activeSections}
-                renderSectionTitle={this._renderSectionTitle}
-                renderHeader={this._renderHeader}
-                renderContent={this._renderContent}
-                onChange={this._updateSections}
-              />
-            </View>
-
-            {/* {this.state.dropdowns.map(dropdown => {
-            return (
-              <View style={{flex: 2}}>
-                <View style={{flex: 1, alignItems: 'center'}}>
-                  <TouchableOpacity
-                    onPress={() =>
-                      this.showData(!dropdown.showLog, dropdown.id)
-                    }
-                    style={{
-                      height: '90%',
-                      width: '90%',
-                      backgroundColor: '#EAEAF0',
-                      marginTop: '1%',
-                      borderColor: '#D1D1D6',
-                      borderWidth: 1,
-                      flexDirection: 'row',
-                    }}>
-                    <View>
-                      {dropdown.showLog ? (
-                        <View>
-                          <Image
-                            style={{
-                              height: 20,
-                              width: 20,
-                              resizeMode: 'contain',
-                            }}
-                            source={dropdown.icon2}
-                          />
-                        </View>
-                      ) : (
-                        <Image
-                          style={{
-                            height: 20,
-                            width: 20,
-                            resizeMode: 'contain',
-                          }}
-                          source={dropdown.icon1}
-                        />
-                      )}
-                    </View>
-                    <View>
-                      <Text style={{fontSize: 17}}>{dropdown.title}</Text>
-                    </View>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            );
-          })} */}
-          </View>
-          {/* <View style={{flex: 10}}>
-          <View style={{flex: 3}}>
             {this.state.isLoading ? (
-              <View>
-                <ActivityIndicator />
-              </View>
+              <ActivityIndicator color="#94C036" />
             ) : (
-              <View>
-                {this.state.dataSource.map((item, key) => {
-                  return (
-                    <View key={key}>
-                      <Text>{item.name}</Text>
-                    </View>
-                  );
-                })}
+              <View style={{ marginBottom: 10, marginLeft: 10, marginRight: 10}}>
+                <Accordion
+                  underlayColor="#fff"
+                  expandMultiple
+                  sections={SECTIONS}
+                  activeSections={activeSections}
+                  renderSectionTitle={this._renderSectionTitle}
+                  renderHeader={this._renderHeader}
+                  renderContent={this._renderContent}
+                  onChange={this._updateSections}
+                />
               </View>
             )}
           </View>
-        </View> */}
         </ScrollView>
       </SafeAreaView>
     );
