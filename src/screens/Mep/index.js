@@ -8,6 +8,7 @@ import {
   ActivityIndicator,
   Switch,
   TextInput,
+  Alert,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {connect} from 'react-redux';
@@ -61,7 +62,6 @@ class index extends Component {
       modalVisibleRecipeDetails: false,
       sectionData: {},
       isMakeMeStatus: true,
-      makeMeText: 'Make me',
       SECTIONS_HISTORY: [],
       activeSectionsHistory: [],
       recipeLoaderHistory: true,
@@ -75,8 +75,9 @@ class index extends Component {
       detailsLoader: false,
       quantity: '',
       notes: '',
-      advanceDetailsLoader: true,
+      advanceDetailsLoader: false,
       sectionAdvanceData: {},
+      recipeID: '',
     };
   }
 
@@ -132,6 +133,7 @@ class index extends Component {
               modalAdvanceRecipeDetails: visible,
               sectionAdvanceData: res.data,
               advanceDetailsLoader: false,
+              recipeID: data.recipeId,
             });
           })
           .catch(err => {
@@ -186,7 +188,7 @@ class index extends Component {
         getPendingMepsApi()
           .then(res => {
             this.setState({
-              SECTIONS: res.data,
+              SECTIONS: res.data.reverse(),
               recipeLoader: false,
             });
           })
@@ -264,10 +266,13 @@ class index extends Component {
     });
   };
 
-  _renderHeader = section => {
+  _renderHeader = (section, index, isActive) => {
+    var todayFinal = moment(new Date()).format('dddd, MMM DD YYYY');
+
     const finalData = moment(section.productionDate).format(
       'dddd, MMM DD YYYY',
     );
+
     return (
       <View
         style={{
@@ -286,7 +291,7 @@ class index extends Component {
             resizeMode: 'contain',
             marginLeft: wp('2%'),
           }}
-          source={img.arrowRightIcon}
+          source={isActive ? img.arrowDownIcon : img.arrowRightIcon}
         />
         <Text
           style={{
@@ -295,12 +300,12 @@ class index extends Component {
             fontWeight: 'bold',
             marginLeft: wp('2%'),
           }}>
-          {finalData}
+          {todayFinal === finalData ? 'Today' : finalData}
         </Text>
       </View>
     );
   };
-  _renderHeaderHistory = section => {
+  _renderHeaderHistory = (section, index, isActive) => {
     const finalData = moment(section.productionDate).format(
       'dddd, MMM DD YYYY',
     );
@@ -322,7 +327,7 @@ class index extends Component {
             resizeMode: 'contain',
             marginLeft: wp('2%'),
           }}
-          source={img.arrowRightIcon}
+          source={isActive ? img.arrowDownIcon : img.arrowRightIcon}
         />
         <Text
           style={{
@@ -337,11 +342,58 @@ class index extends Component {
     );
   };
 
+  updatePreparedStatusFun = section => {
+    let payload = [
+      {
+        id: section.id,
+        recipeVersionId: section.recipeVersionId,
+        userId: section.userId,
+        preparedById: 'string',
+        madeBy: 'string',
+        requestedBy: 'string',
+        preparedBy: 'string',
+        isPrepared: !section.isPrepared,
+        isRecycled: section.isRecycled,
+        isTracked: section.isTracked,
+        name: section.name,
+        unit: section.unit,
+        productionDate: section.productionDate,
+        preparedDate: section.preparedDate,
+        recipeId: section.recipeId,
+        quantity: section.quantity,
+        notes: section.notes,
+      },
+    ];
+    updateMepListApi(payload)
+      .then(res => {
+        this.setState(
+          {
+            modalVisibleRecipeDetails: false,
+            sectionData: '',
+          },
+          () => this.getPendingMepsData(),
+        );
+      })
+      .catch(err => {
+        console.warn('ERRDeleteMep', err.response);
+      });
+  };
+
   _renderContent = section => {
     return (
       <View style={{marginTop: hp('2%')}}>
         <View>
           <View style={{flexDirection: 'row', alignItems: 'center'}}>
+            <Switch
+              style={{width: '14%'}}
+              trackColor={{
+                false: '#767577',
+                true: '#94C036',
+              }}
+              value={!section.isPrepared}
+              onValueChange={() => this.updatePreparedStatusFun(section)}
+              thumbColor="#fff"
+            />
             <View style={{flex: 2}}>
               <TouchableOpacity
                 onPress={() =>
@@ -352,19 +404,25 @@ class index extends Component {
                     fontSize: 14,
                     fontWeight: 'bold',
                     textAlign: 'center',
+                    marginLeft: wp('2%'),
                   }}>
                   {section.name}
                 </Text>
               </TouchableOpacity>
             </View>
             <View style={{flex: 1, alignItems: 'center'}}>
-              <Text>{section.quantity} g</Text>
+              <Text>
+                {section.quantity} {section.unit}
+              </Text>
             </View>
             <View style={{flex: 1, alignItems: 'center'}}>
               <TouchableOpacity
                 onPress={() => this.setModalAdvanceRecipeDetails(true, section)}
                 style={{backgroundColor: '#94C036', padding: 5}}>
-                <Text style={{fontSize: 13, color: '#fff'}}>View Recipe</Text>
+                <Text
+                  style={{fontSize: 12, color: '#fff', textAlign: 'center'}}>
+                  View Recipe
+                </Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -465,22 +523,16 @@ class index extends Component {
       });
   };
 
-  toggleSwitchNotif = () => {
-    const {isMakeMeStatus} = this.state;
-    if (isMakeMeStatus) {
-      this.setState({
-        isMakeMeStatus: false,
-        makeMeText: 'Done',
-      });
-    } else {
-      this.setState({
-        isMakeMeStatus: true,
-        makeMeText: 'Make me',
-      });
-    }
+  toggleSwitchNotif = data => {
+    this.setState(
+      {
+        modalVisibleRecipeDetails: false,
+      },
+      () => this.updatePreparedStatusFun(data),
+    );
   };
 
-  deleteMepFun = () => {
+  deleteMepFunSec = () => {
     const {sectionData} = this.state;
     let payload = {
       id: sectionData.id,
@@ -516,6 +568,17 @@ class index extends Component {
       });
   };
 
+  deleteMepFun = () => {
+    Alert.alert('Are you sure?', "You won't be able to revert this!", [
+      {
+        text: 'Cancel',
+        onPress: () => console.log('Cancel Pressed'),
+        style: 'cancel',
+      },
+      {text: 'OK', onPress: () => this.deleteMepFunSec()},
+    ]);
+  };
+
   getOldMepHistoryData = () => {
     const {SECTIONS_HISTORY} = this.state;
     this.setState(
@@ -541,20 +604,24 @@ class index extends Component {
   };
 
   onPressApplyFun = () => {
-    this.setState(
-      {
-        isShownPicker: false,
-        applyStatus: true,
-      },
-      () => this.createpayloadFun(),
-    );
+    const {selectectedItems, productionDate, applyStatus} = this.state;
+    if (productionDate === '' || selectectedItems.length === 0) {
+      alert('Please select date and recipe');
+    } else if (applyStatus === false) {
+      this.setState(
+        {
+          isShownPicker: false,
+          applyStatus: true,
+        },
+        () => this.createpayloadFun(),
+      );
+    }
   };
 
   createpayloadFun = () => {
     let newData = [];
     const {selectectedItems, productionDate} = this.state;
     selectectedItems.map(item => {
-      console.log('ITEM', item);
       const obj = {};
       obj.isSelected = true;
       obj.notes = '';
@@ -639,24 +706,32 @@ class index extends Component {
   };
 
   openRecipeDropDown = () => {
-    const {applyStatus} = this.state;
-    if (applyStatus) {
-      this.setState({
-        isShownPicker: false,
-      });
+    const {applyStatus, finalDate} = this.state;
+    if (finalDate) {
+      if (applyStatus) {
+        this.setState({
+          isShownPicker: false,
+        });
+      } else {
+        this.setState({
+          isShownPicker: true,
+        });
+      }
     } else {
-      this.setState({
-        isShownPicker: true,
-      });
+      alert('Please select date first.');
     }
   };
 
   showAdvanceView = () => {
+    const {recipeID} = this.state;
     this.setState(
       {
         modalAdvanceRecipeDetails: false,
       },
-      () => this.props.navigation.navigate('MepAdvanceScreen'),
+      () =>
+        this.props.navigation.navigate('MepAdvanceScreen', {
+          recipeID: recipeID,
+        }),
     );
   };
 
@@ -672,7 +747,6 @@ class index extends Component {
       modalVisibleRecipeDetails,
       sectionData,
       isMakeMeStatus,
-      makeMeText,
       SECTIONS_HISTORY,
       activeSectionsHistory,
       recipeLoaderHistory,
@@ -1247,26 +1321,45 @@ class index extends Component {
                                     borderTopColor: '#E5E5E5',
                                     marginVertical: hp('1%'),
                                   }}></View>
-                                <View
-                                  style={{
-                                    flexDirection: 'row',
-                                    alignItems: 'center',
-                                    paddingVertical: 10,
-                                  }}>
-                                  <View style={{flex: 1, alignItems: 'center'}}>
-                                    <Text
-                                      style={{
-                                        color: '#4C4B4B',
-                                        fontWeight: 'bold',
-                                        textAlign: 'center',
-                                      }}>
-                                      {sectionAdvanceData.name}
-                                    </Text>
-                                  </View>
-                                  <View style={{flex: 1, alignItems: 'center'}}>
-                                    <Text style={{color: '#212529'}}>50 g</Text>
-                                  </View>
-                                </View>
+                                {Object.keys(sectionAdvanceData).length !== 0
+                                  ? sectionAdvanceData.recipeVersions[0].ingredients.map(
+                                      item => {
+                                        return (
+                                          <View
+                                            style={{
+                                              flexDirection: 'row',
+                                              alignItems: 'center',
+                                              paddingVertical: 10,
+                                            }}>
+                                            <View
+                                              style={{
+                                                flex: 1,
+                                                alignItems: 'center',
+                                              }}>
+                                              <Text
+                                                style={{
+                                                  color: '#4C4B4B',
+                                                  fontWeight: 'bold',
+                                                  textAlign: 'center',
+                                                }}>
+                                                {item.name}
+                                              </Text>
+                                            </View>
+                                            <View
+                                              style={{
+                                                flex: 1,
+                                                alignItems: 'center',
+                                              }}>
+                                              <Text style={{color: '#212529'}}>
+                                                {item.quantity} g
+                                              </Text>
+                                            </View>
+                                          </View>
+                                        );
+                                      },
+                                    )
+                                  : null}
+
                                 <View
                                   style={{
                                     borderTopWidth: 1,
@@ -1293,7 +1386,6 @@ class index extends Component {
                                   </View>
                                 </View>
                                 <View
-                                  onPress={() => this.showDatePickerFun()}
                                   style={{
                                     borderWidth: 1,
                                     padding: 10,
@@ -1302,14 +1394,15 @@ class index extends Component {
                                     borderColor: '#C9CCD7',
                                   }}>
                                   <TextInput
-                                    placeholder="Instructions"
-                                    onChangeText={value =>
-                                      this.setState({
-                                        notes: value,
-                                      })
-                                    }
-                                    value={notes}
+                                    placeholder="No instructions yet..."
                                     editable={false}
+                                    value={
+                                      Object.keys(sectionAdvanceData).length !==
+                                      0
+                                        ? sectionAdvanceData.recipeVersions[0]
+                                            .instructions
+                                        : 'No instructions yet...'
+                                    }
                                   />
                                 </View>
                               </View>
@@ -1393,7 +1486,7 @@ class index extends Component {
                       backdropOpacity={0.35}>
                       <View
                         style={{
-                          width: wp('80%'),
+                          width: wp('85%'),
                           height: hp('90%'),
                           backgroundColor: '#fff',
                           alignSelf: 'center',
@@ -1465,9 +1558,9 @@ class index extends Component {
                                         false: '#767577',
                                         true: '#94C036',
                                       }}
-                                      value={isMakeMeStatus}
+                                      value={!sectionData.isPrepared}
                                       onValueChange={() =>
-                                        this.toggleSwitchNotif()
+                                        this.toggleSwitchNotif(sectionData)
                                       }
                                       thumbColor="#fff"
                                     />
@@ -1477,7 +1570,9 @@ class index extends Component {
                                         marginLeft: wp('4%'),
                                         fontWeight: '900',
                                       }}>
-                                      {makeMeText}
+                                      {!sectionData.isPrepared
+                                        ? 'Make me'
+                                        : 'Done'}
                                     </Text>
                                   </View>
                                 </View>

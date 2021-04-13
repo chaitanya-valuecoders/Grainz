@@ -21,14 +21,6 @@ import {
 import {UserTokenAction} from '../../redux/actions/UserTokenAction';
 import {
   getMyProfileApi,
-  getPendingMepsApi,
-  deleteMepApi,
-  getMepsHistoryApi,
-  getMepsOldHistoryApi,
-  getMepRecipesApi,
-  newMepListApi,
-  getMepRecipeByIdsApi,
-  updateMepListApi,
   getAdvanceRecipeByIdsApi,
 } from '../../connectivity/api';
 import Modal from 'react-native-modal';
@@ -106,6 +98,12 @@ class index extends Component {
 
   componentDidMount() {
     this.getProfileDataFun();
+    this.setState(
+      {
+        recipeID: this.props.route && this.props.route.params.recipeID,
+      },
+      () => this.getAdvanceRecipeDetails(),
+    );
   }
 
   myProfileFun = () => {
@@ -121,8 +119,37 @@ class index extends Component {
     }
   };
 
+  getAdvanceRecipeDetails = () => {
+    const {recipeID} = this.state;
+    this.setState(
+      {
+        advanceDetailsLoader: true,
+      },
+      () =>
+        getAdvanceRecipeByIdsApi(recipeID)
+          .then(res => {
+            this.setState({
+              sectionAdvanceData: res.data,
+              advanceDetailsLoader: false,
+            });
+          })
+          .catch(err => {
+            this.setState({
+              advanceDetailsLoader: false,
+            });
+            console.warn('ERR', err);
+          }),
+    );
+  };
+
   render() {
-    const {firstName, buttons} = this.state;
+    const {
+      firstName,
+      buttons,
+      advanceDetailsLoader,
+      sectionAdvanceData,
+      notes,
+    } = this.state;
     return (
       <View style={{flex: 1, backgroundColor: '#fff'}}>
         <Header
@@ -164,6 +191,212 @@ class index extends Component {
               );
             })}
           </View>
+          {advanceDetailsLoader ? (
+            <ActivityIndicator color="#94C036" size="large" />
+          ) : (
+            <ScrollView>
+              <View style={{padding: hp('3%')}}>
+                <View style={{}}>
+                  <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        paddingVertical: 8,
+                      }}>
+                      <View
+                        style={{
+                          flex: 1,
+                          alignItems: 'center',
+                          marginLeft: wp('5%'),
+                        }}>
+                        <Text
+                          style={{
+                            color: '#4C4B4B',
+                            fontWeight: 'bold',
+                          }}>
+                          Recipe Name
+                        </Text>
+                      </View>
+                      <View
+                        style={{
+                          flex: 1,
+                          alignItems: 'center',
+                          marginLeft: wp('5%'),
+                        }}>
+                        <Text style={{color: '#212529'}}>
+                          {sectionAdvanceData.name}
+                        </Text>
+                      </View>
+                    </View>
+                  </ScrollView>
+                  <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        paddingVertical: 8,
+                      }}>
+                      <View
+                        style={{
+                          flex: 1,
+                          alignItems: 'center',
+                          marginLeft: wp('5%'),
+                        }}>
+                        <Text
+                          style={{
+                            color: '#4C4B4B',
+                            fontWeight: 'bold',
+                          }}>
+                          Version Name
+                        </Text>
+                      </View>
+                      <View
+                        style={{
+                          flex: 1,
+                          alignItems: 'center',
+                          marginLeft: wp('5%'),
+                        }}>
+                        <Text style={{color: '#212529'}}>
+                          {sectionAdvanceData.name}
+                        </Text>
+                      </View>
+                    </View>
+                  </ScrollView>
+
+                  <View
+                    style={{
+                      borderTopWidth: 1,
+                      borderTopColor: '#E5E5E5',
+                      marginVertical: hp('2%'),
+                    }}></View>
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      paddingVertical: 10,
+                    }}>
+                    <View style={{flex: 1, alignItems: 'center'}}>
+                      <Text
+                        style={{
+                          color: '#4C4B4B',
+                          fontWeight: 'bold',
+                        }}>
+                        Ingredient
+                      </Text>
+                    </View>
+                    <View style={{flex: 1, alignItems: 'center'}}>
+                      <Text style={{color: '#212529'}}>Quantity</Text>
+                    </View>
+                  </View>
+                  <View
+                    style={{
+                      borderTopWidth: 1,
+                      borderTopColor: '#E5E5E5',
+                      marginVertical: hp('1%'),
+                    }}></View>
+                  {Object.keys(sectionAdvanceData).length !== 0
+                    ? sectionAdvanceData.recipeVersions[0].ingredients.map(
+                        item => {
+                          return (
+                            <View
+                              style={{
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                                paddingVertical: 10,
+                              }}>
+                              <View
+                                style={{
+                                  flex: 1,
+                                  alignItems: 'center',
+                                }}>
+                                <Text
+                                  style={{
+                                    color: '#4C4B4B',
+                                    fontWeight: 'bold',
+                                    textAlign: 'center',
+                                  }}>
+                                  {item.name}
+                                </Text>
+                              </View>
+                              <View
+                                style={{
+                                  flex: 1,
+                                  alignItems: 'center',
+                                }}>
+                                <Text style={{color: '#212529'}}>
+                                  {item.quantity} g
+                                </Text>
+                              </View>
+                            </View>
+                          );
+                        },
+                      )
+                    : null}
+
+                  <View
+                    style={{
+                      borderTopWidth: 1,
+                      borderTopColor: '#E5E5E5',
+                      marginVertical: hp('1%'),
+                    }}></View>
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      paddingVertical: 10,
+                    }}>
+                    <View style={{flex: 1, alignItems: 'center'}}>
+                      <Text
+                        style={{
+                          color: '#4C4B4B',
+                          fontWeight: 'bold',
+                        }}>
+                        Total
+                      </Text>
+                    </View>
+                    <View style={{flex: 1, alignItems: 'center'}}>
+                      <Text style={{color: '#212529'}}>50 g</Text>
+                    </View>
+                  </View>
+                  <View
+                    style={{
+                      borderWidth: 1,
+                      padding: 10,
+                      marginTop: hp('2%'),
+                      height: hp('20%'),
+                      borderColor: '#C9CCD7',
+                    }}>
+                    <Text>
+                      {Object.keys(sectionAdvanceData).length !== 0
+                        ? sectionAdvanceData.recipeVersions[0].instructions
+                        : null}
+                    </Text>
+                  </View>
+                </View>
+                <TouchableOpacity
+                  onPress={() => alert('Print Done')}
+                  style={{
+                    width: wp('50%'),
+                    height: hp('5%'),
+                    backgroundColor: '#E2E6EA',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    alignSelf: 'center',
+                    marginTop: hp('2%'),
+                  }}>
+                  <Text
+                    style={{
+                      color: '#64686C',
+                      fontSize: 15,
+                      fontWeight: 'bold',
+                    }}>
+                    Print fiche technique
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </ScrollView>
+          )}
         </ScrollView>
       </View>
     );
