@@ -779,11 +779,9 @@ class index extends Component {
             style={{
               backgroundColor: '#412916',
               alignItems: 'center',
-              height: hp('35%'),
+              paddingVertical: hp('3%'),
             }}>
-            <Text style={{fontSize: 22, color: 'white', marginTop: 8}}>
-              MISE-EN-PLACE
-            </Text>
+            <Text style={{fontSize: 22, color: 'white'}}>MISE-EN-PLACE</Text>
             {buttons.map((item, index) => {
               return (
                 <View style={{}} key={index}>

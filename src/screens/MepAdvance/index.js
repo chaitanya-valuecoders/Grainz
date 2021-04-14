@@ -163,11 +163,9 @@ class index extends Component {
             style={{
               backgroundColor: '#412916',
               alignItems: 'center',
-              height: hp('25%'),
+              paddingVertical: hp('3%'),
             }}>
-            <Text style={{fontSize: 22, color: 'white', marginTop: 8}}>
-              RECIPE DETAILS
-            </Text>
+            <Text style={{fontSize: 22, color: 'white'}}>RECIPE DETAILS</Text>
             {buttons.map((item, index) => {
               return (
                 <View style={{}} key={index}>

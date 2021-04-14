@@ -4,7 +4,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {connect} from 'react-redux';
 import img from '../../constants/images';
 import SubHeader from '../../components/SubHeader';
-import MepScreen from '../Mep';
 import Header from '../../components/Header';
 import {
   widthPercentageToDP as wp,
@@ -20,17 +19,16 @@ class index extends Component {
       buttons: [
         {name: 'Stock take', icon: img.addIcon, screen: 'StockTakeScreen'},
         {name: 'MISE-EN-PLACE', icon: img.addIcon, screen: 'MepScreen'},
-        {name: 'Recipes', icon: img.searchIcon, screen: 'MepScreen'},
-        {name: 'Menu items', icon: img.searchIcon, screen: 'MepScreen'},
-        {name: 'Manual log', icon: img.addIcon, screen: 'MepScreen'},
-        {name: 'Deliveries', icon: img.addIcon, screen: 'MepScreen'},
+        {name: 'Recipes', icon: img.searchIcon, screen: 'RecipeScreen'},
+        {name: 'Menu items', icon: img.searchIcon, screen: 'MenuItemsScreen'},
+        {name: 'Manual log', icon: img.addIcon, screen: 'ManualLogScreen'},
+        {name: 'Deliveries', icon: img.addIcon, screen: 'DeliveriesScreen'},
         {
           name: 'Casual purchase',
           icon: img.addIcon,
           screen: 'CasualPurchaseScreen',
         },
-        {name: 'Stock take', icon: img.addIcon, screen: 'MepScreen'},
-        {name: 'Events', icon: img.addIcon, screen: 'MepScreen'},
+        {name: 'Events', icon: img.addIcon, screen: 'EventsScreen'},
       ],
       token: '',
       firstName: '',
@@ -87,7 +85,9 @@ class index extends Component {
           logoFun={() => this.props.navigation.navigate('HomeScreen')}
         />
         <SubHeader />
-        <ScrollView style={{marginTop: hp('2%'), marginBottom: hp('2%')}}>
+        <ScrollView
+          style={{marginTop: hp('2%'), marginBottom: hp('2%')}}
+          showsVerticalScrollIndicator={false}>
           {this.state.buttons.map((item, index) => {
             return (
               <View
