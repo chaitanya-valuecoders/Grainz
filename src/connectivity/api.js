@@ -133,3 +133,23 @@ export const deleteManualLog = async payload => {
     },
   });
 }
+export const getManualLogsById = async id => {
+  let url = baseURL + `/ManualLog/manual log by id?Id=${id}`;
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.get(url, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+export async function getManualLogTypes() {
+  const token = await AsyncStorage.getItem('@appToken');
+  console.warn;
+  return axios.get(baseURL + '/ManualLog/manual log types', {
+  headers: {
+    Authorization: `Bearer ${token}`,
+  },
+});
+};
+    

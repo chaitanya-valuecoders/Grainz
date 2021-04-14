@@ -322,6 +322,8 @@ PODS:
     - React-perflogger (= 0.64.0)
   - RNCAsyncStorage (1.15.1):
     - React-Core
+  - RNCCheckbox (0.5.7):
+    - React-Core
   - RNCMaskedView (0.1.10):
     - React
   - RNCPicker (1.14.0):
@@ -419,6 +421,7 @@ DEPENDENCIES:
   - React-runtimeexecutor (from `../node_modules/react-native/ReactCommon/runtimeexecutor`)
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
   - "RNCAsyncStorage (from `../node_modules/@react-native-async-storage/async-storage`)"
+  - "RNCCheckbox (from `../node_modules/@react-native-community/checkbox`)"
   - "RNCMaskedView (from `../node_modules/@react-native-community/masked-view`)"
   - "RNCPicker (from `../node_modules/@react-native-picker/picker`)"
   - "RNDateTimePicker (from `../node_modules/@react-native-community/datetimepicker`)"
@@ -504,6 +507,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon"
   RNCAsyncStorage:
     :path: "../node_modules/@react-native-async-storage/async-storage"
+  RNCCheckbox:
+    :path: "../node_modules/@react-native-community/checkbox"
   RNCMaskedView:
     :path: "../node_modules/@react-native-community/masked-view"
   RNCPicker:
@@ -563,6 +568,7 @@ SPEC CHECKSUMS:
   React-runtimeexecutor: cad74a1eaa53ee6e7a3620231939d8fe2c6afcf0
   ReactCommon: cfe2b7fd20e0dbd2d1185cd7d8f99633fbc5ff05
   RNCAsyncStorage: 11080f1edfb382991959746b580a2dae29e75da0
+  RNCCheckbox: 500919ac122273ea8eef93dae01431091968c14a
   RNCMaskedView: f5c7d14d6847b7b44853f7acb6284c1da30a3459
   RNCPicker: 1a266981fc99330c252f5f98b3f09a377a35d88c
   RNDateTimePicker: e1c24487ab8aa0850403bd90dba75eff8a4e9b84

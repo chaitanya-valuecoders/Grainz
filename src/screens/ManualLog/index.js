@@ -3,11 +3,20 @@ import {NativeModules, SafeAreaView} from 'react-native';
 import Accordion from 'react-native-collapsible/Accordion';
 import RNPickerSelect from 'react-native-picker-select';
 import ToggleSwitch from 'toggle-switch-react-native';
+import DateTimePickerModal from 'react-native-modal-datetime-picker';
+import {MultipleSelectPicker} from 'react-native-multi-select-picker';
+import Modal from 'react-native-modal';
+import CheckBox from '@react-native-community/checkbox';
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
-import {getManualLogList, deleteManualLog} from '../../connectivity/api';
+import {
+  getManualLogList,
+  deleteManualLog,
+  getManualLogsById,
+  getManualLogTypes,
+} from '../../connectivity/api';
 import moment from 'moment';
 import {
   View,
@@ -16,7 +25,6 @@ import {
   Image,
   Alert,
   Pressable,
-  Modal,
   TextInput,
   StyleSheet,
   ActivityIndicator,
@@ -34,12 +42,22 @@ import {set} from 'react-native-reanimated';
 import DatePicker from '../../components/DatePicker';
 
 const axios = require('axios');
+var minTime = new Date();
+minTime.setHours(0);
+minTime.setMinutes(0);
+minTime.setMilliseconds(0);
 
 class index extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      isSelected: null,
+      setSelection: null,
+      isShownPicker: false,
+      applyStatus: false,
+      selectectedItems: [],
       toggle: true,
+      typeList: [],
       isLoading: true,
       SECTIONS: [],
       sectionData: {},
@@ -47,14 +65,43 @@ class index extends Component {
       note: '',
       show: false,
       activeSections: [],
-      newItemModal: false,
+      newItemModal: true,
       newItem: '',
       itemtype: '',
+      detailsLoader: false,
+      modalLogDetails: null,
+      isDatePickerVisible: false,
+      finalDate: '',
+      itemType: null,
+      newManualLog: {},
     };
   }
 
+  hideDatePicker = () => {
+    this.setState({
+      isDatePickerVisible: false,
+    });
+  };
+
+  handleConfirm = date => {
+    let newdate = moment(date).format('L');
+    this.setState({
+      finalDate: newdate,
+      productionDate: date,
+    });
+
+    this.hideDatePicker();
+  };
+
+  showDatePicker = () => {
+    this.setState({
+      isDatePickerVisible: true,
+    });
+  };
+
   componentDidMount() {
     this.getManualLogListData();
+    this.getManualLogTypesData();
   }
 
   collapseAll() {
@@ -64,6 +111,13 @@ class index extends Component {
   getManualLogListData() {
     getManualLogList()
       .then(res => this.setState({SECTIONS: res.data, isLoading: false}))
+      .catch(err => {
+        console.warn('ERr', err.response);
+      });
+  }
+  getManualLogTypesData() {
+    getManualLogTypes()
+      .then(res => this.setState({typeList: res.data}))
       .catch(err => {
         console.warn('ERr', err.response);
       });
@@ -110,6 +164,29 @@ class index extends Component {
   toggleButton() {
     this.setState({toggle: !this.state.toggle});
   }
+  setModalVisibleLogDetails = (visible, data) => {
+    this.setState(
+      {
+        modalLogDetails: visible,
+        detailsLoader: true,
+      },
+      () =>
+        getManualLogsById(data.id)
+          .then(res => {
+            this.setState({
+              modalLogDetails: visible,
+              logSectionData: res.data,
+              detailsLoader: false,
+            });
+          })
+          .catch(err => {
+            this.setState({
+              detailsLoader: false,
+            });
+            console.warn('ERR', err);
+          }),
+    );
+  };
 
   deleteLog(param) {
     let payload = {
@@ -170,9 +247,16 @@ class index extends Component {
               size="small"
               onToggle={isOn => this.toggleButton()}
             />
-            <Text style={{marginLeft: 15, fontWeight: 'bold'}}>
-              {section.name}
-            </Text>
+            <TouchableOpacity onPress={() => this.openNewItemModal(true)}>
+              <Text
+                style={{
+                  fontSize: 14,
+                  fontWeight: 'bold',
+                  textAlign: 'center',
+                }}>
+                {section.name}
+              </Text>
+            </TouchableOpacity>
             {section.notes ? (
               <Text style={{marginLeft: 15, color: '#8C8C8C'}}>
                 {section.notes}
@@ -217,6 +301,12 @@ class index extends Component {
     this.setState({activeSections});
   };
 
+  openLogTypeDropdown(param) {
+    this.setState({
+      isShownPicker: param,
+    });
+  }
+
   openNewItemModal(param) {
     this.setState({newItemModal: param});
   }
@@ -229,10 +319,30 @@ class index extends Component {
     this.setState({itemType: 'type'});
   }
 
+  selectItemType(type, hide) {
+    setTimeout(() => {
+      this.setState({isShownPicker: hide, itemType: type});
+    }, 500);
+  }
+
   render() {
-    const {newItemModal, SECTIONS, activeSections} = this.state;
+    const {
+      isSelected,
+      setSelection,
+      newItemModal,
+      isShownPicker,
+      applyStatus,
+      selectedItems,
+      typeList,
+      SECTIONS,
+      textQuantity,
+      activeSections,
+      finalDate,
+      isDatePickerVisible,
+      itemType,
+    } = this.state;
     return (
-      <SafeAreaView style={{flex: 1}}>
+      <SafeAreaView style={{flex: 1, backgroundColor: '#fff'}}>
         <ScrollView style={{marginBottom: hp('5%')}}>
           <View
             style={{
@@ -268,7 +378,7 @@ class index extends Component {
               </TouchableOpacity>
               <Modal
                 animationType="slide"
-                backDropOpacity={1}
+                backDropOpacity={0.35}
                 visible={newItemModal}
                 onRequestClose={() => {
                   Alert.alert('Modal has been closed.');
@@ -276,27 +386,27 @@ class index extends Component {
                 }}>
                 <View
                   style={{
-                    marinTop: 20,
-                    flex: 1,
+                    flex: 16,
 
+                    marinTop: 20,
+                    backgroundColor: '#ffff',
                     justifyContent: 'center',
                   }}>
-                  <View style={{flex: 1, opacity: 0}}></View>
                   <View
                     style={{
+                      flex: 1,
                       flexDirection: 'row',
                       marginTop: 20,
-                      flex: 2,
                       backgroundColor: '#412916',
                       alignItems: 'center',
                       justifyContent: 'center',
                     }}>
-                    <View style={{flex: 7, marginLeft: 10}}>
+                    <View style={{marginLeft: 10}}>
                       <Text style={{color: 'white'}}>
                         Manual log- Add new item
                       </Text>
                     </View>
-                    <View style={{flex: 1}}>
+                    <View style={{}}>
                       <Pressable
                         style={{borderRadius: 20, padding: 10, elevation: 2}}
                         onPress={() => this.openNewItemModal(!newItemModal)}>
@@ -312,172 +422,268 @@ class index extends Component {
                       </Pressable>
                     </View>
                   </View>
-                  <View style={{flex: 20}}>
-                    <View style={{flex: 2, margin: 10}}>
-                      <DatePicker />
+
+                  <View style={{flex: 1, margin: 10}}>
+                    <View style={{}}>
+                      <TouchableOpacity
+                        onPress={() => this.showDatePicker()}
+                        style={{
+                          borderWidth: 1,
+                          padding: 10,
+                          marginBottom: hp('4%'),
+                          flexDirection: 'row',
+                          justifyContent: 'space-between',
+                        }}>
+                        <TextInput
+                          placeholder="dd-mm-yy"
+                          value={finalDate}
+                          editable={false}
+                        />
+                        <Image
+                          source={img.calenderIcon}
+                          style={{
+                            width: 20,
+                            height: 20,
+                            resizeMode: 'contain',
+                          }}
+                        />
+                      </TouchableOpacity>
                     </View>
-                    <View
-                      style={{
-                        flex: 1,
-                        margin: 10,
-                        borderWidth: 1,
-                        borderColor: '#A2A2A2',
-                        padding: 10,
-                        justifyContent: 'center',
-                      }}>
-                      <RNPickerSelect
-                        onValueChange={value => this.selectItem(value)}
-                        placeholder={{label: 'Select', value: null}}
-                        items={[
-                          {label: 'Bar', value: 'Bar'},
-                          {label: 'Restaurant', value: 'Restaurant'},
-                          {label: 'Other', value: 'Other'},
-                          {label: 'Retail', value: 'Retail'},
-                        ]}
+                    <View>
+                      <DateTimePickerModal
+                        // is24Hour={true}
+                        isVisible={isDatePickerVisible}
+                        mode={'date'}
+                        onConfirm={this.handleConfirm}
+                        onCancel={this.hideDatePicker}
+                        minimumDate={minTime}
+
+                        // maximumDate={maxTime}
+                        // minimumDate={new Date()}
                       />
                     </View>
+                  </View>
+                  <View style={{flex: 1, margin: 10}}>
+                    <TouchableOpacity
+                      style={{
+                        borderWidth: 1,
+                        padding: 10,
+                        marginBottom: hp('4%'),
+                        flexDirection: 'row',
+                        justifyContent: 'space-between',
+                      }}>
+                      <Text>Select</Text>
+                      <Image
+                        source={img.arrowDownIcon}
+                        style={{
+                          width: 15,
+                          height: 15,
+                          resizeMode: 'contain',
+                        }}
+                      />
+                    </TouchableOpacity>
+                  </View>
+
+                  <View
+                    style={{
+                      flex: 1,
+                      justifyContent: 'center',
+                    }}>
                     <View
                       style={{
-                        flex: 1,
+                        height: 40,
                         margin: 10,
                         borderWidth: 1,
                         borderColor: '#A2A2A2',
                         padding: 10,
-                        justifyContent: 'center',
                       }}>
                       <TextInput
                         onChangeText={textQuantity =>
                           this.setState({textQuantity})
                         }
-                        value={this.state.textQuantity}
+                        value={textQuantity}
                         placeholder="quantity"
                       />
                     </View>
-                    <Text style={{margin: 10}}>Note :</Text>
-                    <View
-                      style={{
-                        flex: 4,
-                        margin: 10,
-                        borderWidth: 1,
-                        borderColor: '#A2A2A2',
-                        padding: 10,
-                      }}>
-                      <TextInput
-                        multiline={true}
-                        numberOfLines={4}
-                        onChangeText={note => this.setState({note})}
-                        value={this.state.note}
-                        placeholder="Notes"
-                      />
-                    </View>
-                    <View
-                      style={{
-                        flex: 1,
-                        margin: 10,
-                        borderWidth: 1,
-                        borderColor: '#A2A2A2',
-                        padding: 10,
-                      }}>
-                      {/* <RNPickerSelect
-                        onValueChange={value => this.selectType(value)}
-                        placeholder={{label: 'Select type', value: null}}
-                        items={this.state.dataSource}
-                      /> */}
-                    </View>
+                  </View>
+                  <View
+                    style={{
+                      flex: 10,
+                      margin: 10,
+                      marginBottom: '90%',
+                      justifyContent: 'center',
+                    }}>
+                    <View style={{flex: 2}}>
+                      <TouchableOpacity
+                        onPress={() => {
+                          this.openLogTypeDropdown(!isShownPicker);
+                        }}
+                        style={{
+                          borderWidth: 1,
+                          padding: 10,
+                          flexDirection: 'row',
+                          justifyContent: 'space-between',
+                        }}>
+                        {itemType ? (
+                          <Text>{itemType}</Text>
+                        ) : (
+                          <Text>Select Type</Text>
+                        )}
 
-                    <View
-                      style={{
-                        borderWidth: 1,
-                        padding: 10,
-                        borderColor: '#A2A2A2',
-                        marginTop: 15,
-                        flexDirection: 'row',
-                        flex: 12,
-                      }}>
-                      <View style={{flex: 2, alignItems: 'center'}}>
-                        <TouchableOpacity
-                          onPress={() => this.openNewItemModal(!newItemModal)}
+                        <Image
+                          source={img.arrowDownIcon}
                           style={{
-                            flexDirection: 'row',
-                            height: '15%',
-                            width: '65%',
-                            backgroundColor: '#94C01F',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            marginTop: '1%',
+                            width: 15,
+                            height: 15,
+                            resizeMode: 'contain',
+                          }}
+                        />
+                      </TouchableOpacity>
+                    </View>
+                    <View style={{flex: 8}}>
+                      {isShownPicker ? (
+                        <View
+                          style={{
+                            margin: 5,
+                            borderWidth: 1,
+                            borderColor: 'black',
+                            padding: 5,
                           }}>
-                          <View>
-                            <View
-                              style={{
-                                flex: 1,
-                                alignItems: 'center',
-                                flexDirection: 'row',
-                              }}>
-                              <Image
+                          {typeList.map(item => {
+                            return (
+                              <View
                                 style={{
-                                  height: 20,
-                                  width: 20,
-                                  tintColor: 'white',
-                                  resizeMode: 'contain',
-                                  marginLeft: 5,
-                                }}
-                                source={img.checkIcon}
-                              />
-                              <Text
-                                style={{
-                                  marginLeft: 5,
-                                  color: 'white',
-                                  fontSize: 18,
-                                  fontWeight: 'bold',
+                                  marginTop: hp('1%'),
+                                  marginBottom: 10,
+                                  flexDirection: 'row',
                                 }}>
-                                Save
-                              </Text>
-                            </View>
-                          </View>
-                        </TouchableOpacity>
+                                <CheckBox
+                                  value={isSelected}
+                                  onValueChange={() =>
+                                    this.selectItemType(
+                                      item.name,
+                                      !isShownPicker,
+                                    )
+                                  }
+                                  style={{margin: 5, height: 20, width: 20}}
+                                />
+                                <Text style={{margin: 5}}>{item.name}</Text>
+                              </View>
+                            );
+                          })}
+                        </View>
+                      ) : null}
+                      <View style={{}}>
+                        <Text style={{margin: 5}}>Note :</Text>
                       </View>
 
-                      <View style={{flex: 2}}>
-                        <TouchableOpacity
-                          onPress={() => this.openNewItemModal(!newItemModal)}
-                          style={{
-                            flexDirection: 'row',
-                            height: '15%',
-                            width: '65%',
-                            backgroundColor: '#E6940B',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            marginTop: '1%',
-                          }}>
-                          <View>
-                            <View
-                              style={{
-                                flex: 1,
-                                alignItems: 'center',
-                                flexDirection: 'row',
-                              }}>
-                              <Image
+                      <View
+                        style={{
+                          flex: 3,
+
+                          borderWidth: 1,
+                          borderColor: '#A2A2A2',
+                          padding: 10,
+                        }}>
+                        <TextInput
+                          multiline={true}
+                          numberOfLines={4}
+                          onChangeText={note => this.setState({note})}
+                          value={this.state.note}
+                          placeholder="Notes"
+                        />
+                      </View>
+
+                      <View
+                        style={{
+                          flex: 8,
+                          backgroundColor: '',
+                          flexDirection: 'row',
+                          alignItems: 'stretch',
+                        }}>
+                        <View style={{flex: 4}}>
+                          <TouchableOpacity
+                            onPress={() => this.openNewItemModal(!newItemModal)}
+                            style={{
+                              flexDirection: 'row',
+                              height: 40,
+                              width: 160,
+                              backgroundColor: '#94C01F',
+                              justifyContent: 'center',
+                              alignItems: 'center',
+                              marginTop: '1%',
+                            }}>
+                            <View>
+                              <View
                                 style={{
-                                  height: 20,
-                                  width: 20,
-                                  tintColor: 'white',
-                                  resizeMode: 'contain',
-                                  marginLeft: 5,
-                                }}
-                                source={img.cancelIcon}
-                              />
-                              <Text
-                                style={{
-                                  marginLeft: 5,
-                                  color: 'white',
-                                  fontSize: 18,
-                                  fontWeight: 'bold',
+                                  flex: 1,
+                                  alignItems: 'center',
+                                  flexDirection: 'row',
                                 }}>
-                                Close
-                              </Text>
+                                <Image
+                                  style={{
+                                    height: 20,
+                                    width: 20,
+                                    tintColor: 'white',
+                                    resizeMode: 'contain',
+                                    marginLeft: 5,
+                                  }}
+                                  source={img.checkIcon}
+                                />
+                                <Text
+                                  style={{
+                                    marginLeft: 5,
+                                    color: 'white',
+                                    fontSize: 18,
+                                    fontWeight: 'bold',
+                                  }}>
+                                  Save
+                                </Text>
+                              </View>
                             </View>
-                          </View>
-                        </TouchableOpacity>
+                          </TouchableOpacity>
+                        </View>
+                        <View style={{flex: 4}}>
+                          <TouchableOpacity
+                            onPress={() => this.openNewItemModal(!newItemModal)}
+                            style={{
+                              flexDirection: 'row',
+                              height: 40,
+                              width: 160,
+                              backgroundColor: '#E6940B',
+                              justifyContent: 'center',
+                              alignItems: 'center',
+                              marginTop: '1%',
+                            }}>
+                            <View>
+                              <View
+                                style={{
+                                  alignItems: 'center',
+                                  flexDirection: 'row',
+                                }}>
+                                <Image
+                                  style={{
+                                    height: 20,
+                                    width: 20,
+                                    tintColor: 'white',
+                                    resizeMode: 'contain',
+                                    marginLeft: 5,
+                                  }}
+                                  source={img.cancelIcon}
+                                />
+                                <Text
+                                  style={{
+                                    marginLeft: 5,
+                                    color: 'white',
+                                    fontSize: 18,
+                                    fontWeight: 'bold',
+                                  }}>
+                                  Close
+                                </Text>
+                              </View>
+                            </View>
+                          </TouchableOpacity>
+                        </View>
                       </View>
                     </View>
                   </View>
@@ -519,7 +725,7 @@ class index extends Component {
             {this.state.isLoading ? (
               <ActivityIndicator color="#94C036" />
             ) : (
-              <View style={{ marginBottom: 10, marginLeft: 10, marginRight: 10}}>
+              <View style={{marginBottom: 10, marginLeft: 10, marginRight: 10}}>
                 <Accordion
                   underlayColor="#fff"
                   expandMultiple
