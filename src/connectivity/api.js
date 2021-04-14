@@ -113,3 +113,50 @@ export const updateMepListApi = async payload => {
     },
   });
 };
+
+export async function getManualLogList() {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.get(baseURL + '/Manuallog/manual logs', {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+}
+
+export const deleteManualLog = async payload => {
+  console.warn('PAY', payload);
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.post(baseURL + '/ManualLog/delete manual log', payload, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+export const getManualLogsById = async id => {
+  let url = baseURL + `/ManualLog/manual log by id?Id=${id}`;
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.get(url, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+export async function getManualLogTypes() {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.get(baseURL + '/Manuallog/manual logs types', {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+}
+
+export const updateManualLogApi = async payload => {
+  console.warn('PAY', payload);
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.post(baseURL + '/ManualLog/update manual log', payload, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};

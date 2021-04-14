@@ -22,13 +22,12 @@ import {
 import {UserTokenAction} from '../../redux/actions/UserTokenAction';
 import {
   getMyProfileApi,
-  getPendingMepsApi,
-  deleteMepApi,
+  getManualLogList,
+  deleteManualLog,
   getMepRecipesApi,
   newMepListApi,
   getMepRecipeByIdsApi,
-  updateMepListApi,
-  getAdvanceRecipeByIdsApi,
+  updateManualLogApi,
 } from '../../connectivity/api';
 import Modal from 'react-native-modal';
 import Accordion from 'react-native-collapsible/Accordion';
@@ -111,37 +110,6 @@ class index extends Component {
     });
   };
 
-  setModalAdvanceRecipeDetails = (visible, data) => {
-    this.setState(
-      {
-        modalAdvanceRecipeDetails: visible,
-        advanceDetailsLoader: true,
-      },
-      () =>
-        getAdvanceRecipeByIdsApi(data.recipeId)
-          .then(res => {
-            this.setState({
-              modalAdvanceRecipeDetails: visible,
-              sectionAdvanceData: res.data,
-              advanceDetailsLoader: false,
-              recipeID: data.recipeId,
-            });
-          })
-          .catch(err => {
-            this.setState({
-              advanceDetailsLoader: false,
-            });
-            console.warn('ERR', err);
-          }),
-    );
-  };
-
-  setModalAdvanceRecipeDetailsClose = visible => {
-    this.setState({
-      modalAdvanceRecipeDetails: visible,
-    });
-  };
-
   getData = async () => {
     try {
       const value = await AsyncStorage.getItem('@appToken');
@@ -170,32 +138,39 @@ class index extends Component {
       });
   };
 
-  getPendingMepsData = () => {
+  getManualLogsData = () => {
     this.setState(
       {
         recipeLoader: true,
       },
-      () =>
-        getPendingMepsApi()
-          .then(res => {
-            this.setState({
-              SECTIONS: res.data.reverse(),
-              recipeLoader: false,
-            });
-          })
-          .catch(err => {
-            console.log('ERR MEP', err);
-
-            this.setState({
-              recipeLoader: false,
-            });
-          }),
+      () => this.createFirstData(),
     );
+  };
+
+  createFirstData = () => {
+    getManualLogList()
+      .then(res => {
+        const result = res.data.reduce((temp, value) => {
+          if (temp.length < 5) temp.push(value);
+          return temp;
+        }, []);
+        this.setState({
+          SECTIONS: result,
+          recipeLoader: false,
+        });
+      })
+      .catch(err => {
+        console.log('ERR MEP', err);
+
+        this.setState({
+          recipeLoader: false,
+        });
+      });
   };
 
   componentDidMount() {
     this.getData();
-    this.getPendingMepsData();
+    this.getManualLogsData();
   }
 
   myProfile = () => {
@@ -227,9 +202,7 @@ class index extends Component {
   _renderHeader = (section, index, isActive) => {
     var todayFinal = moment(new Date()).format('dddd, MMM DD YYYY');
 
-    const finalData = moment(section.productionDate).format(
-      'dddd, MMM DD YYYY',
-    );
+    const finalData = moment(section.loggedDate).format('dddd, MMM DD YYYY');
 
     return (
       <View
@@ -264,96 +237,150 @@ class index extends Component {
     );
   };
 
-  updatePreparedStatusFun = section => {
-    let payload = [
-      {
-        id: section.id,
-        recipeVersionId: section.recipeVersionId,
-        userId: section.userId,
-        preparedById: 'string',
-        madeBy: 'string',
-        requestedBy: 'string',
-        preparedBy: 'string',
-        isPrepared: !section.isPrepared,
-        isRecycled: section.isRecycled,
-        isTracked: section.isTracked,
-        name: section.name,
-        unit: section.unit,
-        productionDate: section.productionDate,
-        preparedDate: section.preparedDate,
-        recipeId: section.recipeId,
-        quantity: section.quantity,
-        notes: section.notes,
-      },
-    ];
-    updateMepListApi(payload)
+  updateReviewedStatusFun = section => {
+    let payload = {
+      id: section.id,
+      itemId: section.itemId,
+      name: section.name,
+      loggedDate: section.loggedDate,
+      quantity: section.quantity,
+      itemTypeId: section.itemTypeId,
+      typeId: section.typeId,
+      departmentId: section.departmentId,
+      unitId: section.unitId,
+      departmentName: section.departmentName,
+      category: section.category,
+      itemTypeName: section.itemTypeName,
+      typeName: section.typeName,
+      reviewed: !section.reviewed,
+      unit: section.unit,
+      userId: section.userId,
+      userFullName: section.userFullName,
+      units: [
+        {
+          id: section.units[0].id,
+          inventoryId: section.units[0].inventoryId,
+          name: section.units[0].name,
+          isDefault: true,
+          isVariable: false,
+          quantity: null,
+          converter: 1,
+          notes: null,
+          action: null,
+        },
+      ],
+      notes: section.notes,
+      inUse: section.inUse,
+      countInInventory: section.countInInventory,
+    };
+    console.log('PAYLOAD', payload);
+    updateManualLogApi(payload)
       .then(res => {
         this.setState(
           {
             modalVisibleRecipeDetails: false,
-            sectionData: '',
           },
-          () => this.getPendingMepsData(),
+          () => this.getManualLogsData(),
         );
       })
       .catch(err => {
-        console.warn('ERRDeleteMep', err.response);
+        console.warn('ERRUPDATE', err.response);
       });
   };
 
   _renderContent = section => {
     return (
       <View style={{marginTop: hp('2%')}}>
-        <View>
-          <View style={{flexDirection: 'row', alignItems: 'center'}}>
-            <Switch
-              style={{width: '14%'}}
-              trackColor={{
-                false: '#767577',
-                true: '#94C036',
-              }}
-              value={!section.isPrepared}
-              onValueChange={() => this.updatePreparedStatusFun(section)}
-              thumbColor="#fff"
-            />
-            <View style={{flex: 2}}>
-              <TouchableOpacity
-                onPress={() =>
-                  this.setModalVisibleRecipeDetails(true, section)
-                }>
+        <ScrollView
+          horizontal
+          style={{marginRight: wp('10%')}}
+          showsHorizontalScrollIndicator={false}>
+          <View>
+            <View style={{flexDirection: 'row', alignItems: 'center'}}>
+              <Switch
+                style={{}}
+                trackColor={{
+                  false: '#767577',
+                  true: '#94C036',
+                }}
+                value={!section.reviewed}
+                onValueChange={() => this.updateReviewedStatusFun(section)}
+                thumbColor="#fff"
+              />
+              <View style={{marginLeft: wp('2%')}}>
+                <TouchableOpacity
+                  onPress={() =>
+                    this.setModalVisibleRecipeDetails(true, section)
+                  }>
+                  <Text
+                    style={{
+                      fontSize: 14,
+                      fontWeight: 'bold',
+                    }}>
+                    {section.name}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+              <View style={{alignItems: 'center', marginLeft: wp('4%')}}>
                 <Text
                   style={{
                     fontSize: 14,
-                    fontWeight: 'bold',
-                    textAlign: 'center',
-                    marginLeft: wp('2%'),
                   }}>
-                  {section.name}
+                  {section.itemTypeName}
                 </Text>
-              </TouchableOpacity>
-            </View>
-            <View style={{flex: 1, alignItems: 'center'}}>
-              <Text>
-                {section.quantity} {section.unit}
-              </Text>
-            </View>
-            <View style={{flex: 1, alignItems: 'center'}}>
-              <TouchableOpacity
-                onPress={() => this.setModalAdvanceRecipeDetails(true, section)}
-                style={{backgroundColor: '#94C036', padding: 5}}>
+              </View>
+              <View style={{alignItems: 'center', marginLeft: wp('4%')}}>
                 <Text
-                  style={{fontSize: 12, color: '#fff', textAlign: 'center'}}>
-                  View Recipe
+                  style={{
+                    fontSize: 14,
+                  }}>
+                  {section.quantity}{' '}
+                  {section.units.length > 0 && section.units[0].name}
                 </Text>
-              </TouchableOpacity>
+              </View>
+              <View style={{alignItems: 'center', marginLeft: wp('4%')}}>
+                <Text
+                  style={{
+                    fontSize: 14,
+                  }}>
+                  {section.typeName}
+                </Text>
+              </View>
+              <View style={{alignItems: 'center', marginLeft: wp('4%')}}>
+                <Text
+                  style={{
+                    fontSize: 14,
+                  }}>
+                  {section.userFullName}
+                </Text>
+              </View>
+              <View style={{alignItems: 'center', marginLeft: wp('4%')}}>
+                <TouchableOpacity
+                  onPress={() => this.deleteMepFun(section)}
+                  style={{
+                    backgroundColor: 'red',
+                    padding: 5,
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                  }}>
+                  <Image
+                    source={img.cancelIcon}
+                    style={{
+                      height: 15,
+                      width: 15,
+                      tintColor: 'white',
+                      resizeMode: 'contain',
+                    }}
+                  />
+                  <Text
+                    style={{fontSize: 14, color: '#fff', textAlign: 'center'}}>
+                    Delete
+                  </Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
-          <View>
-            <Text style={{fontSize: 12, marginLeft: wp('5%')}}>
-              {section.notes}
-            </Text>
-          </View>
-        </View>
+        </ScrollView>
       </View>
     );
   };
@@ -387,14 +414,14 @@ class index extends Component {
         notes: notes,
       },
     ];
-    updateMepListApi(payload)
+    updateManualLogApi(payload)
       .then(res => {
         this.setState(
           {
             modalVisibleRecipeDetails: false,
             sectionData: '',
           },
-          () => this.getPendingMepsData(),
+          () => this.getManualLogsData(),
         );
       })
       .catch(err => {
@@ -407,39 +434,53 @@ class index extends Component {
       {
         modalVisibleRecipeDetails: false,
       },
-      () => this.updatePreparedStatusFun(data),
+      () => this.updateReviewedStatusFun(data),
     );
   };
 
-  deleteMepFunSec = () => {
-    const {sectionData} = this.state;
+  deleteMepFunSec = section => {
     let payload = {
-      id: sectionData.id,
-      recipeVersionId: sectionData.recipeVersionId,
-      userId: sectionData.userId,
-      preparedById: 'string',
-      madeBy: 'string',
-      requestedBy: 'string',
-      preparedBy: 'string',
-      isPrepared: sectionData.isPrepared,
-      isRecycled: sectionData.isRecycled,
-      isTracked: sectionData.isTracked,
-      name: sectionData.name,
-      unit: sectionData.unit,
-      productionDate: sectionData.productionDate,
-      preparedDate: sectionData.preparedDate,
-      recipeId: sectionData.recipeId,
-      quantity: sectionData.quantity,
-      notes: sectionData.notes,
+      id: section.id,
+      itemId: section.itemId,
+      name: section.name,
+      loggedDate: section.loggedDate,
+      quantity: section.quantity,
+      itemTypeId: section.itemTypeId,
+      typeId: section.typeId,
+      departmentId: section.departmentId,
+      unitId: section.unitId,
+      departmentName: section.departmentName,
+      category: section.category,
+      itemTypeName: section.itemTypeName,
+      typeName: section.typeName,
+      reviewed: section.reviewed,
+      unit: section.unit,
+      userId: section.userId,
+      userFullName: section.userFullName,
+      units: [
+        {
+          id: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+          inventoryId: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+          name: 'string',
+          isDefault: true,
+          isVariable: true,
+          quantity: 0,
+          converter: 0,
+          notes: 'string',
+          action: 'string',
+        },
+      ],
+      notes: section.notes,
+      inUse: section.inUse,
+      countInInventory: section.countInInventory,
     };
-    deleteMepApi(payload)
+    deleteManualLog(payload)
       .then(res => {
         this.setState(
           {
             modalVisibleRecipeDetails: false,
-            sectionData: '',
           },
-          () => this.getPendingMepsData(),
+          () => this.getManualLogsData(),
         );
       })
       .catch(err => {
@@ -447,48 +488,15 @@ class index extends Component {
       });
   };
 
-  deleteMepFun = () => {
+  deleteMepFun = data => {
     Alert.alert('Are you sure?', "You won't be able to revert this!", [
       {
         text: 'Cancel',
         onPress: () => console.log('Cancel Pressed'),
         style: 'cancel',
       },
-      {text: 'OK', onPress: () => this.deleteMepFunSec()},
+      {text: 'OK', onPress: () => this.deleteMepFunSec(data)},
     ]);
-  };
-
-  onPressApplyFun = () => {
-    const {selectectedItems, productionDate, applyStatus} = this.state;
-    if (productionDate === '' || selectectedItems.length === 0) {
-      alert('Please select date and recipe');
-    } else if (applyStatus === false) {
-      this.setState(
-        {
-          isShownPicker: false,
-          applyStatus: true,
-        },
-        () => this.createpayloadFun(),
-      );
-    }
-  };
-
-  createpayloadFun = () => {
-    let newData = [];
-    const {selectectedItems, productionDate} = this.state;
-    selectectedItems.map(item => {
-      const obj = {};
-      obj.isSelected = true;
-      obj.notes = '';
-      obj.productionDate = productionDate;
-      obj.quantity = item.quantity;
-      obj.recipeId = item.value;
-      obj.name = item.label;
-      newData = [...newData, obj];
-    });
-    this.setState({
-      selectectedItems: newData,
-    });
   };
 
   hideDatePicker = () => {
@@ -551,7 +559,7 @@ class index extends Component {
               modalVisibleAdd: false,
               selectectedItems: [],
             },
-            () => this.getPendingMepsData(),
+            () => this.getManualLogsData(),
           );
         })
         .catch(err => {
@@ -611,7 +619,6 @@ class index extends Component {
       quantity,
       notes,
       advanceDetailsLoader,
-      modalAdvanceRecipeDetails,
       sectionAdvanceData,
     } = this.state;
     const finalDateData = moment(sectionData.productionDate).format(
@@ -802,21 +809,6 @@ class index extends Component {
                                 />
                               ) : null}
 
-                              <TouchableOpacity
-                                onPress={() => this.onPressApplyFun()}
-                                style={{
-                                  height: hp('5%'),
-                                  width: wp('60%'),
-                                  backgroundColor: '#94C036',
-                                  alignSelf: 'center',
-                                  marginTop: hp('5%'),
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                }}>
-                                <Text style={{color: '#fff', fontSize: 16}}>
-                                  Apply
-                                </Text>
-                              </TouchableOpacity>
                               <View
                                 style={{
                                   flexDirection: 'row',
@@ -878,324 +870,6 @@ class index extends Component {
                             </View>
                           </View>
                         </ScrollView>
-                      </View>
-                    </Modal>
-                    {/* // Advance Recipe Details Modal */}
-                    <Modal
-                      isVisible={modalAdvanceRecipeDetails}
-                      backdropOpacity={0.35}>
-                      <View
-                        style={{
-                          width: wp('80%'),
-                          height: hp('90%'),
-                          backgroundColor: '#fff',
-                          alignSelf: 'center',
-                        }}>
-                        <View
-                          style={{
-                            backgroundColor: '#412916',
-                            height: hp('7%'),
-                            flexDirection: 'row',
-                          }}>
-                          <View
-                            style={{
-                              flex: 3,
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                            }}>
-                            <Text style={{fontSize: 14, color: '#fff'}}>
-                              Recipe Details - {sectionAdvanceData.name}
-                            </Text>
-                          </View>
-                          <View
-                            style={{
-                              flex: 1,
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                            }}>
-                            <TouchableOpacity
-                              onPress={() =>
-                                this.setModalAdvanceRecipeDetailsClose(false)
-                              }>
-                              <Image
-                                source={img.cancelIcon}
-                                style={{
-                                  height: 22,
-                                  width: 22,
-                                  tintColor: 'white',
-                                  resizeMode: 'contain',
-                                }}
-                              />
-                            </TouchableOpacity>
-                          </View>
-                        </View>
-                        {advanceDetailsLoader ? (
-                          <ActivityIndicator color="#94C036" size="large" />
-                        ) : (
-                          <ScrollView>
-                            <View style={{padding: hp('3%')}}>
-                              <View style={{}}>
-                                <ScrollView
-                                  horizontal
-                                  showsHorizontalScrollIndicator={false}>
-                                  <View
-                                    style={{
-                                      flexDirection: 'row',
-                                      alignItems: 'center',
-                                      paddingVertical: 8,
-                                    }}>
-                                    <View
-                                      style={{
-                                        flex: 1,
-                                        alignItems: 'center',
-                                        marginLeft: wp('5%'),
-                                      }}>
-                                      <Text
-                                        style={{
-                                          color: '#4C4B4B',
-                                          fontWeight: 'bold',
-                                        }}>
-                                        Recipe Name
-                                      </Text>
-                                    </View>
-                                    <View
-                                      style={{
-                                        flex: 1,
-                                        alignItems: 'center',
-                                        marginLeft: wp('5%'),
-                                      }}>
-                                      <Text style={{color: '#212529'}}>
-                                        {sectionAdvanceData.name}
-                                      </Text>
-                                    </View>
-                                  </View>
-                                </ScrollView>
-                                <ScrollView
-                                  horizontal
-                                  showsHorizontalScrollIndicator={false}>
-                                  <View
-                                    style={{
-                                      flexDirection: 'row',
-                                      alignItems: 'center',
-                                      paddingVertical: 8,
-                                    }}>
-                                    <View
-                                      style={{
-                                        flex: 1,
-                                        alignItems: 'center',
-                                        marginLeft: wp('5%'),
-                                      }}>
-                                      <Text
-                                        style={{
-                                          color: '#4C4B4B',
-                                          fontWeight: 'bold',
-                                        }}>
-                                        Version Name
-                                      </Text>
-                                    </View>
-                                    <View
-                                      style={{
-                                        flex: 1,
-                                        alignItems: 'center',
-                                        marginLeft: wp('5%'),
-                                      }}>
-                                      <Text style={{color: '#212529'}}>
-                                        {sectionAdvanceData.name}
-                                      </Text>
-                                    </View>
-                                  </View>
-                                </ScrollView>
-
-                                <View
-                                  style={{
-                                    borderTopWidth: 1,
-                                    borderTopColor: '#E5E5E5',
-                                    marginVertical: hp('2%'),
-                                  }}></View>
-                                <View
-                                  style={{
-                                    flexDirection: 'row',
-                                    alignItems: 'center',
-                                    paddingVertical: 10,
-                                  }}>
-                                  <View style={{flex: 1, alignItems: 'center'}}>
-                                    <Text
-                                      style={{
-                                        color: '#4C4B4B',
-                                        fontWeight: 'bold',
-                                      }}>
-                                      Ingredient
-                                    </Text>
-                                  </View>
-                                  <View style={{flex: 1, alignItems: 'center'}}>
-                                    <Text style={{color: '#212529'}}>
-                                      Quantity
-                                    </Text>
-                                  </View>
-                                </View>
-                                <View
-                                  style={{
-                                    borderTopWidth: 1,
-                                    borderTopColor: '#E5E5E5',
-                                    marginVertical: hp('1%'),
-                                  }}></View>
-                                {Object.keys(sectionAdvanceData).length !== 0
-                                  ? sectionAdvanceData.recipeVersions[0].ingredients.map(
-                                      item => {
-                                        return (
-                                          <View
-                                            style={{
-                                              flexDirection: 'row',
-                                              alignItems: 'center',
-                                              paddingVertical: 10,
-                                            }}>
-                                            <View
-                                              style={{
-                                                flex: 1,
-                                                alignItems: 'center',
-                                              }}>
-                                              <Text
-                                                style={{
-                                                  color: '#4C4B4B',
-                                                  fontWeight: 'bold',
-                                                  textAlign: 'center',
-                                                }}>
-                                                {item.name}
-                                              </Text>
-                                            </View>
-                                            <View
-                                              style={{
-                                                flex: 1,
-                                                alignItems: 'center',
-                                              }}>
-                                              <Text style={{color: '#212529'}}>
-                                                {item.quantity} g
-                                              </Text>
-                                            </View>
-                                          </View>
-                                        );
-                                      },
-                                    )
-                                  : null}
-
-                                <View
-                                  style={{
-                                    borderTopWidth: 1,
-                                    borderTopColor: '#E5E5E5',
-                                    marginVertical: hp('1%'),
-                                  }}></View>
-                                <View
-                                  style={{
-                                    flexDirection: 'row',
-                                    alignItems: 'center',
-                                    paddingVertical: 10,
-                                  }}>
-                                  <View style={{flex: 1, alignItems: 'center'}}>
-                                    <Text
-                                      style={{
-                                        color: '#4C4B4B',
-                                        fontWeight: 'bold',
-                                      }}>
-                                      Total
-                                    </Text>
-                                  </View>
-                                  <View style={{flex: 1, alignItems: 'center'}}>
-                                    <Text style={{color: '#212529'}}>50 g</Text>
-                                  </View>
-                                </View>
-                                <View
-                                  style={{
-                                    borderWidth: 1,
-                                    padding: 10,
-                                    marginTop: hp('2%'),
-                                    height: hp('20%'),
-                                    borderColor: '#C9CCD7',
-                                  }}>
-                                  <TextInput
-                                    placeholder="No instructions yet..."
-                                    editable={false}
-                                    value={
-                                      Object.keys(sectionAdvanceData).length !==
-                                      0
-                                        ? sectionAdvanceData.recipeVersions[0]
-                                            .instructions
-                                        : 'No instructions yet...'
-                                    }
-                                  />
-                                </View>
-                              </View>
-                              <TouchableOpacity
-                                onPress={() => alert('Print Done')}
-                                style={{
-                                  width: wp('50%'),
-                                  height: hp('5%'),
-                                  backgroundColor: '#E2E6EA',
-                                  justifyContent: 'center',
-                                  alignItems: 'center',
-                                  alignSelf: 'center',
-                                  marginTop: hp('2%'),
-                                }}>
-                                <Text
-                                  style={{
-                                    color: '#64686C',
-                                    fontSize: 15,
-                                    fontWeight: 'bold',
-                                  }}>
-                                  Print fiche technique
-                                </Text>
-                              </TouchableOpacity>
-
-                              <View
-                                style={{
-                                  marginTop: hp('3%'),
-                                  justifyContent: 'center',
-                                  alignItems: 'center',
-                                }}>
-                                <TouchableOpacity
-                                  onPress={() => this.showAdvanceView()}
-                                  style={{
-                                    width: wp('40%'),
-                                    height: hp('5%'),
-                                    backgroundColor: '#94C036',
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                  }}>
-                                  <Text
-                                    style={{
-                                      color: '#fff',
-                                      fontSize: 15,
-                                      fontWeight: 'bold',
-                                    }}>
-                                    Advance View
-                                  </Text>
-                                </TouchableOpacity>
-                                <TouchableOpacity
-                                  onPress={() =>
-                                    this.setModalAdvanceRecipeDetailsClose(
-                                      false,
-                                    )
-                                  }
-                                  style={{
-                                    width: wp('40%'),
-                                    height: hp('5%'),
-                                    backgroundColor: '#E7943B',
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                    marginTop: hp('3%'),
-                                  }}>
-                                  <Text
-                                    style={{
-                                      color: '#fff',
-                                      fontSize: 15,
-                                      fontWeight: 'bold',
-                                    }}>
-                                    Close
-                                  </Text>
-                                </TouchableOpacity>
-                              </View>
-                            </View>
-                          </ScrollView>
-                        )}
                       </View>
                     </Modal>
                     {/* // Recipe Details Modal */}
