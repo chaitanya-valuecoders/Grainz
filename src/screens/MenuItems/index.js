@@ -6,6 +6,8 @@ import {
   Image,
   ScrollView,
   ActivityIndicator,
+  Switch,
+  TextInput,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {connect} from 'react-redux';
@@ -28,14 +30,9 @@ class index extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      buttons: [
-        {name: 'Bar'},
-        {name: 'Restaurant'},
-        {name: 'Retail'},
-        {name: 'Other'},
-        {name: 'Back'},
-      ],
+      buttons: [{name: 'Back'}],
       token: '',
+      modalVisible: false,
       firstName: '',
     };
   }
@@ -77,15 +74,7 @@ class index extends Component {
   };
 
   onPressFun = item => {
-    if (item.name === 'Bar') {
-      alert('Bar Clicked');
-    } else if (item.name === 'Restaurant') {
-      alert('Restaurant Clicked');
-    } else if (item.name === 'Retail') {
-      alert('Retail Clicked');
-    } else if (item.name === 'Other') {
-      alert('Other Clicked');
-    } else {
+    if (item.name === 'Back') {
       this.props.navigation.goBack();
     }
   };
@@ -103,14 +92,11 @@ class index extends Component {
         <ScrollView style={{marginBottom: hp('5%')}}>
           <View
             style={{
+              backgroundColor: '#412916',
               alignItems: 'center',
               paddingVertical: hp('3%'),
-              borderTopWidth: 0.2,
-              borderTopColor: '#E9E9E9',
             }}>
-            <Text style={{color: '#656565', fontSize: 18}}>
-              Select which department you wish to stock take
-            </Text>
+            <Text style={{fontSize: 22, color: 'white'}}>MENU ITEMS</Text>
             {buttons.map((item, index) => {
               return (
                 <View style={{}} key={index}>
@@ -122,8 +108,7 @@ class index extends Component {
                       backgroundColor: '#94C036',
                       justifyContent: 'center',
                       alignItems: 'center',
-                      marginTop: 18,
-                      borderRadius: 5,
+                      marginTop: 20,
                     }}>
                     <View style={{}}>
                       <Text style={{color: 'white', marginLeft: 5}}>
@@ -134,6 +119,9 @@ class index extends Component {
                 </View>
               );
             })}
+          </View>
+          <View style={{justifyContent: 'center', alignItems: 'center'}}>
+            <Text> Work in progress</Text>
           </View>
         </ScrollView>
       </View>

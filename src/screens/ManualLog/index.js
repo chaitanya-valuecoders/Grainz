@@ -1,47 +1,40 @@
-import React, {Component, useState} from 'react';
-import {NativeModules, SafeAreaView} from 'react-native';
-import Accordion from 'react-native-collapsible/Accordion';
-import RNPickerSelect from 'react-native-picker-select';
-import ToggleSwitch from 'toggle-switch-react-native';
-import DateTimePickerModal from 'react-native-modal-datetime-picker';
-import {MultipleSelectPicker} from 'react-native-multi-select-picker';
-import Modal from 'react-native-modal';
-import CheckBox from '@react-native-community/checkbox';
-import {
-  widthPercentageToDP as wp,
-  heightPercentageToDP as hp,
-} from 'react-native-responsive-screen';
-import {
-  getManualLogList,
-  deleteManualLog,
-  getManualLogsById,
-  getManualLogTypes,
-} from '../../connectivity/api';
-import moment from 'moment';
+import React, {Component} from 'react';
 import {
   View,
   Text,
   TouchableOpacity,
   Image,
-  Alert,
-  Pressable,
-  TextInput,
-  StyleSheet,
-  ActivityIndicator,
   ScrollView,
+  ActivityIndicator,
+  Switch,
+  TextInput,
+  Alert,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {UserTokenAction} from '../../redux/actions/UserTokenAction';
 import {connect} from 'react-redux';
-import MepScreen from '../Mep';
+import img from '../../constants/images';
 import SubHeader from '../../components/SubHeader';
 import Header from '../../components/Header';
-import HomeScreen from '../Home';
-import img from '../../constants/images';
-import {set} from 'react-native-reanimated';
-import DatePicker from '../../components/DatePicker';
+import {
+  widthPercentageToDP as wp,
+  heightPercentageToDP as hp,
+} from 'react-native-responsive-screen';
+import {UserTokenAction} from '../../redux/actions/UserTokenAction';
+import {
+  getMyProfileApi,
+  getManualLogList,
+  deleteManualLog,
+  getMepRecipesApi,
+  newMepListApi,
+  getMepRecipeByIdsApi,
+  updateManualLogApi,
+} from '../../connectivity/api';
+import Modal from 'react-native-modal';
+import Accordion from 'react-native-collapsible/Accordion';
+import moment from 'moment';
+import DateTimePickerModal from 'react-native-modal-datetime-picker';
+import {MultipleSelectPicker} from 'react-native-multi-select-picker';
 
-const axios = require('axios');
 var minTime = new Date();
 minTime.setHours(0);
 minTime.setMinutes(0);
@@ -51,132 +44,56 @@ class index extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      isSelected: null,
-      setSelection: null,
-      isShownPicker: false,
-      applyStatus: false,
-      selectectedItems: [],
-      toggle: true,
-      typeList: [],
-      isLoading: true,
-      SECTIONS: [],
-      sectionData: {},
-      textQuantity: '',
-      note: '',
-      show: false,
+      buttons: [{name: 'Add new', icon: img.addIcon}, {name: 'Back'}],
+      token: '',
+      modalVisible: false,
+      firstName: '',
+      modalVisibleAdd: false,
       activeSections: [],
-      newItemModal: true,
-      newItem: '',
-      itemtype: '',
-      detailsLoader: false,
-      modalLogDetails: null,
+      SECTIONS: [],
+      recipeLoader: false,
+      modalVisibleRecipeDetails: false,
+      sectionData: {},
+      isMakeMeStatus: true,
       isDatePickerVisible: false,
       finalDate: '',
-      itemType: null,
-      newManualLog: {},
+      selectectedItems: [],
+      isShownPicker: false,
+      items: [],
+      productionDate: '',
+      applyStatus: false,
+      detailsLoader: false,
+      quantity: '',
+      notes: '',
+      advanceDetailsLoader: false,
+      sectionAdvanceData: {},
+      recipeID: '',
     };
   }
 
-  hideDatePicker = () => {
-    this.setState({
-      isDatePickerVisible: false,
-    });
+  setModalVisible = visible => {
+    this.setState({modalVisible: visible});
   };
 
-  handleConfirm = date => {
-    let newdate = moment(date).format('L');
-    this.setState({
-      finalDate: newdate,
-      productionDate: date,
-    });
-
-    this.hideDatePicker();
+  setModalVisibleAdd = visible => {
+    this.setState({modalVisibleAdd: visible});
   };
 
-  showDatePicker = () => {
-    this.setState({
-      isDatePickerVisible: true,
-    });
-  };
-
-  componentDidMount() {
-    this.getManualLogListData();
-    this.getManualLogTypesData();
-  }
-
-  collapseAll() {
-    this.setState({activeSections: []});
-  }
-
-  getManualLogListData() {
-    getManualLogList()
-      .then(res => this.setState({SECTIONS: res.data, isLoading: false}))
-      .catch(err => {
-        console.warn('ERr', err.response);
-      });
-  }
-  getManualLogTypesData() {
-    getManualLogTypes()
-      .then(res => this.setState({typeList: res.data}))
-      .catch(err => {
-        console.warn('ERr', err.response);
-      });
-  }
-
-  _renderSectionTitle = section => {
-    return <View style={{backgroundColor: '#EAEAF0'}}></View>;
-  };
-
-  _renderHeader = section => {
-    const finalData = moment(section.loggedDate).format('dddd, MMM DD YYYY');
-    return (
-      <View
-        style={{
-          alignItems: 'center',
-          backgroundColor: '#EAEAF0',
-          flexDirection: 'row',
-          borderWidth: 1,
-          borderColor: '#D1D1D6',
-          height: 60,
-          marginTop: hp('2%'),
-        }}>
-        <Image
-          style={{
-            height: 20,
-            width: 20,
-            resizeMode: 'contain',
-          }}
-          source={section.icon2}
-        />
-        <Text
-          style={{
-            color: '#98989B',
-            fontSize: 15,
-            fontWeight: 'bold',
-            marginLeft: wp('2%'),
-          }}>
-          {finalData}
-        </Text>
-      </View>
-    );
-  };
-
-  toggleButton() {
-    this.setState({toggle: !this.state.toggle});
-  }
-  setModalVisibleLogDetails = (visible, data) => {
+  setModalVisibleRecipeDetails = (visible, data) => {
     this.setState(
       {
-        modalLogDetails: visible,
+        modalVisibleRecipeDetails: visible,
         detailsLoader: true,
       },
       () =>
-        getManualLogsById(data.id)
+        getMepRecipeByIdsApi(data.id)
           .then(res => {
             this.setState({
-              modalLogDetails: visible,
-              logSectionData: res.data,
+              modalVisibleRecipeDetails: visible,
+              sectionData: res.data,
               detailsLoader: false,
+              quantity: JSON.stringify(res.data && res.data.quantity),
+              notes: res.data && res.data.notes,
             });
           })
           .catch(err => {
@@ -187,562 +104,1127 @@ class index extends Component {
           }),
     );
   };
+  setModalVisibleRecipeDetailsClose = visible => {
+    this.setState({
+      modalVisibleRecipeDetails: visible,
+    });
+  };
 
-  deleteLog(param) {
+  getData = async () => {
+    try {
+      const value = await AsyncStorage.getItem('@appToken');
+      if (value !== null) {
+        this.setState(
+          {
+            token: value,
+          },
+          () => this.getProfileData(),
+        );
+      }
+    } catch (e) {
+      console.warn('ErrHome', e);
+    }
+  };
+
+  getProfileData = () => {
+    getMyProfileApi()
+      .then(res => {
+        this.setState({
+          firstName: res.data.firstName,
+        });
+      })
+      .catch(err => {
+        console.warn('ERr', err);
+      });
+  };
+
+  getManualLogsData = () => {
+    this.setState(
+      {
+        recipeLoader: true,
+      },
+      () => this.createFirstData(),
+    );
+  };
+
+  createFirstData = () => {
+    getManualLogList()
+      .then(res => {
+        const result = res.data.reduce((temp, value) => {
+          if (temp.length < 5) temp.push(value);
+          return temp;
+        }, []);
+        this.setState({
+          SECTIONS: result,
+          recipeLoader: false,
+        });
+      })
+      .catch(err => {
+        console.log('ERR MEP', err);
+
+        this.setState({
+          recipeLoader: false,
+        });
+      });
+  };
+
+  componentDidMount() {
+    this.getData();
+    this.getManualLogsData();
+  }
+
+  myProfile = () => {
+    this.props.navigation.navigate('MyProfile');
+  };
+
+  onPressFun = item => {
+    if (item.name === 'Add new') {
+      this.setModalVisibleAdd(true);
+      this.setState({
+        selectectedItems: [],
+        preparedDate: '',
+        finalDate: '',
+        items: [],
+        isShownPicker: false,
+        applyStatus: false,
+      });
+    } else if (item.name === 'Back') {
+      this.props.navigation.goBack();
+    }
+  };
+
+  onPressCollapseFun = () => {
+    this.setState({
+      activeSections: [],
+    });
+  };
+
+  _renderHeader = (section, index, isActive) => {
+    var todayFinal = moment(new Date()).format('dddd, MMM DD YYYY');
+
+    const finalData = moment(section.loggedDate).format('dddd, MMM DD YYYY');
+
+    return (
+      <View
+        style={{
+          backgroundColor: '#EAEAF1',
+          flexDirection: 'row',
+          borderWidth: 1,
+          borderColor: '#D1D1D6',
+          height: 60,
+          marginTop: hp('2%'),
+          alignItems: 'center',
+        }}>
+        <Image
+          style={{
+            height: 18,
+            width: 18,
+            resizeMode: 'contain',
+            marginLeft: wp('2%'),
+          }}
+          source={isActive ? img.arrowDownIcon : img.arrowRightIcon}
+        />
+        <Text
+          style={{
+            color: '#98989B',
+            fontSize: 15,
+            fontWeight: 'bold',
+            marginLeft: wp('2%'),
+          }}>
+          {todayFinal === finalData ? 'Today' : finalData}
+        </Text>
+      </View>
+    );
+  };
+
+  updateReviewedStatusFun = section => {
     let payload = {
-      id: param.id,
-      itemId: param.itemId,
-      name: param.name,
-      loggedDate: param.loggedDate,
-      quantity: param.quantity,
-      itemTypeId: param.itemTypeId,
-      typeId: param.typeId,
-      departmentId: param.departmentId,
-      unitId: param.unitId,
-      departmentName: param.departmentName,
-      category: param.category,
-      itemTypeName: param.itemTypeName,
-      typeName: param.typeName,
-      reviewed: param.reviewed,
-      unit: param.unit,
-      userId: param.userId,
-      userFullName: param.userFullName,
+      id: section.id,
+      itemId: section.itemId,
+      name: section.name,
+      loggedDate: section.loggedDate,
+      quantity: section.quantity,
+      itemTypeId: section.itemTypeId,
+      typeId: section.typeId,
+      departmentId: section.departmentId,
+      unitId: section.unitId,
+      departmentName: section.departmentName,
+      category: section.category,
+      itemTypeName: section.itemTypeName,
+      typeName: section.typeName,
+      reviewed: !section.reviewed,
+      unit: section.unit,
+      userId: section.userId,
+      userFullName: section.userFullName,
       units: [
         {
-          id: param.id,
-          inventoryId: param.inventoryId,
-          name: param.name,
-          isDefault: param.isDefault,
-          isVariable: param.isVariable,
-          quantity: param.quantity,
-          converter: param.converter,
-          notes: param.notes,
-          action: param.action,
+          id: section.units[0].id,
+          inventoryId: section.units[0].inventoryId,
+          name: section.units[0].name,
+          isDefault: true,
+          isVariable: false,
+          quantity: null,
+          converter: 1,
+          notes: null,
+          action: null,
         },
       ],
-      notes: param.notes,
-      inUse: param.inUse,
-      countInInventory: param.countInInventory,
+      notes: section.notes,
+      inUse: section.inUse,
+      countInInventory: section.countInInventory,
     };
-    deleteManualLog(payload)
-      .then(response => {
-        this.setState({isLoading: true});
-        this.getManualLogListData();
+    console.log('PAYLOAD', payload);
+    updateManualLogApi(payload)
+      .then(res => {
+        this.setState(
+          {
+            modalVisibleRecipeDetails: false,
+          },
+          () => this.getManualLogsData(),
+        );
       })
-      .catch(error => {
-        console.warn(error);
+      .catch(err => {
+        console.warn('ERRUPDATE', err.response);
       });
-  }
+  };
 
   _renderContent = section => {
     return (
-      <View style={{flex: 8}}>
-        <View style={{flex: 4, flexDirection: 'row'}}></View>
-        <View style={{flex: 1}}>
-          <ScrollView horizontal={true}>
-            <ToggleSwitch
-              isOn={this.state.toggle}
-              onColor="#94C01F"
-              offColor="#CCCCCC"
-              size="small"
-              onToggle={isOn => this.toggleButton()}
-            />
-            <TouchableOpacity onPress={() => this.openNewItemModal(true)}>
-              <Text
-                style={{
-                  fontSize: 14,
-                  fontWeight: 'bold',
-                  textAlign: 'center',
-                }}>
-                {section.name}
-              </Text>
-            </TouchableOpacity>
-            {section.notes ? (
-              <Text style={{marginLeft: 15, color: '#8C8C8C'}}>
-                {section.notes}
-              </Text>
-            ) : null}
-            <Text style={{marginLeft: 15, fontWeight: 'bold'}}>
-              {section.itemTypeName}
-            </Text>
-            <Text style={{marginLeft: 15, fontWeight: 'bold'}}>
-              {section.quantity} Units
-            </Text>
-            <Text style={{marginLeft: 15, fontWeight: 'bold'}}>
-              {section.typeName}
-            </Text>
-
-            <Text style={{marginLeft: 15, fontWeight: 'bold'}}>
-              {section.userFullName}
-            </Text>
-            <TouchableOpacity
-              onPress={section => this.deleteLog(section)}
-              style={{
-                width: '12%',
-                marginLeft: 15,
-              }}>
-              <Image
-                style={{
-                  height: 23,
-                  width: 23,
-                  tintColor: 'red',
-                  resizeMode: 'contain',
+      <View style={{marginTop: hp('2%')}}>
+        <ScrollView
+          horizontal
+          style={{marginRight: wp('10%')}}
+          showsHorizontalScrollIndicator={false}>
+          <View>
+            <View style={{flexDirection: 'row', alignItems: 'center'}}>
+              <Switch
+                style={{}}
+                trackColor={{
+                  false: '#767577',
+                  true: '#94C036',
                 }}
-                source={img.deleteIcon}
+                value={!section.reviewed}
+                onValueChange={() => this.updateReviewedStatusFun(section)}
+                thumbColor="#fff"
               />
-            </TouchableOpacity>
-          </ScrollView>
-        </View>
+              <View style={{marginLeft: wp('2%')}}>
+                <TouchableOpacity
+                  onPress={() =>
+                    this.setModalVisibleRecipeDetails(true, section)
+                  }>
+                  <Text
+                    style={{
+                      fontSize: 14,
+                      fontWeight: 'bold',
+                    }}>
+                    {section.name}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+              <View style={{alignItems: 'center', marginLeft: wp('4%')}}>
+                <Text
+                  style={{
+                    fontSize: 14,
+                  }}>
+                  {section.itemTypeName}
+                </Text>
+              </View>
+              <View style={{alignItems: 'center', marginLeft: wp('4%')}}>
+                <Text
+                  style={{
+                    fontSize: 14,
+                  }}>
+                  {section.quantity}{' '}
+                  {section.units.length > 0 && section.units[0].name}
+                </Text>
+              </View>
+              <View style={{alignItems: 'center', marginLeft: wp('4%')}}>
+                <Text
+                  style={{
+                    fontSize: 14,
+                  }}>
+                  {section.typeName}
+                </Text>
+              </View>
+              <View style={{alignItems: 'center', marginLeft: wp('4%')}}>
+                <Text
+                  style={{
+                    fontSize: 14,
+                  }}>
+                  {section.userFullName}
+                </Text>
+              </View>
+              <View style={{alignItems: 'center', marginLeft: wp('4%')}}>
+                <TouchableOpacity
+                  onPress={() => this.deleteMepFun(section)}
+                  style={{
+                    backgroundColor: 'red',
+                    padding: 5,
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                  }}>
+                  <Image
+                    source={img.cancelIcon}
+                    style={{
+                      height: 15,
+                      width: 15,
+                      tintColor: 'white',
+                      resizeMode: 'contain',
+                    }}
+                  />
+                  <Text
+                    style={{fontSize: 14, color: '#fff', textAlign: 'center'}}>
+                    Delete
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </ScrollView>
       </View>
     );
   };
 
   _updateSections = activeSections => {
-    this.setState({activeSections});
+    this.setState({
+      activeSections,
+    });
   };
 
-  openLogTypeDropdown(param) {
+  updateRecipeDetailsFun = () => {
+    const {sectionData, quantity, notes} = this.state;
+    let payload = [
+      {
+        id: sectionData.id,
+        recipeVersionId: sectionData.recipeVersionId,
+        userId: sectionData.userId,
+        preparedById: 'string',
+        madeBy: 'string',
+        requestedBy: 'string',
+        preparedBy: 'string',
+        isPrepared: sectionData.isPrepared,
+        isRecycled: sectionData.isRecycled,
+        isTracked: sectionData.isTracked,
+        name: sectionData.name,
+        unit: sectionData.unit,
+        productionDate: sectionData.productionDate,
+        preparedDate: sectionData.preparedDate,
+        recipeId: sectionData.recipeId,
+        quantity: quantity,
+        notes: notes,
+      },
+    ];
+    updateManualLogApi(payload)
+      .then(res => {
+        this.setState(
+          {
+            modalVisibleRecipeDetails: false,
+            sectionData: '',
+          },
+          () => this.getManualLogsData(),
+        );
+      })
+      .catch(err => {
+        console.warn('ERRDeleteMep', err.response);
+      });
+  };
+
+  toggleSwitchNotif = data => {
+    this.setState(
+      {
+        modalVisibleRecipeDetails: false,
+      },
+      () => this.updateReviewedStatusFun(data),
+    );
+  };
+
+  deleteMepFunSec = section => {
+    let payload = {
+      id: section.id,
+      itemId: section.itemId,
+      name: section.name,
+      loggedDate: section.loggedDate,
+      quantity: section.quantity,
+      itemTypeId: section.itemTypeId,
+      typeId: section.typeId,
+      departmentId: section.departmentId,
+      unitId: section.unitId,
+      departmentName: section.departmentName,
+      category: section.category,
+      itemTypeName: section.itemTypeName,
+      typeName: section.typeName,
+      reviewed: section.reviewed,
+      unit: section.unit,
+      userId: section.userId,
+      userFullName: section.userFullName,
+      units: [
+        {
+          id: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+          inventoryId: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+          name: 'string',
+          isDefault: true,
+          isVariable: true,
+          quantity: 0,
+          converter: 0,
+          notes: 'string',
+          action: 'string',
+        },
+      ],
+      notes: section.notes,
+      inUse: section.inUse,
+      countInInventory: section.countInInventory,
+    };
+    deleteManualLog(payload)
+      .then(res => {
+        this.setState(
+          {
+            modalVisibleRecipeDetails: false,
+          },
+          () => this.getManualLogsData(),
+        );
+      })
+      .catch(err => {
+        console.warn('ERRDeleteMep', err.response);
+      });
+  };
+
+  deleteMepFun = data => {
+    Alert.alert('Are you sure?', "You won't be able to revert this!", [
+      {
+        text: 'Cancel',
+        onPress: () => console.log('Cancel Pressed'),
+        style: 'cancel',
+      },
+      {text: 'OK', onPress: () => this.deleteMepFunSec(data)},
+    ]);
+  };
+
+  hideDatePicker = () => {
     this.setState({
-      isShownPicker: param,
+      isDatePickerVisible: false,
     });
-  }
+  };
 
-  openNewItemModal(param) {
-    this.setState({newItemModal: param});
-  }
+  getRecipesData = () => {
+    const {finalDate} = this.state;
+    getMepRecipesApi(finalDate)
+      .then(res => {
+        const {data} = res;
+        let newData = [];
+        data.map(item => {
+          const obj = {};
+          obj.label = item.name;
+          obj.value = item.id;
+          obj.quantity = item.batchQuantity;
+          newData = [...newData, obj];
+        });
+        this.setState({
+          items: newData,
+        });
+      })
+      .catch(err => {
+        console.warn('Err', err);
+      });
+  };
 
-  selectItem(value) {
-    this.setState({newitem: 'new item'});
-  }
+  handleConfirm = date => {
+    let newdate = moment(date).format('L');
+    this.setState(
+      {
+        finalDate: newdate,
+        productionDate: date,
+      },
+      () => this.getRecipesData(),
+    );
 
-  selectType(value) {
-    this.setState({itemType: 'type'});
-  }
+    this.hideDatePicker();
+  };
 
-  selectItemType(type, hide) {
-    setTimeout(() => {
-      this.setState({isShownPicker: hide, itemType: type});
-    }, 500);
-  }
+  showDatePickerFun = () => {
+    this.setState({
+      isDatePickerVisible: true,
+    });
+  };
+
+  addMepListFun = () => {
+    const {selectectedItems, productionDate} = this.state;
+
+    if (productionDate === '' || selectectedItems.length === 0) {
+      alert('Please select date and recipe');
+    } else {
+      newMepListApi(selectectedItems)
+        .then(res => {
+          this.setState(
+            {
+              modalVisibleAdd: false,
+              selectectedItems: [],
+            },
+            () => this.getManualLogsData(),
+          );
+        })
+        .catch(err => {
+          console.warn('ERRDeleteMep', err.response);
+        });
+    }
+  };
+
+  openRecipeDropDown = () => {
+    const {applyStatus, finalDate} = this.state;
+    if (finalDate) {
+      if (applyStatus) {
+        this.setState({
+          isShownPicker: false,
+        });
+      } else {
+        this.setState({
+          isShownPicker: true,
+        });
+      }
+    } else {
+      alert('Please select date first.');
+    }
+  };
+
+  showAdvanceView = () => {
+    const {recipeID} = this.state;
+    this.setState(
+      {
+        modalAdvanceRecipeDetails: false,
+      },
+      () =>
+        this.props.navigation.navigate('MepAdvanceScreen', {
+          recipeID: recipeID,
+        }),
+    );
+  };
 
   render() {
     const {
-      isSelected,
-      setSelection,
-      newItemModal,
-      isShownPicker,
-      applyStatus,
-      selectedItems,
-      typeList,
+      modalVisible,
+      modalVisibleAdd,
+      recipeLoader,
       SECTIONS,
-      textQuantity,
       activeSections,
-      finalDate,
+      firstName,
+      buttons,
+      modalVisibleRecipeDetails,
+      sectionData,
       isDatePickerVisible,
-      itemType,
+      finalDate,
+      isShownPicker,
+      selectectedItems,
+      items,
+      applyStatus,
+      detailsLoader,
+      quantity,
+      notes,
+      advanceDetailsLoader,
+      sectionAdvanceData,
     } = this.state;
+    const finalDateData = moment(sectionData.productionDate).format(
+      'dddd, MMM DD YYYY',
+    );
     return (
-      <SafeAreaView style={{flex: 1, backgroundColor: '#fff'}}>
+      <View style={{flex: 1, backgroundColor: '#fff'}}>
+        <Header
+          logout={firstName}
+          logoutFun={this.myProfile}
+          logoFun={() => this.props.navigation.navigate('HomeScreen')}
+        />
+        <SubHeader />
         <ScrollView style={{marginBottom: hp('5%')}}>
           <View
             style={{
-              flex: 2,
-              borderBottomColor: '#ada9a9',
-              borderBottomWidth: 1,
+              backgroundColor: '#412916',
+              alignItems: 'center',
+              paddingVertical: hp('3%'),
             }}>
-            <Header />
-          </View>
-          <View style={{flex: 3}}>
-            <SubHeader />
-          </View>
-          <View
-            className="header"
-            style={{height: hp('20%'), backgroundColor: '#412916'}}>
-            <View style={{flex: 2, alignItems: 'center'}}>
-              <Text style={{margin: 5, color: 'white', fontSize: 20}}>
-                MANUAL LOG
-              </Text>
-            </View>
-            <View style={{flex: 4, alignItems: 'center'}}>
-              <TouchableOpacity
-                onPress={() => this.openNewItemModal(!newItemModal)}
-                style={{
-                  height: '70%',
-                  width: '90%',
-                  backgroundColor: '#94C036',
-                  marginTop: '1%',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}>
-                <Text style={{color: 'white', fontSize: 17}}>New</Text>
-              </TouchableOpacity>
-              <Modal
-                animationType="slide"
-                backDropOpacity={0.35}
-                visible={newItemModal}
-                onRequestClose={() => {
-                  Alert.alert('Modal has been closed.');
-                  this.openNewItemModal(!newItemModal);
-                }}>
-                <View
-                  style={{
-                    flex: 16,
-
-                    marinTop: 20,
-                    backgroundColor: '#ffff',
-                    justifyContent: 'center',
-                  }}>
-                  <View
+            <Text style={{fontSize: 22, color: 'white'}}>MANUAL LOG</Text>
+            {buttons.map((item, index) => {
+              return (
+                <View style={{}} key={index}>
+                  <TouchableOpacity
+                    onPress={() => this.onPressFun(item)}
                     style={{
-                      flex: 1,
                       flexDirection: 'row',
-                      marginTop: 20,
-                      backgroundColor: '#412916',
-                      alignItems: 'center',
+                      height: hp('6%'),
+                      width: wp('70%'),
+                      backgroundColor: '#94C036',
                       justifyContent: 'center',
+                      alignItems: 'center',
+                      marginTop: 20,
                     }}>
-                    <View style={{marginLeft: 10}}>
-                      <Text style={{color: 'white'}}>
-                        Manual log- Add new item
-                      </Text>
-                    </View>
                     <View style={{}}>
-                      <Pressable
-                        style={{borderRadius: 20, padding: 10, elevation: 2}}
-                        onPress={() => this.openNewItemModal(!newItemModal)}>
-                        <Image
-                          style={{
-                            height: 18,
-                            width: 18,
-                            tintColor: 'white',
-                            resizeMode: 'contain',
-                          }}
-                          source={img.cancelIcon}
-                        />
-                      </Pressable>
-                    </View>
-                  </View>
-
-                  <View style={{flex: 1, margin: 10}}>
-                    <View style={{}}>
-                      <TouchableOpacity
-                        onPress={() => this.showDatePicker()}
-                        style={{
-                          borderWidth: 1,
-                          padding: 10,
-                          marginBottom: hp('4%'),
-                          flexDirection: 'row',
-                          justifyContent: 'space-between',
-                        }}>
-                        <TextInput
-                          placeholder="dd-mm-yy"
-                          value={finalDate}
-                          editable={false}
-                        />
-                        <Image
-                          source={img.calenderIcon}
-                          style={{
-                            width: 20,
-                            height: 20,
-                            resizeMode: 'contain',
-                          }}
-                        />
-                      </TouchableOpacity>
-                    </View>
-                    <View>
-                      <DateTimePickerModal
-                        // is24Hour={true}
-                        isVisible={isDatePickerVisible}
-                        mode={'date'}
-                        onConfirm={this.handleConfirm}
-                        onCancel={this.hideDatePicker}
-                        minimumDate={minTime}
-
-                        // maximumDate={maxTime}
-                        // minimumDate={new Date()}
-                      />
-                    </View>
-                  </View>
-                  <View style={{flex: 1, margin: 10}}>
-                    <TouchableOpacity
-                      style={{
-                        borderWidth: 1,
-                        padding: 10,
-                        marginBottom: hp('4%'),
-                        flexDirection: 'row',
-                        justifyContent: 'space-between',
-                      }}>
-                      <Text>Select</Text>
                       <Image
-                        source={img.arrowDownIcon}
+                        source={item.icon}
                         style={{
-                          width: 15,
-                          height: 15,
+                          height: 22,
+                          width: 22,
+                          tintColor: 'white',
                           resizeMode: 'contain',
                         }}
                       />
-                    </TouchableOpacity>
-                  </View>
-
-                  <View
-                    style={{
-                      flex: 1,
-                      justifyContent: 'center',
-                    }}>
-                    <View
-                      style={{
-                        height: 40,
-                        margin: 10,
-                        borderWidth: 1,
-                        borderColor: '#A2A2A2',
-                        padding: 10,
-                      }}>
-                      <TextInput
-                        onChangeText={textQuantity =>
-                          this.setState({textQuantity})
-                        }
-                        value={textQuantity}
-                        placeholder="quantity"
-                      />
                     </View>
-                  </View>
-                  <View
-                    style={{
-                      flex: 10,
-                      margin: 10,
-                      marginBottom: '90%',
-                      justifyContent: 'center',
-                    }}>
-                    <View style={{flex: 2}}>
-                      <TouchableOpacity
-                        onPress={() => {
-                          this.openLogTypeDropdown(!isShownPicker);
-                        }}
+                    <View style={{}}>
+                      <Text style={{color: 'white', marginLeft: 5}}>
+                        {item.name}
+                      </Text>
+                    </View>
+                  </TouchableOpacity>
+                  <View>
+                    {/* // Add Recipe Modal */}
+                    <Modal isVisible={modalVisibleAdd} backdropOpacity={0.35}>
+                      <View
                         style={{
-                          borderWidth: 1,
-                          padding: 10,
-                          flexDirection: 'row',
-                          justifyContent: 'space-between',
+                          width: wp('80%'),
+                          height: isShownPicker ? hp('90%') : hp('60%'),
+                          backgroundColor: '#fff',
+                          alignSelf: 'center',
                         }}>
-                        {itemType ? (
-                          <Text>{itemType}</Text>
-                        ) : (
-                          <Text>Select Type</Text>
-                        )}
-
-                        <Image
-                          source={img.arrowDownIcon}
-                          style={{
-                            width: 15,
-                            height: 15,
-                            resizeMode: 'contain',
-                          }}
-                        />
-                      </TouchableOpacity>
-                    </View>
-                    <View style={{flex: 8}}>
-                      {isShownPicker ? (
                         <View
                           style={{
-                            margin: 5,
-                            borderWidth: 1,
-                            borderColor: 'black',
-                            padding: 5,
+                            backgroundColor: '#412916',
+                            height: hp('7%'),
+                            flexDirection: 'row',
                           }}>
-                          {typeList.map(item => {
-                            return (
+                          <View
+                            style={{
+                              flex: 3,
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                            }}>
+                            <Text style={{fontSize: 16, color: '#fff'}}>
+                              MISE-EN-PLACE BUILDER
+                            </Text>
+                          </View>
+                          <View
+                            style={{
+                              flex: 1,
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                            }}>
+                            <TouchableOpacity
+                              onPress={() => this.setModalVisibleAdd(false)}>
+                              <Image
+                                source={img.cancelIcon}
+                                style={{
+                                  height: 22,
+                                  width: 22,
+                                  tintColor: 'white',
+                                  resizeMode: 'contain',
+                                }}
+                              />
+                            </TouchableOpacity>
+                          </View>
+                        </View>
+                        <ScrollView>
+                          <View style={{padding: hp('3%')}}>
+                            <View style={{}}>
+                              <View style={{marginBottom: 10}}>
+                                <Text>Production Date</Text>
+                              </View>
+                              <TouchableOpacity
+                                onPress={() => this.showDatePickerFun()}
+                                style={{
+                                  borderWidth: 1,
+                                  padding: 10,
+                                  marginBottom: hp('4%'),
+                                  flexDirection: 'row',
+                                  justifyContent: 'space-between',
+                                }}>
+                                <TextInput
+                                  placeholder="dd-mm-yy"
+                                  value={finalDate}
+                                  editable={false}
+                                />
+                                <Image
+                                  source={img.calenderIcon}
+                                  style={{
+                                    width: 20,
+                                    height: 20,
+                                    resizeMode: 'contain',
+                                  }}
+                                />
+                              </TouchableOpacity>
+                              <TouchableOpacity
+                                onPress={() => {
+                                  this.openRecipeDropDown();
+                                }}
+                                style={{
+                                  borderWidth: 1,
+                                  padding: 10,
+                                  flexDirection: 'row',
+                                  justifyContent: 'space-between',
+                                }}>
+                                {selectectedItems.length > 0 ? (
+                                  <View>
+                                    {applyStatus ? (
+                                      <View>
+                                        {selectectedItems.map(item => {
+                                          return (
+                                            <View style={{marginTop: hp('1%')}}>
+                                              <Text>{item.name}</Text>
+                                            </View>
+                                          );
+                                        })}
+                                      </View>
+                                    ) : selectectedItems.length > 0 ? (
+                                      <View>
+                                        {selectectedItems.map(item => {
+                                          return (
+                                            <View style={{marginTop: hp('1%')}}>
+                                              <Text>{item.label}</Text>
+                                            </View>
+                                          );
+                                        })}
+                                      </View>
+                                    ) : null}
+                                  </View>
+                                ) : (
+                                  <Text>Select recipe</Text>
+                                )}
+                                <Image
+                                  source={img.arrowDownIcon}
+                                  style={{
+                                    width: 15,
+                                    height: 15,
+                                    resizeMode: 'contain',
+                                  }}
+                                />
+                              </TouchableOpacity>
+                              {isShownPicker ? (
+                                <MultipleSelectPicker
+                                  items={items}
+                                  onSelectionsChange={ele => {
+                                    this.setState({selectectedItems: ele});
+                                  }}
+                                  selectedItems={selectectedItems}
+                                  buttonStyle={{
+                                    height: 100,
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                  }}
+                                  buttonText="hello"
+                                  checkboxStyle={{height: 20, width: 20}}
+                                />
+                              ) : null}
+
                               <View
                                 style={{
-                                  marginTop: hp('1%'),
-                                  marginBottom: 10,
                                   flexDirection: 'row',
+                                  alignItems: 'center',
+                                  justifyContent: 'flex-end',
+                                  marginTop: hp('5%'),
                                 }}>
-                                <CheckBox
-                                  value={isSelected}
-                                  onValueChange={() =>
-                                    this.selectItemType(
-                                      item.name,
-                                      !isShownPicker,
+                                <TouchableOpacity
+                                  onPress={() => this.addMepListFun()}
+                                  style={{
+                                    width: wp('15%'),
+                                    height: hp('5%'),
+                                    alignSelf: 'flex-end',
+                                    backgroundColor: '#94C036',
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                  }}>
+                                  <Text
+                                    style={{
+                                      color: '#fff',
+                                      fontSize: 15,
+                                      fontWeight: 'bold',
+                                    }}>
+                                    Save
+                                  </Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity
+                                  onPress={() => this.setModalVisibleAdd(false)}
+                                  style={{
+                                    width: wp('15%'),
+                                    height: hp('5%'),
+                                    alignSelf: 'flex-end',
+                                    backgroundColor: '#E7943B',
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                    marginLeft: wp('2%'),
+                                  }}>
+                                  <Text
+                                    style={{
+                                      color: '#fff',
+                                      fontSize: 15,
+                                      fontWeight: 'bold',
+                                    }}>
+                                    Close
+                                  </Text>
+                                </TouchableOpacity>
+                              </View>
+                              <DateTimePickerModal
+                                // is24Hour={true}
+                                isVisible={isDatePickerVisible}
+                                mode={'date'}
+                                onConfirm={this.handleConfirm}
+                                onCancel={this.hideDatePicker}
+                                minimumDate={minTime}
+
+                                // maximumDate={maxTime}
+                                // minimumDate={new Date()}
+                              />
+                            </View>
+                          </View>
+                        </ScrollView>
+                      </View>
+                    </Modal>
+                    {/* // Recipe Details Modal */}
+                    <Modal
+                      isVisible={modalVisibleRecipeDetails}
+                      backdropOpacity={0.35}>
+                      <View
+                        style={{
+                          width: wp('85%'),
+                          height: hp('90%'),
+                          backgroundColor: '#fff',
+                          alignSelf: 'center',
+                        }}>
+                        <View
+                          style={{
+                            backgroundColor: '#412916',
+                            height: hp('7%'),
+                            flexDirection: 'row',
+                          }}>
+                          <View
+                            style={{
+                              flex: 3,
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                            }}>
+                            <Text style={{fontSize: 16, color: '#fff'}}>
+                              MISE-EN-PLACE DETAILS
+                            </Text>
+                          </View>
+                          <View
+                            style={{
+                              flex: 1,
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                            }}>
+                            <TouchableOpacity
+                              onPress={() =>
+                                this.setModalVisibleRecipeDetailsClose(false)
+                              }>
+                              <Image
+                                source={img.cancelIcon}
+                                style={{
+                                  height: 22,
+                                  width: 22,
+                                  tintColor: 'white',
+                                  resizeMode: 'contain',
+                                }}
+                              />
+                            </TouchableOpacity>
+                          </View>
+                        </View>
+                        {detailsLoader ? (
+                          <ActivityIndicator color="#94C036" size="large" />
+                        ) : (
+                          <ScrollView>
+                            <View style={{padding: hp('5%')}}>
+                              <View style={{}}>
+                                <View style={{}}>
+                                  <Text
+                                    style={{
+                                      color: '#7F7F7F',
+                                      fontSize: 16,
+                                      fontWeight: 'bold',
+                                      marginBottom: 5,
+                                    }}>
+                                    {sectionData.name}
+                                  </Text>
+                                  <View
+                                    style={{
+                                      marginTop: hp('1%'),
+                                      flexDirection: 'row',
+                                      alignItems: 'center',
+                                      marginVertical: hp('2%'),
+                                    }}>
+                                    <Switch
+                                      style={{width: '20%'}}
+                                      trackColor={{
+                                        false: '#767577',
+                                        true: '#94C036',
+                                      }}
+                                      value={!sectionData.isPrepared}
+                                      onValueChange={() =>
+                                        this.toggleSwitchNotif(sectionData)
+                                      }
+                                      thumbColor="#fff"
+                                    />
+                                    <Text
+                                      style={{
+                                        color: '#7F7F7F',
+                                        marginLeft: wp('4%'),
+                                        fontWeight: '900',
+                                      }}>
+                                      {!sectionData.isPrepared
+                                        ? 'Make me'
+                                        : 'Done'}
+                                    </Text>
+                                  </View>
+                                </View>
+
+                                <TouchableOpacity
+                                  style={{
+                                    height: hp('5%'),
+                                    width: wp('62%'),
+                                    backgroundColor: 'red',
+                                    alignSelf: 'center',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    flexDirection: 'row',
+                                  }}
+                                  onPress={() => this.deleteMepFun()}>
+                                  <Image
+                                    source={img.cancelIcon}
+                                    style={{
+                                      height: 22,
+                                      width: 22,
+                                      tintColor: 'white',
+                                      resizeMode: 'contain',
+                                    }}
+                                  />
+                                  <Text
+                                    style={{
+                                      color: '#fff',
+                                      fontSize: 16,
+                                      fontWeight: 'bold',
+                                      marginLeft: 10,
+                                    }}>
+                                    Delete
+                                  </Text>
+                                </TouchableOpacity>
+                                <View
+                                  style={{
+                                    marginTop: hp('3%'),
+                                  }}>
+                                  <Text>Requested By</Text>
+                                </View>
+                                <View
+                                  style={{
+                                    borderWidth: 1,
+                                    padding: 10,
+                                    marginTop: hp('2%'),
+                                    borderColor: '#C9CCD7',
+                                    backgroundColor: '#EEEEEE',
+                                  }}>
+                                  <TextInput
+                                    value={sectionData.requestedBy}
+                                    editable={false}
+                                  />
+                                </View>
+                                <View
+                                  style={{
+                                    borderWidth: 1,
+                                    padding: 10,
+                                    marginTop: hp('2%'),
+                                    borderColor: '#C9CCD7',
+                                    backgroundColor: '#EEEEEE',
+                                  }}>
+                                  <TextInput
+                                    editable={false}
+                                    value={finalDateData}
+                                  />
+                                </View>
+                                <View
+                                  style={{
+                                    marginTop: hp('3%'),
+                                  }}>
+                                  <Text>Made By</Text>
+                                </View>
+                                <View
+                                  style={{
+                                    borderWidth: 1,
+                                    padding: 10,
+                                    marginTop: hp('2%'),
+                                    borderColor: '#C9CCD7',
+                                    backgroundColor: '#EEEEEE',
+                                  }}>
+                                  <TextInput
+                                    value={sectionData.madeBy}
+                                    editable={false}
+                                  />
+                                </View>
+                                <View
+                                  style={{
+                                    borderWidth: 1,
+                                    padding: 10,
+                                    marginTop: hp('2%'),
+                                    borderColor: '#C9CCD7',
+                                    backgroundColor: '#EEEEEE',
+                                  }}>
+                                  <TextInput
+                                    value={sectionData.madeBy}
+                                    editable={false}
+                                  />
+                                </View>
+                                <View
+                                  style={{
+                                    marginTop: hp('3%'),
+                                  }}>
+                                  <Text>Quantity</Text>
+                                </View>
+                                <View
+                                  style={{
+                                    borderWidth: 1,
+                                    padding: 10,
+                                    marginTop: hp('2%'),
+                                    borderColor: '#C9CCD7',
+                                  }}>
+                                  <TextInput
+                                    placeholder="Quantity"
+                                    onChangeText={val =>
+                                      this.setState({
+                                        quantity: val,
+                                      })
+                                    }
+                                    value={quantity}
+                                  />
+                                </View>
+                                <View
+                                  style={{
+                                    borderWidth: 1,
+                                    padding: 10,
+                                    marginTop: hp('2%'),
+                                    borderColor: '#C9CCD7',
+                                    backgroundColor: '#EEEEEE',
+                                  }}>
+                                  <TextInput
+                                    value={sectionData.unit}
+                                    editable={false}
+                                  />
+                                </View>
+                                <View
+                                  style={{
+                                    marginTop: hp('3%'),
+                                  }}>
+                                  <Text>Note</Text>
+                                </View>
+                                <View
+                                  onPress={() => this.showDatePickerFun()}
+                                  style={{
+                                    borderWidth: 1,
+                                    padding: 10,
+                                    marginTop: hp('2%'),
+                                    height: hp('20%'),
+                                    borderColor: '#C9CCD7',
+                                  }}>
+                                  <TextInput
+                                    placeholder="Note"
+                                    onChangeText={value =>
+                                      this.setState({
+                                        notes: value,
+                                      })
+                                    }
+                                    value={notes}
+                                  />
+                                </View>
+                              </View>
+
+                              <View
+                                style={{
+                                  flexDirection: 'row',
+                                  justifyContent: 'space-between',
+                                  marginTop: hp('3%'),
+                                }}>
+                                <TouchableOpacity
+                                  onPress={() => this.updateRecipeDetailsFun()}
+                                  style={{
+                                    width: wp('30%'),
+                                    height: hp('5%'),
+                                    backgroundColor: '#94C036',
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                  }}>
+                                  <Text
+                                    style={{
+                                      color: '#fff',
+                                      fontSize: 15,
+                                      fontWeight: 'bold',
+                                    }}>
+                                    Save
+                                  </Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity
+                                  onPress={() =>
+                                    this.setModalVisibleRecipeDetailsClose(
+                                      false,
                                     )
                                   }
-                                  style={{margin: 5, height: 20, width: 20}}
-                                />
-                                <Text style={{margin: 5}}>{item.name}</Text>
-                              </View>
-                            );
-                          })}
-                        </View>
-                      ) : null}
-                      <View style={{}}>
-                        <Text style={{margin: 5}}>Note :</Text>
-                      </View>
-
-                      <View
-                        style={{
-                          flex: 3,
-
-                          borderWidth: 1,
-                          borderColor: '#A2A2A2',
-                          padding: 10,
-                        }}>
-                        <TextInput
-                          multiline={true}
-                          numberOfLines={4}
-                          onChangeText={note => this.setState({note})}
-                          value={this.state.note}
-                          placeholder="Notes"
-                        />
-                      </View>
-
-                      <View
-                        style={{
-                          flex: 8,
-                          backgroundColor: '',
-                          flexDirection: 'row',
-                          alignItems: 'stretch',
-                        }}>
-                        <View style={{flex: 4}}>
-                          <TouchableOpacity
-                            onPress={() => this.openNewItemModal(!newItemModal)}
-                            style={{
-                              flexDirection: 'row',
-                              height: 40,
-                              width: 160,
-                              backgroundColor: '#94C01F',
-                              justifyContent: 'center',
-                              alignItems: 'center',
-                              marginTop: '1%',
-                            }}>
-                            <View>
-                              <View
-                                style={{
-                                  flex: 1,
-                                  alignItems: 'center',
-                                  flexDirection: 'row',
-                                }}>
-                                <Image
                                   style={{
-                                    height: 20,
-                                    width: 20,
-                                    tintColor: 'white',
-                                    resizeMode: 'contain',
-                                    marginLeft: 5,
-                                  }}
-                                  source={img.checkIcon}
-                                />
-                                <Text
-                                  style={{
-                                    marginLeft: 5,
-                                    color: 'white',
-                                    fontSize: 18,
-                                    fontWeight: 'bold',
+                                    width: wp('30%'),
+                                    height: hp('5%'),
+                                    backgroundColor: '#E7943B',
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
                                   }}>
-                                  Save
-                                </Text>
+                                  <Text
+                                    style={{
+                                      color: '#fff',
+                                      fontSize: 15,
+                                      fontWeight: 'bold',
+                                    }}>
+                                    Close
+                                  </Text>
+                                </TouchableOpacity>
                               </View>
                             </View>
-                          </TouchableOpacity>
-                        </View>
-                        <View style={{flex: 4}}>
-                          <TouchableOpacity
-                            onPress={() => this.openNewItemModal(!newItemModal)}
-                            style={{
-                              flexDirection: 'row',
-                              height: 40,
-                              width: 160,
-                              backgroundColor: '#E6940B',
-                              justifyContent: 'center',
-                              alignItems: 'center',
-                              marginTop: '1%',
-                            }}>
-                            <View>
-                              <View
-                                style={{
-                                  alignItems: 'center',
-                                  flexDirection: 'row',
-                                }}>
-                                <Image
-                                  style={{
-                                    height: 20,
-                                    width: 20,
-                                    tintColor: 'white',
-                                    resizeMode: 'contain',
-                                    marginLeft: 5,
-                                  }}
-                                  source={img.cancelIcon}
-                                />
-                                <Text
-                                  style={{
-                                    marginLeft: 5,
-                                    color: 'white',
-                                    fontSize: 18,
-                                    fontWeight: 'bold',
-                                  }}>
-                                  Close
-                                </Text>
-                              </View>
-                            </View>
-                          </TouchableOpacity>
-                        </View>
+                          </ScrollView>
+                        )}
                       </View>
-                    </View>
+                    </Modal>
                   </View>
                 </View>
-              </Modal>
-            </View>
-            <View style={{flex: 4, alignItems: 'center'}}>
-              <TouchableOpacity
-                style={{
-                  height: '70%',
-                  width: '90%',
-                  backgroundColor: '#94C036',
-                  marginTop: '1%',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                }}
-                onPress={() => this.props.navigation.navigate('HomeScreen')}>
-                <Text style={{color: 'white'}}>Back</Text>
-              </TouchableOpacity>
-            </View>
+              );
+            })}
           </View>
-          <View style={{flex: 6}}>
-            <View style={{flex: 4, alignItems: 'center'}}>
-              <TouchableOpacity
-                onPress={() => this.collapseAll()}
-                style={{
-                  height: '70%',
-                  width: '90%',
-                  backgroundColor: '#94C036',
-                  marginTop: '3%%',
-                  marginBottom: '7%',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                }}>
-                <Text style={{color: 'white', fontSize: 17}}>Collapse all</Text>
-              </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => this.onPressCollapseFun()}
+            style={{
+              flexDirection: 'row',
+              height: hp('6%'),
+              width: wp('70%'),
+              backgroundColor: '#94C036',
+              justifyContent: 'center',
+              alignItems: 'center',
+              marginTop: 20,
+              alignSelf: 'center',
+            }}>
+            <View style={{}}>
+              <Text style={{color: 'white', marginLeft: 5}}>Collapse All</Text>
             </View>
-
-            {this.state.isLoading ? (
-              <ActivityIndicator color="#94C036" />
-            ) : (
-              <View style={{marginBottom: 10, marginLeft: 10, marginRight: 10}}>
-                <Accordion
-                  underlayColor="#fff"
-                  expandMultiple
-                  sections={SECTIONS}
-                  activeSections={activeSections}
-                  renderSectionTitle={this._renderSectionTitle}
-                  renderHeader={this._renderHeader}
-                  renderContent={this._renderContent}
-                  onChange={this._updateSections}
-                />
-              </View>
-            )}
-          </View>
+          </TouchableOpacity>
+          {recipeLoader ? (
+            <ActivityIndicator color="#94C036" size="large" />
+          ) : (
+            <View style={{marginTop: hp('3%'), marginHorizontal: wp('5%')}}>
+              <Accordion
+                expandMultiple
+                underlayColor="#fff"
+                sections={SECTIONS}
+                activeSections={activeSections}
+                renderHeader={this._renderHeader}
+                renderContent={this._renderContent}
+                onChange={this._updateSections}
+              />
+            </View>
+          )}
         </ScrollView>
-      </SafeAreaView>
+      </View>
     );
   }
 }
 
-export default index;
+const mapStateToProps = state => {
+  return {
+    UserTokenReducer: state.UserTokenReducer,
+    GetMyProfileReducer: state.GetMyProfileReducer,
+  };
+};
+
+export default connect(mapStateToProps, {UserTokenAction})(index);

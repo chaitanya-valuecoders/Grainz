@@ -104,16 +104,6 @@ export const newMepListApi = async payload => {
   });
 };
 
-export async function getManualLogList() {
-  const token = await AsyncStorage.getItem('@appToken');
-  console.warn;
-  return axios.get(baseURL + '/Manuallog/manual logs', {
-  headers: {
-    Authorization: `Bearer ${token}`,
-  },
-});
-};
-    
 export const updateMepListApi = async payload => {
   console.warn('PAY', payload);
   const token = await AsyncStorage.getItem('@appToken');
@@ -122,17 +112,37 @@ export const updateMepListApi = async payload => {
       Authorization: `Bearer ${token}`,
     },
   });
-}
+};
 
-export const deleteManualLog = async payload => {
+
+export async function getManualLogTypes() {
   const token = await AsyncStorage.getItem('@appToken');
   console.warn;
-  return axios.post(baseURL + '/ManualLog/delete manual log', payload,{
+  return axios.get(baseURL + '/ManualLog/manual log types', {
     headers: {
       Authorization: `Bearer ${token}`,
     },
   });
 }
+
+export async function getManualLogList() {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.get(baseURL + '/Manuallog/manual logs', {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+}
+
+export const deleteManualLog = async payload => {
+  console.warn('PAY', payload);
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.post(baseURL + '/ManualLog/delete manual log', payload, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
 export const getManualLogsById = async id => {
   let url = baseURL + `/ManualLog/manual log by id?Id=${id}`;
   const token = await AsyncStorage.getItem('@appToken');
@@ -143,13 +153,12 @@ export const getManualLogsById = async id => {
   });
 };
 
-export async function getManualLogTypes() {
+export const updateManualLogApi = async payload => {
+  console.warn('PAY', payload);
   const token = await AsyncStorage.getItem('@appToken');
-  console.warn;
-  return axios.get(baseURL + '/ManualLog/manual log types', {
-  headers: {
-    Authorization: `Bearer ${token}`,
-  },
-});
+  return axios.post(baseURL + '/ManualLog/update manual log', payload, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
 };
-    

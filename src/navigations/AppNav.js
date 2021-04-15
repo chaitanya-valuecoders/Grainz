@@ -4,10 +4,13 @@ import HomeScreen from '../screens/Home';
 import MepScreen from '../screens/Mep';
 import MepAdvanceScreen from '../screens/MepAdvance';
 import StockTakeScreen from '../screens/StockTake';
-import StockTake2Screen from '../screens/StockTake2';
 import ManualLogScreen from '../screens/ManualLog';
 import MyProfile from '../screens/MyProfile';
 import CasualPurchaseScreen from '../screens/CasualPurchase';
+import RecipeScreen from '../screens/Recipes';
+import MenuItemsScreen from '../screens/MenuItems';
+import DeliveriesScreen from '../screens/Deliveries';
+import EventsScreen from '../screens/Events';
 
 const AppNav = createStackNavigator();
 
@@ -17,7 +20,6 @@ export default function AppNavFun() {
       <AppNav.Screen name="HomeScreen" component={HomeScreen} />
       <AppNav.Screen name="MepScreen" component={MepScreen} />
       <AppNav.Screen name="MepAdvanceScreen" component={MepAdvanceScreen} />
-      <AppNav.Screen name="StockTake2Screen" component={StockTake2Screen} />
       <AppNav.Screen name="ManualLogScreen" component={ManualLogScreen} />
       <AppNav.Screen name="MyProfile" component={MyProfile} />
       <AppNav.Screen name="StockTakeScreen" component={StockTakeScreen} />
@@ -25,6 +27,10 @@ export default function AppNavFun() {
         name="CasualPurchaseScreen"
         component={CasualPurchaseScreen}
       />
+      <AppNav.Screen name="RecipeScreen" component={RecipeScreen} />
+      <AppNav.Screen name="MenuItemsScreen" component={MenuItemsScreen} />
+      <AppNav.Screen name="DeliveriesScreen" component={DeliveriesScreen} />
+      <AppNav.Screen name="EventsScreen" component={EventsScreen} />
     </AppNav.Navigator>
   );
 }
