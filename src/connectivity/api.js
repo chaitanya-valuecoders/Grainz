@@ -144,7 +144,7 @@ export const getManualLogsById = async id => {
 
 export async function getManualLogTypes() {
   const token = await AsyncStorage.getItem('@appToken');
-  return axios.get(baseURL + '/Manuallog/manual logs types', {
+  return axios.get(baseURL + '/ManualLog/manual log types', {
     headers: {
       Authorization: `Bearer ${token}`,
     },

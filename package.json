@@ -34,6 +34,7 @@
     "react-native-responsive-screen": "^1.4.2",
     "react-native-safe-area-context": "^3.2.0",
     "react-native-screens": "^2.18.1",
+    "react-native-sectioned-multi-select": "^0.8.1",
     "react-native-select-two": "^1.1.0",
     "react-native-splash-screen": "^3.2.0",
     "react-native-table-component": "^1.2.1",
