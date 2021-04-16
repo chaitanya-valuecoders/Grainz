@@ -7,14 +7,17 @@ import {
   ScrollView,
   ActivityIndicator,
   Switch,
+  Pressable,
   TextInput,
   Alert,
 } from 'react-native';
+import CheckBox from '@react-native-community/checkbox';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {connect} from 'react-redux';
 import img from '../../constants/images';
 import SubHeader from '../../components/SubHeader';
 import Header from '../../components/Header';
+import DropDownPicker from 'react-native-dropdown-picker';
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
@@ -27,7 +30,10 @@ import {
   getMepRecipesApi,
   newMepListApi,
   getMepRecipeByIdsApi,
+  getManualLogTypes,
   updateManualLogApi,
+  addManualLogApi,
+  getManualLogItemList,
 } from '../../connectivity/api';
 import Modal from 'react-native-modal';
 import Accordion from 'react-native-collapsible/Accordion';
@@ -68,6 +74,22 @@ class index extends Component {
       advanceDetailsLoader: false,
       sectionAdvanceData: {},
       recipeID: '',
+      textQuantity: '',
+      itemType: '',
+      typeList: [],
+      showTypePicker: false,
+      isSelected: null,
+      itemList: [],
+      defaultValue: 'hello',
+      showDepartmentCategories: false,
+      itemDepartments: [
+        {name: 'Bar', itemsBar: []},
+        {name: 'Other', itemsOther: []},
+        {name: 'Restaurant', itemsRestaurant: []},
+        {name: 'Retail', itemsRetail: []},
+      ],
+      itemCategories: [],
+      newManualLog: {},
     };
   }
 
@@ -147,6 +169,91 @@ class index extends Component {
     );
   };
 
+  getManualLogTypesData() {
+    getManualLogTypes()
+      .then(res => this.setState({typeList: res.data}))
+      .catch(err => {
+        console.warn('ERr', err.response);
+      });
+  }
+
+  getManualLogItemListData() {
+    getManualLogItemList()
+      .then(res => {
+        const result = res.data.reduce((temp, value) => {
+          if (temp.length < 5) temp.push(value);
+          return temp;
+        }, []);
+        this.setState({itemList: result});
+        this.filterData(result);
+      })
+      .catch(err => {
+        console.warn('ERr', err.response);
+      });
+  }
+
+  filterData(list) {
+    const restArray = list.filter(item => item.departmentName === 'Restaurant');
+    restArray.sort();
+    const barArray = list.filter(item => item.departmentName === 'Bar');
+    barArray.sort();
+    const otherArray = list.filter(item => item.departmentName === 'Other');
+    otherArray.sort();
+    const retailArray = list.filter(item => item.departmentName === 'Retail');
+    retailArray.sort();
+    // list.map(item => {
+    //   this.state.itemDepartments.map(department => {
+    //     if (item.departmentName === 'Restaurant') {
+    //       department.itemsRestaurant.push(item)
+
+    //     }
+    //   });
+    // });
+  }
+
+  addNewManualLog() {
+    let payload = {
+      loggedDate: '2021-04-16T07:03:57.659Z',
+      name: 'Bread & olive oil',
+      quantity: 2,
+      typeName: 'Other',
+      category: 'Menu Spring & Summer 2020',
+      countInInventory: false,
+      departmentId: null,
+      departmentName: 'Restaurant',
+      id: '1d9d255a-9a3c-462e-98c2-32b000c3700d',
+      inUse: true,
+      itemId: 'a019eae2-353d-4194-95b5-b184f4714bdc',
+      itemTypeId: 'bb038c77-47fe-4a80-8a21-b01058730eb5',
+      itemTypeName: 'MenuItem',
+      loggedDate: '2021-04-16T07:03:57.659Z',
+      name: 'Bread & olive oil',
+      notes: 'test',
+      quantity: 2,
+      reviewed: false,
+      typeId: 'c05d2c50-1a47-47dd-abf4-3f8a7e31689f',
+      typeName: 'Other',
+      unit: '',
+      unitId: '0a17a8b7-74b5-49a1-bddb-ac6d48de8e1d',
+      units: [
+        {
+          id: '0a17a8b7-74b5-49a1-bddb-ac6d48de8e1d',
+          inventoryId: '00000000-0000-0000-0000-000000000000',
+        },
+      ],
+
+      userFullName: null,
+      userId: '8e194fe1-5cac-439e-a036-c2009bfb455a',
+    };
+
+    addManualLogApi(payload)
+      .then(this.getManualLogsData())
+
+      .catch(err => {
+        console.warn('AddFailed', err.response);
+      });
+  }
+
   createFirstData = () => {
     getManualLogList()
       .then(res => {
@@ -171,6 +278,8 @@ class index extends Component {
   componentDidMount() {
     this.getData();
     this.getManualLogsData();
+    this.getManualLogTypesData();
+    this.getManualLogItemListData();
   }
 
   myProfile = () => {
@@ -419,6 +528,7 @@ class index extends Component {
         this.setState(
           {
             modalVisibleRecipeDetails: false,
+
             sectionData: '',
           },
           () => this.getManualLogsData(),
@@ -585,6 +695,22 @@ class index extends Component {
     }
   };
 
+  openLogTypeDropdown(param) {
+    this.setState({
+      showTypePicker: param,
+    });
+  }
+
+  openDepartmentDropdown(param) {
+    this.setState({showDepartmentCategories: param});
+  }
+
+  selectItemType(type, hide) {
+    setTimeout(() => {
+      this.setState({showTypePicker: hide, itemType: type});
+    }, 500);
+  }
+
   showAdvanceView = () => {
     const {recipeID} = this.state;
     this.setState(
@@ -600,6 +726,7 @@ class index extends Component {
 
   render() {
     const {
+      textQuantity,
       modalVisible,
       modalVisibleAdd,
       recipeLoader,
@@ -620,6 +747,14 @@ class index extends Component {
       notes,
       advanceDetailsLoader,
       sectionAdvanceData,
+      itemType,
+      typeList,
+      showTypePicker,
+      isSelected,
+      itemList,
+      defaultValue,
+      showDepartmentCategories,
+      itemDepartments,
     } = this.state;
     const finalDateData = moment(sectionData.productionDate).format(
       'dddd, MMM DD YYYY',
@@ -694,7 +829,7 @@ class index extends Component {
                               justifyContent: 'center',
                             }}>
                             <Text style={{fontSize: 16, color: '#fff'}}>
-                              MISE-EN-PLACE BUILDER
+                              Manual Log - Add new item
                             </Text>
                           </View>
                           <View
@@ -719,10 +854,7 @@ class index extends Component {
                         </View>
                         <ScrollView>
                           <View style={{padding: hp('3%')}}>
-                            <View style={{}}>
-                              <View style={{marginBottom: 10}}>
-                                <Text>Production Date</Text>
-                              </View>
+                            <View>
                               <TouchableOpacity
                                 onPress={() => this.showDatePickerFun()}
                                 style={{
@@ -756,7 +888,7 @@ class index extends Component {
                                   flexDirection: 'row',
                                   justifyContent: 'space-between',
                                 }}>
-                                {selectectedItems.length > 0 ? (
+                                {/* {selectectedItems.length > 0 ? (
                                   <View>
                                     {applyStatus ? (
                                       <View>
@@ -778,11 +910,10 @@ class index extends Component {
                                           );
                                         })}
                                       </View>
-                                    ) : null}
-                                  </View>
-                                ) : (
-                                  <Text>Select recipe</Text>
-                                )}
+                                    ) : null} */}
+
+                                <Text>Select</Text>
+
                                 <Image
                                   source={img.arrowDownIcon}
                                   style={{
@@ -793,21 +924,156 @@ class index extends Component {
                                 />
                               </TouchableOpacity>
                               {isShownPicker ? (
-                                <MultipleSelectPicker
-                                  items={items}
-                                  onSelectionsChange={ele => {
-                                    this.setState({selectectedItems: ele});
-                                  }}
-                                  selectedItems={selectectedItems}
-                                  buttonStyle={{
-                                    height: 100,
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                  }}
-                                  buttonText="hello"
-                                  checkboxStyle={{height: 20, width: 20}}
-                                />
+                                <View>
+                                  {itemDepartments.map(item => {
+                                    return (
+                                      <View>
+                                        <Pressable
+                                          onPress={() =>
+                                            this.openDepartmentDropdown(
+                                              !showDepartmentCategories,
+                                            )
+                                          }
+                                          style={{flexDirection: 'row'}}>
+                                          <Image
+                                            style={{
+                                              height: 18,
+                                              width: 18,
+                                              resizeMode: 'contain',
+                                              marginLeft: wp('2%'),
+                                            }}
+                                            source={
+                                              this.state.isActive
+                                                ? img.arrowDownIcon
+                                                : img.arrowRightIcon
+                                            }
+                                          />
+
+                                          <Text>{item.name}</Text>
+                                        </Pressable>
+                                        {showDepartmentCategories ? (
+                                          <View>
+                                            {item.items.map(element => {
+                                              return (
+                                                <View>
+                                                  <Text>
+                                                    {element.category}
+                                                  </Text>
+                                                </View>
+                                              );
+                                            })}
+                                          </View>
+                                        ) : null}
+                                      </View>
+                                    );
+                                  })}
+                                </View>
                               ) : null}
+
+                              <View
+                                style={{
+                                  height: 40,
+                                  marginTop: 5,
+                                  borderWidth: 1,
+                                  borderColor: '#A2A2A2',
+                                  padding: 10,
+                                }}>
+                                <TextInput
+                                  onChangeText={textQuantity =>
+                                    this.setState({textQuantity})
+                                  }
+                                  value={textQuantity}
+                                  placeholder="quantity"
+                                />
+                              </View>
+
+                              <View style={{flex: 2, marginTop: 5}}>
+                                <TouchableOpacity
+                                  onPress={() => {
+                                    this.openLogTypeDropdown(!showTypePicker);
+                                  }}
+                                  style={{
+                                    borderWidth: 1,
+                                    padding: 10,
+                                    flexDirection: 'row',
+                                    justifyContent: 'space-between',
+                                  }}>
+                                  {itemType ? (
+                                    <Text>{itemType}</Text>
+                                  ) : (
+                                    <Text>Select Type</Text>
+                                  )}
+
+                                  <Image
+                                    source={img.arrowDownIcon}
+                                    style={{
+                                      width: 15,
+                                      height: 15,
+                                      resizeMode: 'contain',
+                                    }}
+                                  />
+                                </TouchableOpacity>
+                              </View>
+                              <View style={{flex: 8}}>
+                                {showTypePicker ? (
+                                  <View
+                                    style={{
+                                      margin: 5,
+                                      borderWidth: 1,
+                                      borderColor: 'black',
+                                      padding: 5,
+                                    }}>
+                                    {typeList.map(item => {
+                                      return (
+                                        <View
+                                          style={{
+                                            marginTop: hp('1%'),
+                                            marginBottom: 10,
+                                            flexDirection: 'row',
+                                          }}>
+                                          <CheckBox
+                                            value={isSelected}
+                                            onValueChange={() =>
+                                              this.selectItemType(
+                                                item.name,
+                                                !showTypePicker,
+                                              )
+                                            }
+                                            style={{
+                                              margin: 5,
+                                              height: 20,
+                                              width: 20,
+                                            }}
+                                          />
+                                          <Text style={{margin: 5}}>
+                                            {item.name}
+                                          </Text>
+                                        </View>
+                                      );
+                                    })}
+                                  </View>
+                                ) : null}
+                                <View style={{}}>
+                                  <Text style={{margin: 5}}>Note :</Text>
+                                </View>
+
+                                <View
+                                  style={{
+                                    flex: 3,
+
+                                    borderWidth: 1,
+                                    borderColor: '#A2A2A2',
+                                    padding: 10,
+                                  }}>
+                                  <TextInput
+                                    multiline={true}
+                                    numberOfLines={4}
+                                    onChangeText={note => this.setState({note})}
+                                    value={this.state.note}
+                                    placeholder="Notes"
+                                  />
+                                </View>
+                              </View>
 
                               <View
                                 style={{
@@ -1214,6 +1480,11 @@ class index extends Component {
               />
             </View>
           )}
+          <View>
+            <TouchableOpacity onPress={() => this.addNewManualLog()}>
+              <Text>HI</Text>
+            </TouchableOpacity>
+          </View>
         </ScrollView>
       </View>
     );

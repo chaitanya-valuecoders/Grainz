@@ -19,7 +19,6 @@ class index extends Component {
       buttons: [
         {name: 'Stock take', icon: img.addIcon, screen: 'StockTakeScreen'},
         {name: 'MISE-EN-PLACE', icon: img.addIcon, screen: 'MepScreen'},
-        {name: 'Recipes', icon: img.searchIcon, screen: 'RecipeScreen'},
         {name: 'Menu items', icon: img.searchIcon, screen: 'MenuItemsScreen'},
         {name: 'Manual log', icon: img.addIcon, screen: 'ManualLogScreen'},
         {name: 'Deliveries', icon: img.addIcon, screen: 'DeliveriesScreen'},
