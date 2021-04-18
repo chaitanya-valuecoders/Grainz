@@ -165,7 +165,7 @@ export const getManualLogsById = async id => {
 export const updateManualLogApi = async payload => {
   
   const token = await AsyncStorage.getItem('@appToken');
-  return axios.post(baseURL + '/ManualLog/update manual log', payload, {
+  return axios.get(baseURL + '/ManualLog/manual log types', {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -181,3 +181,12 @@ export const addManualLogApi = async payload => {
     },
   });
 };
+
+export async function getCasualPurchases() {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.get(baseURL + '/Order/casual purchases', {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+}

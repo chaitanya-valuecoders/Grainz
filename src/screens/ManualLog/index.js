@@ -63,9 +63,9 @@ class index extends Component {
       isMakeMeStatus: true,
       isDatePickerVisible: false,
       finalDate: '',
-      selectectedItems: [],
+      selectectedItemsTypes: [],
       isShownPicker: false,
-      items: [],
+      itemsTypes: [],
       productionDate: '',
       applyStatus: false,
       detailsLoader: false,
@@ -268,7 +268,6 @@ class index extends Component {
       })
       .catch(err => {
         console.log('ERR MEP', err);
-
         this.setState({
           recipeLoader: false,
         });
@@ -290,10 +289,10 @@ class index extends Component {
     if (item.name === 'Add new') {
       this.setModalVisibleAdd(true);
       this.setState({
-        selectectedItems: [],
+        selectectedItemsTypes: [],
         preparedDate: '',
         finalDate: '',
-        items: [],
+        itemsTypes: [],
         isShownPicker: false,
         applyStatus: false,
       });
@@ -616,20 +615,19 @@ class index extends Component {
   };
 
   getRecipesData = () => {
-    const {finalDate} = this.state;
-    getMepRecipesApi(finalDate)
+    getManualLogTypes()
       .then(res => {
+        console.log('RES', res);
         const {data} = res;
         let newData = [];
         data.map(item => {
           const obj = {};
           obj.label = item.name;
           obj.value = item.id;
-          obj.quantity = item.batchQuantity;
           newData = [...newData, obj];
         });
         this.setState({
-          items: newData,
+          itemsTypes: newData,
         });
       })
       .catch(err => {
@@ -657,17 +655,52 @@ class index extends Component {
   };
 
   addMepListFun = () => {
-    const {selectectedItems, productionDate} = this.state;
+    const {selectectedItemsTypes, productionDate} = this.state;
 
-    if (productionDate === '' || selectectedItems.length === 0) {
+    if (productionDate === '' || selectectedItemsTypes.length === 0) {
       alert('Please select date and recipe');
     } else {
-      newMepListApi(selectectedItems)
+      let payload = {
+        id: '2da85f64-5717-4562-b3fc-2c963f66afa6',
+        itemId: '3pa85f64-5717-4562-b3fc-2c963f66afa6',
+        name: 'test',
+        loggedDate: '2021-04-16T09:13:56.085Z',
+        quantity: 4,
+        itemTypeId: '3xx85f64-5717-4562-b3fc-2c963f66afa6',
+        typeId: '3oo85f64-5717-4562-b3fc-2c963f66afa6',
+        departmentId: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+        unitId: '3fa85f64-5717-4662-b3fc-2c863l66afa6',
+        departmentName: 'test',
+        category: 'test',
+        itemTypeName: 'test',
+        typeName: 'test',
+        reviewed: true,
+        unit: 'test',
+        userId: 'test',
+        userFullName: 'test',
+        units: [
+          {
+            id: '3fa85f64-5717-4500-b3fc-2c963f66afa6',
+            inventoryId: '3fa85f64-5747-4562-b4uc-2c963f66afa6',
+            name: 'test',
+            isDefault: true,
+            isVariable: true,
+            quantity: 5,
+            converter: 0,
+            notes: 'test',
+            action: 'test',
+          },
+        ],
+        notes: 'test',
+        inUse: true,
+        countInInventory: true,
+      };
+      newMepListApi(selectectedItemsTypes)
         .then(res => {
           this.setState(
             {
               modalVisibleAdd: false,
-              selectectedItems: [],
+              selectectedItemsTypes: [],
             },
             () => this.getManualLogsData(),
           );
@@ -739,8 +772,8 @@ class index extends Component {
       isDatePickerVisible,
       finalDate,
       isShownPicker,
-      selectectedItems,
-      items,
+      selectectedItemsTypes,
+      itemsTypes,
       applyStatus,
       detailsLoader,
       quantity,
@@ -829,7 +862,7 @@ class index extends Component {
                               justifyContent: 'center',
                             }}>
                             <Text style={{fontSize: 16, color: '#fff'}}>
-                              Manual Log - Add new item
+                              Manual log - Add New item
                             </Text>
                           </View>
                           <View
@@ -854,7 +887,7 @@ class index extends Component {
                         </View>
                         <ScrollView>
                           <View style={{padding: hp('3%')}}>
-                            <View>
+                            <View style={{}}>
                               <TouchableOpacity
                                 onPress={() => this.showDatePickerFun()}
                                 style={{
@@ -879,6 +912,146 @@ class index extends Component {
                                 />
                               </TouchableOpacity>
                               <TouchableOpacity
+                                // onPress={() => {
+                                //   this.openRecipeDropDown();
+                                // }}
+                                style={{
+                                  borderWidth: 1,
+                                  padding: 10,
+                                  flexDirection: 'row',
+                                  justifyContent: 'space-between',
+                                }}>
+                                {selectectedItemsTypes.length > 0 ? (
+                                  <View>
+                                    {applyStatus ? (
+                                      <View>
+                                        {selectectedItemsTypes.map(item => {
+                                          return (
+                                            <View style={{marginTop: hp('1%')}}>
+                                              <Text>{item.name}</Text>
+                                            </View>
+                                          );
+                                        })}
+                                      </View>
+                                    ) : selectectedItemsTypes.length > 0 ? (
+                                      <View>
+                                        {selectectedItemsTypes.map(item => {
+                                          return (
+                                            <View style={{marginTop: hp('1%')}}>
+                                              <Text>{item.label}</Text>
+                                            </View>
+                                          );
+                                        })}
+                                      </View>
+                                    ) : null}
+                                  </View>
+                                ) : (
+                                  <Text>Select recipe</Text>
+                                )}
+                                <Image
+                                  source={img.arrowDownIcon}
+                                  style={{
+                                    width: 15,
+                                    height: 15,
+                                    resizeMode: 'contain',
+                                  }}
+                                />
+                              </TouchableOpacity>
+                              <TouchableOpacity
+                                // onPress={() => {
+                                //   this.openRecipeDropDown();
+                                // }}
+                                style={{
+                                  borderWidth: 1,
+                                  padding: 10,
+                                  flexDirection: 'row',
+                                  justifyContent: 'space-between',
+                                  marginTop: hp('2%'),
+                                }}>
+                                {selectectedItemsTypes.length > 0 ? (
+                                  <View>
+                                    {applyStatus ? (
+                                      <View>
+                                        {selectectedItemsTypes.map(item => {
+                                          return (
+                                            <View style={{marginTop: hp('1%')}}>
+                                              <Text>{item.name}</Text>
+                                            </View>
+                                          );
+                                        })}
+                                      </View>
+                                    ) : selectectedItemsTypes.length > 0 ? (
+                                      <View>
+                                        {selectectedItemsTypes.map(item => {
+                                          return (
+                                            <View style={{marginTop: hp('1%')}}>
+                                              <Text>{item.label}</Text>
+                                            </View>
+                                          );
+                                        })}
+                                      </View>
+                                    ) : null}
+                                  </View>
+                                ) : (
+                                  <Text>Select recipe</Text>
+                                )}
+                                <Image
+                                  source={img.arrowDownIcon}
+                                  style={{
+                                    width: 15,
+                                    height: 15,
+                                    resizeMode: 'contain',
+                                  }}
+                                />
+                              </TouchableOpacity>
+                              <TouchableOpacity
+                                // onPress={() => {
+                                //   this.openRecipeDropDown();
+                                // }}
+                                style={{
+                                  borderWidth: 1,
+                                  padding: 10,
+                                  flexDirection: 'row',
+                                  justifyContent: 'space-between',
+                                  marginTop: hp('2%'),
+                                }}>
+                                {selectectedItemsTypes.length > 0 ? (
+                                  <View>
+                                    {applyStatus ? (
+                                      <View>
+                                        {selectectedItemsTypes.map(item => {
+                                          return (
+                                            <View style={{marginTop: hp('1%')}}>
+                                              <Text>{item.name}</Text>
+                                            </View>
+                                          );
+                                        })}
+                                      </View>
+                                    ) : selectectedItemsTypes.length > 0 ? (
+                                      <View>
+                                        {selectectedItemsTypes.map(item => {
+                                          return (
+                                            <View style={{marginTop: hp('1%')}}>
+                                              <Text>{item.label}</Text>
+                                            </View>
+                                          );
+                                        })}
+                                      </View>
+                                    ) : null}
+                                  </View>
+                                ) : (
+                                  <Text>Select recipe</Text>
+                                )}
+                                <Image
+                                  source={img.arrowDownIcon}
+                                  style={{
+                                    width: 15,
+                                    height: 15,
+                                    resizeMode: 'contain',
+                                  }}
+                                />
+                              </TouchableOpacity>
+                              <TouchableOpacity
                                 onPress={() => {
                                   this.openRecipeDropDown();
                                 }}
@@ -887,12 +1060,13 @@ class index extends Component {
                                   padding: 10,
                                   flexDirection: 'row',
                                   justifyContent: 'space-between',
+                                  marginTop: hp('2%'),
                                 }}>
-                                {/* {selectectedItems.length > 0 ? (
+                                {selectectedItemsTypes.length > 0 ? (
                                   <View>
                                     {applyStatus ? (
                                       <View>
-                                        {selectectedItems.map(item => {
+                                        {selectectedItemsTypes.map(item => {
                                           return (
                                             <View style={{marginTop: hp('1%')}}>
                                               <Text>{item.name}</Text>
@@ -900,9 +1074,9 @@ class index extends Component {
                                           );
                                         })}
                                       </View>
-                                    ) : selectectedItems.length > 0 ? (
+                                    ) : selectectedItemsTypes.length > 0 ? (
                                       <View>
-                                        {selectectedItems.map(item => {
+                                        {selectectedItemsTypes.map(item => {
                                           return (
                                             <View style={{marginTop: hp('1%')}}>
                                               <Text>{item.label}</Text>
@@ -910,10 +1084,11 @@ class index extends Component {
                                           );
                                         })}
                                       </View>
-                                    ) : null} */}
-
-                                <Text>Select</Text>
-
+                                    ) : null}
+                                  </View>
+                                ) : (
+                                  <Text>Select type</Text>
+                                )}
                                 <Image
                                   source={img.arrowDownIcon}
                                   style={{
@@ -924,50 +1099,19 @@ class index extends Component {
                                 />
                               </TouchableOpacity>
                               {isShownPicker ? (
-                                <View>
-                                  {itemDepartments.map(item => {
-                                    return (
-                                      <View>
-                                        <Pressable
-                                          onPress={() =>
-                                            this.openDepartmentDropdown(
-                                              !showDepartmentCategories,
-                                            )
-                                          }
-                                          style={{flexDirection: 'row'}}>
-                                          <Image
-                                            style={{
-                                              height: 18,
-                                              width: 18,
-                                              resizeMode: 'contain',
-                                              marginLeft: wp('2%'),
-                                            }}
-                                            source={
-                                              this.state.isActive
-                                                ? img.arrowDownIcon
-                                                : img.arrowRightIcon
-                                            }
-                                          />
-
-                                          <Text>{item.name}</Text>
-                                        </Pressable>
-                                        {showDepartmentCategories ? (
-                                          <View>
-                                            {item.items.map(element => {
-                                              return (
-                                                <View>
-                                                  <Text>
-                                                    {element.category}
-                                                  </Text>
-                                                </View>
-                                              );
-                                            })}
-                                          </View>
-                                        ) : null}
-                                      </View>
-                                    );
-                                  })}
-                                </View>
+                                <MultipleSelectPicker
+                                  items={itemsTypes}
+                                  onSelectionsChange={ele => {
+                                    this.setState({selectectedItemsTypes: ele});
+                                  }}
+                                  selectedItems={selectectedItemsTypes}
+                                  buttonStyle={{
+                                    height: 100,
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                  }}
+                                  checkboxStyle={{height: 20, width: 20}}
+                                />
                               ) : null}
 
                               <View
@@ -1079,13 +1223,13 @@ class index extends Component {
                                 style={{
                                   flexDirection: 'row',
                                   alignItems: 'center',
-                                  justifyContent: 'flex-end',
+                                  justifyContent: 'center',
                                   marginTop: hp('5%'),
                                 }}>
                                 <TouchableOpacity
                                   onPress={() => this.addMepListFun()}
                                   style={{
-                                    width: wp('15%'),
+                                    width: wp('30%'),
                                     height: hp('5%'),
                                     alignSelf: 'flex-end',
                                     backgroundColor: '#94C036',
@@ -1104,7 +1248,7 @@ class index extends Component {
                                 <TouchableOpacity
                                   onPress={() => this.setModalVisibleAdd(false)}
                                   style={{
-                                    width: wp('15%'),
+                                    width: wp('30%'),
                                     height: hp('5%'),
                                     alignSelf: 'flex-end',
                                     backgroundColor: '#E7943B',
