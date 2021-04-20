@@ -151,10 +151,27 @@ export async function getManualLogTypes() {
   });
 }
 
+export async function getManualLogItemList() {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.get(baseURL + '/ManualLog/manual log item list', {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+}
+
 export const updateManualLogApi = async payload => {
-  console.warn('PAY', payload);
   const token = await AsyncStorage.getItem('@appToken');
   return axios.post(baseURL + '/ManualLog/update manual log', payload, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+export const addManualLogApi = async payload => {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.post(baseURL + '/ManualLog/add manual log', payload, {
     headers: {
       Authorization: `Bearer ${token}`,
     },

@@ -109,6 +109,7 @@ class index extends Component {
         <Header headerTitle="Grainz" />
         <KeyboardAwareScrollView
           keyboardShouldPersistTaps="always"
+          showsVerticalScrollIndicator={false}
           enableOnAndroid>
           <View
             style={{
