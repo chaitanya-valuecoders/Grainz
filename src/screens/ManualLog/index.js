@@ -909,7 +909,10 @@ class index extends Component {
                                         justifyContent: 'center',
                                         alignItems: 'center',
                                       }}>
-                                      <ActivityIndicator size="large" />
+                                      <ActivityIndicator
+                                        size="large"
+                                        color="#94C036"
+                                      />
                                     </View>
                                   }
                                   loading={this.state.loading}
@@ -1194,7 +1197,10 @@ class index extends Component {
                                             justifyContent: 'center',
                                             alignItems: 'center',
                                           }}>
-                                          <ActivityIndicator size="large" />
+                                          <ActivityIndicator
+                                            size="large"
+                                            color="#94C036"
+                                          />
                                         </View>
                                       }
                                       loading={this.state.loading}
