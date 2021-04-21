@@ -153,7 +153,7 @@ export async function getManualLogTypes() {
 
 export async function getManualLogItemList() {
   const token = await AsyncStorage.getItem('@appToken');
-  return axios.get(baseURL + '/ManualLog/manual log item list', {
+  return axios.get(baseURL + '/ManualLog/manual log item list 2', {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -176,4 +176,44 @@ export const addManualLogApi = async payload => {
       Authorization: `Bearer ${token}`,
     },
   });
+};
+
+export async function getCasualPurchasesApi() {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.get(baseURL + '/Order/casual purchases', {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+}
+
+export const addOrderApi = async payload => {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.post(baseURL + '/Order/add order', payload, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+export async function getSupplierListApi() {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.get(baseURL + '/Supplier/Supplier list', {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+}
+
+export const deleteOrderApi = async id => {
+  console.warn('PAY', id);
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.post(
+    baseURL + `/Order/Delete order?Id=5bbb87d8-ce2f-4347-a678-e228310e5e8a`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  );
 };

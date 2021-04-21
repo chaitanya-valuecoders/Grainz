@@ -187,8 +187,34 @@ class index extends Component {
       () =>
         getPendingMepsApi()
           .then(res => {
+            function extract() {
+              var groups = {};
+
+              res.data.forEach(function (val) {
+                var date = val.productionDate.split('T')[0];
+                if (date in groups) {
+                  groups[date].push(val);
+                } else {
+                  groups[date] = new Array(val);
+                }
+              });
+
+              return groups;
+            }
+
+            let final = extract();
+
+            let finalArray = Object.keys(final).map((item, index) => {
+              return {
+                title: item,
+                content: final[item],
+              };
+            });
+
+            const reversedArray = finalArray.reverse();
+
             this.setState({
-              SECTIONS: res.data.reverse(),
+              SECTIONS: [...reversedArray],
               recipeLoader: false,
             });
           })
@@ -216,8 +242,32 @@ class index extends Component {
       () =>
         getMepsHistoryApi()
           .then(res => {
+            function extract() {
+              var groups = {};
+
+              res.data.forEach(function (val) {
+                var date = val.productionDate.split('T')[0];
+                if (date in groups) {
+                  groups[date].push(val);
+                } else {
+                  groups[date] = new Array(val);
+                }
+              });
+
+              return groups;
+            }
+
+            let final = extract();
+
+            let finalArray = Object.keys(final).map((item, index) => {
+              return {
+                title: item,
+                content: final[item],
+              };
+            });
+
             this.setState({
-              SECTIONS_HISTORY: res.data,
+              SECTIONS_HISTORY: [...finalArray],
               recipeLoaderHistory: false,
             });
           })
@@ -269,9 +319,7 @@ class index extends Component {
   _renderHeader = (section, index, isActive) => {
     var todayFinal = moment(new Date()).format('dddd, MMM DD YYYY');
 
-    const finalData = moment(section.productionDate).format(
-      'dddd, MMM DD YYYY',
-    );
+    const finalData = moment(section.title).format('dddd, MMM DD YYYY');
 
     return (
       <View
@@ -306,9 +354,7 @@ class index extends Component {
     );
   };
   _renderHeaderHistory = (section, index, isActive) => {
-    const finalData = moment(section.productionDate).format(
-      'dddd, MMM DD YYYY',
-    );
+    const finalData = moment(section.title).format('dddd, MMM DD YYYY');
     return (
       <View
         style={{
@@ -382,56 +428,66 @@ class index extends Component {
   _renderContent = section => {
     return (
       <View style={{marginTop: hp('2%')}}>
-        <View>
-          <View style={{flexDirection: 'row', alignItems: 'center'}}>
-            <Switch
-              style={{width: '14%'}}
-              trackColor={{
-                false: '#767577',
-                true: '#94C036',
-              }}
-              value={!section.isPrepared}
-              onValueChange={() => this.updatePreparedStatusFun(section)}
-              thumbColor="#fff"
-            />
-            <View style={{flex: 2}}>
-              <TouchableOpacity
-                onPress={() =>
-                  this.setModalVisibleRecipeDetails(true, section)
-                }>
-                <Text
-                  style={{
-                    fontSize: 14,
-                    fontWeight: 'bold',
-                    textAlign: 'center',
-                    marginLeft: wp('2%'),
-                  }}>
-                  {section.name}
+        {section.content.map((item, index) => {
+          return (
+            <View>
+              <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                <Switch
+                  style={{width: '14%'}}
+                  trackColor={{
+                    false: '#767577',
+                    true: '#94C036',
+                  }}
+                  value={!item.isPrepared}
+                  onValueChange={() => this.updatePreparedStatusFun(item)}
+                  thumbColor="#fff"
+                />
+                <View style={{flex: 2}}>
+                  <TouchableOpacity
+                    onPress={() =>
+                      this.setModalVisibleRecipeDetails(true, item)
+                    }>
+                    <Text
+                      style={{
+                        fontSize: 14,
+                        fontWeight: 'bold',
+                        textAlign: 'center',
+                        marginLeft: wp('2%'),
+                      }}>
+                      {item.name}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+                <View style={{flex: 1, alignItems: 'center'}}>
+                  <Text>
+                    {item.quantity} {item.unit}
+                  </Text>
+                </View>
+                <View style={{flex: 1, alignItems: 'center'}}>
+                  <TouchableOpacity
+                    onPress={() =>
+                      this.setModalAdvanceRecipeDetails(true, item)
+                    }
+                    style={{backgroundColor: '#94C036', padding: 5}}>
+                    <Text
+                      style={{
+                        fontSize: 12,
+                        color: '#fff',
+                        textAlign: 'center',
+                      }}>
+                      View Recipe
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+              <View>
+                <Text style={{fontSize: 12, marginLeft: wp('5%')}}>
+                  {item.notes}
                 </Text>
-              </TouchableOpacity>
+              </View>
             </View>
-            <View style={{flex: 1, alignItems: 'center'}}>
-              <Text>
-                {section.quantity} {section.unit}
-              </Text>
-            </View>
-            <View style={{flex: 1, alignItems: 'center'}}>
-              <TouchableOpacity
-                onPress={() => this.setModalAdvanceRecipeDetails(true, section)}
-                style={{backgroundColor: '#94C036', padding: 5}}>
-                <Text
-                  style={{fontSize: 12, color: '#fff', textAlign: 'center'}}>
-                  View Recipe
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-          <View>
-            <Text style={{fontSize: 12, marginLeft: wp('5%')}}>
-              {section.notes}
-            </Text>
-          </View>
-        </View>
+          );
+        })}
       </View>
     );
   };
@@ -439,37 +495,43 @@ class index extends Component {
   _renderContentHistory = section => {
     return (
       <View style={{marginTop: hp('2%')}}>
-        <View>
-          <View style={{flexDirection: 'row', alignItems: 'center'}}>
-            <View style={{flex: 2}}>
-              <TouchableOpacity
-                onPress={() =>
-                  this.setState(
-                    {
-                      modalVisible: false,
-                    },
-                    () =>
-                      setTimeout(() => {
-                        this.setModalVisibleRecipeDetails(true, section);
-                      }, 500),
-                  )
-                }>
-                <Text
-                  numberOfLines={1}
-                  style={{
-                    fontSize: 14,
-                    fontWeight: 'bold',
-                    textAlign: 'center',
-                  }}>
-                  {section.name}
-                </Text>
-              </TouchableOpacity>
+        {section.content.map((item, index) => {
+          return (
+            <View>
+              <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                <View style={{flex: 2}}>
+                  <TouchableOpacity
+                    onPress={() =>
+                      this.setState(
+                        {
+                          modalVisible: false,
+                        },
+                        () =>
+                          setTimeout(() => {
+                            this.setModalVisibleRecipeDetails(true, item);
+                          }, 500),
+                      )
+                    }>
+                    <Text
+                      numberOfLines={1}
+                      style={{
+                        fontSize: 14,
+                        fontWeight: 'bold',
+                        textAlign: 'left',
+                        paddingVertical: 5,
+                      }}>
+                      {item.name}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+                <View style={{flex: 1, alignItems: 'center'}}>
+                  <Text>{item.quantity} g</Text>
+                </View>
+              </View>
+              <View style={{borderBottomWidth: 1}}></View>
             </View>
-            <View style={{flex: 1, alignItems: 'center'}}>
-              <Text>{section.quantity} g</Text>
-            </View>
-          </View>
-        </View>
+          );
+        })}
       </View>
     );
   };
@@ -588,8 +650,32 @@ class index extends Component {
       () =>
         getMepsOldHistoryApi()
           .then(res => {
+            function extract() {
+              var groups = {};
+
+              res.data.forEach(function (val) {
+                var date = val.productionDate.split('T')[0];
+                if (date in groups) {
+                  groups[date].push(val);
+                } else {
+                  groups[date] = new Array(val);
+                }
+              });
+
+              return groups;
+            }
+
+            let final = extract();
+
+            let finalArray = Object.keys(final).map((item, index) => {
+              return {
+                title: item,
+                content: final[item],
+              };
+            });
+
             this.setState({
-              SECTIONS_HISTORY: [...SECTIONS_HISTORY, ...res.data],
+              SECTIONS_HISTORY: [...SECTIONS_HISTORY, ...finalArray],
               recipeLoaderHistory: false,
             });
           })
