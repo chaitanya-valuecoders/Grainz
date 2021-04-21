@@ -207,13 +207,12 @@ export async function getSupplierListApi() {
 
 export const deleteOrderApi = async id => {
   console.warn('PAY', id);
+  let url = baseURL + `/Order/Delete order?Id=${id}`;
+  console.warn('URL', url);
   const token = await AsyncStorage.getItem('@appToken');
-  return axios.post(
-    baseURL + `/Order/Delete order?Id=5bbb87d8-ce2f-4347-a678-e228310e5e8a`,
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+  return axios.post(url, null, {
+    headers: {
+      Authorization: `Bearer ${token}`,
     },
-  );
+  });
 };

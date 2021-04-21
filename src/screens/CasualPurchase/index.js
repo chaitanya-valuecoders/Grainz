@@ -315,15 +315,27 @@ class index extends Component {
       },
       {
         text: 'OK',
-        onPress: () =>
-          deleteOrderApi('a3bbce88-0be9-4256-b2aa-c7175918f120')
-            .then(this.getCasualPurchasesData())
-            .catch(error => {
-              console.warn('error', error.response);
-            }),
+        onPress: () => this.deleteOrderFun(param),
       },
     ]);
   }
+
+  deleteOrderFun = payload => {
+    console.log('payload', payload);
+    deleteOrderApi(payload)
+      .then(res => {
+        console.warn('RESS', res);
+        // this.setState(
+        //   {
+        //     modalVisibleRecipeDetails: false,
+        //   },
+        //   () => this.getCasualPurchasesData(),
+        // );
+      })
+      .catch(err => {
+        console.warn('ERRDeleteMep', err.response);
+      });
+  };
 
   hideDatePicker = () => {
     this.setState({
