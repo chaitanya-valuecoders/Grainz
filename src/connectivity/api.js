@@ -224,7 +224,7 @@ export async function getSupplierList() {
 export const deleteOrder = async id => {
   console.warn('PAY', id);
   const token = await AsyncStorage.getItem('@appToken');
-  return axios.post(baseURL + `/Order/Delete order?Id=a3bbce88-0be9-4256-b2aa-c7175918f120`, {
+  return axios.post(baseURL + `/Order/Delete order?Id=5bbb87d8-ce2f-4347-a678-e228310e5e8a`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
