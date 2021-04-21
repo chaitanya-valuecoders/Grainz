@@ -518,7 +518,7 @@ class index extends Component {
                         fontSize: 14,
                         fontWeight: 'bold',
                         textAlign: 'left',
-                        paddingVertical: 5,
+                        paddingVertical: 8,
                       }}>
                       {item.name}
                     </Text>
