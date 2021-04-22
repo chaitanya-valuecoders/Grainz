@@ -6,12 +6,17 @@ import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
+import {translate, setI18nConfig} from '../../utils/translations';
 
 class SubHeader extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      buttons: [{name: 'ADMIN'}, {name: 'SETUP'}, {name: 'INBOX'}],
+      buttons: [
+        {name: translate('ADMIN')},
+        {name: translate('SETUP')},
+        {name: translate('INBOX')},
+      ],
     };
   }
   render() {

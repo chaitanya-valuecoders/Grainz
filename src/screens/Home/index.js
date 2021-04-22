@@ -11,6 +11,7 @@ import {
 } from 'react-native-responsive-screen';
 import {UserTokenAction} from '../../redux/actions/UserTokenAction';
 import {getMyProfileApi} from '../../connectivity/api';
+import {translate} from '../../utils/translations';
 
 class index extends Component {
   constructor(props) {

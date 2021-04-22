@@ -1,0 +1,21 @@
+{
+    "LOGIN":"LOG IN",
+    "USERNAME": "User name/email",
+    "PASS": "Password",
+    "SIGNIN": "Sign in",
+    "ABOUTUS": "About Us",
+    "ADMIN": "ADMIN",
+    "SETUP": "SETUP",
+    "INBOX": "INBOX",
+    "FIRSTNAME": "First Name",
+    "ENTERFIRSTNAME": "Enter first name",
+    "LASTNAME": "Last Name",
+    "ENTERLASTNAME": "Enter last name",
+    "JOB": "Job Title",
+    "ENTERJOB": "Enter job title",
+    "PHONE": "Phone Number",
+    "ENTERPHONE": "Enter phone number",
+    "EMAIL": "Email",
+    "ENTEREMAIL": "Enter email address",
+    "LOGOUT": "Log Out"
+}

@@ -6,6 +6,8 @@ import {
   TextInput,
   Alert,
   ActivityIndicator,
+  Switch,
+  Modal,
 } from 'react-native';
 import styles from './style';
 import Header from '../../components/Header';
@@ -18,6 +20,7 @@ import {loginApi} from '../../connectivity/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {connect} from 'react-redux';
 import {UserTokenAction} from '../../redux/actions/UserTokenAction';
+import {translate, setI18nConfig} from '../../utils/translations';
 
 var querystring = require('querystring');
 
@@ -30,7 +33,33 @@ class index extends Component {
       password: '',
       passwordError: '',
       buttonLoader: false,
+      switchValue: false,
+      loader: false,
     };
+  }
+
+  async componentDidMount() {
+    setI18nConfig();
+
+    const lang = await AsyncStorage.getItem('Language');
+    if (lang !== null && lang !== undefined) {
+      if (lang == 'en') {
+        this.setState({
+          switchValue: false,
+          loader: false,
+        });
+      } else {
+        this.setState({
+          switchValue: true,
+          loader: false,
+        });
+        setI18nConfig();
+      }
+    } else {
+      await AsyncStorage.setItem('Language', 'en');
+      this.setState({switchValue: false, loader: false});
+      setI18nConfig();
+    }
   }
 
   verification = () => {
@@ -103,6 +132,27 @@ class index extends Component {
     }
   };
 
+  toggleSwitch = value => {
+    // console.warn('swictched value', value);
+    this.setState({switchValue: value, loader: true}, () =>
+      this.languageSelector(),
+    );
+  };
+
+  languageSelector = async () => {
+    let language = '';
+    this.state.switchValue === true ? (language = 'fr') : (language = 'en');
+    await AsyncStorage.setItem('Language', language);
+    setI18nConfig();
+    setTimeout(
+      () =>
+        this.setState({
+          loader: false,
+        }),
+      2000,
+    );
+  };
+
   render() {
     return (
       <View style={styles.container}>
@@ -111,6 +161,31 @@ class index extends Component {
           keyboardShouldPersistTaps="always"
           showsVerticalScrollIndicator={false}
           enableOnAndroid>
+          <Modal
+            animationType="slide"
+            transparent={true}
+            visible={this.state.loader}>
+            <View
+              style={{
+                flex: 1,
+                backgroundColor: 'transparent',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  backgroundColor: '#00000090',
+                  alignContent: 'center',
+                  justifyContent: 'center',
+                  width: wp('1000%'),
+                  height: hp('100%'),
+                }}>
+                <ActivityIndicator size="large" color={'#ffffff'} />
+              </View>
+            </View>
+          </Modal>
+
           <View
             style={{
               height: hp('80%'),
@@ -128,7 +203,7 @@ class index extends Component {
                   color: '#94C036',
                   fontWeight: 'bold',
                 }}>
-                LOG IN
+                {translate('LOGIN')}{' '}
               </Text>
             </View>
             <View
@@ -147,7 +222,7 @@ class index extends Component {
                       emailError: '',
                     })
                   }
-                  placeholder="User name/email"
+                  placeholder={translate('USERNAME')}
                   style={{
                     borderBottomWidth: 1,
                     borderBottomColor: 'grey',
@@ -173,7 +248,7 @@ class index extends Component {
                       passwordError: '',
                     })
                   }
-                  placeholder="Password"
+                  placeholder={translate('PASS')}
                   style={{
                     borderBottomWidth: 1,
                     borderBottomColor: 'grey',
@@ -192,6 +267,28 @@ class index extends Component {
                     </Text>
                   </View>
                 ) : null}
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    marginTop: hp('3%'),
+                  }}>
+                  <Text
+                    style={{fontSize: wp('4%'), color: 'grey', padding: '2%'}}>
+                    English
+                  </Text>
+                  <Switch
+                    thumbColor={'orange'}
+                    trackColor={{false: 'grey', true: 'red'}}
+                    ios_backgroundColor="white"
+                    onValueChange={this.toggleSwitch}
+                    value={this.state.switchValue}
+                  />
+                  <Text
+                    style={{fontSize: wp('4%'), color: 'grey', padding: '2%'}}>
+                    Français
+                  </Text>
+                </View>
                 <TouchableOpacity
                   onPress={() => this.signInFun()}
                   style={{
@@ -204,11 +301,15 @@ class index extends Component {
                   {this.state.buttonLoader ? (
                     <ActivityIndicator color="#fff" size="small" />
                   ) : (
-                    <Text style={{fontSize: 20, color: '#fff'}}>Sign in</Text>
+                    <Text style={{fontSize: 20, color: '#fff'}}>
+                      {' '}
+                      {translate('SIGNIN')}
+                    </Text>
                   )}
                 </TouchableOpacity>
               </View>
             </View>
+
             <View
               style={{
                 alignItems: 'center',
@@ -218,7 +319,7 @@ class index extends Component {
               <TouchableOpacity
                 onPress={() => this.props.navigation.navigate('AboutUsScreen')}>
                 <Text style={{fontSize: 25, color: 'grey', fontWeight: 'bold'}}>
-                  About Us
+                  {translate('ABOUTUS')}
                 </Text>
               </TouchableOpacity>
             </View>

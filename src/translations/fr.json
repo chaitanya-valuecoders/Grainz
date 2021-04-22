@@ -1,0 +1,21 @@
+{
+    "LOGIN": "Se Connecter",
+    "USERNAME": "User name/emailF",
+    "PASS": "PasswordF",
+    "SIGNIN": "Sign inF",
+    "ABOUTUS": "About UsF",
+    "ADMIN": "ADMINF",
+    "SETUP": "SETUPF",
+    "INBOX": "INBOXF",
+    "FIRSTNAME": "First NameF",
+    "ENTERFIRSTNAME": "Enter first nameF",
+    "LASTNAME": "Last NameF",
+    "ENTERLASTNAME": "Enter last nameF",
+    "JOB": "Job TitleF",
+    "ENTERJOB": "Enter job titleF",
+    "PHONE": "Phone NumberF",
+    "ENTERPHONE": "Enter phone numberF",
+    "EMAIL": "EmailF",
+    "ENTEREMAIL": "Enter email addressF",
+    "LOGOUT": "Log OutF"
+}  

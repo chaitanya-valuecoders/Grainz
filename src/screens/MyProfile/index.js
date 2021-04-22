@@ -20,6 +20,7 @@ import {
 } from 'react-native-responsive-screen';
 import {UserTokenAction} from '../../redux/actions/UserTokenAction';
 import {getMyProfileApi} from '../../connectivity/api';
+import {translate} from '../../utils/translations';
 
 class index extends Component {
   constructor(props) {
@@ -76,7 +77,7 @@ class index extends Component {
     return (
       <View style={{flex: 1, backgroundColor: '#fff'}}>
         <Header
-          logout="Log Out"
+          logout={translate('LOGOUT')}
           logoutFun={this.removeToken}
           logoFun={() => this.props.navigation.navigate('HomeScreen')}
         />
@@ -97,12 +98,12 @@ class index extends Component {
                     flex: 1,
                     justifyContent: 'center',
                   }}>
-                  <Text>First Name</Text>
+                  <Text>{translate('FIRSTNAME')}</Text>
                 </View>
                 <View style={{flex: 3, justifyContent: 'center'}}>
                   <TextInput
                     value={firstName}
-                    placeholder="Enter First Name"
+                    placeholder={translate('ENTERFIRSTNAME')}
                     style={{
                       borderWidth: 1,
                       paddingVertical: '5%',
@@ -123,12 +124,12 @@ class index extends Component {
                     flex: 1,
                     justifyContent: 'center',
                   }}>
-                  <Text>Last Name</Text>
+                  <Text>{translate('LASTNAME')}</Text>
                 </View>
                 <View style={{flex: 3, justifyContent: 'center'}}>
                   <TextInput
                     value={lastName}
-                    placeholder="Enter Last Name"
+                    placeholder={translate('ENTERLASTNAME')}
                     style={{
                       borderWidth: 1,
                       paddingVertical: '5%',
@@ -149,12 +150,12 @@ class index extends Component {
                     flex: 1,
                     justifyContent: 'center',
                   }}>
-                  <Text>Job Title</Text>
+                  <Text>{translate('JOB')}</Text>
                 </View>
                 <View style={{flex: 3, justifyContent: 'center'}}>
                   <TextInput
                     value={jobTitle}
-                    placeholder="Enter Job Title"
+                    placeholder={translate('ENTERJOB')}
                     style={{
                       borderWidth: 1,
                       paddingVertical: '5%',
@@ -175,12 +176,12 @@ class index extends Component {
                     flex: 1,
                     justifyContent: 'center',
                   }}>
-                  <Text>Phone Number</Text>
+                  <Text>{translate('PHONE')}</Text>
                 </View>
                 <View style={{flex: 3, justifyContent: 'center'}}>
                   <TextInput
                     value={phoneNumber}
-                    placeholder="Enter Phone Number"
+                    placeholder={translate('ENTERPHONE')}
                     style={{
                       borderWidth: 1,
                       paddingVertical: '5%',
@@ -201,12 +202,12 @@ class index extends Component {
                     flex: 1,
                     justifyContent: 'center',
                   }}>
-                  <Text>Email</Text>
+                  <Text>{translate('EMAIL')}</Text>
                 </View>
                 <View style={{flex: 3, justifyContent: 'center'}}>
                   <TextInput
                     value={email}
-                    placeholder="Enter email"
+                    placeholder={translate('ENTEREMAIL')}
                     style={{
                       borderWidth: 1,
                       paddingVertical: '5%',
