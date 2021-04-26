@@ -18,18 +18,42 @@ class index extends Component {
     super(props);
     this.state = {
       buttons: [
-        {name: 'Stock take', icon: img.addIcon, screen: 'StockTakeScreen'},
-        {name: 'MISE-EN-PLACE', icon: img.addIcon, screen: 'MepScreen'},
-        {name: 'Recipes', icon: img.searchIcon, screen: 'RecipeScreen'},
-        {name: 'Menu items', icon: img.searchIcon, screen: 'MenuItemsScreen'},
-        {name: 'Manual log', icon: img.addIcon, screen: 'ManualLogScreen'},
-        {name: 'Deliveries', icon: img.addIcon, screen: 'DeliveriesScreen'},
         {
-          name: 'Casual purchase',
+          name: translate('Stock Take'),
+          icon: img.addIcon,
+          screen: 'StockTakeScreen',
+        },
+        {
+          name: translate('Mise-en-Place'),
+          icon: img.addIcon,
+          screen: 'MepScreen',
+        },
+        // {
+        //   name: translate('Recipes'),
+        //   icon: img.searchIcon,
+        //   screen: 'RecipeScreen',
+        // },
+        // {
+        //   name: translate('Menu-Items'),
+        //   icon: img.searchIcon,
+        //   screen: 'MenuItemsScreen',
+        // },
+        {
+          name: translate('Manual Log'),
+          icon: img.addIcon,
+          screen: 'ManualLogScreen',
+        },
+        // {
+        //   name: translate('Deliveries'),
+        //   icon: img.addIcon,
+        //   screen: 'DeliveriesScreen',
+        // },
+        {
+          name: translate('Casual purchase'),
           icon: img.addIcon,
           screen: 'CasualPurchaseScreen',
         },
-        {name: 'Events', icon: img.addIcon, screen: 'EventsScreen'},
+        // {name: translate('Events'), icon: img.addIcon, screen: 'EventsScreen'},
       ],
       token: '',
       firstName: '',
@@ -85,7 +109,7 @@ class index extends Component {
           logoutFun={this.myProfile}
           logoFun={() => this.props.navigation.navigate('HomeScreen')}
         />
-        <SubHeader />
+        {/* <SubHeader /> */}
         <ScrollView
           style={{marginTop: hp('2%'), marginBottom: hp('2%')}}
           showsVerticalScrollIndicator={false}>

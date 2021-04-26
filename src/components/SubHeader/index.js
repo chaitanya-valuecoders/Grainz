@@ -14,7 +14,7 @@ class SubHeader extends Component {
     this.state = {
       buttons: [
         {name: translate('ADMIN')},
-        {name: translate('SETUP')},
+        {name: translate('Setup')},
         {name: translate('INBOX')},
       ],
     };

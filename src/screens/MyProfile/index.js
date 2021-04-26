@@ -77,11 +77,11 @@ class index extends Component {
     return (
       <View style={{flex: 1, backgroundColor: '#fff'}}>
         <Header
-          logout={translate('LOGOUT')}
+          logout={translate('Logout')}
           logoutFun={this.removeToken}
           logoFun={() => this.props.navigation.navigate('HomeScreen')}
         />
-        <SubHeader />
+        {/* <SubHeader /> */}
         <ScrollView style={{marginTop: hp('2%'), marginBottom: hp('2%')}}>
           {pageLoader ? (
             <ActivityIndicator color="#94C036" size="large" />
@@ -98,12 +98,12 @@ class index extends Component {
                     flex: 1,
                     justifyContent: 'center',
                   }}>
-                  <Text>{translate('FIRSTNAME')}</Text>
+                  <Text>{translate('First name')}</Text>
                 </View>
                 <View style={{flex: 3, justifyContent: 'center'}}>
                   <TextInput
                     value={firstName}
-                    placeholder={translate('ENTERFIRSTNAME')}
+                    placeholder={translate('First name')}
                     style={{
                       borderWidth: 1,
                       paddingVertical: '5%',
@@ -124,12 +124,12 @@ class index extends Component {
                     flex: 1,
                     justifyContent: 'center',
                   }}>
-                  <Text>{translate('LASTNAME')}</Text>
+                  <Text>{translate('Last name')}</Text>
                 </View>
                 <View style={{flex: 3, justifyContent: 'center'}}>
                   <TextInput
                     value={lastName}
-                    placeholder={translate('ENTERLASTNAME')}
+                    placeholder={translate('Last name')}
                     style={{
                       borderWidth: 1,
                       paddingVertical: '5%',
@@ -150,12 +150,12 @@ class index extends Component {
                     flex: 1,
                     justifyContent: 'center',
                   }}>
-                  <Text>{translate('JOB')}</Text>
+                  <Text>{translate('job')}</Text>
                 </View>
                 <View style={{flex: 3, justifyContent: 'center'}}>
                   <TextInput
                     value={jobTitle}
-                    placeholder={translate('ENTERJOB')}
+                    placeholder={translate('job')}
                     style={{
                       borderWidth: 1,
                       paddingVertical: '5%',
@@ -176,12 +176,12 @@ class index extends Component {
                     flex: 1,
                     justifyContent: 'center',
                   }}>
-                  <Text>{translate('PHONE')}</Text>
+                  <Text>{translate('Mobile phone')}</Text>
                 </View>
                 <View style={{flex: 3, justifyContent: 'center'}}>
                   <TextInput
                     value={phoneNumber}
-                    placeholder={translate('ENTERPHONE')}
+                    placeholder={translate('Mobile phone')}
                     style={{
                       borderWidth: 1,
                       paddingVertical: '5%',
@@ -202,12 +202,12 @@ class index extends Component {
                     flex: 1,
                     justifyContent: 'center',
                   }}>
-                  <Text>{translate('EMAIL')}</Text>
+                  <Text>{translate('Email')}</Text>
                 </View>
                 <View style={{flex: 3, justifyContent: 'center'}}>
                   <TextInput
                     value={email}
-                    placeholder={translate('ENTEREMAIL')}
+                    placeholder={translate('Email')}
                     style={{
                       borderWidth: 1,
                       paddingVertical: '5%',

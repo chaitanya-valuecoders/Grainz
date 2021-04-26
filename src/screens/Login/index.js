@@ -203,7 +203,7 @@ class index extends Component {
                   color: '#94C036',
                   fontWeight: 'bold',
                 }}>
-                {translate('LOGIN')}{' '}
+                {translate('Login')}{' '}
               </Text>
             </View>
             <View
@@ -222,7 +222,7 @@ class index extends Component {
                       emailError: '',
                     })
                   }
-                  placeholder={translate('USERNAME')}
+                  placeholder={translate('username')}
                   style={{
                     borderBottomWidth: 1,
                     borderBottomColor: 'grey',
@@ -248,7 +248,7 @@ class index extends Component {
                       passwordError: '',
                     })
                   }
-                  placeholder={translate('PASS')}
+                  placeholder={translate('Password')}
                   style={{
                     borderBottomWidth: 1,
                     borderBottomColor: 'grey',
@@ -279,7 +279,7 @@ class index extends Component {
                   </Text>
                   <Switch
                     thumbColor={'orange'}
-                    trackColor={{false: 'grey', true: 'red'}}
+                    trackColor={{false: 'grey', true: 'grey'}}
                     ios_backgroundColor="white"
                     onValueChange={this.toggleSwitch}
                     value={this.state.switchValue}
@@ -303,7 +303,7 @@ class index extends Component {
                   ) : (
                     <Text style={{fontSize: 20, color: '#fff'}}>
                       {' '}
-                      {translate('SIGNIN')}
+                      {translate('Sign in')}
                     </Text>
                   )}
                 </TouchableOpacity>
@@ -319,7 +319,7 @@ class index extends Component {
               <TouchableOpacity
                 onPress={() => this.props.navigation.navigate('AboutUsScreen')}>
                 <Text style={{fontSize: 25, color: 'grey', fontWeight: 'bold'}}>
-                  {translate('ABOUTUS')}
+                  {translate('About')}
                 </Text>
               </TouchableOpacity>
             </View>

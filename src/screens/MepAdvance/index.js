@@ -157,7 +157,7 @@ class index extends Component {
           logoutFun={this.myProfileFun}
           logoFun={() => this.props.navigation.navigate('HomeScreen')}
         />
-        <SubHeader />
+        {/* <SubHeader /> */}
         <ScrollView style={{marginBottom: hp('5%')}}>
           <View
             style={{
