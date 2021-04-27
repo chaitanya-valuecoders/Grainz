@@ -39,7 +39,7 @@ class index extends Component {
         //   screen: 'MenuItemsScreen',
         // },
         {
-          name: translate('Manual Log'),
+          name: translate('Manual Log small'),
           icon: img.addIcon,
           screen: 'ManualLogScreen',
         },

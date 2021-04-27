@@ -37,6 +37,7 @@ import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import SectionedMultiSelect from 'react-native-sectioned-multi-select';
 import DropDownPicker from 'react-native-dropdown-picker';
+import {translate} from '../../utils/translations';
 
 var minTime = new Date();
 minTime.setHours(0);
@@ -47,7 +48,10 @@ class index extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      buttons: [{name: 'Add new', icon: img.addIcon}, {name: 'Back'}],
+      buttons: [
+        {name: translate('Add new'), icon: img.addIcon, id: 0},
+        {name: translate('Back'), id: 1},
+      ],
       token: '',
       modalVisible: false,
       firstName: '',
@@ -217,14 +221,14 @@ class index extends Component {
   };
 
   onPressFun = item => {
-    if (item.name === 'Add new') {
+    if (item.id === 0) {
       this.setModalVisibleAdd(true);
       this.setState({
         preparedDate: '',
         finalDate: '',
         itemsTypesArr: [],
       });
-    } else if (item.name === 'Back') {
+    } else if (item.id === 1) {
       this.props.navigation.goBack();
     }
   };
@@ -774,7 +778,9 @@ class index extends Component {
               alignItems: 'center',
               paddingVertical: hp('3%'),
             }}>
-            <Text style={{fontSize: 22, color: 'white'}}>MANUAL LOG</Text>
+            <Text style={{fontSize: 22, color: 'white'}}>
+              {translate('Manual Log')}
+            </Text>
             {buttons.map((item, index) => {
               return (
                 <View style={{}} key={index}>
@@ -829,7 +835,8 @@ class index extends Component {
                               justifyContent: 'center',
                             }}>
                             <Text style={{fontSize: 16, color: '#fff'}}>
-                              Manual log - Add New item
+                              {translate('Manual Log small')} -{' '}
+                              {translate('Add new item')}
                             </Text>
                           </View>
                           <View
@@ -1000,7 +1007,7 @@ class index extends Component {
                                   style={{
                                     marginTop: hp('3%'),
                                   }}>
-                                  <Text>Note</Text>
+                                  <Text>{translate('Note')}</Text>
                                 </View>
                                 <View
                                   onPress={() => this.showDatePickerFun()}
@@ -1012,7 +1019,7 @@ class index extends Component {
                                     borderColor: '#C9CCD7',
                                   }}>
                                   <TextInput
-                                    placeholder="Note"
+                                    placeholder={translate('Note')}
                                     onChangeText={value =>
                                       this.setState({
                                         notes: value,
@@ -1044,7 +1051,7 @@ class index extends Component {
                                         fontSize: 15,
                                         fontWeight: 'bold',
                                       }}>
-                                      Save
+                                      {translate('Save')}
                                     </Text>
                                   </TouchableOpacity>
                                   <TouchableOpacity
@@ -1066,7 +1073,7 @@ class index extends Component {
                                         fontSize: 15,
                                         fontWeight: 'bold',
                                       }}>
-                                      Close
+                                      {translate('Close')}
                                     </Text>
                                   </TouchableOpacity>
                                 </View>
@@ -1369,7 +1376,7 @@ class index extends Component {
                                           color: '#fff',
                                           textAlign: 'center',
                                         }}>
-                                        Delete
+                                        {translate('Delete')}
                                       </Text>
                                     </TouchableOpacity>
                                   </View>
@@ -1398,7 +1405,7 @@ class index extends Component {
                                           fontSize: 15,
                                           fontWeight: 'bold',
                                         }}>
-                                        Save
+                                        {translate('Save')}
                                       </Text>
                                     </TouchableOpacity>
                                     <TouchableOpacity
@@ -1422,7 +1429,7 @@ class index extends Component {
                                           fontSize: 15,
                                           fontWeight: 'bold',
                                         }}>
-                                        Close
+                                        {translate('Close')}
                                       </Text>
                                     </TouchableOpacity>
                                   </View>
@@ -1463,7 +1470,9 @@ class index extends Component {
               alignSelf: 'center',
             }}>
             <View style={{}}>
-              <Text style={{color: 'white', marginLeft: 5}}>Collapse All</Text>
+              <Text style={{color: 'white', marginLeft: 5}}>
+                {translate('Collapse All')}
+              </Text>
             </View>
           </TouchableOpacity>
           {recipeLoader ? (

@@ -37,6 +37,7 @@ import Accordion from 'react-native-collapsible/Accordion';
 import moment from 'moment';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import {MultipleSelectPicker} from 'react-native-multi-select-picker';
+import {translate} from '../../utils/translations';
 
 var minTime = new Date();
 minTime.setHours(0);
@@ -48,9 +49,9 @@ class index extends Component {
     super(props);
     this.state = {
       buttons: [
-        {name: 'History', icon: img.historyIcon},
-        {name: 'Add new', icon: img.addIcon},
-        {name: 'Back'},
+        {name: translate('History'), icon: img.historyIcon, id: 0},
+        {name: translate('Add new'), icon: img.addIcon, id: 1},
+        {name: translate('Back'), id: 2},
       ],
       token: '',
       modalVisible: false,
@@ -286,10 +287,10 @@ class index extends Component {
   };
 
   onPressFun = item => {
-    if (item.name === 'History') {
+    if (item.id === 0) {
       this.setModalVisible(true);
       this.getHistoryMepData();
-    } else if (item.name === 'Add new') {
+    } else if (item.id === 1) {
       this.setModalVisibleAdd(true);
       this.setState({
         selectectedItems: [],
@@ -299,7 +300,7 @@ class index extends Component {
         isShownPicker: false,
         applyStatus: false,
       });
-    } else if (item.name === 'Back') {
+    } else if (item.id === 2) {
       this.props.navigation.goBack();
     }
   };
@@ -475,7 +476,7 @@ class index extends Component {
                         color: '#fff',
                         textAlign: 'center',
                       }}>
-                      View Recipe
+                      {translate('View Recipe')}
                     </Text>
                   </TouchableOpacity>
                 </View>
@@ -867,7 +868,9 @@ class index extends Component {
               alignItems: 'center',
               paddingVertical: hp('3%'),
             }}>
-            <Text style={{fontSize: 22, color: 'white'}}>MISE-EN-PLACE</Text>
+            <Text style={{fontSize: 22, color: 'white'}}>
+              {translate('Mise-en-Place')}
+            </Text>
             {buttons.map((item, index) => {
               return (
                 <View style={{}} key={index}>
@@ -922,7 +925,7 @@ class index extends Component {
                               justifyContent: 'center',
                             }}>
                             <Text style={{fontSize: 16, color: '#fff'}}>
-                              MISE-EN-PLACE HISTORY
+                              {translate('MISE-EN-PLACE HISTORY')}
                             </Text>
                           </View>
                           <View
@@ -963,7 +966,7 @@ class index extends Component {
                                   justifyContent: 'center',
                                 }}>
                                 <Text style={{color: '#fff', fontSize: 16}}>
-                                  Collapse All
+                                  {translate('Collapse All')}
                                 </Text>
                               </TouchableOpacity>
                               {recipeLoaderHistory ? (
@@ -998,7 +1001,7 @@ class index extends Component {
                                     }}>
                                     <Text
                                       style={{color: '#717171', fontSize: 16}}>
-                                      View More (7 more days)
+                                      {translate('view more (7 more days)')}
                                     </Text>
                                   </TouchableOpacity>
                                   <View style={{marginVertical: hp('3%')}}>
@@ -1053,7 +1056,7 @@ class index extends Component {
                               justifyContent: 'center',
                             }}>
                             <Text style={{fontSize: 16, color: '#fff'}}>
-                              MISE-EN-PLACE BUILDER
+                              {translate('MISE-EN-PLACE BUILDER')}
                             </Text>
                           </View>
                           <View
@@ -1080,7 +1083,7 @@ class index extends Component {
                           <View style={{padding: hp('3%')}}>
                             <View style={{}}>
                               <View style={{marginBottom: 10}}>
-                                <Text>Production Date</Text>
+                                <Text>{translate('Production Date')}</Text>
                               </View>
                               <TouchableOpacity
                                 onPress={() => this.showDatePickerFun()}
@@ -1180,7 +1183,7 @@ class index extends Component {
                                   justifyContent: 'center',
                                 }}>
                                 <Text style={{color: '#fff', fontSize: 16}}>
-                                  Apply
+                                  {translate('Apply')}
                                 </Text>
                               </TouchableOpacity>
                               <View
@@ -1193,12 +1196,12 @@ class index extends Component {
                                 <TouchableOpacity
                                   onPress={() => this.addMepListFun()}
                                   style={{
-                                    width: wp('15%'),
                                     height: hp('5%'),
                                     alignSelf: 'flex-end',
                                     backgroundColor: '#94C036',
                                     justifyContent: 'center',
                                     alignItems: 'center',
+                                    paddingHorizontal: wp('2%'),
                                   }}>
                                   <Text
                                     style={{
@@ -1206,7 +1209,7 @@ class index extends Component {
                                       fontSize: 15,
                                       fontWeight: 'bold',
                                     }}>
-                                    Save
+                                    {translate('Save')}
                                   </Text>
                                 </TouchableOpacity>
                                 <TouchableOpacity
@@ -1226,7 +1229,7 @@ class index extends Component {
                                       fontSize: 15,
                                       fontWeight: 'bold',
                                     }}>
-                                    Close
+                                    {translate('Close')}
                                   </Text>
                                 </TouchableOpacity>
                               </View>
@@ -1321,7 +1324,7 @@ class index extends Component {
                                           color: '#4C4B4B',
                                           fontWeight: 'bold',
                                         }}>
-                                        Recipe Name
+                                        {translate('Recipe Name')}
                                       </Text>
                                     </View>
                                     <View
@@ -1356,7 +1359,7 @@ class index extends Component {
                                           color: '#4C4B4B',
                                           fontWeight: 'bold',
                                         }}>
-                                        Version Name
+                                        {translate('Version name')}
                                       </Text>
                                     </View>
                                     <View
@@ -1390,12 +1393,12 @@ class index extends Component {
                                         color: '#4C4B4B',
                                         fontWeight: 'bold',
                                       }}>
-                                      Ingredient
+                                      {translate('Ingredient')}
                                     </Text>
                                   </View>
                                   <View style={{flex: 1, alignItems: 'center'}}>
                                     <Text style={{color: '#212529'}}>
-                                      Quantity
+                                      {translate('Quantity')}
                                     </Text>
                                   </View>
                                 </View>
@@ -1462,7 +1465,7 @@ class index extends Component {
                                         color: '#4C4B4B',
                                         fontWeight: 'bold',
                                       }}>
-                                      Total
+                                      {translate('Total')}
                                     </Text>
                                   </View>
                                   <View style={{flex: 1, alignItems: 'center'}}>
@@ -1532,7 +1535,7 @@ class index extends Component {
                                       fontSize: 15,
                                       fontWeight: 'bold',
                                     }}>
-                                    Advance View
+                                    {translate('Advance view')}
                                   </Text>
                                 </TouchableOpacity>
                                 <TouchableOpacity
@@ -1555,7 +1558,7 @@ class index extends Component {
                                       fontSize: 15,
                                       fontWeight: 'bold',
                                     }}>
-                                    Close
+                                    {translate('Close')}
                                   </Text>
                                 </TouchableOpacity>
                               </View>
@@ -1888,7 +1891,9 @@ class index extends Component {
               alignSelf: 'center',
             }}>
             <View style={{}}>
-              <Text style={{color: 'white', marginLeft: 5}}>Collapse All</Text>
+              <Text style={{color: 'white', marginLeft: 5}}>
+                {translate('Collapse All')}
+              </Text>
             </View>
           </TouchableOpacity>
           {recipeLoader ? (
