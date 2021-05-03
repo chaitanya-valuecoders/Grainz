@@ -242,6 +242,7 @@ class index extends Component {
                 ) : null}
                 <TextInput
                   value={this.state.password}
+                  secureTextEntry={true}
                   onChangeText={value =>
                     this.setState({
                       password: value,

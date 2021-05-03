@@ -37,7 +37,7 @@ class index extends Component {
           </TouchableOpacity>
           <View style={{flex: 1}}>
             <TouchableOpacity onPress={this.props.logoutFun}>
-              <Text style={{fontSize: 20, color: 'grey'}}>
+              <Text style={{fontSize: 20, color: 'grey', textAlign: 'center'}}>
                 {' '}
                 {this.props.logout}{' '}
               </Text>

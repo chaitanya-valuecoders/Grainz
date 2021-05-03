@@ -1023,7 +1023,7 @@ class index extends Component {
                                           fontSize: 15,
                                           fontWeight: 'bold',
                                         }}>
-                                        Close
+                                        {translate('Close')}
                                       </Text>
                                     </TouchableOpacity>
                                   </View>
@@ -1864,7 +1864,7 @@ class index extends Component {
                                       fontSize: 15,
                                       fontWeight: 'bold',
                                     }}>
-                                    Close
+                                    {translate('Close')}
                                   </Text>
                                 </TouchableOpacity>
                               </View>
