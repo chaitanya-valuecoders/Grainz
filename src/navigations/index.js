@@ -32,8 +32,8 @@ function HandleNavigation(props) {
     }),
   };
 
-  useEffect(() => {
-    AsyncStorage.getItem('@appToken').then(token => {
+  useEffect(async () => {
+    await AsyncStorage.getItem('@appToken').then(token => {
       if (token === null) {
         setBool(false);
         props.UserTokenAction(null);

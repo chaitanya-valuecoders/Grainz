@@ -37,6 +37,7 @@ import Accordion from 'react-native-collapsible/Accordion';
 import moment from 'moment';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import {MultipleSelectPicker} from 'react-native-multi-select-picker';
+import {translate} from '../../utils/translations';
 
 var minTime = new Date();
 minTime.setHours(0);
@@ -48,9 +49,9 @@ class index extends Component {
     super(props);
     this.state = {
       buttons: [
-        {name: 'History', icon: img.historyIcon},
-        {name: 'Add new', icon: img.addIcon},
-        {name: 'Back'},
+        {name: translate('History'), icon: img.historyIcon, id: 0},
+        {name: translate('Add new'), icon: img.addIcon, id: 1},
+        {name: translate('Back'), id: 2},
       ],
       token: '',
       modalVisible: false,
@@ -187,8 +188,34 @@ class index extends Component {
       () =>
         getPendingMepsApi()
           .then(res => {
+            function extract() {
+              var groups = {};
+
+              res.data.forEach(function (val) {
+                var date = val.productionDate.split('T')[0];
+                if (date in groups) {
+                  groups[date].push(val);
+                } else {
+                  groups[date] = new Array(val);
+                }
+              });
+
+              return groups;
+            }
+
+            let final = extract();
+
+            let finalArray = Object.keys(final).map((item, index) => {
+              return {
+                title: item,
+                content: final[item],
+              };
+            });
+
+            const reversedArray = finalArray.reverse();
+
             this.setState({
-              SECTIONS: res.data.reverse(),
+              SECTIONS: [...reversedArray],
               recipeLoader: false,
             });
           })
@@ -216,8 +243,32 @@ class index extends Component {
       () =>
         getMepsHistoryApi()
           .then(res => {
+            function extract() {
+              var groups = {};
+
+              res.data.forEach(function (val) {
+                var date = val.productionDate.split('T')[0];
+                if (date in groups) {
+                  groups[date].push(val);
+                } else {
+                  groups[date] = new Array(val);
+                }
+              });
+
+              return groups;
+            }
+
+            let final = extract();
+
+            let finalArray = Object.keys(final).map((item, index) => {
+              return {
+                title: item,
+                content: final[item],
+              };
+            });
+
             this.setState({
-              SECTIONS_HISTORY: res.data,
+              SECTIONS_HISTORY: [...finalArray],
               recipeLoaderHistory: false,
             });
           })
@@ -236,10 +287,10 @@ class index extends Component {
   };
 
   onPressFun = item => {
-    if (item.name === 'History') {
+    if (item.id === 0) {
       this.setModalVisible(true);
       this.getHistoryMepData();
-    } else if (item.name === 'Add new') {
+    } else if (item.id === 1) {
       this.setModalVisibleAdd(true);
       this.setState({
         selectectedItems: [],
@@ -249,7 +300,7 @@ class index extends Component {
         isShownPicker: false,
         applyStatus: false,
       });
-    } else if (item.name === 'Back') {
+    } else if (item.id === 2) {
       this.props.navigation.goBack();
     }
   };
@@ -269,9 +320,7 @@ class index extends Component {
   _renderHeader = (section, index, isActive) => {
     var todayFinal = moment(new Date()).format('dddd, MMM DD YYYY');
 
-    const finalData = moment(section.productionDate).format(
-      'dddd, MMM DD YYYY',
-    );
+    const finalData = moment(section.title).format('dddd, MMM DD YYYY');
 
     return (
       <View
@@ -306,9 +355,7 @@ class index extends Component {
     );
   };
   _renderHeaderHistory = (section, index, isActive) => {
-    const finalData = moment(section.productionDate).format(
-      'dddd, MMM DD YYYY',
-    );
+    const finalData = moment(section.title).format('dddd, MMM DD YYYY');
     return (
       <View
         style={{
@@ -382,56 +429,66 @@ class index extends Component {
   _renderContent = section => {
     return (
       <View style={{marginTop: hp('2%')}}>
-        <View>
-          <View style={{flexDirection: 'row', alignItems: 'center'}}>
-            <Switch
-              style={{width: '14%'}}
-              trackColor={{
-                false: '#767577',
-                true: '#94C036',
-              }}
-              value={!section.isPrepared}
-              onValueChange={() => this.updatePreparedStatusFun(section)}
-              thumbColor="#fff"
-            />
-            <View style={{flex: 2}}>
-              <TouchableOpacity
-                onPress={() =>
-                  this.setModalVisibleRecipeDetails(true, section)
-                }>
-                <Text
-                  style={{
-                    fontSize: 14,
-                    fontWeight: 'bold',
-                    textAlign: 'center',
-                    marginLeft: wp('2%'),
-                  }}>
-                  {section.name}
+        {section.content.map((item, index) => {
+          return (
+            <View>
+              <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                <Switch
+                  style={{width: '14%'}}
+                  trackColor={{
+                    false: '#767577',
+                    true: '#94C036',
+                  }}
+                  value={!item.isPrepared}
+                  onValueChange={() => this.updatePreparedStatusFun(item)}
+                  thumbColor="#fff"
+                />
+                <View style={{flex: 2}}>
+                  <TouchableOpacity
+                    onPress={() =>
+                      this.setModalVisibleRecipeDetails(true, item)
+                    }>
+                    <Text
+                      style={{
+                        fontSize: 14,
+                        fontWeight: 'bold',
+                        textAlign: 'center',
+                        marginLeft: wp('2%'),
+                      }}>
+                      {item.name}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+                <View style={{flex: 1, alignItems: 'center'}}>
+                  <Text>
+                    {item.quantity} {item.unit}
+                  </Text>
+                </View>
+                <View style={{flex: 1, alignItems: 'center'}}>
+                  <TouchableOpacity
+                    onPress={() =>
+                      this.setModalAdvanceRecipeDetails(true, item)
+                    }
+                    style={{backgroundColor: '#94C036', padding: 5}}>
+                    <Text
+                      style={{
+                        fontSize: 12,
+                        color: '#fff',
+                        textAlign: 'center',
+                      }}>
+                      {translate('View Recipe')}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+              <View>
+                <Text style={{fontSize: 12, marginLeft: wp('5%')}}>
+                  {item.notes}
                 </Text>
-              </TouchableOpacity>
+              </View>
             </View>
-            <View style={{flex: 1, alignItems: 'center'}}>
-              <Text>
-                {section.quantity} {section.unit}
-              </Text>
-            </View>
-            <View style={{flex: 1, alignItems: 'center'}}>
-              <TouchableOpacity
-                onPress={() => this.setModalAdvanceRecipeDetails(true, section)}
-                style={{backgroundColor: '#94C036', padding: 5}}>
-                <Text
-                  style={{fontSize: 12, color: '#fff', textAlign: 'center'}}>
-                  View Recipe
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-          <View>
-            <Text style={{fontSize: 12, marginLeft: wp('5%')}}>
-              {section.notes}
-            </Text>
-          </View>
-        </View>
+          );
+        })}
       </View>
     );
   };
@@ -439,37 +496,43 @@ class index extends Component {
   _renderContentHistory = section => {
     return (
       <View style={{marginTop: hp('2%')}}>
-        <View>
-          <View style={{flexDirection: 'row', alignItems: 'center'}}>
-            <View style={{flex: 2}}>
-              <TouchableOpacity
-                onPress={() =>
-                  this.setState(
-                    {
-                      modalVisible: false,
-                    },
-                    () =>
-                      setTimeout(() => {
-                        this.setModalVisibleRecipeDetails(true, section);
-                      }, 500),
-                  )
-                }>
-                <Text
-                  numberOfLines={1}
-                  style={{
-                    fontSize: 14,
-                    fontWeight: 'bold',
-                    textAlign: 'center',
-                  }}>
-                  {section.name}
-                </Text>
-              </TouchableOpacity>
+        {section.content.map((item, index) => {
+          return (
+            <View>
+              <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                <View style={{flex: 2}}>
+                  <TouchableOpacity
+                    onPress={() =>
+                      this.setState(
+                        {
+                          modalVisible: false,
+                        },
+                        () =>
+                          setTimeout(() => {
+                            this.setModalVisibleRecipeDetails(true, item);
+                          }, 500),
+                      )
+                    }>
+                    <Text
+                      numberOfLines={1}
+                      style={{
+                        fontSize: 14,
+                        fontWeight: 'bold',
+                        textAlign: 'left',
+                        paddingVertical: 8,
+                      }}>
+                      {item.name}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+                <View style={{flex: 1, alignItems: 'center'}}>
+                  <Text>{item.quantity} g</Text>
+                </View>
+              </View>
+              <View style={{borderBottomWidth: 1}}></View>
             </View>
-            <View style={{flex: 1, alignItems: 'center'}}>
-              <Text>{section.quantity} g</Text>
-            </View>
-          </View>
-        </View>
+          );
+        })}
       </View>
     );
   };
@@ -588,8 +651,32 @@ class index extends Component {
       () =>
         getMepsOldHistoryApi()
           .then(res => {
+            function extract() {
+              var groups = {};
+
+              res.data.forEach(function (val) {
+                var date = val.productionDate.split('T')[0];
+                if (date in groups) {
+                  groups[date].push(val);
+                } else {
+                  groups[date] = new Array(val);
+                }
+              });
+
+              return groups;
+            }
+
+            let final = extract();
+
+            let finalArray = Object.keys(final).map((item, index) => {
+              return {
+                title: item,
+                content: final[item],
+              };
+            });
+
             this.setState({
-              SECTIONS_HISTORY: [...SECTIONS_HISTORY, ...res.data],
+              SECTIONS_HISTORY: [...SECTIONS_HISTORY, ...finalArray],
               recipeLoaderHistory: false,
             });
           })
@@ -773,7 +860,7 @@ class index extends Component {
           logoutFun={this.myProfile}
           logoFun={() => this.props.navigation.navigate('HomeScreen')}
         />
-        <SubHeader />
+        {/* <SubHeader /> */}
         <ScrollView style={{marginBottom: hp('5%')}}>
           <View
             style={{
@@ -781,7 +868,9 @@ class index extends Component {
               alignItems: 'center',
               paddingVertical: hp('3%'),
             }}>
-            <Text style={{fontSize: 22, color: 'white'}}>MISE-EN-PLACE</Text>
+            <Text style={{fontSize: 22, color: 'white'}}>
+              {translate('Mise-en-Place')}
+            </Text>
             {buttons.map((item, index) => {
               return (
                 <View style={{}} key={index}>
@@ -836,7 +925,7 @@ class index extends Component {
                               justifyContent: 'center',
                             }}>
                             <Text style={{fontSize: 16, color: '#fff'}}>
-                              MISE-EN-PLACE HISTORY
+                              {translate('MISE-EN-PLACE HISTORY')}
                             </Text>
                           </View>
                           <View
@@ -877,7 +966,7 @@ class index extends Component {
                                   justifyContent: 'center',
                                 }}>
                                 <Text style={{color: '#fff', fontSize: 16}}>
-                                  Collapse All
+                                  {translate('Collapse All')}
                                 </Text>
                               </TouchableOpacity>
                               {recipeLoaderHistory ? (
@@ -912,7 +1001,7 @@ class index extends Component {
                                     }}>
                                     <Text
                                       style={{color: '#717171', fontSize: 16}}>
-                                      View More (7 more days)
+                                      {translate('view more (7 more days)')}
                                     </Text>
                                   </TouchableOpacity>
                                   <View style={{marginVertical: hp('3%')}}>
@@ -934,7 +1023,7 @@ class index extends Component {
                                           fontSize: 15,
                                           fontWeight: 'bold',
                                         }}>
-                                        Close
+                                        {translate('Close')}
                                       </Text>
                                     </TouchableOpacity>
                                   </View>
@@ -967,7 +1056,7 @@ class index extends Component {
                               justifyContent: 'center',
                             }}>
                             <Text style={{fontSize: 16, color: '#fff'}}>
-                              MISE-EN-PLACE BUILDER
+                              {translate('MISE-EN-PLACE BUILDER')}
                             </Text>
                           </View>
                           <View
@@ -994,7 +1083,7 @@ class index extends Component {
                           <View style={{padding: hp('3%')}}>
                             <View style={{}}>
                               <View style={{marginBottom: 10}}>
-                                <Text>Production Date</Text>
+                                <Text>{translate('Production Date')}</Text>
                               </View>
                               <TouchableOpacity
                                 onPress={() => this.showDatePickerFun()}
@@ -1094,7 +1183,7 @@ class index extends Component {
                                   justifyContent: 'center',
                                 }}>
                                 <Text style={{color: '#fff', fontSize: 16}}>
-                                  Apply
+                                  {translate('Apply')}
                                 </Text>
                               </TouchableOpacity>
                               <View
@@ -1107,12 +1196,12 @@ class index extends Component {
                                 <TouchableOpacity
                                   onPress={() => this.addMepListFun()}
                                   style={{
-                                    width: wp('15%'),
                                     height: hp('5%'),
                                     alignSelf: 'flex-end',
                                     backgroundColor: '#94C036',
                                     justifyContent: 'center',
                                     alignItems: 'center',
+                                    paddingHorizontal: wp('2%'),
                                   }}>
                                   <Text
                                     style={{
@@ -1120,7 +1209,7 @@ class index extends Component {
                                       fontSize: 15,
                                       fontWeight: 'bold',
                                     }}>
-                                    Save
+                                    {translate('Save')}
                                   </Text>
                                 </TouchableOpacity>
                                 <TouchableOpacity
@@ -1140,7 +1229,7 @@ class index extends Component {
                                       fontSize: 15,
                                       fontWeight: 'bold',
                                     }}>
-                                    Close
+                                    {translate('Close')}
                                   </Text>
                                 </TouchableOpacity>
                               </View>
@@ -1235,7 +1324,7 @@ class index extends Component {
                                           color: '#4C4B4B',
                                           fontWeight: 'bold',
                                         }}>
-                                        Recipe Name
+                                        {translate('Recipe Name')}
                                       </Text>
                                     </View>
                                     <View
@@ -1270,7 +1359,7 @@ class index extends Component {
                                           color: '#4C4B4B',
                                           fontWeight: 'bold',
                                         }}>
-                                        Version Name
+                                        {translate('Version name')}
                                       </Text>
                                     </View>
                                     <View
@@ -1304,12 +1393,12 @@ class index extends Component {
                                         color: '#4C4B4B',
                                         fontWeight: 'bold',
                                       }}>
-                                      Ingredient
+                                      {translate('Ingredient')}
                                     </Text>
                                   </View>
                                   <View style={{flex: 1, alignItems: 'center'}}>
                                     <Text style={{color: '#212529'}}>
-                                      Quantity
+                                      {translate('Quantity')}
                                     </Text>
                                   </View>
                                 </View>
@@ -1376,7 +1465,7 @@ class index extends Component {
                                         color: '#4C4B4B',
                                         fontWeight: 'bold',
                                       }}>
-                                      Total
+                                      {translate('Total')}
                                     </Text>
                                   </View>
                                   <View style={{flex: 1, alignItems: 'center'}}>
@@ -1446,7 +1535,7 @@ class index extends Component {
                                       fontSize: 15,
                                       fontWeight: 'bold',
                                     }}>
-                                    Advance View
+                                    {translate('Advance view')}
                                   </Text>
                                 </TouchableOpacity>
                                 <TouchableOpacity
@@ -1469,7 +1558,7 @@ class index extends Component {
                                       fontSize: 15,
                                       fontWeight: 'bold',
                                     }}>
-                                    Close
+                                    {translate('Close')}
                                   </Text>
                                 </TouchableOpacity>
                               </View>
@@ -1775,7 +1864,7 @@ class index extends Component {
                                       fontSize: 15,
                                       fontWeight: 'bold',
                                     }}>
-                                    Close
+                                    {translate('Close')}
                                   </Text>
                                 </TouchableOpacity>
                               </View>
@@ -1802,7 +1891,9 @@ class index extends Component {
               alignSelf: 'center',
             }}>
             <View style={{}}>
-              <Text style={{color: 'white', marginLeft: 5}}>Collapse All</Text>
+              <Text style={{color: 'white', marginLeft: 5}}>
+                {translate('Collapse All')}
+              </Text>
             </View>
           </TouchableOpacity>
           {recipeLoader ? (

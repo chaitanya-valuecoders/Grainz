@@ -18,6 +18,7 @@ import {
 } from 'react-native-responsive-screen';
 import {UserTokenAction} from '../../redux/actions/UserTokenAction';
 import {getMyProfileApi} from '../../connectivity/api';
+import {translate} from '../../utils/translations';
 
 var minTime = new Date();
 minTime.setHours(0);
@@ -29,11 +30,11 @@ class index extends Component {
     super(props);
     this.state = {
       buttons: [
-        {name: 'Bar'},
-        {name: 'Restaurant'},
-        {name: 'Retail'},
-        {name: 'Other'},
-        {name: 'Back'},
+        {name: translate('Bar'), id: 0},
+        {name: translate('Restaurant'), id: 1},
+        {name: translate('Retail'), id: 2},
+        {name: translate('Other'), id: 3},
+        {name: translate('Back'), id: 4},
       ],
       token: '',
       firstName: '',
@@ -77,13 +78,13 @@ class index extends Component {
   };
 
   onPressFun = item => {
-    if (item.name === 'Bar') {
+    if (item.id === 0) {
       alert('Bar Clicked');
-    } else if (item.name === 'Restaurant') {
+    } else if (item.id === 1) {
       alert('Restaurant Clicked');
-    } else if (item.name === 'Retail') {
+    } else if (item.id === 2) {
       alert('Retail Clicked');
-    } else if (item.name === 'Other') {
+    } else if (item.id === 3) {
       alert('Other Clicked');
     } else {
       this.props.navigation.goBack();
@@ -99,7 +100,7 @@ class index extends Component {
           logoutFun={this.myProfileFun}
           logoFun={() => this.props.navigation.navigate('HomeScreen')}
         />
-        <SubHeader />
+        {/* <SubHeader /> */}
         <ScrollView style={{marginBottom: hp('5%')}}>
           <View
             style={{
@@ -109,7 +110,7 @@ class index extends Component {
               borderTopColor: '#E9E9E9',
             }}>
             <Text style={{color: '#656565', fontSize: 18}}>
-              Select which department you wish to stock take
+              {translate('Select which department you wish to stock take')}
             </Text>
             {buttons.map((item, index) => {
               return (

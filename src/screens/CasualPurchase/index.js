@@ -43,6 +43,7 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 // import ImagePicker from 'react-native-image-picker';
 import * as ImagePicker from 'react-native-image-picker';
 import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
+import {translate} from '../../utils/translations';
 
 var minTime = new Date();
 minTime.setHours(0);
@@ -764,7 +765,7 @@ class index extends Component {
                           marginLeft: 5,
                           fontWeight: 'bold',
                         }}>
-                        New
+                        {translate('New')}
                       </Text>
                     </View>
                   </TouchableOpacity>
@@ -797,7 +798,7 @@ class index extends Component {
                           }}
                         />
                         <Text style={{color: 'white', marginLeft: 5}}>
-                          Delete
+                          {translate('Delete')}
                         </Text>
                       </View>
                     </TouchableOpacity>
@@ -855,7 +856,7 @@ class index extends Component {
                           marginLeft: 5,
                           fontWeight: 'bold',
                         }}>
-                        Back
+                        {translate('Back')}
                       </Text>
                     </View>
                   </TouchableOpacity>
@@ -881,7 +882,7 @@ class index extends Component {
                         marginLeft: 5,
                         fontWeight: 'bold',
                       }}>
-                      Back
+                      {translate('Back')}
                     </Text>
                   </View>
                 </TouchableOpacity>
@@ -892,7 +893,7 @@ class index extends Component {
             <View style={{margin: 15}}>
               <View style={{flexDirection: 'row'}}>
                 <View style={{flex: 3}}>
-                  <Text>Date</Text>
+                  <Text>{translate('Date')}</Text>
                 </View>
                 <View style={{flex: 4}}>
                   <TouchableOpacity
@@ -939,7 +940,7 @@ class index extends Component {
 
               <View style={{flexDirection: 'row'}}>
                 <View style={{flex: 3}}>
-                  <Text>Supplier</Text>
+                  <Text>{translate('Supplier')}</Text>
                 </View>
                 <View style={{flex: 4}}>
                   <TouchableOpacity
@@ -1156,7 +1157,7 @@ class index extends Component {
                             fontWeight: 'bold',
                             marginLeft: 5,
                           }}>
-                          Add line
+                          {translate('Add line')}
                         </Text>
                       </View>
                     </TouchableOpacity>
@@ -1165,13 +1166,13 @@ class index extends Component {
               </View>
               <View style={{alignItems: 'space-between', margin: 20}}>
                 <View>
-                  <Text>Total</Text>
+                  <Text>{translate('Total')}</Text>
                 </View>
                 <View>
                   <Text>$ {orderTotal}</Text>
                 </View>
                 <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                  <Text>HTVA?</Text>
+                  <Text>{translate('HTVA')}?</Text>
                   <CheckBox
                     disabled={editDisabled}
                     value={htvaIsSelected}
@@ -1185,7 +1186,7 @@ class index extends Component {
                   />
                 </View>
                 <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                  <Text>Audit Complete</Text>
+                  <Text>{translate('Audit Complete')}</Text>
                   <CheckBox
                     disabled={editDisabled}
                     value={auditIsSelected}
@@ -1217,7 +1218,7 @@ class index extends Component {
                           fontWeight: 'bold',
                           marginLeft: 5,
                         }}>
-                        Add Image
+                        {translate('Add image')}
                       </Text>
                     </View>
                   </TouchableOpacity>
@@ -1226,7 +1227,7 @@ class index extends Component {
 
               <View style={{margin: 15, flexDirection: 'row'}}>
                 <View style={{flex: 1}}>
-                  <Text style={{}}>Note </Text>
+                  <Text style={{}}>{translate('Note')} </Text>
                 </View>
                 <View
                   style={{
@@ -1276,7 +1277,7 @@ class index extends Component {
                         fontWeight: 'bold',
                         marginLeft: 5,
                       }}>
-                      Cancel
+                      {translate('Cancel')}
                     </Text>
                   </View>
                 </TouchableOpacity>
@@ -1311,7 +1312,7 @@ class index extends Component {
                         fontWeight: 'bold',
                         marginLeft: 5,
                       }}>
-                      Save
+                      {translate('Save')}
                     </Text>
                   </View>
                 </TouchableOpacity>
@@ -1322,7 +1323,7 @@ class index extends Component {
             <View style={{margin: 15}}>
               <View style={{flexDirection: 'row'}}>
                 <View style={{flex: 3}}>
-                  <Text>Date</Text>
+                  <Text>{translate('Date')}</Text>
                 </View>
                 <View style={{flex: 4}}>
                   <TouchableOpacity
@@ -1365,7 +1366,7 @@ class index extends Component {
 
               <View style={{flexDirection: 'row'}}>
                 <View style={{flex: 3}}>
-                  <Text>Supplier</Text>
+                  <Text>{translate('Supplier')}</Text>
                 </View>
                 <View style={{flex: 4}}>
                   <TouchableOpacity
@@ -1567,7 +1568,7 @@ class index extends Component {
                           fontWeight: 'bold',
                           marginLeft: 5,
                         }}>
-                        Add line
+                        {translate('Audit Complete')}
                       </Text>
                     </View>
                   </TouchableOpacity>
@@ -1575,7 +1576,7 @@ class index extends Component {
               </View>
               <View style={{alignItems: 'space-between', margin: 20}}>
                 <View>
-                  <Text>Total</Text>
+                  <Text>{translate('Total')}</Text>
                 </View>
                 <View>
                   <Text>$ 0.00</Text>
@@ -1593,7 +1594,7 @@ class index extends Component {
                   />
                 </View>
                 <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                  <Text>Audit Complete</Text>
+                  <Text>{translate('Audit Complete')}</Text>
                   <CheckBox
                     value={auditIsSelected}
                     style={{
@@ -1622,7 +1623,7 @@ class index extends Component {
                         fontWeight: 'bold',
                         marginLeft: 5,
                       }}>
-                      Add Image
+                      {translate('Add image')}
                     </Text>
                   </View>
                 </TouchableOpacity>
@@ -1637,7 +1638,7 @@ class index extends Component {
               ) : null}
               <View style={{margin: 15, flexDirection: 'row'}}>
                 <View style={{flex: 1}}>
-                  <Text style={{}}>Note </Text>
+                  <Text style={{}}>{translate('Note')} </Text>
                 </View>
                 <View
                   style={{
@@ -1685,7 +1686,7 @@ class index extends Component {
                         fontWeight: 'bold',
                         marginLeft: 5,
                       }}>
-                      Cancel
+                      {translate('Cancel')}
                     </Text>
                   </View>
                 </TouchableOpacity>
@@ -1720,7 +1721,7 @@ class index extends Component {
                         fontWeight: 'bold',
                         marginLeft: 5,
                       }}>
-                      Save
+                      {translate('Save')}
                     </Text>
                   </View>
                 </TouchableOpacity>
@@ -1742,7 +1743,7 @@ class index extends Component {
                     marginLeft: 20,
                     flex: 1,
                   }}>
-                  <Text style={{fontWeight: 'bold'}}>Date</Text>
+                  <Text style={{fontWeight: 'bold'}}>{translate('Date')}</Text>
                   <Pressable>
                     <Image
                       style={{
@@ -1762,7 +1763,9 @@ class index extends Component {
                     marginLeft: 10,
                     flex: 1,
                   }}>
-                  <Text style={{fontWeight: 'bold'}}>Supplier</Text>
+                  <Text style={{fontWeight: 'bold'}}>
+                    {translate('Supplier')}
+                  </Text>
                   <Pressable>
                     <Image
                       style={{
@@ -1781,7 +1784,9 @@ class index extends Component {
                     padding: 10,
                     flex: 1,
                   }}>
-                  <Text style={{fontWeight: 'bold'}}>$ Total HTVA</Text>
+                  <Text style={{fontWeight: 'bold'}}>
+                    $ {translate('Total')} HTVA
+                  </Text>
                   <Pressable>
                     <Image
                       style={{

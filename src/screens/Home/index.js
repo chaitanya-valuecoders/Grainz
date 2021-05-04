@@ -1,5 +1,13 @@
 import React, {Component} from 'react';
-import {View, Text, TouchableOpacity, Image, ScrollView} from 'react-native';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Image,
+  ScrollView,
+  Modal,
+  ActivityIndicator,
+} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {connect} from 'react-redux';
 import img from '../../constants/images';
@@ -11,26 +19,18 @@ import {
 } from 'react-native-responsive-screen';
 import {UserTokenAction} from '../../redux/actions/UserTokenAction';
 import {getMyProfileApi} from '../../connectivity/api';
+import {translate, setI18nConfig} from '../../utils/translations';
 
 class index extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      buttons: [
-        {name: 'Stock take', icon: img.addIcon, screen: 'StockTakeScreen'},
-        {name: 'MISE-EN-PLACE', icon: img.addIcon, screen: 'MepScreen'},
-        {name: 'Menu items', icon: img.searchIcon, screen: 'MenuItemsScreen'},
-        {name: 'Manual log', icon: img.addIcon, screen: 'ManualLogScreen'},
-        {name: 'Deliveries', icon: img.addIcon, screen: 'DeliveriesScreen'},
-        {
-          name: 'Casual purchase',
-          icon: img.addIcon,
-          screen: 'CasualPurchaseScreen',
-        },
-        {name: 'Events', icon: img.addIcon, screen: 'EventsScreen'},
-      ],
+      buttons: [],
       token: '',
       firstName: '',
+      loader: false,
+      language: '',
+      loader: true,
     };
   }
 
@@ -55,16 +55,108 @@ class index extends Component {
       .then(res => {
         this.setState({
           firstName: res.data.firstName,
+          loader: false,
+          buttons: [
+            {
+              name: translate('Stock Take'),
+              icon: img.addIcon,
+              screen: 'StockTakeScreen',
+            },
+            {
+              name: translate('Mise-en-Place'),
+              icon: img.addIcon,
+              screen: 'MepScreen',
+            },
+            // {
+            //   name: translate('Recipes'),
+            //   icon: img.searchIcon,
+            //   screen: 'RecipeScreen',
+            // },
+            // {
+            //   name: translate('Menu-Items'),
+            //   icon: img.searchIcon,
+            //   screen: 'MenuItemsScreen',
+            // },
+            {
+              name: translate('Manual Log small'),
+              icon: img.addIcon,
+              screen: 'ManualLogScreen',
+            },
+            // {
+            //   name: translate('Deliveries'),
+            //   icon: img.addIcon,
+            //   screen: 'DeliveriesScreen',
+            // },
+            {
+              name: translate('Casual purchase'),
+              icon: img.addIcon,
+              screen: 'CasualPurchaseScreen',
+            },
+            // {name: translate('Events'), icon: img.addIcon, screen: 'EventsScreen'},
+          ],
         });
       })
       .catch(err => {
+        this.setState({
+          loader: false,
+          buttons: [
+            {
+              name: translate('Stock Take'),
+              icon: img.addIcon,
+              screen: 'StockTakeScreen',
+            },
+            {
+              name: translate('Mise-en-Place'),
+              icon: img.addIcon,
+              screen: 'MepScreen',
+            },
+            // {
+            //   name: translate('Recipes'),
+            //   icon: img.searchIcon,
+            //   screen: 'RecipeScreen',
+            // },
+            // {
+            //   name: translate('Menu-Items'),
+            //   icon: img.searchIcon,
+            //   screen: 'MenuItemsScreen',
+            // },
+            {
+              name: translate('Manual Log small'),
+              icon: img.addIcon,
+              screen: 'ManualLogScreen',
+            },
+            // {
+            //   name: translate('Deliveries'),
+            //   icon: img.addIcon,
+            //   screen: 'DeliveriesScreen',
+            // },
+            {
+              name: translate('Casual purchase'),
+              icon: img.addIcon,
+              screen: 'CasualPurchaseScreen',
+            },
+            // {name: translate('Events'), icon: img.addIcon, screen: 'EventsScreen'},
+          ],
+        });
         console.warn('ERr', err);
       });
   };
 
-  componentDidMount() {
+  async componentDidMount() {
     this.getData();
+    this.setLanguage();
   }
+
+  setLanguage = async () => {
+    setI18nConfig();
+    const lang = await AsyncStorage.getItem('Language');
+    if (lang !== null && lang !== undefined) {
+      setI18nConfig();
+    } else {
+      await AsyncStorage.setItem('Language', 'en');
+      setI18nConfig();
+    }
+  };
 
   removeToken = async () => {
     await AsyncStorage.removeItem('@appToken');
@@ -83,7 +175,31 @@ class index extends Component {
           logoutFun={this.myProfile}
           logoFun={() => this.props.navigation.navigate('HomeScreen')}
         />
-        <SubHeader />
+        <Modal
+          animationType="fade"
+          transparent={true}
+          visible={this.state.loader}>
+          <View
+            style={{
+              flex: 1,
+              backgroundColor: 'transparent',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}>
+            <View
+              style={{
+                flexDirection: 'row',
+                backgroundColor: '#00000090',
+                alignContent: 'center',
+                justifyContent: 'center',
+                width: wp('1000%'),
+                height: hp('100%'),
+              }}>
+              <ActivityIndicator size="large" color={'#ffffff'} />
+            </View>
+          </View>
+        </Modal>
+        {/* <SubHeader /> */}
         <ScrollView
           style={{marginTop: hp('2%'), marginBottom: hp('2%')}}
           showsVerticalScrollIndicator={false}>

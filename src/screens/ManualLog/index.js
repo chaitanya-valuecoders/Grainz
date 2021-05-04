@@ -39,6 +39,8 @@ import moment from 'moment';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import SectionedMultiSelect from 'react-native-sectioned-multi-select';
+import DropDownPicker from 'react-native-dropdown-picker';
+import {translate} from '../../utils/translations';
 
 var minTime = new Date();
 minTime.setHours(0);
@@ -49,7 +51,10 @@ class index extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      buttons: [{name: 'Add new', icon: img.addIcon}, {name: 'Back'}],
+      buttons: [
+        {name: translate('Add new'), icon: img.addIcon, id: 0},
+        {name: translate('Back'), id: 1},
+      ],
       token: '',
       modalVisible: false,
       firstName: '',
@@ -102,7 +107,6 @@ class index extends Component {
       () =>
         getManualLogsById(data.id)
           .then(res => {
-            console.log('RES', res);
             this.setState({
               modalVisibleRecipeDetails: visible,
               sectionData: res.data,
@@ -252,12 +256,37 @@ class index extends Component {
   createFirstData = () => {
     getManualLogList()
       .then(res => {
-        const result = res.data.reduce((temp, value) => {
+        function extract() {
+          var groups = {};
+
+          res.data.forEach(function (val) {
+            var date = val.loggedDate.split('T')[0];
+            if (date in groups) {
+              groups[date].push(val);
+            } else {
+              groups[date] = new Array(val);
+            }
+          });
+
+          return groups;
+        }
+
+        let final = extract();
+
+        let finalArray = Object.keys(final).map((item, index) => {
+          return {
+            title: item,
+            content: final[item],
+          };
+        });
+
+        const result = finalArray.reduce((temp, value) => {
           if (temp.length < 5) temp.push(value);
           return temp;
         }, []);
+
         this.setState({
-          SECTIONS: result,
+          SECTIONS: [...result],
           recipeLoader: false,
         });
       })
@@ -281,14 +310,14 @@ class index extends Component {
   };
 
   onPressFun = item => {
-    if (item.name === 'Add new') {
+    if (item.id === 0) {
       this.setModalVisibleAdd(true);
       this.setState({
         preparedDate: '',
         finalDate: '',
         itemsTypesArr: [],
       });
-    } else if (item.name === 'Back') {
+    } else if (item.id === 1) {
       this.props.navigation.goBack();
     }
   };
@@ -302,7 +331,7 @@ class index extends Component {
   _renderHeader = (section, index, isActive) => {
     var todayFinal = moment(new Date()).format('dddd, MMM DD YYYY');
 
-    const finalData = moment(section.loggedDate).format('dddd, MMM DD YYYY');
+    const finalData = moment(section.title).format('dddd, MMM DD YYYY');
 
     return (
       <View
@@ -373,7 +402,6 @@ class index extends Component {
       inUse: section.inUse,
       countInInventory: section.countInInventory,
     };
-    console.log('PAYLOAD', payload);
     updateManualLogApi(payload)
       .then(res => {
         this.setState(
@@ -391,101 +419,117 @@ class index extends Component {
   _renderContent = section => {
     return (
       <View style={{marginTop: hp('2%')}}>
-        <ScrollView
-          horizontal
-          style={{marginRight: wp('10%')}}
-          showsHorizontalScrollIndicator={false}>
-          <View>
-            <View style={{flexDirection: 'row', alignItems: 'center'}}>
-              <Switch
-                style={{}}
-                trackColor={{
-                  false: '#767577',
-                  true: '#94C036',
-                }}
-                value={!section.reviewed}
-                onValueChange={() => this.updateReviewedStatusFun(section)}
-                thumbColor="#fff"
-              />
-              <View style={{marginLeft: wp('2%')}}>
-                <TouchableOpacity
-                  onPress={() =>
-                    this.setModalVisibleRecipeDetails(true, section)
-                  }>
-                  <Text
-                    style={{
-                      fontSize: 14,
-                      fontWeight: 'bold',
-                    }}>
-                    {section.name}
-                  </Text>
-                </TouchableOpacity>
-              </View>
-              <View style={{alignItems: 'center', marginLeft: wp('4%')}}>
-                <Text
-                  style={{
-                    fontSize: 14,
-                  }}>
-                  {section.itemTypeName}
-                </Text>
-              </View>
-              <View style={{alignItems: 'center', marginLeft: wp('4%')}}>
-                <Text
-                  style={{
-                    fontSize: 14,
-                  }}>
-                  {section.quantity}{' '}
-                  {section.units.length > 0 && section.units[0].name}
-                </Text>
-              </View>
-              <View style={{alignItems: 'center', marginLeft: wp('4%')}}>
-                <Text
-                  style={{
-                    fontSize: 14,
-                  }}>
-                  {section.typeName}
-                </Text>
-              </View>
-              <View style={{alignItems: 'center', marginLeft: wp('4%')}}>
-                <Text
-                  style={{
-                    fontSize: 14,
-                  }}>
-                  {section.userFullName}
-                </Text>
-              </View>
-              <View style={{alignItems: 'center', marginLeft: wp('4%')}}>
-                <TouchableOpacity
-                  onPress={() => this.deleteMepFun(section)}
-                  style={{
-                    backgroundColor: 'red',
-                    padding: 5,
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                  }}>
-                  <Image
-                    source={img.cancelIcon}
-                    style={{
-                      height: 15,
-                      width: 15,
-                      tintColor: 'white',
-                      resizeMode: 'contain',
+        {section.content.map((item, index) => {
+          return (
+            <ScrollView
+              horizontal
+              style={{marginRight: wp('10%')}}
+              showsHorizontalScrollIndicator={false}>
+              <View>
+                <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                  <Switch
+                    style={{}}
+                    trackColor={{
+                      false: '#767577',
+                      true: '#94C036',
                     }}
+                    value={!item.reviewed}
+                    onValueChange={() => this.updateReviewedStatusFun(item)}
+                    thumbColor="#fff"
                   />
+                  <View style={{marginLeft: wp('2%'), width: wp('20%')}}>
+                    <TouchableOpacity
+                      onPress={() =>
+                        this.setModalVisibleRecipeDetails(true, item)
+                      }>
+                      <Text
+                        style={{
+                          fontSize: 14,
+                          fontWeight: 'bold',
+                          textAlign: 'center',
+                        }}>
+                        {item.name}
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                  <View style={{alignItems: 'center', marginLeft: wp('4%')}}>
+                    <Text
+                      style={{
+                        fontSize: 14,
+                      }}>
+                      {item.itemTypeName}
+                    </Text>
+                  </View>
+                  <View style={{alignItems: 'center', marginLeft: wp('4%')}}>
+                    <Text
+                      style={{
+                        fontSize: 14,
+                      }}>
+                      {item.quantity}{' '}
+                      {/* {section.units.length > 0 && section.units[0].name} */}
+                    </Text>
+                  </View>
+                  <View style={{alignItems: 'center', marginLeft: wp('4%')}}>
+                    <Text
+                      style={{
+                        fontSize: 14,
+                      }}>
+                      {item.typeName}
+                    </Text>
+                  </View>
+                  <View style={{alignItems: 'center', marginLeft: wp('4%')}}>
+                    <Text
+                      style={{
+                        fontSize: 14,
+                      }}>
+                      {item.userFullName}
+                    </Text>
+                  </View>
+                  <View style={{alignItems: 'center', marginLeft: wp('4%')}}>
+                    <TouchableOpacity
+                      onPress={() => this.deleteMepFun(item)}
+                      style={{
+                        backgroundColor: 'red',
+                        padding: 5,
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                      }}>
+                      <Image
+                        source={img.cancelIcon}
+                        style={{
+                          height: 15,
+                          width: 15,
+                          tintColor: 'white',
+                          resizeMode: 'contain',
+                        }}
+                      />
+                      <Text
+                        style={{
+                          fontSize: 14,
+                          color: '#fff',
+                          textAlign: 'center',
+                        }}>
+                        Delete
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+                <View>
                   <Text
-                    style={{fontSize: 14, color: '#fff', textAlign: 'center'}}>
-                    Delete
+                    style={{
+                      fontSize: 12,
+                      marginLeft: wp('20%'),
+                      fontWeight: 'bold',
+                      fontSize: 16,
+                      color: 'grey',
+                    }}>
+                    {item.notes}
                   </Text>
-                </TouchableOpacity>
+                </View>
               </View>
-            </View>
-            <View>
-              <Text style={{fontSize: 12, marginLeft: wp('15%')}}>
-                {section.notes}
-              </Text>
-            </View>
-          </View>
-        </ScrollView>
+            </ScrollView>
+          );
+        })}
       </View>
     );
   };
@@ -541,7 +585,6 @@ class index extends Component {
     };
     updateManualLogApi(payload)
       .then(res => {
-        console.log('RESS', res);
         this.setState(
           {
             modalVisibleRecipeDetails: false,
@@ -639,7 +682,6 @@ class index extends Component {
   getRecipesTypesData = () => {
     getManualLogTypes()
       .then(res => {
-        console.log('RES', res);
         const {data} = res;
         let newData = [];
         data.map(item => {
@@ -666,6 +708,7 @@ class index extends Component {
           return item.departmentName === departmentName;
         });
 
+        console.log('firarr', firstArr);
         function groupByKey(array, key) {
           return array.reduce((hash, obj) => {
             if (obj[key] === undefined) return hash;
@@ -676,6 +719,11 @@ class index extends Component {
         }
 
         let groupedCategory = groupByKey(firstArr, 'category');
+
+        console.log(
+          'Object.keys(groupedCategory)',
+          Object.keys(groupedCategory),
+        );
 
         let finalArray = Object.keys(groupedCategory).map((item, index) => {
           return {
@@ -812,7 +860,7 @@ class index extends Component {
           logoutFun={this.myProfile}
           logoFun={() => this.props.navigation.navigate('HomeScreen')}
         />
-        <SubHeader />
+        {/* <SubHeader /> */}
         <ScrollView style={{marginBottom: hp('5%')}}>
           <View
             style={{
@@ -820,7 +868,9 @@ class index extends Component {
               alignItems: 'center',
               paddingVertical: hp('3%'),
             }}>
-            <Text style={{fontSize: 22, color: 'white'}}>MANUAL LOG</Text>
+            <Text style={{fontSize: 22, color: 'white'}}>
+              {translate('Manual Log')}
+            </Text>
             {buttons.map((item, index) => {
               return (
                 <View style={{}} key={index}>
@@ -875,7 +925,8 @@ class index extends Component {
                               justifyContent: 'center',
                             }}>
                             <Text style={{fontSize: 16, color: '#fff'}}>
-                              Manual log - Add New item
+                              {translate('Manual Log small')} -{' '}
+                              {translate('Add new item')}
                             </Text>
                           </View>
                           <View
@@ -1046,7 +1097,7 @@ class index extends Component {
                                   style={{
                                     marginTop: hp('3%'),
                                   }}>
-                                  <Text>Note</Text>
+                                  <Text>{translate('Note')}</Text>
                                 </View>
                                 <View
                                   onPress={() => this.showDatePickerFun()}
@@ -1058,7 +1109,7 @@ class index extends Component {
                                     borderColor: '#C9CCD7',
                                   }}>
                                   <TextInput
-                                    placeholder="Note"
+                                    placeholder={translate('Note')}
                                     onChangeText={value =>
                                       this.setState({
                                         notes: value,
@@ -1090,7 +1141,7 @@ class index extends Component {
                                         fontSize: 15,
                                         fontWeight: 'bold',
                                       }}>
-                                      Save
+                                      {translate('Save')}
                                     </Text>
                                   </TouchableOpacity>
                                   <TouchableOpacity
@@ -1112,7 +1163,7 @@ class index extends Component {
                                         fontSize: 15,
                                         fontWeight: 'bold',
                                       }}>
-                                      Close
+                                      {translate('Close')}
                                     </Text>
                                   </TouchableOpacity>
                                 </View>
@@ -1415,7 +1466,7 @@ class index extends Component {
                                           color: '#fff',
                                           textAlign: 'center',
                                         }}>
-                                        Delete
+                                        {translate('Delete')}
                                       </Text>
                                     </TouchableOpacity>
                                   </View>
@@ -1444,7 +1495,7 @@ class index extends Component {
                                           fontSize: 15,
                                           fontWeight: 'bold',
                                         }}>
-                                        Save
+                                        {translate('Save')}
                                       </Text>
                                     </TouchableOpacity>
                                     <TouchableOpacity
@@ -1468,7 +1519,7 @@ class index extends Component {
                                           fontSize: 15,
                                           fontWeight: 'bold',
                                         }}>
-                                        Close
+                                        {translate('Close')}
                                       </Text>
                                     </TouchableOpacity>
                                   </View>
@@ -1509,7 +1560,9 @@ class index extends Component {
               alignSelf: 'center',
             }}>
             <View style={{}}>
-              <Text style={{color: 'white', marginLeft: 5}}>Collapse All</Text>
+              <Text style={{color: 'white', marginLeft: 5}}>
+                {translate('Collapse All')}
+              </Text>
             </View>
           </TouchableOpacity>
           {recipeLoader ? (

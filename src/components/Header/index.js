@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {View, Text, Image, TouchableOpacity} from 'react-native';
+import {View, Text, Image, TouchableOpacity, Switch} from 'react-native';
 import styles from './style';
 import img from '../../constants/images';
 
@@ -37,7 +37,7 @@ class index extends Component {
           </TouchableOpacity>
           <View style={{flex: 1}}>
             <TouchableOpacity onPress={this.props.logoutFun}>
-              <Text style={{fontSize: 20, color: 'grey'}}>
+              <Text style={{fontSize: 20, color: 'grey', textAlign: 'center'}}>
                 {' '}
                 {this.props.logout}{' '}
               </Text>
