@@ -48,6 +48,7 @@ class index extends Component {
           switchValue: false,
           loader: false,
         });
+        setI18nConfig();
       } else {
         this.setState({
           switchValue: true,
