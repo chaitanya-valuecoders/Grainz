@@ -17,6 +17,8 @@ import img from '../../constants/images';
 import SubHeader from '../../components/SubHeader';
 import Header from '../../components/Header';
 import CheckBox from '@react-native-community/checkbox';
+import DropDownPicker from 'react-native-dropdown-picker';
+import SectionedMultiSelect from 'react-native-sectioned-multi-select';
 import moment from 'moment';
 import {
   widthPercentageToDP as wp,
@@ -25,17 +27,30 @@ import {
 import {UserTokenAction} from '../../redux/actions/UserTokenAction';
 import {
   getMyProfileApi,
-  getCasualPurchases,
-  getSupplierList,
-  addOrder,
-  deleteOrder,
+  getCasualPurchasesApi,
+  getSupplierListApi,
+  addOrderApi,
+  deleteOrderApi,
+  getManualLogTypes,
+  getManualLogItemList,
+  getOrderByIdApi,
+  getInventoryByIdApi,
+  getInventoryListApi,
+  getOrderItemByIdApi,
 } from '../../connectivity/api';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
+import Icon from 'react-native-vector-icons/MaterialIcons';
+// import ImagePicker from 'react-native-image-picker';
+import * as ImagePicker from 'react-native-image-picker';
+import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 
 var minTime = new Date();
 minTime.setHours(0);
 minTime.setMinutes(0);
 minTime.setMilliseconds(0);
+
+let list = [];
+let total = 0;
 
 class index extends Component {
   constructor(props) {
@@ -50,7 +65,8 @@ class index extends Component {
       showEditPurchaseForm: false,
       isDatePickerVisible: false,
       finalDate: '',
-      purchaseLines: [1],
+      productionDate: '',
+      purchaseLines: [0],
       htva: false,
       htvaIsSelected: true,
       auditIsSelected: false,
@@ -67,6 +83,36 @@ class index extends Component {
       editColor: '#E9ECEF',
       swapButton: false,
       yourOrder: {},
+      supplierId: '',
+      supplieReference: '',
+      itemsTypesArr: [],
+      departmentName: '',
+      loading: false,
+      items: [],
+      selectedItems: [],
+      selectedItemObjects: '',
+      yourOrderItems: [
+        {
+          name: null,
+          departmentName: null,
+          action: null,
+          id: null,
+          inventoryId: null,
+          inventoryProductMappingId: null,
+          isCorrect: null,
+          notes: null,
+          position: null,
+          quantityOrdered: null,
+          tdcVolume: null,
+          unitId: null,
+          unitPrice: null,
+        },
+      ],
+      newOrderItems: [],
+      departmentName: '',
+      testItem: null,
+      orderTotal: null,
+      photo: null,
     };
   }
 
@@ -99,7 +145,7 @@ class index extends Component {
   };
 
   getCasualPurchasesData() {
-    getCasualPurchases()
+    getCasualPurchasesApi()
       .then(res => {
         this.setState({casualPurchases: res.data});
       })
@@ -109,7 +155,7 @@ class index extends Component {
   }
 
   getSupplierListData() {
-    getSupplierList()
+    getSupplierListApi()
       .then(res => {
         this.setState({supplierList: res.data});
       })
@@ -141,13 +187,80 @@ class index extends Component {
   }
 
   showEditCasualPurchase(order) {
+    total = 0;
+    this.getOrderById(order.id);
     this.setState({
       showEditPurchaseForm: true,
       showNewPurchaseForm: false,
       showPurchaseList: false,
-      yourOrder: order,
       supplier: order.supplierName,
+      yourOrder: order,
+
+      departmentName: order.departmentName
     });
+    console.warn(order);
+     (list = []);
+
+    // this.getInventoryList('9df266dc-bf87-454e-b678-21c14647a23d');
+  }
+
+  // getInventoryList(id) {
+  //   let temp = [];
+
+  //   getInventoryListApi()
+  //     .then(res => {
+  //       res.data.map(item => {
+  //         if (item.id === id) {
+  //           temp.push(item);
+  //           this.setState({yourOrderItems: temp});
+  //         }
+  //       });
+  //     })
+  //     .catch(err => console.warn('kkk', err));
+  // }
+
+  getOrderById(id) {
+    getOrderByIdApi(id)
+      .then(res => {
+        this.setState({yourOrder: res.data});
+        // console.warn(res.data.orderItems);
+        res.data.orderItems.map(item => {
+          // this.getInventoryList(item.id);
+          this.getItem(item.inventoryId, item);
+        });
+      })
+      .catch(error => console.warn(error));
+  }
+
+  getItem(id, item) {
+    let obj = {};
+    getInventoryByIdApi(id)
+      .then(res => {
+        total = total + item.orderValue;
+        obj = {
+          name: res.data.name,
+          departmentName: res.data.departmentName,
+          quantityOrdered: item.quantityOrdered.toString(),
+          unitPrice: item.unitPrice.toString(),
+        };
+        list.push(obj);
+        this.setState({orderTotal: total});
+        this.setState({yourOrderItems: list});
+        // this.state.yourOrderItems.push(obj);
+      })
+      .catch(error => console.warn('invIdError', error));
+  }
+
+  addItemLine() {
+    let obj = {
+      name: 'Select',
+      departmentName: 'Select',
+      quantityOrdered: null,
+      unitPrice: null,
+    };
+
+    list.push(obj);
+    this.setState({yourOrderitems: list});
   }
 
   showCasualPurchases() {
@@ -155,6 +268,11 @@ class index extends Component {
       showPurchaseList: true,
       showNewPurchaseForm: false,
       showEditPurchaseForm: false,
+    });
+    this.setState({
+      editDisabled: true,
+      editColor: '#E9ECEF',
+      swapButton: false,
     });
   }
 
@@ -166,8 +284,44 @@ class index extends Component {
     });
   }
 
+  createUpdatedOrder() {
+    console.warn(this.state.selectedItemObjects);
+  }
+
+  updateCasualPurchase(updatedOrder) {
+    obj = {
+      id: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+      supplierId: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+      isAuditComplete: true,
+      orderDate: '2021-04-25T09:35:11.605Z',
+      notes: 'string',
+      orderItems: [
+        {
+          id: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+          unitId: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+          inventoryId: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+          unitPrice: 0,
+          quantityOrdered: 0,
+          action: 'string',
+          position: 0,
+          notes: 'string',
+        },
+      ],
+      images: [
+        {
+          id: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+          description: 'string',
+          position: 0,
+          type: 'string',
+          imageText: 'string',
+          action: 'string',
+          name: 'string',
+        },
+      ],
+    };
+  }
+
   deleteCasualPurchase(param) {
-  
     Alert.alert('Are you sure?', "You won't be able to revert this!", [
       {
         text: 'Cancel',
@@ -177,13 +331,42 @@ class index extends Component {
       {
         text: 'OK',
         onPress: () =>
-          deleteOrder('a3bbce88-0be9-4256-b2aa-c7175918f120')
-            .then(this.getCasualPurchasesData())
+          deleteOrderApi(param)
+            .then(res => {
+              this.getCasualPurchasesData();
+              this.showCasualPurchases();
+              this.setState({
+                editDisabled: true,
+                editColor: '#E9ECEF',
+                swapButton: false,
+              });
+            })
             .catch(error => {
               console.warn('error', error.response);
             }),
       },
     ]);
+  }
+
+  handleConfirm = date => {
+    let newdate = moment(date).format('L');
+    this.setState({
+      finalDate: newdate,
+      productionDate: date,
+    });
+
+    this.hideDatePicker();
+  };
+
+  handleChoosePhoto() {
+    const options = {noData: true};
+    ImagePicker.launchImageLibrary(options, response => {
+      console.warn('response', response);
+
+      if (response.uri) {
+        this.setState({photo: response});
+      }
+    });
   }
 
   hideDatePicker = () => {
@@ -198,14 +381,61 @@ class index extends Component {
     });
   };
 
+  addNewPurchaseLine() {
+    const {selectedItemObjects} = this.state;
+
+    let firstArray = [];
+    firstArray.push(selectedItemObjects);
+    console.warn('frist array', firstArray)
+
+    // let obj = {
+    //   name: null,
+    //   departmentName: null,
+    //   action: null,
+    //   id: null,
+    //   inventoryId: null,
+    //   inventoryProductMappingId: null,
+    //   isCorrect: null,
+    //   notes: null,
+    //   position: null,
+    //   quantityOrdered: null,
+    //   tdcVolume: null,
+    //   unitId: null,
+    //   unitPrice: null,
+    // };
+    // let temp = [];
+    // temp.push(obj);
+    // this.setState({newOrderItems});
+  }
+
   addPurchaseLine() {
+    let obj = {
+      name: null,
+      departmentName: null,
+      action: null,
+      id: null,
+      inventoryId: null,
+      inventoryProductMappingId: null,
+      isCorrect: null,
+      notes: null,
+      position: null,
+      quantityOrdered: null,
+      tdcVolume: null,
+      unitId: null,
+      unitPrice: null,
+    };
     let temp = this.state.purchaseLines;
-    temp.push(1);
+    let temp2 = [];
+    temp.push(temp[temp.length - 1] + 1);
     this.setState({purchaseLines: temp});
 
-    if (temp.length > 5) {
-      this.setState({purchaseLines: []});
+    for (i = 0; i < temp.length; i++) {
+      temp2.push(obj);
     }
+
+    this.setState({yourOrderItems: temp2});
+    // console.warn( this.state.yourOrderItems);
+    // console.warn( this.state.purchaseLines);
   }
 
   deletePurchaseLine() {
@@ -214,9 +444,94 @@ class index extends Component {
     this.setState({purchaseLines: temp});
   }
 
-  addCasualPurchase() {
+  createOrder() {
+    const {
+      productionDate,
+      departmentName,
+      selectedItemObjects,
+      note,
+      quantity,
+      itemTypes,
+      supplierId,
+      supplieReference,
+      testItem,
+    } = this.state;
+
+    // getOrderItemByIdApi(selectedItemObjects[0].id)
+    // .then(res=>{ this.setState({ testItem : res.data})})
+    // .catch(err => console.warn('error', err))
+
+    // console.warn(testItem)
+
+    // if (productionDate === '' || quantity == '' || departmentName === '') {
+    //   alert('Please select correct options');
+    // } else {
+    // console.warn(supplierId);
     let payload = {
-      supplierId: '62af8215-e861-4e40-958d-ff2f56bc8a2e',
+      supplierId: supplierId,
+      orderDate: productionDate,
+      ambientTemp: 0,
+      chilledTemp: 0,
+      customerReference: '',
+      deliveredDate: '',
+      deliveryDate: '',
+      frozenTemp: 0,
+      images: [],
+      invoiceNumber: 0,
+      isAuditComplete: false,
+      isPlaced: false,
+      isTDC: true,
+      notes: note,
+      orderDate: productionDate,
+      orderItems: [
+        {
+          // action: 'New',
+          // id: '',
+          // inventoryId: '9414590d-dc62-4219-82c9-9b0ee2a16a7f',
+          // inventoryProductMappingId: '',
+          // isCorrect: false,
+          // notes: '',
+          // position: 1,
+          // quantityOrdered: 12,
+          // tdcVolume: 0,
+          // unitId: '01470493-50b7-4ebc-a3e7-8fafd6d7c85c',
+          // unitPrice: 3,
+
+          action: 'New',
+          id: '',
+          inventoryId: selectedItemObjects[0].units[0].inventoryId,
+          inventoryProductMappingId: '',
+          isCorrect: false,
+          notes: '',
+          position: 1,
+          quantityOrdered: 14,
+          tdcVolume: 0,
+          unitId: selectedItemObjects[0].units[0].id,
+          unitPrice: 3,
+        },
+      ],
+      placedBy: '',
+      supplieReference: supplieReference,
+    };
+    console.warn('selectedobjects', selectedItemObjects);
+    console.warn('yourpayload', payload);
+    addOrderApi(payload)
+      .then(res => {
+        this.getCasualPurchasesData();
+        console.warn('addSuccessful', res);
+      })
+      .catch(error => {
+        console.warn('addfailed', error.response);
+      });
+
+    this.showCasualPurchases();
+  }
+
+  addCasualPurchase() {
+    const {supplierId, supplieReference} = this.state;
+    console.warn(supplierId);
+    let payload = {
+      supplierId: supplierId,
       orderDate: '2021-04-18T16:39:59.042Z',
       ambientTemp: 0,
       chilledTemp: 0,
@@ -247,12 +562,13 @@ class index extends Component {
         },
       ],
       placedBy: '',
-      supplieReference: '',
+      supplieReference: supplieReference,
     };
 
-    addOrder(payload)
-      .then(() => {
+    addOrderApi(payload)
+      .then(res => {
         this.getCasualPurchasesData();
+        console.warn(res);
       })
       .catch(error => {
         console.warn('addfailed', error);
@@ -265,8 +581,8 @@ class index extends Component {
     this.setState({showSuppliers: !this.state.showSuppliers});
   }
 
-  selectSupplier(param) {
-    this.setState({supplier: param});
+  selectSupplier(param, id, ref) {
+    this.setState({supplier: param, supplierId: id, supplieReference: ref});
     this.showSupplierList();
   }
 
@@ -274,6 +590,109 @@ class index extends Component {
     let temp = this.state.casualPurchases.reverse();
     this.setState({casualPurchases: temp});
   }
+
+  selectDepartementNameFun = item => {
+    this.setState(
+      {
+        departmentName: item.value,
+        loading: true,
+        viewStatus: true,
+      },
+      () => this.getManualData(),
+    );
+  };
+
+  getManualData = () => {
+    // this.getRecipesTypesData();
+    this.getItemListData();
+  };
+
+  // getRecipesTypesData = () => {
+  //   getManualLogTypes()
+  //     .then(res => {
+  //       console.warn('RES', res);
+  //       const {data} = res;
+  //       let newData = [];
+  //       data.map(item => {
+  //         const obj = {};
+  //         obj.label = item.name;
+  //         obj.value = item.id;
+  //         newData = [...newData, obj];
+  //       });
+  //       this.setState({
+  //         itemsTypesArr: newData,
+  //       });
+  //     })
+  //     .catch(err => {
+  //       console.warn('Err', err);
+  //     });
+  // };
+
+  getItemListData = () => {
+    const {departmentName} = this.state;
+    getInventoryListApi()
+      .then(res => {
+        const {data} = res;
+        let firstArr = data.filter(item => {
+          return item.departmentName === departmentName;
+        });
+
+        function groupByKey(array, key) {
+          return array.reduce((hash, obj) => {
+            if (obj[key] === undefined) return hash;
+            return Object.assign(hash, {
+              [obj[key]]: (hash[obj[key]] || []).concat(obj),
+            });
+          }, {});
+        }
+
+        let groupedCategory = groupByKey(firstArr, 'categoryName');
+
+        let finalArray = Object.keys(groupedCategory).map((item, index) => {
+          return {
+            name: item,
+            id: item,
+            children: groupedCategory[item],
+          };
+        });
+
+        this.setState({
+          items: [...finalArray],
+          loading: false,
+        });
+        console.warn(this.state.items);
+      })
+      .catch(err => {
+        console.warn('Err', err.response);
+      });
+  };
+
+  filterData(array) {
+    const restArray = array.filter(
+      item => item.departmentName === 'Restaurant',
+    );
+    restArray.sort();
+    const barArray = array.filter(item => item.departmentName === 'Bar');
+    barArray.sort();
+    const otherArray = array.filter(item => item.departmentName === 'Other');
+    otherArray.sort();
+    const retailArray = array.filter(item => item.departmentName === 'Retail');
+    retailArray.sort();
+  }
+
+  onSelectedItemsChange = selectedItems => {
+    this.setState({selectedItems});
+  };
+
+  onSelectedItemObjectsChange = selectedItemObjects => {
+    this.setState({selectedItemObjects});
+    let temp = [];
+    temp.push(selectedItemObjects[0]);
+    console.warn('temp', temp);
+    this.setState({newOrderItems: temp});
+    // this.setState({selectedItemObjects : ''})
+    console.warn('slctdobjcts', selectedItemObjects);
+  };
 
   render() {
     const {
@@ -297,6 +716,17 @@ class index extends Component {
       editColor,
       swapButton,
       yourOrder,
+      items,
+      notes,
+      loading,
+      departmentName,
+      itemsTypesArr,
+      selectedItemObjects,
+      testItem,
+      yourOrderItems,
+      orderTotal,
+      photo,
+      newOrderItems,
     } = this.state;
     return (
       <View style={{flex: 1, backgroundColor: '#fff'}}>
@@ -328,7 +758,14 @@ class index extends Component {
                       marginTop: 20,
                     }}>
                     <View style={{}}>
-                      <Text style={{color: 'white', marginLeft: 5}}>New</Text>
+                      <Text
+                        style={{
+                          color: 'white',
+                          marginLeft: 5,
+                          fontWeight: 'bold',
+                        }}>
+                        New
+                      </Text>
                     </View>
                   </TouchableOpacity>
                 </View>
@@ -388,7 +825,12 @@ class index extends Component {
                             tintColor: 'white',
                           }}
                         />
-                        <Text style={{color: 'white', marginLeft: 5}}>
+                        <Text
+                          style={{
+                            color: 'white',
+                            marginLeft: 5,
+                            fontWeight: 'bold',
+                          }}>
                           Edit
                         </Text>
                       </View>
@@ -407,7 +849,14 @@ class index extends Component {
                       marginTop: 20,
                     }}>
                     <View style={{}}>
-                      <Text style={{color: 'white', marginLeft: 5}}>Back</Text>
+                      <Text
+                        style={{
+                          color: 'white',
+                          marginLeft: 5,
+                          fontWeight: 'bold',
+                        }}>
+                        Back
+                      </Text>
                     </View>
                   </TouchableOpacity>
                 </View>
@@ -426,7 +875,14 @@ class index extends Component {
                     marginTop: 20,
                   }}>
                   <View style={{}}>
-                    <Text style={{color: 'white', marginLeft: 5}}>Back</Text>
+                    <Text
+                      style={{
+                        color: 'white',
+                        marginLeft: 5,
+                        fontWeight: 'bold',
+                      }}>
+                      Back
+                    </Text>
                   </View>
                 </TouchableOpacity>
               </View>
@@ -451,7 +907,9 @@ class index extends Component {
                       justifyContent: 'space-between',
                     }}>
                     <TextInput
-                      placeholder={yourOrder.orderDate}
+                      placeholder={moment(yourOrder.orderDate).format(
+                        'MM/DD/YYYY',
+                      )}
                       value={finalDate}
                       editable={false}
                     />
@@ -507,16 +965,22 @@ class index extends Component {
                   </TouchableOpacity>
                 </View>
               </View>
-              <View style={{}}>
+              <View style={{flex: 2}}>
                 {showSuppliers ? (
-                  <ScrollView style={{}}>
-                    <View style={{alignItems: 'space-between', margin: 10}}>
+                  <ScrollView style={{height: hp('9%')}}>
+                    <View
+                      style={{
+                        alignItems: 'space-between',
+                        flex: 1,
+                      }}>
                       {supplierList.map(item => {
                         return (
                           <View>
                             <Pressable
                               disabled={editDisabled}
-                              onPress={() => this.selectSupplier(item.name)}>
+                              onPress={() =>
+                                this.selectSupplier(item.name, item.id)
+                              }>
                               <Text>{item.name}</Text>
                             </Pressable>
                           </View>
@@ -527,9 +991,9 @@ class index extends Component {
                 ) : null}
               </View>
               <View>
-                {purchaseLines.map(item => {
+                {yourOrderItems.map(ele => {
                   return (
-                    <View>
+                    <View style={{marginBottom: hp('6%')}}>
                       <View>
                         <View style={{marginLeft: -11}}>
                           <Pressable
@@ -545,55 +1009,126 @@ class index extends Component {
                             />
                           </Pressable>
                         </View>
-                        <View>
-                          <TouchableOpacity
-                            disabled={editDisabled}
-                            style={{
-                              backgroundColor: editColor,
-                              marginTop: -9,
-                              borderWidth: 1,
-                              padding: 10,
-                              marginBottom: hp('1%'),
-                              flexDirection: 'row',
-                              justifyContent: 'space-between',
-                            }}>
-                            <Text>Select</Text>
-                            <Image
-                              source={img.arrowDownIcon}
-                              style={{
-                                width: 20,
-                                height: 20,
-                                resizeMode: 'contain',
+                        <View style={{marginTop: -7}}>
+                          <View>
+                            <DropDownPicker
+                              disabled={editDisabled}
+                              defaultValue={ele.departmentName}
+                              items={[
+                                {
+                                  label: 'Bar',
+                                  value: 'Bar',
+                                },
+                                {
+                                  label: 'Restaurant',
+                                  value: 'Restaurant',
+                                },
+                                {
+                                  label: 'Retail',
+                                  value: 'Retail',
+                                },
+                                {
+                                  label: 'Other',
+                                  value: 'Other',
+                                },
+                              ]}
+                              zIndex={1000000}
+                              containerStyle={{
+                                height: 50,
+                                marginBottom: hp('1%'),
                               }}
+                              style={{
+                                backgroundColor: editColor,
+                                borderColor: 'black',
+                              }}
+                              itemStyle={{
+                                justifyContent: 'flex-start',
+                              }}
+                              dropDownStyle={{backgroundColor: '#fff'}}
+                              onChangeItem={item =>
+                                this.selectDepartementNameFun(item)
+                              }
                             />
-                          </TouchableOpacity>
-                        </View>
-                      </View>
-                      <View>
-                        <TextInput
-                          placeholder="Quantity"
-                          style={{
-                            backgroundColor: editColor,
-                            borderWidth: 1,
-                            padding: 10,
-                            marginBottom: hp('1%'),
-                          }}
-                        />
-                      </View>
-                      <View style={{flexDirection: 'row'}}>
-                        <View style={{flex: 1}}>
-                          <Text>$</Text>
-                        </View>
-                        <View style={{flex: 15}}>
-                          <TextInput
-                            placeholder="Price"
-                            style={{
-                              backgroundColor: editColor,
-                              borderWidth: 1,
-                              padding: 10,
-                              marginBottom: hp('1%'),
-                            }}
-                          />
+                            <SectionedMultiSelect
+                              disabled={editDisabled}
+                              styles={{
+                                container: {
+                                  paddingTop: hp('2%'),
+                                  marginTop: hp('7%'),
+                                },
+                                selectToggle: {
+                                  backgroundColor: editColor,
+                                  borderWidth: 1,
+                                  paddingVertical: 10,
+                                  paddingHorizontal: 5,
+                                },
+                              }}
+                              loadingComponent={
+                                <View
+                                  style={{
+                                    flex: 1,
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                  }}>
+                                  <ActivityIndicator
+                                    size="large"
+                                    color="#94C036"
+                                  />
+                                </View>
+                              }
+                              loading={this.state.loading}
+                              // hideSearch={true}
+                              single={true}
+                              items={items}
+                              IconRenderer={Icon}
+                              uniqueKey="id"
+                              subKey="children"
+                              selectText={ele.name}
+                              showDropDowns={true}
+                              readOnlyHeadings={true}
+                              onSelectedItemObjectsChange={
+                                this.onSelectedItemObjectsChange
+                              }
+                              onSelectedItemsChange={this.onSelectedItemsChange}
+                              selectedItems={this.state.selectedItems}
+                            />
+
+                            <View>
+                              <TextInput
+                                placeholder="Quantity"
+                                style={{
+                                  backgroundColor: editColor,
+                                  borderWidth: 1,
+                                  padding: 10,
+                                  marginBottom: hp('1%'),
+                                  marginTop: hp('1%'),
+                                }}
+                                onChangeText={value => {
+                                  // let y = yourOrderItems
+                                  // let x = yourOrderItems[ele];
+                                  // x.quantityOrdered = value;
+                                  // y[ele] = x
+                                }}
+                                value={ele.quantityOrdered}
+                              />
+                            </View>
+                            <View style={{flexDirection: 'row'}}>
+                              <View style={{flex: 1}}>
+                                <Text>$</Text>
+                              </View>
+                              <View style={{flex: 15}}>
+                                <TextInput
+                                  placeholder={ele.unitPrice}
+                                  style={{
+                                    backgroundColor: editColor,
+                                    borderWidth: 1,
+                                    padding: 10,
+                                    marginBottom: hp('1%'),
+                                  }}
+                                />
+                              </View>
+                            </View>
+                          </View>
                         </View>
                       </View>
                     </View>
@@ -633,7 +1168,7 @@ class index extends Component {
                   <Text>Total</Text>
                 </View>
                 <View>
-                  <Text>$ 0.00</Text>
+                  <Text>$ {orderTotal}</Text>
                 </View>
                 <View style={{flexDirection: 'row', alignItems: 'center'}}>
                   <Text>HTVA?</Text>
@@ -666,6 +1201,7 @@ class index extends Component {
               {editDisabled ? null : (
                 <View>
                   <TouchableOpacity
+                    onPress={() => this.handleChoosePhoto()}
                     style={{
                       paddingVertical: 10,
                       width: wp('50%'),
@@ -741,6 +1277,41 @@ class index extends Component {
                         marginLeft: 5,
                       }}>
                       Cancel
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              </View>
+              <View>
+                <TouchableOpacity
+                  onPress={() => this.addCasualPurchase()}
+                  style={{
+                    paddingVertical: '2%',
+                    width: wp('90%'),
+                    backgroundColor: '#94C01F',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    marginTop: 5,
+                    flexDirection: 'row',
+                  }}>
+                  <View>
+                    <Image
+                      source={img.checkIcon}
+                      style={{
+                        width: 20,
+                        height: 20,
+                        resizeMode: 'contain',
+                        tintColor: 'white',
+                      }}
+                    />
+                  </View>
+                  <View style={{}}>
+                    <Text
+                      style={{
+                        color: 'white',
+                        fontWeight: 'bold',
+                        marginLeft: 5,
+                      }}>
+                      Save
                     </Text>
                   </View>
                 </TouchableOpacity>
@@ -826,7 +1397,13 @@ class index extends Component {
                         return (
                           <View>
                             <Pressable
-                              onPress={() => this.selectSupplier(item.name)}>
+                              onPress={() =>
+                                this.selectSupplier(
+                                  item.name,
+                                  item.id,
+                                  item.reference,
+                                )
+                              }>
                               <Text>{item.name}</Text>
                             </Pressable>
                           </View>
@@ -837,9 +1414,9 @@ class index extends Component {
                 ) : null}
               </View>
               <View>
-                {purchaseLines.map(item => {
+                {yourOrderItems.map(item => {
                   return (
-                    <View>
+                    <View style={{marginBottom: hp('6%')}}>
                       <View>
                         <View style={{marginLeft: -11}}>
                           <Pressable onPress={() => this.deletePurchaseLine()}>
@@ -853,51 +1430,118 @@ class index extends Component {
                             />
                           </Pressable>
                         </View>
-                        <View>
-                          <TouchableOpacity
-                            style={{
-                              marginTop: -9,
-                              borderWidth: 1,
-                              padding: 10,
-                              marginBottom: hp('1%'),
-                              flexDirection: 'row',
-                              justifyContent: 'space-between',
-                            }}>
-                            <Text>Select</Text>
-                            <Image
-                              source={img.arrowDownIcon}
-                              style={{
-                                width: 20,
-                                height: 20,
-                                resizeMode: 'contain',
+                        <View style={{marginTop: -7}}>
+                          <View>
+                            <DropDownPicker
+                              defaultValue={item.departmentName}
+                              items={[
+                                {
+                                  label: 'Bar',
+                                  value: 'Bar',
+                                },
+                                {
+                                  label: 'Restaurant',
+                                  value: 'Restaurant',
+                                },
+                                {
+                                  label: 'Retail',
+                                  value: 'Retail',
+                                },
+                                {
+                                  label: 'Other',
+                                  value: 'Other',
+                                },
+                              ]}
+                              zIndex={1000000}
+                              containerStyle={{
+                                height: 50,
+                                marginBottom: hp('1%'),
                               }}
+                              style={{
+                                backgroundColor: '#FFFFFF',
+                                borderColor: 'black',
+                              }}
+                              itemStyle={{
+                                justifyContent: 'flex-start',
+                              }}
+                              dropDownStyle={{backgroundColor: '#fff'}}
+                              onChangeItem={item =>
+                                this.selectDepartementNameFun(item)
+                              }
                             />
-                          </TouchableOpacity>
-                        </View>
-                      </View>
-                      <View>
-                        <TextInput
-                          placeholder="Quantity"
-                          style={{
-                            borderWidth: 1,
-                            padding: 10,
-                            marginBottom: hp('1%'),
-                          }}
-                        />
-                      </View>
-                      <View style={{flexDirection: 'row'}}>
-                        <View style={{flex: 1}}>
-                          <Text>$</Text>
-                        </View>
-                        <View style={{flex: 15}}>
-                          <TextInput
-                            placeholder="Price"
-                            style={{
-                              borderWidth: 1,
-                              padding: 10,
-                              marginBottom: hp('1%'),
-                            }}
-                          />
+                            <SectionedMultiSelect
+                              placeholder="Select"
+                              styles={{
+                                container: {
+                                  paddingTop: hp('2%'),
+                                  marginTop: hp('7%'),
+                                },
+                                selectToggle: {
+                                  backgroundColor: '#FFFFFF',
+                                  borderWidth: 1,
+                                  paddingVertical: 10,
+                                  paddingHorizontal: 5,
+                                },
+                              }}
+                              loadingComponent={
+                                <View
+                                  style={{
+                                    flex: 1,
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                  }}>
+                                  <ActivityIndicator
+                                    size="large"
+                                    color="#94C036"
+                                  />
+                                </View>
+                              }
+                              loading={this.state.loading}
+                              // hideSearch={true}
+                              single={true}
+                              items={items}
+                              IconRenderer={Icon}
+                              uniqueKey="id"
+                              subKey="children"
+                              selectText={item.name}
+                              showDropDowns={true}
+                              readOnlyHeadings={true}
+                              onSelectedItemObjectsChange={
+                                this.onSelectedItemObjectsChange
+                              }
+                              onSelectedItemsChange={this.onSelectedItemsChange}
+                              selectedItems={this.state.selectedItems}
+                            />
+
+                            <View>
+                              <TextInput
+                                placeholder="Quantity"
+                                style={{
+                                  backgroundColor: '#FFFFFF',
+                                  borderWidth: 1,
+                                  padding: 10,
+                                  marginBottom: hp('1%'),
+                                  marginTop: hp('1%'),
+                                }}
+                              />
+                            </View>
+                            <View style={{flexDirection: 'row'}}>
+                              <View style={{flex: 1}}>
+                                <Text>$</Text>
+                              </View>
+                              <View style={{flex: 15}}>
+                                <TextInput
+                                  placeholder="price"
+                                  style={{
+                                    backgroundColor: '#FFFFFF',
+                                    borderWidth: 1,
+                                    padding: 10,
+                                    marginBottom: hp('1%'),
+                                  }}
+                                />
+                              </View>
+                            </View>
+                          </View>
                         </View>
                       </View>
                     </View>
@@ -907,7 +1551,7 @@ class index extends Component {
               <View>
                 <View>
                   <TouchableOpacity
-                    onPress={() => this.addPurchaseLine()}
+                    onPress={() => this.addNewPurchaseLine()}
                     style={{
                       paddingVertical: 10,
                       width: wp('50%'),
@@ -962,6 +1606,7 @@ class index extends Component {
               </View>
               <View>
                 <TouchableOpacity
+                  onPress={() => this.handleChoosePhoto()}
                   style={{
                     paddingVertical: 10,
                     width: wp('50%'),
@@ -982,6 +1627,14 @@ class index extends Component {
                   </View>
                 </TouchableOpacity>
               </View>
+              {photo ? (
+                <View>
+                  <Image
+                    source={{uri: photo.uri}}
+                    style={{width: 100, height: 100}}
+                  />
+                </View>
+              ) : null}
               <View style={{margin: 15, flexDirection: 'row'}}>
                 <View style={{flex: 1}}>
                   <Text style={{}}>Note </Text>
@@ -1039,7 +1692,7 @@ class index extends Component {
               </View>
               <View>
                 <TouchableOpacity
-                  onPress={() => this.addCasualPurchase()}
+                  onPress={() => this.createOrder()}
                   style={{
                     paddingVertical: '2%',
                     width: wp('90%'),
@@ -1075,65 +1728,102 @@ class index extends Component {
             </View>
           ) : null}
           {showPurchaseList ? (
-            <View style={{justifyContent: 'center', padding: 5, margin: 5}}>
-              <View style={{flexDirection: 'row'}}>
-                <View style={{flexDirection: 'row', padding: 10}}>
-                  <Pressable onPress={() => this.reverseList()}>
-                    <Image
-                      style={{
-                        width: 15,
-                        height: 15,
-                        resizeMode: 'contain',
-                      }}
-                      source={img.doubleArrowIcon}
-                    />
-                  </Pressable>
-                  <Text>Date</Text>
-                </View>
-                <View style={{flexDirection: 'row', padding: 10}}>
+            <View style={{}}>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  borderBottomColor: '#EAEAF0',
+                  borderBottomWidth: 2,
+                }}>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    padding: 10,
+                    marginLeft: 20,
+                    flex: 1,
+                  }}>
+                  <Text style={{fontWeight: 'bold'}}>Date</Text>
                   <Pressable>
                     <Image
                       style={{
                         width: 15,
                         height: 15,
                         resizeMode: 'contain',
+                        marginLeft: 10,
                       }}
                       source={img.doubleArrowIcon}
                     />
                   </Pressable>
-                  <Text>Supplier</Text>
                 </View>
-                <View style={{flexDirection: 'row', padding: 10}}>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    padding: 10,
+                    marginLeft: 10,
+                    flex: 1,
+                  }}>
+                  <Text style={{fontWeight: 'bold'}}>Supplier</Text>
                   <Pressable>
                     <Image
                       style={{
                         width: 15,
                         height: 15,
                         resizeMode: 'contain',
+                        marginLeft: 10,
                       }}
                       source={img.doubleArrowIcon}
                     />
                   </Pressable>
-
-                  <Text>$ Total HTVA</Text>
+                </View>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    padding: 10,
+                    flex: 1,
+                  }}>
+                  <Text style={{fontWeight: 'bold'}}>$ Total HTVA</Text>
+                  <Pressable>
+                    <Image
+                      style={{
+                        width: 15,
+                        height: 15,
+                        resizeMode: 'contain',
+                        marginLeft: 10,
+                      }}
+                      source={img.doubleArrowIcon}
+                    />
+                  </Pressable>
                 </View>
               </View>
               {casualPurchases.map(item => {
                 const date = moment(item.orderDate).format('MM/DD/YYYY');
                 const price = Math.round(item.htva);
                 return (
-                  <View>
+                  <View
+                    style={{
+                      borderBottomColor: '#EAEAF0',
+                      borderBottomWidth: 1,
+                      marginBottom: hp('2%'),
+                    }}>
                     <TouchableOpacity
-                      style={{flexDirection: 'row'}}
+                      style={{
+                        flexDirection: 'row',
+                        paddingLeft: 30,
+                        alignItems: 'flex-start',
+                        // marginLeft: 35,
+                        // marginRight: 35,
+                      }}
                       onPress={() => this.showEditCasualPurchase(item)}>
-                      <View style={{margin: 5}}>
-                        <Text>{date}</Text>
+                      <View style={{margin: 5, flex: 3}}>
+                        <Text style={{fontWeight: 'bold'}}>{date}</Text>
                       </View>
-                      <View style={{margin: 5}}>
-                        <Text>{item.supplierName}</Text>
+                      <View style={{margin: 5, flex: 3, paddingLeft: 50}}>
+                        <Text style={{fontWeight: 'bold'}}>
+                          {item.supplierName}
+                        </Text>
                       </View>
-                      <View style={{margin: 5}}>
-                        <Text>${price}</Text>
+                      <View style={{margin: 5, flex: 2, paddingLeft: 50}}>
+                        <Text style={{fontWeight: 'bold'}}>$ {price}</Text>
                       </View>
                     </TouchableOpacity>
                   </View>

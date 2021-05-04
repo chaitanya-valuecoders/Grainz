@@ -27,19 +27,18 @@ import {
   getMyProfileApi,
   getManualLogList,
   deleteManualLog,
-  getMepRecipesApi,
-  newMepListApi,
-  getMepRecipeByIdsApi,
-  getManualLogTypes,
+  getManualLogsById,
   updateManualLogApi,
-  addManualLogApi,
+  getManualLogTypes,
   getManualLogItemList,
+  addManualLogApi,
 } from '../../connectivity/api';
 import Modal from 'react-native-modal';
 import Accordion from 'react-native-collapsible/Accordion';
 import moment from 'moment';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
-import {MultipleSelectPicker} from 'react-native-multi-select-picker';
+import Icon from 'react-native-vector-icons/MaterialIcons';
+import SectionedMultiSelect from 'react-native-sectioned-multi-select';
 
 var minTime = new Date();
 minTime.setHours(0);
@@ -63,33 +62,19 @@ class index extends Component {
       isMakeMeStatus: true,
       isDatePickerVisible: false,
       finalDate: '',
-      selectectedItemsTypes: [],
-      isShownPicker: false,
-      itemsTypes: [],
+      itemsTypesArr: [],
       productionDate: '',
-      applyStatus: false,
       detailsLoader: false,
       quantity: '',
       notes: '',
-      advanceDetailsLoader: false,
-      sectionAdvanceData: {},
       recipeID: '',
-      textQuantity: '',
-      itemType: '',
-      typeList: [],
-      showTypePicker: false,
-      isSelected: null,
-      itemList: [],
-      defaultValue: 'hello',
-      showDepartmentCategories: false,
-      itemDepartments: [
-        {name: 'Bar', itemsBar: []},
-        {name: 'Other', itemsOther: []},
-        {name: 'Restaurant', itemsRestaurant: []},
-        {name: 'Retail', itemsRetail: []},
-      ],
-      itemCategories: [],
-      newManualLog: {},
+      selectedItems: [],
+      items: [],
+      departmentName: '',
+      itemTypes: '',
+      loading: false,
+      selectedItemObjects: '',
+      viewStatus: false,
     };
   }
 
@@ -98,7 +83,14 @@ class index extends Component {
   };
 
   setModalVisibleAdd = visible => {
-    this.setState({modalVisibleAdd: visible});
+    this.setState({
+      modalVisibleAdd: visible,
+      quantity: '',
+      productionDate: '',
+      selectedItems: [],
+      notes: '',
+      itemTypes: '',
+    });
   };
 
   setModalVisibleRecipeDetails = (visible, data) => {
@@ -108,14 +100,16 @@ class index extends Component {
         detailsLoader: true,
       },
       () =>
-        getMepRecipeByIdsApi(data.id)
+        getManualLogsById(data.id)
           .then(res => {
+            console.log('RES', res);
             this.setState({
               modalVisibleRecipeDetails: visible,
               sectionData: res.data,
               detailsLoader: false,
               quantity: JSON.stringify(res.data && res.data.quantity),
               notes: res.data && res.data.notes,
+              viewStatus: false,
             });
           })
           .catch(err => {
@@ -129,6 +123,7 @@ class index extends Component {
   setModalVisibleRecipeDetailsClose = visible => {
     this.setState({
       modalVisibleRecipeDetails: visible,
+      quantity: '',
     });
   };
 
@@ -289,12 +284,9 @@ class index extends Component {
     if (item.name === 'Add new') {
       this.setModalVisibleAdd(true);
       this.setState({
-        selectectedItemsTypes: [],
         preparedDate: '',
         finalDate: '',
-        itemsTypes: [],
-        isShownPicker: false,
-        applyStatus: false,
+        itemsTypesArr: [],
       });
     } else if (item.name === 'Back') {
       this.props.navigation.goBack();
@@ -487,6 +479,11 @@ class index extends Component {
                 </TouchableOpacity>
               </View>
             </View>
+            <View>
+              <Text style={{fontSize: 12, marginLeft: wp('15%')}}>
+                {section.notes}
+              </Text>
+            </View>
           </View>
         </ScrollView>
       </View>
@@ -500,30 +497,51 @@ class index extends Component {
   };
 
   updateRecipeDetailsFun = () => {
-    const {sectionData, quantity, notes} = this.state;
-    let payload = [
-      {
-        id: sectionData.id,
-        recipeVersionId: sectionData.recipeVersionId,
-        userId: sectionData.userId,
-        preparedById: 'string',
-        madeBy: 'string',
-        requestedBy: 'string',
-        preparedBy: 'string',
-        isPrepared: sectionData.isPrepared,
-        isRecycled: sectionData.isRecycled,
-        isTracked: sectionData.isTracked,
-        name: sectionData.name,
-        unit: sectionData.unit,
-        productionDate: sectionData.productionDate,
-        preparedDate: sectionData.preparedDate,
-        recipeId: sectionData.recipeId,
-        quantity: quantity,
-        notes: notes,
-      },
-    ];
+    const {
+      sectionData,
+      quantity,
+      notes,
+      itemTypes,
+      selectedItemObjects,
+    } = this.state;
+    let payload = {
+      id: sectionData.id,
+      itemId: sectionData.itemId,
+      name: selectedItemObjects[0].name,
+      loggedDate: sectionData.loggedDate,
+      quantity: parseInt(quantity),
+      itemTypeId: sectionData.itemTypeId,
+      typeId: itemTypes.value,
+      departmentId: selectedItemObjects[0].departmentId,
+      unitId: sectionData.unitId,
+      departmentName: selectedItemObjects[0].departmentName,
+      category: selectedItemObjects[0].category,
+      itemTypeName: sectionData.itemTypeName,
+      typeName: itemTypes.label,
+      reviewed: sectionData.reviewed,
+      unit: sectionData.unit,
+      userId: sectionData.userId,
+      userFullName: sectionData.userFullName,
+      units: [
+        {
+          id: sectionData.units[0].id,
+          inventoryId: sectionData.units[0].inventoryId,
+          name: sectionData.units[0].name,
+          isDefault: true,
+          isVariable: false,
+          quantity: null,
+          converter: 1,
+          notes: null,
+          action: null,
+        },
+      ],
+      notes: notes,
+      inUse: sectionData.inUse,
+      countInInventory: sectionData.countInInventory,
+    };
     updateManualLogApi(payload)
       .then(res => {
+        console.log('RESS', res);
         this.setState(
           {
             modalVisibleRecipeDetails: false,
@@ -545,6 +563,10 @@ class index extends Component {
       },
       () => this.updateReviewedStatusFun(data),
     );
+  };
+
+  onSelectedItemsChange = selectedItems => {
+    this.setState({selectedItems});
   };
 
   deleteMepFunSec = section => {
@@ -614,7 +636,7 @@ class index extends Component {
     });
   };
 
-  getRecipesData = () => {
+  getRecipesTypesData = () => {
     getManualLogTypes()
       .then(res => {
         console.log('RES', res);
@@ -627,7 +649,7 @@ class index extends Component {
           newData = [...newData, obj];
         });
         this.setState({
-          itemsTypes: newData,
+          itemsTypesArr: newData,
         });
       })
       .catch(err => {
@@ -635,15 +657,50 @@ class index extends Component {
       });
   };
 
+  getItemListData = () => {
+    const {departmentName} = this.state;
+    getManualLogItemList()
+      .then(res => {
+        const {data} = res;
+        let firstArr = data.filter(item => {
+          return item.departmentName === departmentName;
+        });
+
+        function groupByKey(array, key) {
+          return array.reduce((hash, obj) => {
+            if (obj[key] === undefined) return hash;
+            return Object.assign(hash, {
+              [obj[key]]: (hash[obj[key]] || []).concat(obj),
+            });
+          }, {});
+        }
+
+        let groupedCategory = groupByKey(firstArr, 'category');
+
+        let finalArray = Object.keys(groupedCategory).map((item, index) => {
+          return {
+            name: item,
+            id: item,
+            children: groupedCategory[item],
+          };
+        });
+
+        this.setState({
+          items: [...finalArray],
+          loading: false,
+        });
+      })
+      .catch(err => {
+        console.warn('Err', err.response);
+      });
+  };
+
   handleConfirm = date => {
     let newdate = moment(date).format('L');
-    this.setState(
-      {
-        finalDate: newdate,
-        productionDate: date,
-      },
-      () => this.getRecipesData(),
-    );
+    this.setState({
+      finalDate: newdate,
+      productionDate: date,
+    });
 
     this.hideDatePicker();
   };
@@ -654,113 +711,80 @@ class index extends Component {
     });
   };
 
-  addMepListFun = () => {
-    const {selectectedItemsTypes, productionDate} = this.state;
+  addManualLogFun = () => {
+    const {
+      productionDate,
+      departmentName,
+      selectedItemObjects,
+      notes,
+      quantity,
+      itemTypes,
+    } = this.state;
 
-    if (productionDate === '' || selectectedItemsTypes.length === 0) {
-      alert('Please select date and recipe');
+    if (productionDate === '' || quantity == '' || departmentName === '') {
+      alert('Please select correct options');
     } else {
       let payload = {
-        id: '2da85f64-5717-4562-b3fc-2c963f66afa6',
-        itemId: '3pa85f64-5717-4562-b3fc-2c963f66afa6',
-        name: 'test',
-        loggedDate: '2021-04-16T09:13:56.085Z',
-        quantity: 4,
-        itemTypeId: '3xx85f64-5717-4562-b3fc-2c963f66afa6',
-        typeId: '3oo85f64-5717-4562-b3fc-2c963f66afa6',
-        departmentId: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
-        unitId: '3fa85f64-5717-4662-b3fc-2c863l66afa6',
-        departmentName: 'test',
-        category: 'test',
-        itemTypeName: 'test',
-        typeName: 'test',
-        reviewed: true,
-        unit: 'test',
-        userId: 'test',
-        userFullName: 'test',
-        units: [
-          {
-            id: '3fa85f64-5717-4500-b3fc-2c963f66afa6',
-            inventoryId: '3fa85f64-5747-4562-b4uc-2c963f66afa6',
-            name: 'test',
-            isDefault: true,
-            isVariable: true,
-            quantity: 5,
-            converter: 0,
-            notes: 'test',
-            action: 'test',
-          },
-        ],
-        notes: 'test',
+        category: selectedItemObjects[0].category,
+        countInInventory: false,
+        departmentId: selectedItemObjects[0].departmentId,
+        departmentName: selectedItemObjects[0].departmentName,
+        id: selectedItemObjects[0].id,
         inUse: true,
-        countInInventory: true,
+        itemId: selectedItemObjects[0].itemId,
+        itemTypeId: selectedItemObjects[0].itemTypeId,
+        itemTypeName: selectedItemObjects[0].itemTypeName,
+        loggedDate: productionDate,
+        name: selectedItemObjects[0].name,
+        notes: notes,
+        quantity: parseInt(quantity),
+        reviewed: false,
+        subCategory: null,
+        typeId: itemTypes.value,
+        typeName: itemTypes.label,
+        unit: '',
+        unitId: selectedItemObjects[0].units[0].id,
+        units: selectedItemObjects[0].units,
+        userFullName: null,
+        userId: '8e194fe1-5cac-439e-a036-c2009bfb455a',
       };
-      newMepListApi(selectectedItemsTypes)
+      addManualLogApi(payload)
         .then(res => {
           this.setState(
             {
               modalVisibleAdd: false,
-              selectectedItemsTypes: [],
             },
             () => this.getManualLogsData(),
           );
         })
         .catch(err => {
-          console.warn('ERRDeleteMep', err.response);
+          console.warn('ERR', err.response);
         });
     }
   };
 
-  openRecipeDropDown = () => {
-    const {applyStatus, finalDate} = this.state;
-    if (finalDate) {
-      if (applyStatus) {
-        this.setState({
-          isShownPicker: false,
-        });
-      } else {
-        this.setState({
-          isShownPicker: true,
-        });
-      }
-    } else {
-      alert('Please select date first.');
-    }
-  };
-
-  openLogTypeDropdown(param) {
-    this.setState({
-      showTypePicker: param,
-    });
-  }
-
-  openDepartmentDropdown(param) {
-    this.setState({showDepartmentCategories: param});
-  }
-
-  selectItemType(type, hide) {
-    setTimeout(() => {
-      this.setState({showTypePicker: hide, itemType: type});
-    }, 500);
-  }
-
-  showAdvanceView = () => {
-    const {recipeID} = this.state;
+  selectDepartementNameFun = item => {
     this.setState(
       {
-        modalAdvanceRecipeDetails: false,
+        departmentName: item.value,
+        loading: true,
+        viewStatus: true,
       },
-      () =>
-        this.props.navigation.navigate('MepAdvanceScreen', {
-          recipeID: recipeID,
-        }),
+      () => this.getManualData(),
     );
+  };
+
+  getManualData = () => {
+    this.getRecipesTypesData();
+    this.getItemListData();
+  };
+
+  onSelectedItemObjectsChange = selectedItemObjects => {
+    this.setState({selectedItemObjects});
   };
 
   render() {
     const {
-      textQuantity,
-      modalVisible,
       modalVisibleAdd,
       recipeLoader,
       SECTIONS,
@@ -771,25 +795,14 @@ class index extends Component {
       sectionData,
       isDatePickerVisible,
       finalDate,
-      isShownPicker,
-      selectectedItemsTypes,
-      itemsTypes,
-      applyStatus,
+      itemsTypesArr,
       detailsLoader,
       quantity,
       notes,
-      advanceDetailsLoader,
-      sectionAdvanceData,
-      itemType,
-      typeList,
-      showTypePicker,
-      isSelected,
-      itemList,
-      defaultValue,
-      showDepartmentCategories,
-      itemDepartments,
+      items,
+      viewStatus,
     } = this.state;
-    const finalDateData = moment(sectionData.productionDate).format(
+    const finalDateData = moment(sectionData.loggedDate).format(
       'dddd, MMM DD YYYY',
     );
     return (
@@ -840,12 +853,12 @@ class index extends Component {
                     </View>
                   </TouchableOpacity>
                   <View>
-                    {/* // Add Recipe Modal */}
+                    {/* // Add Manual Modal */}
                     <Modal isVisible={modalVisibleAdd} backdropOpacity={0.35}>
                       <View
                         style={{
                           width: wp('80%'),
-                          height: isShownPicker ? hp('90%') : hp('60%'),
+                          height: hp('80%'),
                           backgroundColor: '#fff',
                           alignSelf: 'center',
                         }}>
@@ -892,8 +905,8 @@ class index extends Component {
                                 onPress={() => this.showDatePickerFun()}
                                 style={{
                                   borderWidth: 1,
-                                  padding: 10,
-                                  marginBottom: hp('4%'),
+                                  padding: 12,
+                                  marginBottom: hp('3%'),
                                   flexDirection: 'row',
                                   justifyContent: 'space-between',
                                 }}>
@@ -911,370 +924,207 @@ class index extends Component {
                                   }}
                                 />
                               </TouchableOpacity>
-                              <TouchableOpacity
-                                // onPress={() => {
-                                //   this.openRecipeDropDown();
-                                // }}
+
+                              <TextInput
+                                placeholder="quantity"
+                                value={quantity}
                                 style={{
                                   borderWidth: 1,
-                                  padding: 10,
-                                  flexDirection: 'row',
+                                  padding: 12,
+                                  marginBottom: hp('3%'),
                                   justifyContent: 'space-between',
-                                }}>
-                                {selectectedItemsTypes.length > 0 ? (
-                                  <View>
-                                    {applyStatus ? (
-                                      <View>
-                                        {selectectedItemsTypes.map(item => {
-                                          return (
-                                            <View style={{marginTop: hp('1%')}}>
-                                              <Text>{item.name}</Text>
-                                            </View>
-                                          );
-                                        })}
-                                      </View>
-                                    ) : selectectedItemsTypes.length > 0 ? (
-                                      <View>
-                                        {selectectedItemsTypes.map(item => {
-                                          return (
-                                            <View style={{marginTop: hp('1%')}}>
-                                              <Text>{item.label}</Text>
-                                            </View>
-                                          );
-                                        })}
-                                      </View>
-                                    ) : null}
-                                  </View>
-                                ) : (
-                                  <Text>Select recipe</Text>
-                                )}
-                                <Image
-                                  source={img.arrowDownIcon}
-                                  style={{
-                                    width: 15,
-                                    height: 15,
-                                    resizeMode: 'contain',
-                                  }}
-                                />
-                              </TouchableOpacity>
-                              <TouchableOpacity
-                                // onPress={() => {
-                                //   this.openRecipeDropDown();
-                                // }}
-                                style={{
-                                  borderWidth: 1,
-                                  padding: 10,
-                                  flexDirection: 'row',
-                                  justifyContent: 'space-between',
-                                  marginTop: hp('2%'),
-                                }}>
-                                {selectectedItemsTypes.length > 0 ? (
-                                  <View>
-                                    {applyStatus ? (
-                                      <View>
-                                        {selectectedItemsTypes.map(item => {
-                                          return (
-                                            <View style={{marginTop: hp('1%')}}>
-                                              <Text>{item.name}</Text>
-                                            </View>
-                                          );
-                                        })}
-                                      </View>
-                                    ) : selectectedItemsTypes.length > 0 ? (
-                                      <View>
-                                        {selectectedItemsTypes.map(item => {
-                                          return (
-                                            <View style={{marginTop: hp('1%')}}>
-                                              <Text>{item.label}</Text>
-                                            </View>
-                                          );
-                                        })}
-                                      </View>
-                                    ) : null}
-                                  </View>
-                                ) : (
-                                  <Text>Select recipe</Text>
-                                )}
-                                <Image
-                                  source={img.arrowDownIcon}
-                                  style={{
-                                    width: 15,
-                                    height: 15,
-                                    resizeMode: 'contain',
-                                  }}
-                                />
-                              </TouchableOpacity>
-                              <TouchableOpacity
-                                // onPress={() => {
-                                //   this.openRecipeDropDown();
-                                // }}
-                                style={{
-                                  borderWidth: 1,
-                                  padding: 10,
-                                  flexDirection: 'row',
-                                  justifyContent: 'space-between',
-                                  marginTop: hp('2%'),
-                                }}>
-                                {selectectedItemsTypes.length > 0 ? (
-                                  <View>
-                                    {applyStatus ? (
-                                      <View>
-                                        {selectectedItemsTypes.map(item => {
-                                          return (
-                                            <View style={{marginTop: hp('1%')}}>
-                                              <Text>{item.name}</Text>
-                                            </View>
-                                          );
-                                        })}
-                                      </View>
-                                    ) : selectectedItemsTypes.length > 0 ? (
-                                      <View>
-                                        {selectectedItemsTypes.map(item => {
-                                          return (
-                                            <View style={{marginTop: hp('1%')}}>
-                                              <Text>{item.label}</Text>
-                                            </View>
-                                          );
-                                        })}
-                                      </View>
-                                    ) : null}
-                                  </View>
-                                ) : (
-                                  <Text>Select recipe</Text>
-                                )}
-                                <Image
-                                  source={img.arrowDownIcon}
-                                  style={{
-                                    width: 15,
-                                    height: 15,
-                                    resizeMode: 'contain',
-                                  }}
-                                />
-                              </TouchableOpacity>
-                              <TouchableOpacity
-                                onPress={() => {
-                                  this.openRecipeDropDown();
                                 }}
-                                style={{
-                                  borderWidth: 1,
-                                  padding: 10,
-                                  flexDirection: 'row',
-                                  justifyContent: 'space-between',
-                                  marginTop: hp('2%'),
-                                }}>
-                                {selectectedItemsTypes.length > 0 ? (
-                                  <View>
-                                    {applyStatus ? (
-                                      <View>
-                                        {selectectedItemsTypes.map(item => {
-                                          return (
-                                            <View style={{marginTop: hp('1%')}}>
-                                              <Text>{item.name}</Text>
-                                            </View>
-                                          );
-                                        })}
-                                      </View>
-                                    ) : selectectedItemsTypes.length > 0 ? (
-                                      <View>
-                                        {selectectedItemsTypes.map(item => {
-                                          return (
-                                            <View style={{marginTop: hp('1%')}}>
-                                              <Text>{item.label}</Text>
-                                            </View>
-                                          );
-                                        })}
-                                      </View>
-                                    ) : null}
-                                  </View>
-                                ) : (
-                                  <Text>Select type</Text>
-                                )}
-                                <Image
-                                  source={img.arrowDownIcon}
-                                  style={{
-                                    width: 15,
-                                    height: 15,
-                                    resizeMode: 'contain',
-                                  }}
-                                />
-                              </TouchableOpacity>
-                              {isShownPicker ? (
-                                <MultipleSelectPicker
-                                  items={itemsTypes}
-                                  onSelectionsChange={ele => {
-                                    this.setState({selectectedItemsTypes: ele});
-                                  }}
-                                  selectedItems={selectectedItemsTypes}
-                                  buttonStyle={{
-                                    height: 100,
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                  }}
-                                  checkboxStyle={{height: 20, width: 20}}
-                                />
-                              ) : null}
+                                keyboardType="number-pad"
+                                onChangeText={value => {
+                                  this.setState({
+                                    quantity: value,
+                                  });
+                                }}
+                              />
 
-                              <View
-                                style={{
-                                  height: 40,
-                                  marginTop: 5,
-                                  borderWidth: 1,
-                                  borderColor: '#A2A2A2',
-                                  padding: 10,
-                                }}>
-                                <TextInput
-                                  onChangeText={textQuantity =>
-                                    this.setState({textQuantity})
+                              <View>
+                                <DropDownPicker
+                                  items={[
+                                    {
+                                      label: 'Bar',
+                                      value: 'Bar',
+                                    },
+                                    {
+                                      label: 'Restaurant',
+                                      value: 'Restaurant',
+                                    },
+                                    {
+                                      label: 'Retail',
+                                      value: 'Retail',
+                                    },
+                                    {
+                                      label: 'Other',
+                                      value: 'Other',
+                                    },
+                                  ]}
+                                  zIndex={1000000}
+                                  containerStyle={{
+                                    height: 50,
+                                    marginBottom: hp('3%'),
+                                  }}
+                                  style={{
+                                    backgroundColor: '#fff',
+                                    borderColor: 'black',
+                                  }}
+                                  itemStyle={{
+                                    justifyContent: 'flex-start',
+                                  }}
+                                  dropDownStyle={{backgroundColor: '#fff'}}
+                                  onChangeItem={item =>
+                                    this.selectDepartementNameFun(item)
                                   }
-                                  value={textQuantity}
-                                  placeholder="quantity"
                                 />
-                              </View>
-
-                              <View style={{flex: 2, marginTop: 5}}>
-                                <TouchableOpacity
-                                  onPress={() => {
-                                    this.openLogTypeDropdown(!showTypePicker);
+                                <SectionedMultiSelect
+                                  styles={{
+                                    container: {
+                                      paddingTop: hp('2%'),
+                                      marginTop: hp('7%'),
+                                    },
+                                    selectToggle: {
+                                      borderWidth: 1,
+                                      paddingVertical: 10,
+                                      paddingHorizontal: 5,
+                                    },
+                                  }}
+                                  loadingComponent={
+                                    <View
+                                      style={{
+                                        flex: 1,
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                      }}>
+                                      <ActivityIndicator
+                                        size="large"
+                                        color="#94C036"
+                                      />
+                                    </View>
+                                  }
+                                  loading={this.state.loading}
+                                  // hideSearch={true}
+                                  single={true}
+                                  items={items}
+                                  IconRenderer={Icon}
+                                  uniqueKey="id"
+                                  subKey="children"
+                                  selectText="Select"
+                                  showDropDowns={true}
+                                  readOnlyHeadings={true}
+                                  onSelectedItemObjectsChange={
+                                    this.onSelectedItemObjectsChange
+                                  }
+                                  onSelectedItemsChange={
+                                    this.onSelectedItemsChange
+                                  }
+                                  selectedItems={this.state.selectedItems}
+                                />
+                                <DropDownPicker
+                                  items={itemsTypesArr}
+                                  containerStyle={{
+                                    height: 50,
+                                    marginTop: hp('3%'),
                                   }}
                                   style={{
-                                    borderWidth: 1,
-                                    padding: 10,
-                                    flexDirection: 'row',
-                                    justifyContent: 'space-between',
-                                  }}>
-                                  {itemType ? (
-                                    <Text>{itemType}</Text>
-                                  ) : (
-                                    <Text>Select Type</Text>
-                                  )}
-
-                                  <Image
-                                    source={img.arrowDownIcon}
-                                    style={{
-                                      width: 15,
-                                      height: 15,
-                                      resizeMode: 'contain',
-                                    }}
-                                  />
-                                </TouchableOpacity>
-                              </View>
-                              <View style={{flex: 8}}>
-                                {showTypePicker ? (
-                                  <View
-                                    style={{
-                                      margin: 5,
-                                      borderWidth: 1,
-                                      borderColor: 'black',
-                                      padding: 5,
-                                    }}>
-                                    {typeList.map(item => {
-                                      return (
-                                        <View
-                                          style={{
-                                            marginTop: hp('1%'),
-                                            marginBottom: 10,
-                                            flexDirection: 'row',
-                                          }}>
-                                          <CheckBox
-                                            value={isSelected}
-                                            onValueChange={() =>
-                                              this.selectItemType(
-                                                item.name,
-                                                !showTypePicker,
-                                              )
-                                            }
-                                            style={{
-                                              margin: 5,
-                                              height: 20,
-                                              width: 20,
-                                            }}
-                                          />
-                                          <Text style={{margin: 5}}>
-                                            {item.name}
-                                          </Text>
-                                        </View>
-                                      );
-                                    })}
-                                  </View>
-                                ) : null}
-                                <View style={{}}>
-                                  <Text style={{margin: 5}}>Note :</Text>
-                                </View>
-
+                                    backgroundColor: '#fff',
+                                    borderColor: 'black',
+                                  }}
+                                  itemStyle={{
+                                    justifyContent: 'flex-start',
+                                  }}
+                                  dropDownStyle={{backgroundColor: '#fff'}}
+                                  onChangeItem={item =>
+                                    this.setState({
+                                      itemTypes: item,
+                                    })
+                                  }
+                                />
                                 <View
                                   style={{
-                                    flex: 3,
-
+                                    marginTop: hp('3%'),
+                                  }}>
+                                  <Text>Note</Text>
+                                </View>
+                                <View
+                                  onPress={() => this.showDatePickerFun()}
+                                  style={{
                                     borderWidth: 1,
-                                    borderColor: '#A2A2A2',
                                     padding: 10,
+                                    marginTop: hp('2%'),
+                                    height: hp('20%'),
+                                    borderColor: '#C9CCD7',
                                   }}>
                                   <TextInput
-                                    multiline={true}
-                                    numberOfLines={4}
-                                    onChangeText={note => this.setState({note})}
-                                    value={this.state.note}
-                                    placeholder="Notes"
+                                    placeholder="Note"
+                                    onChangeText={value =>
+                                      this.setState({
+                                        notes: value,
+                                      })
+                                    }
+                                    value={notes}
                                   />
+                                </View>
+                                <View
+                                  style={{
+                                    flexDirection: 'row',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    marginTop: hp('8%'),
+                                  }}>
+                                  <TouchableOpacity
+                                    onPress={() => this.addManualLogFun()}
+                                    style={{
+                                      width: wp('30%'),
+                                      height: hp('5%'),
+                                      alignSelf: 'flex-end',
+                                      backgroundColor: '#94C036',
+                                      justifyContent: 'center',
+                                      alignItems: 'center',
+                                    }}>
+                                    <Text
+                                      style={{
+                                        color: '#fff',
+                                        fontSize: 15,
+                                        fontWeight: 'bold',
+                                      }}>
+                                      Save
+                                    </Text>
+                                  </TouchableOpacity>
+                                  <TouchableOpacity
+                                    onPress={() =>
+                                      this.setModalVisibleAdd(false)
+                                    }
+                                    style={{
+                                      width: wp('30%'),
+                                      height: hp('5%'),
+                                      alignSelf: 'flex-end',
+                                      backgroundColor: '#E7943B',
+                                      justifyContent: 'center',
+                                      alignItems: 'center',
+                                      marginLeft: wp('2%'),
+                                    }}>
+                                    <Text
+                                      style={{
+                                        color: '#fff',
+                                        fontSize: 15,
+                                        fontWeight: 'bold',
+                                      }}>
+                                      Close
+                                    </Text>
+                                  </TouchableOpacity>
                                 </View>
                               </View>
 
-                              <View
-                                style={{
-                                  flexDirection: 'row',
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                  marginTop: hp('5%'),
-                                }}>
-                                <TouchableOpacity
-                                  onPress={() => this.addMepListFun()}
-                                  style={{
-                                    width: wp('30%'),
-                                    height: hp('5%'),
-                                    alignSelf: 'flex-end',
-                                    backgroundColor: '#94C036',
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                  }}>
-                                  <Text
-                                    style={{
-                                      color: '#fff',
-                                      fontSize: 15,
-                                      fontWeight: 'bold',
-                                    }}>
-                                    Save
-                                  </Text>
-                                </TouchableOpacity>
-                                <TouchableOpacity
-                                  onPress={() => this.setModalVisibleAdd(false)}
-                                  style={{
-                                    width: wp('30%'),
-                                    height: hp('5%'),
-                                    alignSelf: 'flex-end',
-                                    backgroundColor: '#E7943B',
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                    marginLeft: wp('2%'),
-                                  }}>
-                                  <Text
-                                    style={{
-                                      color: '#fff',
-                                      fontSize: 15,
-                                      fontWeight: 'bold',
-                                    }}>
-                                    Close
-                                  </Text>
-                                </TouchableOpacity>
-                              </View>
                               <DateTimePickerModal
                                 // is24Hour={true}
                                 isVisible={isDatePickerVisible}
                                 mode={'date'}
                                 onConfirm={this.handleConfirm}
                                 onCancel={this.hideDatePicker}
-                                minimumDate={minTime}
-
-                                // maximumDate={maxTime}
+                                maximumDate={minTime}
                                 // minimumDate={new Date()}
                               />
                             </View>
@@ -1282,14 +1132,14 @@ class index extends Component {
                         </ScrollView>
                       </View>
                     </Modal>
-                    {/* // Recipe Details Modal */}
+
                     <Modal
                       isVisible={modalVisibleRecipeDetails}
                       backdropOpacity={0.35}>
                       <View
                         style={{
                           width: wp('85%'),
-                          height: hp('90%'),
+                          height: hp('80%'),
                           backgroundColor: '#fff',
                           alignSelf: 'center',
                         }}>
@@ -1306,7 +1156,7 @@ class index extends Component {
                               justifyContent: 'center',
                             }}>
                             <Text style={{fontSize: 16, color: '#fff'}}>
-                              MISE-EN-PLACE DETAILS
+                              Manual log - {sectionData.name}
                             </Text>
                           </View>
                           <View
@@ -1335,253 +1185,306 @@ class index extends Component {
                           <ActivityIndicator color="#94C036" size="large" />
                         ) : (
                           <ScrollView>
-                            <View style={{padding: hp('5%')}}>
+                            <View style={{padding: hp('3%')}}>
                               <View style={{}}>
-                                <View style={{}}>
-                                  <Text
-                                    style={{
-                                      color: '#7F7F7F',
-                                      fontSize: 16,
-                                      fontWeight: 'bold',
-                                      marginBottom: 5,
-                                    }}>
-                                    {sectionData.name}
-                                  </Text>
-                                  <View
-                                    style={{
-                                      marginTop: hp('1%'),
-                                      flexDirection: 'row',
-                                      alignItems: 'center',
-                                      marginVertical: hp('2%'),
-                                    }}>
-                                    <Switch
-                                      style={{width: '20%'}}
-                                      trackColor={{
-                                        false: '#767577',
-                                        true: '#94C036',
-                                      }}
-                                      value={!sectionData.isPrepared}
-                                      onValueChange={() =>
-                                        this.toggleSwitchNotif(sectionData)
-                                      }
-                                      thumbColor="#fff"
-                                    />
-                                    <Text
-                                      style={{
-                                        color: '#7F7F7F',
-                                        marginLeft: wp('4%'),
-                                        fontWeight: '900',
-                                      }}>
-                                      {!sectionData.isPrepared
-                                        ? 'Make me'
-                                        : 'Done'}
-                                    </Text>
-                                  </View>
-                                </View>
-
                                 <TouchableOpacity
-                                  style={{
-                                    height: hp('5%'),
-                                    width: wp('62%'),
-                                    backgroundColor: 'red',
-                                    alignSelf: 'center',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    flexDirection: 'row',
-                                  }}
-                                  onPress={() => this.deleteMepFun()}>
-                                  <Image
-                                    source={img.cancelIcon}
-                                    style={{
-                                      height: 22,
-                                      width: 22,
-                                      tintColor: 'white',
-                                      resizeMode: 'contain',
-                                    }}
-                                  />
-                                  <Text
-                                    style={{
-                                      color: '#fff',
-                                      fontSize: 16,
-                                      fontWeight: 'bold',
-                                      marginLeft: 10,
-                                    }}>
-                                    Delete
-                                  </Text>
-                                </TouchableOpacity>
-                                <View
-                                  style={{
-                                    marginTop: hp('3%'),
-                                  }}>
-                                  <Text>Requested By</Text>
-                                </View>
-                                <View
-                                  style={{
-                                    borderWidth: 1,
-                                    padding: 10,
-                                    marginTop: hp('2%'),
-                                    borderColor: '#C9CCD7',
-                                    backgroundColor: '#EEEEEE',
-                                  }}>
-                                  <TextInput
-                                    value={sectionData.requestedBy}
-                                    editable={false}
-                                  />
-                                </View>
-                                <View
-                                  style={{
-                                    borderWidth: 1,
-                                    padding: 10,
-                                    marginTop: hp('2%'),
-                                    borderColor: '#C9CCD7',
-                                    backgroundColor: '#EEEEEE',
-                                  }}>
-                                  <TextInput
-                                    editable={false}
-                                    value={finalDateData}
-                                  />
-                                </View>
-                                <View
-                                  style={{
-                                    marginTop: hp('3%'),
-                                  }}>
-                                  <Text>Made By</Text>
-                                </View>
-                                <View
-                                  style={{
-                                    borderWidth: 1,
-                                    padding: 10,
-                                    marginTop: hp('2%'),
-                                    borderColor: '#C9CCD7',
-                                    backgroundColor: '#EEEEEE',
-                                  }}>
-                                  <TextInput
-                                    value={sectionData.madeBy}
-                                    editable={false}
-                                  />
-                                </View>
-                                <View
-                                  style={{
-                                    borderWidth: 1,
-                                    padding: 10,
-                                    marginTop: hp('2%'),
-                                    borderColor: '#C9CCD7',
-                                    backgroundColor: '#EEEEEE',
-                                  }}>
-                                  <TextInput
-                                    value={sectionData.madeBy}
-                                    editable={false}
-                                  />
-                                </View>
-                                <View
-                                  style={{
-                                    marginTop: hp('3%'),
-                                  }}>
-                                  <Text>Quantity</Text>
-                                </View>
-                                <View
-                                  style={{
-                                    borderWidth: 1,
-                                    padding: 10,
-                                    marginTop: hp('2%'),
-                                    borderColor: '#C9CCD7',
-                                  }}>
-                                  <TextInput
-                                    placeholder="Quantity"
-                                    onChangeText={val =>
-                                      this.setState({
-                                        quantity: val,
-                                      })
-                                    }
-                                    value={quantity}
-                                  />
-                                </View>
-                                <View
-                                  style={{
-                                    borderWidth: 1,
-                                    padding: 10,
-                                    marginTop: hp('2%'),
-                                    borderColor: '#C9CCD7',
-                                    backgroundColor: '#EEEEEE',
-                                  }}>
-                                  <TextInput
-                                    value={sectionData.unit}
-                                    editable={false}
-                                  />
-                                </View>
-                                <View
-                                  style={{
-                                    marginTop: hp('3%'),
-                                  }}>
-                                  <Text>Note</Text>
-                                </View>
-                                <View
                                   onPress={() => this.showDatePickerFun()}
                                   style={{
                                     borderWidth: 1,
-                                    padding: 10,
-                                    marginTop: hp('2%'),
-                                    height: hp('20%'),
-                                    borderColor: '#C9CCD7',
+                                    padding: 12,
+                                    marginBottom: hp('3%'),
+                                    flexDirection: 'row',
+                                    justifyContent: 'space-between',
                                   }}>
                                   <TextInput
-                                    placeholder="Note"
-                                    onChangeText={value =>
-                                      this.setState({
-                                        notes: value,
-                                      })
-                                    }
-                                    value={notes}
+                                    placeholder="dd-mm-yy"
+                                    value={finalDateData}
+                                    editable={false}
                                   />
-                                </View>
-                              </View>
+                                  <Image
+                                    source={img.calenderIcon}
+                                    style={{
+                                      width: 20,
+                                      height: 20,
+                                      resizeMode: 'contain',
+                                    }}
+                                  />
+                                </TouchableOpacity>
 
-                              <View
-                                style={{
-                                  flexDirection: 'row',
-                                  justifyContent: 'space-between',
-                                  marginTop: hp('3%'),
-                                }}>
-                                <TouchableOpacity
-                                  onPress={() => this.updateRecipeDetailsFun()}
+                                <TextInput
+                                  placeholder="quantity"
+                                  value={quantity}
                                   style={{
-                                    width: wp('30%'),
-                                    height: hp('5%'),
-                                    backgroundColor: '#94C036',
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                  }}>
-                                  <Text
+                                    borderWidth: 1,
+                                    padding: 12,
+                                    marginBottom: hp('3%'),
+                                    justifyContent: 'space-between',
+                                  }}
+                                  keyboardType="number-pad"
+                                  onChangeText={value => {
+                                    this.setState({
+                                      quantity: value,
+                                    });
+                                  }}
+                                />
+
+                                <View>
+                                  <DropDownPicker
+                                    items={[
+                                      {
+                                        label: 'Bar',
+                                        value: 'Bar',
+                                      },
+                                      {
+                                        label: 'Restaurant',
+                                        value: 'Restaurant',
+                                      },
+                                      {
+                                        label: 'Retail',
+                                        value: 'Retail',
+                                      },
+                                      {
+                                        label: 'Other',
+                                        value: 'Other',
+                                      },
+                                    ]}
+                                    zIndex={1000000}
+                                    containerStyle={{
+                                      height: 50,
+                                      marginBottom: hp('3%'),
+                                    }}
                                     style={{
-                                      color: '#fff',
-                                      fontSize: 15,
-                                      fontWeight: 'bold',
-                                    }}>
-                                    Save
-                                  </Text>
-                                </TouchableOpacity>
-                                <TouchableOpacity
-                                  onPress={() =>
-                                    this.setModalVisibleRecipeDetailsClose(
-                                      false,
-                                    )
-                                  }
-                                  style={{
-                                    width: wp('30%'),
-                                    height: hp('5%'),
-                                    backgroundColor: '#E7943B',
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                  }}>
-                                  <Text
+                                      backgroundColor: '#fff',
+                                      borderColor: 'black',
+                                    }}
+                                    itemStyle={{
+                                      justifyContent: 'flex-start',
+                                    }}
+                                    dropDownStyle={{backgroundColor: '#fff'}}
+                                    onChangeItem={item =>
+                                      this.selectDepartementNameFun(item)
+                                    }
+                                  />
+
+                                  {viewStatus ? (
+                                    <SectionedMultiSelect
+                                      styles={{
+                                        container: {
+                                          paddingTop: hp('2%'),
+                                          marginTop: hp('7%'),
+                                        },
+                                        selectToggle: {
+                                          borderWidth: 1,
+                                          paddingVertical: 10,
+                                          paddingHorizontal: 5,
+                                        },
+                                      }}
+                                      loadingComponent={
+                                        <View
+                                          style={{
+                                            flex: 1,
+                                            justifyContent: 'center',
+                                            alignItems: 'center',
+                                          }}>
+                                          <ActivityIndicator
+                                            size="large"
+                                            color="#94C036"
+                                          />
+                                        </View>
+                                      }
+                                      loading={this.state.loading}
+                                      // hideSearch={true}
+                                      single={true}
+                                      items={items}
+                                      IconRenderer={Icon}
+                                      uniqueKey="id"
+                                      subKey="children"
+                                      selectText="Select"
+                                      showDropDowns={true}
+                                      readOnlyHeadings={true}
+                                      onSelectedItemObjectsChange={
+                                        this.onSelectedItemObjectsChange
+                                      }
+                                      onSelectedItemsChange={
+                                        this.onSelectedItemsChange
+                                      }
+                                      selectedItems={this.state.selectedItems}
+                                    />
+                                  ) : (
+                                    <View>
+                                      <Text
+                                        style={{
+                                          borderWidth: 1,
+                                          padding: 12,
+                                          marginBottom: hp('3%'),
+                                          justifyContent: 'space-between',
+                                        }}>
+                                        {sectionData.name}
+                                      </Text>
+                                    </View>
+                                  )}
+                                  {viewStatus ? (
+                                    <DropDownPicker
+                                      items={itemsTypesArr}
+                                      containerStyle={{
+                                        height: 50,
+                                        marginTop: hp('3%'),
+                                      }}
+                                      defaultValue={this.state.itemTypes}
+                                      style={{
+                                        backgroundColor: '#fff',
+                                        borderColor: 'black',
+                                      }}
+                                      itemStyle={{
+                                        justifyContent: 'flex-start',
+                                      }}
+                                      dropDownStyle={{backgroundColor: '#fff'}}
+                                      onChangeItem={item =>
+                                        this.setState({
+                                          itemTypes: item,
+                                        })
+                                      }
+                                    />
+                                  ) : (
+                                    <View>
+                                      <Text
+                                        style={{
+                                          borderWidth: 1,
+                                          padding: 12,
+                                          marginBottom: hp('3%'),
+                                          justifyContent: 'space-between',
+                                        }}>
+                                        {sectionData.typeName}
+                                      </Text>
+                                    </View>
+                                  )}
+                                  <View
                                     style={{
-                                      color: '#fff',
-                                      fontSize: 15,
-                                      fontWeight: 'bold',
+                                      marginTop: hp('3%'),
                                     }}>
-                                    Close
-                                  </Text>
-                                </TouchableOpacity>
+                                    <Text>Note</Text>
+                                  </View>
+                                  <View
+                                    onPress={() => this.showDatePickerFun()}
+                                    style={{
+                                      borderWidth: 1,
+                                      padding: 10,
+                                      marginTop: hp('2%'),
+                                      height: hp('20%'),
+                                      borderColor: '#C9CCD7',
+                                    }}>
+                                    <TextInput
+                                      placeholder="Note"
+                                      onChangeText={value =>
+                                        this.setState({
+                                          notes: value,
+                                        })
+                                      }
+                                      value={notes}
+                                    />
+                                  </View>
+                                  <View
+                                    style={{
+                                      alignItems: 'center',
+                                      marginTop: hp('4%'),
+                                    }}>
+                                    <TouchableOpacity
+                                      onPress={() =>
+                                        this.deleteMepFun(sectionData)
+                                      }
+                                      style={{
+                                        backgroundColor: 'red',
+                                        flexDirection: 'row',
+                                        alignItems: 'center',
+                                        width: wp('30%'),
+                                        height: hp('5%'),
+                                        justifyContent: 'center',
+                                      }}>
+                                      <Image
+                                        source={img.cancelIcon}
+                                        style={{
+                                          height: 15,
+                                          width: 15,
+                                          tintColor: 'white',
+                                          resizeMode: 'contain',
+                                        }}
+                                      />
+                                      <Text
+                                        style={{
+                                          fontSize: 14,
+                                          color: '#fff',
+                                          textAlign: 'center',
+                                        }}>
+                                        Delete
+                                      </Text>
+                                    </TouchableOpacity>
+                                  </View>
+                                  <View
+                                    style={{
+                                      flexDirection: 'row',
+                                      alignItems: 'center',
+                                      justifyContent: 'center',
+                                      marginTop: hp('4%'),
+                                    }}>
+                                    <TouchableOpacity
+                                      onPress={() =>
+                                        this.updateRecipeDetailsFun()
+                                      }
+                                      style={{
+                                        width: wp('30%'),
+                                        height: hp('5%'),
+                                        alignSelf: 'flex-end',
+                                        backgroundColor: '#94C036',
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                      }}>
+                                      <Text
+                                        style={{
+                                          color: '#fff',
+                                          fontSize: 15,
+                                          fontWeight: 'bold',
+                                        }}>
+                                        Save
+                                      </Text>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity
+                                      onPress={() =>
+                                        this.setModalVisibleRecipeDetailsClose(
+                                          false,
+                                        )
+                                      }
+                                      style={{
+                                        width: wp('30%'),
+                                        height: hp('5%'),
+                                        alignSelf: 'flex-end',
+                                        backgroundColor: '#E7943B',
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                        marginLeft: wp('2%'),
+                                      }}>
+                                      <Text
+                                        style={{
+                                          color: '#fff',
+                                          fontSize: 15,
+                                          fontWeight: 'bold',
+                                        }}>
+                                        Close
+                                      </Text>
+                                    </TouchableOpacity>
+                                  </View>
+                                </View>
+
+                                <DateTimePickerModal
+                                  // is24Hour={true}
+                                  isVisible={isDatePickerVisible}
+                                  mode={'date'}
+                                  onConfirm={this.handleConfirm}
+                                  onCancel={this.hideDatePicker}
+                                  minimumDate={minTime}
+
+                                  // maximumDate={maxTime}
+                                  // minimumDate={new Date()}
+                                />
                               </View>
                             </View>
                           </ScrollView>
