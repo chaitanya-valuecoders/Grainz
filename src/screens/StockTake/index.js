@@ -55,8 +55,11 @@ class index extends Component {
       newStock: null,
       items: [],
       showItemCategories: false,
-      categoryItems: [],
       isModalVisible: false,
+      childrenList: null,
+      showCategoryItems: false,
+      collapse: 'Collapse All',
+      pickedItem: {name: ''},
     };
   }
 
@@ -159,22 +162,108 @@ class index extends Component {
         });
 
         this.setState({
-          items: [...finalArray],
+          // items: [...finalArray],
           showItemCategories: true,
         });
 
-        // let arr = this.state.items;
-        // let newArr = arr.map(item => ({...item, showChildren: false}));
-        // this.setState({items: newArr});
-        // console.warn('', this.state.items[1].showChildren);
+        let childrenList = [];
+        let list = [...finalArray];
+        let newItems = [];
+        let pos = 0;
+        list.map(item => {
+          // console.warn('lll', item);
+          childrenList.push(item.children);
+          newItems.push({
+            name: item.name,
+            id: item.id,
+            position: pos,
+            children: [],
+            showChildren: false,
+          });
+          pos = pos + 1;
+        });
+        this.setState({items: newItems, childrenList: childrenList});
       })
       .catch(err => {
         console.warn('Err', err.response);
       });
   }
 
-  showCategoryItemsFun(children) {
-    this.setState({categoryItems: children, isModalVisible: true});
+  showCategoryItemsFun(index) {
+    const {items, childrenList} = this.state;
+    let newItems = [];
+
+    if (items[index].showChildren === false) {
+      this.state.items.map(item => {
+        if (item.position === index) {
+          newItems.push({
+            name: item.name,
+            id: item.id,
+            position: item.position,
+            children: childrenList[index],
+            showChildren: true,
+          });
+        } else {
+          newItems.push(item);
+        }
+        this.setState({items: newItems});
+      });
+    } else {
+      this.state.items.map(item => {
+        if (item.position === index) {
+          newItems.push({
+            name: item.name,
+            id: item.id,
+            position: item.position,
+            children: [],
+            showChildren: false,
+          });
+        } else {
+          newItems.push(item);
+        }
+        this.setState({items: newItems});
+      });
+    }
+  }
+
+  collapseAllFun() {
+    const {collapse, items, childrenList} = this.state;
+    let newItems = [];
+
+    if (collapse === 'Collapse All') {
+      items.map(item => {
+        newItems.push({
+          name: item.name,
+          id: item.id,
+          position: item.position,
+          children: [],
+          showChildren: false,
+        });
+
+        this.setState({items: newItems});
+      });
+      this.setState({collapse: 'Uncollapse All'});
+    } else {
+      items.map(item => {
+        newItems.push({
+          name: item.name,
+          id: item.id,
+          position: item.position,
+          children: childrenList[item.position],
+          showChildren: true,
+        });
+      });
+      this.setState({items: newItems});
+      this.setState({collapse: 'Collapse All'});
+    }
+  }
+
+  openModalFun(item) {
+    this.setState({
+      pickedItem: item,
+      isModalVisible: true,
+    });
+    
   }
 
   onPressFun = item => {
@@ -204,8 +293,9 @@ class index extends Component {
       showItemCategories,
       finalDate,
       showChildren,
-      categoryItems,
       isModalVisible,
+      collapse,
+      pickedItem,
     } = this.state;
 
     return (
@@ -330,6 +420,7 @@ class index extends Component {
                 <View style={{flex: 8}}>
                   <View style={{flex: 1, alignItems: 'center'}}>
                     <TouchableOpacity
+                      onPress={() => this.collapseAllFun()}
                       style={{
                         backgroundColor: '#E2E6EA',
                         justifyContent: 'center',
@@ -337,28 +428,119 @@ class index extends Component {
                         width: wp('95%'),
                         height: hp('4%'),
                       }}>
-                      <Text>Collapse All</Text>
+                      <Text>{collapse}</Text>
                     </TouchableOpacity>
                   </View>
                   <View style={{marginTop: hp('2%')}}>
                     {items.map(item => {
                       return (
                         <View style={{marginLeft: 5}}>
-                          <TouchableOpacity
-                            onPress={() =>
-                              this.showCategoryItemsFun(item.children)
-                            }
-                            style={{
-                              margin: 5,
-                              backgroundColor: '#E7E7E7',
-                              width: wp('95%'),
-                              height: hp('4%'),
-                              borderWidth: 1,
-                              borderColor: '#CFCFCF',
-                              justifyContent: 'center',
-                            }}>
-                            <Text style={{marginLeft: 5}}>{item.name}</Text>
-                          </TouchableOpacity>
+                          <View style={{flexDirection: 'row'}}>
+                            <TouchableOpacity
+                              onPress={() =>
+                                this.showCategoryItemsFun(item.position)
+                              }
+                              style={{
+                                margin: 5,
+                                backgroundColor: '#E7E7E7',
+                                width: wp('95%'),
+                                height: hp('4%'),
+                                borderWidth: 1,
+                                borderColor: '#CFCFCF',
+                                // justifyContent: 'center',
+                                alignItems: 'center',
+                                flexDirection: 'row',
+                              }}>
+                              {item.showChildren ? (
+                                <View>
+                                  <Image
+                                    style={{
+                                      height: 22,
+                                      width: 22,
+                                      tintColor: 'grey',
+                                      resizeMode: 'contain',
+                                    }}
+                                    source={img.arrowDownIcon}
+                                  />
+                                </View>
+                              ) : (
+                                <View>
+                                  <Image
+                                    style={{
+                                      height: 22,
+                                      width: 22,
+                                      tintColor: 'grey',
+                                      resizeMode: 'contain',
+                                    }}
+                                    source={img.arrowRightIcon}
+                                  />
+                                </View>
+                              )}
+                              <View>
+                                <Text style={{marginLeft: 5}}>{item.name}</Text>
+                              </View>
+                            </TouchableOpacity>
+                          </View>
+                          <View>
+                            {item.children.map(ele => {
+                              return (
+                                <View style={{justifyContent: 'center'}}>
+                                  <ScrollView
+                                    horizontal
+                                    showsHorizontalScrollIndicator={true}>
+                                    <View
+                                      style={{
+                                        borderBottomColor: '#EAEAF0',
+                                        borderBottomWidth: 2,
+                                        padding: 8,
+                                        flexDirection: 'row',
+                                        alignItems: 'flex-start',
+                                      }}>
+                                      <View style={{padding: 3, flex: 3}}>
+                                        <Text
+                                          style={{
+                                            fontSize: 15,
+                                            fontWeight: 'bold',
+                                          }}>
+                                          {ele.name}
+                                        </Text>
+                                        <Text style={{fontSize: 12}}>
+                                          {moment(
+                                            ele.stockTakeLastUpdate,
+                                          ).format('DD/MM/YYYY')}
+                                        </Text>
+                                      </View>
+                                      <View style={{padding: 3, flex: 3}}>
+                                        <Text>{ele.systemSays}</Text>
+                                      </View>
+                                      <View
+                                        style={{
+                                          justifyContent: 'center',
+                                          alignItems: 'center',
+                                        }}>
+                                        <TouchableOpacity
+                                          onPress={() => this.openModalFun(ele)}
+                                          style={{
+                                            backgroundColor: '#FFFF00',
+                                            height: hp('4%'),
+                                            width: wp('13%'),
+                                            justifyContent: 'center',
+                                            // alignItems: 'center',
+                                            margin: 5,
+                                          }}></TouchableOpacity>
+                                      </View>
+                                      <View>
+                                        <Text>{ele.units[0].name}</Text>
+                                      </View>
+                                      <View style={{padding: 3, flex: 3}}>
+                                        <Text></Text>
+                                      </View>
+                                    </View>
+                                  </ScrollView>
+                                </View>
+                              );
+                            })}
+                          </View>
                         </View>
                       );
                     })}
@@ -367,7 +549,6 @@ class index extends Component {
               ) : null}
             </View>
           ) : null}
-
           <View>
             <Modal isVisible={isModalVisible} backdropOpacity={0.35}>
               <View
@@ -377,32 +558,54 @@ class index extends Component {
                   backgroundColor: '#fff',
                   alignSelf: 'center',
                 }}>
-                <View
-                  style={{
-                    backgroundColor: 'grey',
-                    height: hp('7%'),
-                    flexDirection: 'row',
-                  }}>
-                  <TouchableOpacity
-                    onPress={() => this.setState({isModalVisible: false, categoryItems : []})}>
-                    <Image
-                      source={img.cancelIcon}
+                <Text style={{color: 'white'}}>{pickedItem.name}</Text>
+
+                <ScrollView>
+                  <View
+                    style={{
+                      backgroundColor: '#412916',
+                      height: hp('7%'),
+                    }}>
+                    <TouchableOpacity
+                      onPress={() =>
+                        this.setState({
+                          isModalVisible: false,
+                        })
+                      }>
+                      <Image
+                        source={img.cancelIcon}
+                        style={{
+                          height: 22,
+                          width: 22,
+                          tintColor: 'white',
+                          resizeMode: 'contain',
+                        }}
+                      />
+                    </TouchableOpacity>
+                  </View>
+                  <View>
+                    <View
                       style={{
-                        height: 22,
-                        width: 22,
-                        tintColor: 'white',
-                        resizeMode: 'contain',
-                      }}
-                    />
-                  </TouchableOpacity>
-                </View>
-                {categoryItems.map(ele => {
-                  return (
-                    <View>
-                      <Text>{ele.name}</Text>
+                        flexDirection: 'row',
+                        borderBottomColor: '#EAEAF0',
+                        borderBottomWidth: 2,
+                        padding: 8,
+                      }}>
+                      <View style={{padding: 2, marginLeft: 4, flex: 1}}>
+                        <Text>Name</Text>
+                      </View>
+                      <View style={{padding: 2, marginLeft: 4, flex: 3}}>
+                        <Text>System says</Text>
+                      </View>
+                      <View style={{padding: 2, marginLeft: 4, flex: 3}}>
+                        <Text>Stock Take</Text>
+                      </View>
+                      <View style={{padding: 2, marginLeft: 4, flex: 4}}>
+                        <Text>Correction</Text>
+                      </View>
                     </View>
-                  );
-                })}
+                  </View>
+                </ScrollView>
               </View>
             </Modal>
           </View>
