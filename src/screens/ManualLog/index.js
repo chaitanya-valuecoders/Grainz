@@ -17,7 +17,6 @@ import {connect} from 'react-redux';
 import img from '../../constants/images';
 import SubHeader from '../../components/SubHeader';
 import Header from '../../components/Header';
-import DropDownPicker from 'react-native-dropdown-picker';
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
@@ -718,7 +717,7 @@ class index extends Component {
           }, {});
         }
 
-        let groupedCategory = groupByKey(firstArr, 'category');
+        let groupedCategory = groupByKey(firstArr, 'categoryName');
 
         console.log(
           'Object.keys(groupedCategory)',
