@@ -239,7 +239,7 @@ export const getInventoryByIdApi = async id => {
 
 export async function getInventoryListApi() {
   const token = await AsyncStorage.getItem('@appToken');
-  return axios.get(baseURL + '/Manuallog/manual log item list', {
+  return axios.get(baseURL + '/Inventory/inventory list', {
     headers: {
       Authorization: `Bearer ${token}`,
     },
