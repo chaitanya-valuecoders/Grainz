@@ -29,14 +29,11 @@ import {
   getMyProfileApi,
   getCasualPurchasesApi,
   getSupplierListApi,
-  addOrderApi,
   deleteOrderApi,
-  getManualLogTypes,
-  getManualLogItemList,
+  updateOrderApi,
   getOrderByIdApi,
   getInventoryByIdApi,
   getInventoryListApi,
-  getOrderItemByIdApi,
 } from '../../connectivity/api';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -58,9 +55,6 @@ class EditPurchase extends Component {
       modalVisible: false,
       firstName: '',
       casualPurchases: [],
-      showPurchaseList: true,
-      showNewPurchaseForm: false,
-      showEditPurchaseForm: false,
       isDatePickerVisible: false,
       finalDate: '',
       productionDate: '',
@@ -111,6 +105,7 @@ class EditPurchase extends Component {
       testItem: null,
       orderTotal: null,
       photo: null,
+      editDataLoader: true,
     };
   }
 
@@ -166,6 +161,9 @@ class EditPurchase extends Component {
     this.getProfileDataFun();
     this.getCasualPurchasesData();
     this.getSupplierListData();
+    const {route} = this.props;
+    const order = route.params.orderData;
+    this.showEditCasualPurchase(order);
   }
 
   myProfileFun = () => {
@@ -178,44 +176,19 @@ class EditPurchase extends Component {
     }
   };
 
-  newCasualPurchase() {
-    this.setState({showNewPurchaseForm: true});
-    this.setState({showEditPurchaseForm: false});
-    this.setState({showPurchaseList: false});
-  }
-
   showEditCasualPurchase(order) {
     total = 0;
     this.getOrderById(order.id);
     this.setState({
-      showEditPurchaseForm: true,
-      showNewPurchaseForm: false,
-      showPurchaseList: false,
       supplier: order.supplierName,
       yourOrder: order,
 
       departmentName: order.departmentName,
     });
-    console.warn(order);
     list = [];
 
     // this.getInventoryList('9df266dc-bf87-454e-b678-21c14647a23d');
   }
-
-  // getInventoryList(id) {
-  //   let temp = [];
-
-  //   getInventoryListApi()
-  //     .then(res => {
-  //       res.data.map(item => {
-  //         if (item.id === id) {
-  //           temp.push(item);
-  //           this.setState({yourOrderItems: temp});
-  //         }
-  //       });
-  //     })
-  //     .catch(err => console.warn('kkk', err));
-  // }
 
   getOrderById(id) {
     getOrderByIdApi(id)
@@ -238,13 +211,13 @@ class EditPurchase extends Component {
         obj = {
           name: res.data.name,
           departmentName: res.data.departmentName,
-          quantityOrdered: item.quantityOrdered.toString(),
-          unitPrice: item.unitPrice.toString(),
+          quantityOrdered:
+            item.quantityOrdered && item.quantityOrdered.toString(),
+          unitPrice: item.unitPrice && item.unitPrice.toString(),
         };
         list.push(obj);
         this.setState({orderTotal: total});
-        this.setState({yourOrderItems: list});
-        // this.state.yourOrderItems.push(obj);
+        this.setState({yourOrderItems: list, editDataLoader: false});
       })
       .catch(error => console.warn('invIdError', error));
   }
@@ -262,11 +235,6 @@ class EditPurchase extends Component {
   }
 
   showCasualPurchases() {
-    this.setState({
-      showPurchaseList: true,
-      showNewPurchaseForm: false,
-      showEditPurchaseForm: false,
-    });
     this.setState({
       editDisabled: true,
       editColor: '#E9ECEF',
@@ -287,64 +255,83 @@ class EditPurchase extends Component {
   }
 
   updateCasualPurchase(updatedOrder) {
-    obj = {
-      id: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
-      supplierId: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
-      isAuditComplete: true,
-      orderDate: '2021-04-25T09:35:11.605Z',
-      notes: 'string',
+    let payload = {
+      id: 'b0fc7c8e-2f19-4254-b2d4-7dbdd373fba8',
+      supplierId: '61c4df4d-8b48-4090-98a1-5d222e09a8b0',
+      isAuditComplete: false,
+      orderDate: '2021-04-24T15:25:35.303Z',
+      notes: '',
       orderItems: [
         {
-          id: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
-          unitId: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
-          inventoryId: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
-          unitPrice: 0,
-          quantityOrdered: 0,
-          action: 'string',
-          position: 0,
-          notes: 'string',
+          action: 'Update',
+          id: '185454da-4e14-4b06-9a01-fccc998b144f',
+          inventoryId: '9414590d-dc62-4219-82c9-9b0ee2a16a7f',
+          inventoryProductMappingId: '',
+          isCorrect: false,
+          notes: '',
+          position: 1,
+          quantityOrdered: 100,
+          tdcVolume: 0,
+          unitId: '01470493-50b7-4ebc-a3e7-8fafd6d7c85c',
+          unitPrice: 10,
         },
       ],
-      images: [
-        {
-          id: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
-          description: 'string',
-          position: 0,
-          type: 'string',
-          imageText: 'string',
-          action: 'string',
-          name: 'string',
-        },
-      ],
+      images: [],
+      // images: [
+      //   {
+      //     id: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+      //     description: 'string',
+      //     position: 0,
+      //     type: 'string',
+      //     imageText: 'string',
+      //     action: 'string',
+      //     name: 'string',
+      //   },
+      // ],
     };
+
+    console.log('PAYLOAD', payload);
+
+    updateOrderApi(payload)
+      .then(res => {
+        Alert.alert('Grainz', 'Order updated successfully', [
+          {text: 'OK', onPress: () => this.goBackFun()},
+        ]);
+      })
+      .catch(error => {
+        console.warn('updateFailed', error.response);
+      });
   }
 
   deleteCasualPurchase(param) {
     Alert.alert('Are you sure?', "You won't be able to revert this!", [
       {
         text: 'Cancel',
-        onPress: () => console.log('Cancel Pressed'),
+        onPress: () => this.showCasualPurchases(),
         style: 'cancel',
       },
       {
         text: 'OK',
-        onPress: () =>
-          deleteOrderApi(param)
-            .then(res => {
-              this.getCasualPurchasesData();
-              this.showCasualPurchases();
-              this.setState({
-                editDisabled: true,
-                editColor: '#E9ECEF',
-                swapButton: false,
-              });
-            })
-            .catch(error => {
-              console.warn('error', error.response);
-            }),
+        onPress: () => this.deleteFun(param),
       },
     ]);
   }
+
+  deleteFun = param => {
+    deleteOrderApi(param)
+      .then(res => {
+        this.showCasualPurchases();
+        Alert.alert('Grainz', 'Order deleted successfully', [
+          {
+            text: 'Okay',
+            onPress: () => this.goBackFun(),
+          },
+        ]);
+      })
+      .catch(error => {
+        console.warn('DELETEerror', error.response);
+      });
+  };
 
   handleConfirm = date => {
     let newdate = moment(date).format('L');
@@ -372,33 +359,6 @@ class EditPurchase extends Component {
     });
   };
 
-  addNewPurchaseLine() {
-    const {selectedItemObjects} = this.state;
-
-    let firstArray = [];
-    firstArray.push(selectedItemObjects);
-    console.warn('frist array', firstArray);
-
-    // let obj = {
-    //   name: null,
-    //   departmentName: null,
-    //   action: null,
-    //   id: null,
-    //   inventoryId: null,
-    //   inventoryProductMappingId: null,
-    //   isCorrect: null,
-    //   notes: null,
-    //   position: null,
-    //   quantityOrdered: null,
-    //   tdcVolume: null,
-    //   unitId: null,
-    //   unitPrice: null,
-    // };
-    // let temp = [];
-    // temp.push(obj);
-    // this.setState({newOrderItems});
-  }
-
   addPurchaseLine() {
     let obj = {
       name: null,
@@ -425,147 +385,12 @@ class EditPurchase extends Component {
     }
 
     this.setState({yourOrderItems: temp2});
-    // console.warn( this.state.yourOrderItems);
-    // console.warn( this.state.purchaseLines);
   }
 
   deletePurchaseLine() {
     let temp = this.state.purchaseLines;
     temp.pop();
     this.setState({purchaseLines: temp});
-  }
-
-  createOrder() {
-    const {
-      productionDate,
-      departmentName,
-      selectedItemObjects,
-      note,
-      quantity,
-      itemTypes,
-      supplierId,
-      supplieReference,
-      testItem,
-    } = this.state;
-
-    // getOrderItemByIdApi(selectedItemObjects[0].id)
-    // .then(res=>{ this.setState({ testItem : res.data})})
-    // .catch(err => console.warn('error', err))
-
-    // console.warn(testItem)
-
-    // if (productionDate === '' || quantity == '' || departmentName === '') {
-    //   alert('Please select correct options');
-    // } else {
-    // console.warn(supplierId);
-    let payload = {
-      supplierId: supplierId,
-      orderDate: productionDate,
-      ambientTemp: 0,
-      chilledTemp: 0,
-      customerReference: '',
-      deliveredDate: '',
-      deliveryDate: '',
-      frozenTemp: 0,
-      images: [],
-      invoiceNumber: 0,
-      isAuditComplete: false,
-      isPlaced: false,
-      isTDC: true,
-      notes: note,
-      orderDate: productionDate,
-      orderItems: [
-        {
-          // action: 'New',
-          // id: '',
-          // inventoryId: '9414590d-dc62-4219-82c9-9b0ee2a16a7f',
-          // inventoryProductMappingId: '',
-          // isCorrect: false,
-          // notes: '',
-          // position: 1,
-          // quantityOrdered: 12,
-          // tdcVolume: 0,
-          // unitId: '01470493-50b7-4ebc-a3e7-8fafd6d7c85c',
-          // unitPrice: 3,
-
-          action: 'New',
-          id: '',
-          inventoryId: selectedItemObjects[0].units[0].inventoryId,
-          inventoryProductMappingId: '',
-          isCorrect: false,
-          notes: '',
-          position: 1,
-          quantityOrdered: 14,
-          tdcVolume: 0,
-          unitId: selectedItemObjects[0].units[0].id,
-          unitPrice: 3,
-        },
-      ],
-      placedBy: '',
-      supplieReference: supplieReference,
-    };
-    console.warn('selectedobjects', selectedItemObjects);
-    console.warn('yourpayload', payload);
-    addOrderApi(payload)
-      .then(res => {
-        this.getCasualPurchasesData();
-        console.warn('addSuccessful', res);
-      })
-      .catch(error => {
-        console.warn('addfailed', error.response);
-      });
-
-    this.showCasualPurchases();
-  }
-
-  addCasualPurchase() {
-    const {supplierId, supplieReference} = this.state;
-    console.warn(supplierId);
-    let payload = {
-      supplierId: supplierId,
-      orderDate: '2021-04-18T16:39:59.042Z',
-      ambientTemp: 0,
-      chilledTemp: 0,
-      customerReference: '',
-      deliveredDate: '',
-      deliveryDate: '',
-      frozenTemp: 0,
-      images: [],
-      invoiceNumber: '',
-      isAuditComplete: false,
-      isPlaced: false,
-      isTDC: true,
-      notes: 'test',
-      orderDate: '2021-04-18T16:39:59.042Z',
-      orderItems: [
-        {
-          action: 'New',
-          id: '',
-          inventoryId: '9414590d-dc62-4219-82c9-9b0ee2a16a7f',
-          inventoryProductMappingId: '',
-          isCorrect: false,
-          notes: '',
-          position: 1,
-          quantityOrdered: 12,
-          tdcVolume: 0,
-          unitId: '01470493-50b7-4ebc-a3e7-8fafd6d7c85c',
-          unitPrice: 3,
-        },
-      ],
-      placedBy: '',
-      supplieReference: supplieReference,
-    };
-
-    addOrderApi(payload)
-      .then(res => {
-        this.getCasualPurchasesData();
-        console.warn(res);
-      })
-      .catch(error => {
-        console.warn('addfailed', error);
-      });
-
-    this.showCasualPurchases();
   }
 
   showSupplierList() {
@@ -651,10 +476,9 @@ class EditPurchase extends Component {
           items: [...finalArray],
           loading: false,
         });
-        console.warn(this.state.items);
       })
       .catch(err => {
-        console.warn('Err', err.response);
+        console.warn('GETITEMSErr', err.response);
       });
   };
 
@@ -679,10 +503,14 @@ class EditPurchase extends Component {
     this.setState({selectedItemObjects});
     let temp = [];
     temp.push(selectedItemObjects[0]);
-    console.warn('temp', temp);
+    // console.warn('temp', temp);
     this.setState({newOrderItems: temp});
     // this.setState({selectedItemObjects : ''})
-    console.warn('slctdobjcts', selectedItemObjects);
+    // console.warn('slctdobjcts', selectedItemObjects);
+  };
+
+  goBackFun = () => {
+    this.props.navigation.goBack();
   };
 
   render() {
@@ -690,9 +518,6 @@ class EditPurchase extends Component {
       firstName,
       buttons,
       casualPurchases,
-      showPurchaseList,
-      showNewPurchaseForm,
-      showEditPurchaseForm,
       isDatePickerVisible,
       finalDate,
       purchaseLines,
@@ -718,6 +543,7 @@ class EditPurchase extends Component {
       orderTotal,
       photo,
       newOrderItems,
+      editDataLoader,
     } = this.state;
     return (
       <View style={{flex: 1, backgroundColor: '#fff'}}>
@@ -726,137 +552,86 @@ class EditPurchase extends Component {
           logoutFun={this.myProfileFun}
           logoFun={() => this.props.navigation.navigate('HomeScreen')}
         />
-        <SubHeader />
-        <ScrollView style={{paddingBottom: '50%'}}>
+        {/* <SubHeader /> */}
+        <ScrollView style={{marginBottom: hp('2%')}}>
           <View
             style={{
               backgroundColor: '#412916',
               alignItems: 'center',
               paddingVertical: hp('3%'),
             }}>
-            <Text style={{fontSize: 22, color: 'white'}}>CASUAL PURCHASE</Text>
-            <View style={{}}>
-              {showPurchaseList ? (
+            <Text style={{fontSize: 22, color: 'white'}}>
+              CASUAL PURCHASE TITLE
+            </Text>
+
+            <View>
+              {swapButton ? (
                 <View>
                   <TouchableOpacity
-                    onPress={() => this.newCasualPurchase()}
+                    onPress={() => this.deleteCasualPurchase(yourOrder.id)}
+                    style={{
+                      paddingVertical: '3%',
+                      width: wp('70%'),
+                      backgroundColor: '#FF2121',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      marginTop: 10,
+                    }}>
+                    <View style={{flexDirection: 'row'}}>
+                      <Image
+                        source={img.cancelIcon}
+                        style={{}}
+                        style={{
+                          width: 20,
+                          height: 20,
+                          resizeMode: 'contain',
+                          tintColor: 'white',
+                        }}
+                      />
+                      <Text style={{color: 'white', marginLeft: 5}}>
+                        {translate('Delete')}
+                      </Text>
+                    </View>
+                  </TouchableOpacity>
+                </View>
+              ) : (
+                <View>
+                  <TouchableOpacity
+                    onPress={() => this.editCasualPurchase()}
                     style={{
                       paddingVertical: '3%',
                       width: wp('70%'),
                       backgroundColor: '#94C036',
                       justifyContent: 'center',
                       alignItems: 'center',
-                      marginTop: 20,
+                      marginTop: 10,
                     }}>
-                    <View style={{}}>
+                    <View style={{flexDirection: 'row'}}>
+                      <Image
+                        source={img.editIcon}
+                        style={{}}
+                        style={{
+                          width: 15,
+                          height: 15,
+                          resizeMode: 'contain',
+                          tintColor: 'white',
+                          marginRight: 5,
+                        }}
+                      />
                       <Text
                         style={{
                           color: 'white',
-                          marginLeft: 5,
                           fontWeight: 'bold',
                         }}>
-                        {translate('New')}
+                        Edit
                       </Text>
                     </View>
                   </TouchableOpacity>
                 </View>
-              ) : null}
-            </View>
-            {showEditPurchaseForm ? (
-              <View>
-                {swapButton ? (
-                  <View>
-                    <TouchableOpacity
-                      onPress={() => this.deleteCasualPurchase(yourOrder.id)}
-                      style={{
-                        paddingVertical: '3%',
-                        width: wp('70%'),
-                        backgroundColor: '#FF2121',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        marginTop: 20,
-                      }}>
-                      <View style={{flexDirection: 'row'}}>
-                        <Image
-                          source={img.cancelIcon}
-                          style={{}}
-                          style={{
-                            width: 20,
-                            height: 20,
-                            resizeMode: 'contain',
-                            tintColor: 'white',
-                          }}
-                        />
-                        <Text style={{color: 'white', marginLeft: 5}}>
-                          {translate('Delete')}
-                        </Text>
-                      </View>
-                    </TouchableOpacity>
-                  </View>
-                ) : (
-                  <View>
-                    <TouchableOpacity
-                      onPress={() => this.editCasualPurchase()}
-                      style={{
-                        paddingVertical: '3%',
-                        width: wp('70%'),
-                        backgroundColor: '#94C036',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        marginTop: 20,
-                      }}>
-                      <View style={{flexDirection: 'row'}}>
-                        <Image
-                          source={img.editIcon}
-                          style={{}}
-                          style={{
-                            width: 20,
-                            height: 20,
-                            resizeMode: 'contain',
-                            tintColor: 'white',
-                          }}
-                        />
-                        <Text
-                          style={{
-                            color: 'white',
-                            marginLeft: 5,
-                            fontWeight: 'bold',
-                          }}>
-                          Edit
-                        </Text>
-                      </View>
-                    </TouchableOpacity>
-                  </View>
-                )}
-                <View>
-                  <TouchableOpacity
-                    onPress={() => this.showCasualPurchases()}
-                    style={{
-                      paddingVertical: '3%',
-                      width: wp('70%'),
-                      backgroundColor: '#E7943B',
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                      marginTop: 20,
-                    }}>
-                    <View style={{}}>
-                      <Text
-                        style={{
-                          color: 'white',
-                          marginLeft: 5,
-                          fontWeight: 'bold',
-                        }}>
-                        {translate('Back')}
-                      </Text>
-                    </View>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            ) : null}
-            {showNewPurchaseForm ? (
+              )}
               <View>
                 <TouchableOpacity
-                  onPress={() => this.showCasualPurchases()}
+                  onPress={() => this.goBackFun()}
                   style={{
                     paddingVertical: '3%',
                     width: wp('70%'),
@@ -869,7 +644,6 @@ class EditPurchase extends Component {
                     <Text
                       style={{
                         color: 'white',
-                        marginLeft: 5,
                         fontWeight: 'bold',
                       }}>
                       {translate('Back')}
@@ -877,13 +651,15 @@ class EditPurchase extends Component {
                   </View>
                 </TouchableOpacity>
               </View>
-            ) : null}
+            </View>
           </View>
-          {showEditPurchaseForm ? (
-            <View style={{margin: 15}}>
-              <View style={{flexDirection: 'row'}}>
+          {editDataLoader ? (
+            <ActivityIndicator color="grey" size="large" />
+          ) : (
+            <View style={{marginHorizontal: wp('6%'), marginTop: hp('5%')}}>
+              <View style={{flexDirection: 'row', alignItems: 'center'}}>
                 <View style={{flex: 3}}>
-                  <Text>{translate('Date')}</Text>
+                  <Text>{translate('Date')}:</Text>
                 </View>
                 <View style={{flex: 4}}>
                   <TouchableOpacity
@@ -928,9 +704,9 @@ class EditPurchase extends Component {
                 // minimumDate={new Date()}
               />
 
-              <View style={{flexDirection: 'row'}}>
+              <View style={{flexDirection: 'row', alignItems: 'center'}}>
                 <View style={{flex: 3}}>
-                  <Text>{translate('Supplier')}</Text>
+                  <Text>{translate('Supplier')}:</Text>
                 </View>
                 <View style={{flex: 4}}>
                   <TouchableOpacity
@@ -958,27 +734,31 @@ class EditPurchase extends Component {
               </View>
               <View style={{flex: 2}}>
                 {showSuppliers ? (
-                  <ScrollView style={{height: hp('9%')}}>
-                    <View
-                      style={{
-                        alignItems: 'space-between',
-                        flex: 1,
-                      }}>
-                      {supplierList.map(item => {
-                        return (
-                          <View>
-                            <Pressable
-                              disabled={editDisabled}
-                              onPress={() =>
-                                this.selectSupplier(item.name, item.id)
-                              }>
-                              <Text>{item.name}</Text>
-                            </Pressable>
-                          </View>
-                        );
-                      })}
-                    </View>
-                  </ScrollView>
+                  <View
+                    style={{
+                      width: wp('85%'),
+                      alignItems: 'center',
+                      borderWidth: 0.5,
+                      marginTop: hp('2%'),
+                    }}>
+                    {supplierList.map(item => {
+                      return (
+                        <View style={{marginVertical: 5, borderBottomWidth: 1}}>
+                          <Pressable
+                            disabled={editDisabled}
+                            onPress={() =>
+                              this.selectSupplier(
+                                item.name,
+                                item.id,
+                                item.reference,
+                              )
+                            }>
+                            <Text>{item.name}</Text>
+                          </Pressable>
+                        </View>
+                      );
+                    })}
+                  </View>
                 ) : null}
               </View>
               <View>
@@ -1239,7 +1019,7 @@ class EditPurchase extends Component {
               </View>
               <View>
                 <TouchableOpacity
-                  onPress={() => this.showCasualPurchases()}
+                  onPress={() => this.goBackFun()}
                   style={{
                     paddingVertical: '2%',
                     width: wp('90%'),
@@ -1249,17 +1029,19 @@ class EditPurchase extends Component {
                     marginTop: 20,
                     flexDirection: 'row',
                   }}>
-                  <View>
-                    <Image
-                      source={img.cancelIcon}
-                      style={{
-                        width: 20,
-                        height: 20,
-                        resizeMode: 'contain',
-                        tintColor: 'white',
-                      }}
-                    />
-                  </View>
+                  {editDisabled ? null : (
+                    <View>
+                      <Image
+                        source={img.cancelIcon}
+                        style={{
+                          width: 20,
+                          height: 20,
+                          resizeMode: 'contain',
+                          tintColor: 'white',
+                        }}
+                      />
+                    </View>
+                  )}
                   <View style={{}}>
                     <Text
                       style={{
@@ -1267,290 +1049,35 @@ class EditPurchase extends Component {
                         fontWeight: 'bold',
                         marginLeft: 5,
                       }}>
-                      {translate('Cancel')}
+                      {editDisabled ? translate('Back') : translate('Cancel')}
                     </Text>
                   </View>
                 </TouchableOpacity>
               </View>
-              <View>
-                <TouchableOpacity
-                  onPress={() => this.addCasualPurchase()}
-                  style={{
-                    paddingVertical: '2%',
-                    width: wp('90%'),
-                    backgroundColor: '#94C01F',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    marginTop: 5,
-                    flexDirection: 'row',
-                  }}>
-                  <View>
-                    <Image
-                      source={img.checkIcon}
-                      style={{
-                        width: 20,
-                        height: 20,
-                        resizeMode: 'contain',
-                        tintColor: 'white',
-                      }}
-                    />
-                  </View>
-                  <View style={{}}>
-                    <Text
-                      style={{
-                        color: 'white',
-                        fontWeight: 'bold',
-                        marginLeft: 5,
-                      }}>
-                      {translate('Save')}
-                    </Text>
-                  </View>
-                </TouchableOpacity>
-              </View>
-            </View>
-          ) : null}
-          {showNewPurchaseForm ? (
-            <View style={{margin: 15}}>
-              <View style={{flexDirection: 'row'}}>
-                <View style={{flex: 3}}>
-                  <Text>{translate('Date')}</Text>
-                </View>
-                <View style={{flex: 4}}>
-                  <TouchableOpacity
-                    onPress={() => this.showDatePickerFun()}
-                    style={{
-                      borderWidth: 1,
-                      padding: 10,
-                      marginBottom: hp('2%'),
-                      flexDirection: 'row',
-                      justifyContent: 'space-between',
-                    }}>
-                    <TextInput
-                      placeholder="dd-mm-yy"
-                      value={finalDate}
-                      editable={false}
-                    />
-                    <Image
-                      source={img.calenderIcon}
-                      style={{
-                        width: 20,
-                        height: 20,
-                        resizeMode: 'contain',
-                      }}
-                    />
-                  </TouchableOpacity>
-                </View>
-              </View>
-
-              <DateTimePickerModal
-                // is24Hour={true}
-                isVisible={isDatePickerVisible}
-                mode={'date'}
-                onConfirm={this.handleConfirm}
-                onCancel={this.hideDatePicker}
-                minimumDate={minTime}
-
-                // maximumDate={maxTime}
-                // minimumDate={new Date()}
-              />
-
-              <View style={{flexDirection: 'row'}}>
-                <View style={{flex: 3}}>
-                  <Text>{translate('Supplier')}</Text>
-                </View>
-                <View style={{flex: 4}}>
-                  <TouchableOpacity
-                    onPress={() => this.showSupplierList()}
-                    style={{
-                      borderWidth: 1,
-                      padding: 10,
-                      marginBottom: hp('2%'),
-                      flexDirection: 'row',
-                      justifyContent: 'space-between',
-                    }}>
-                    <Text>{supplier}</Text>
-                    <Image
-                      source={img.arrowDownIcon}
-                      style={{
-                        width: 20,
-                        height: 20,
-                        resizeMode: 'contain',
-                      }}
-                    />
-                  </TouchableOpacity>
-                </View>
-              </View>
-              <View style={{}}>
-                {showSuppliers ? (
-                  <ScrollView style={{}}>
-                    <View style={{alignItems: 'space-between', margin: 10}}>
-                      {supplierList.map(item => {
-                        return (
-                          <View>
-                            <Pressable
-                              onPress={() =>
-                                this.selectSupplier(
-                                  item.name,
-                                  item.id,
-                                  item.reference,
-                                )
-                              }>
-                              <Text>{item.name}</Text>
-                            </Pressable>
-                          </View>
-                        );
-                      })}
-                    </View>
-                  </ScrollView>
-                ) : null}
-              </View>
-              <View>
-                {yourOrderItems.map(item => {
-                  return (
-                    <View style={{marginBottom: hp('6%')}}>
-                      <View>
-                        <View style={{marginLeft: -11}}>
-                          <Pressable onPress={() => this.deletePurchaseLine()}>
-                            <Image
-                              source={img.cancelIcon}
-                              style={{
-                                width: 20,
-                                height: 20,
-                                resizeMode: 'contain',
-                              }}
-                            />
-                          </Pressable>
-                        </View>
-                        <View style={{marginTop: -7}}>
-                          <View>
-                            <DropDownPicker
-                              defaultValue={item.departmentName}
-                              items={[
-                                {
-                                  label: 'Bar',
-                                  value: 'Bar',
-                                },
-                                {
-                                  label: 'Restaurant',
-                                  value: 'Restaurant',
-                                },
-                                {
-                                  label: 'Retail',
-                                  value: 'Retail',
-                                },
-                                {
-                                  label: 'Other',
-                                  value: 'Other',
-                                },
-                              ]}
-                              zIndex={1000000}
-                              containerStyle={{
-                                height: 50,
-                                marginBottom: hp('1%'),
-                              }}
-                              style={{
-                                backgroundColor: '#FFFFFF',
-                                borderColor: 'black',
-                              }}
-                              itemStyle={{
-                                justifyContent: 'flex-start',
-                              }}
-                              dropDownStyle={{backgroundColor: '#fff'}}
-                              onChangeItem={item =>
-                                this.selectDepartementNameFun(item)
-                              }
-                            />
-                            <SectionedMultiSelect
-                              placeholder="Select"
-                              styles={{
-                                container: {
-                                  paddingTop: hp('2%'),
-                                  marginTop: hp('7%'),
-                                },
-                                selectToggle: {
-                                  backgroundColor: '#FFFFFF',
-                                  borderWidth: 1,
-                                  paddingVertical: 10,
-                                  paddingHorizontal: 5,
-                                },
-                              }}
-                              loadingComponent={
-                                <View
-                                  style={{
-                                    flex: 1,
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                  }}>
-                                  <ActivityIndicator
-                                    size="large"
-                                    color="#94C036"
-                                  />
-                                </View>
-                              }
-                              loading={this.state.loading}
-                              // hideSearch={true}
-                              single={true}
-                              items={items}
-                              IconRenderer={Icon}
-                              uniqueKey="id"
-                              subKey="children"
-                              selectText={item.name}
-                              showDropDowns={true}
-                              readOnlyHeadings={true}
-                              onSelectedItemObjectsChange={
-                                this.onSelectedItemObjectsChange
-                              }
-                              onSelectedItemsChange={this.onSelectedItemsChange}
-                              selectedItems={this.state.selectedItems}
-                            />
-
-                            <View>
-                              <TextInput
-                                placeholder="Quantity"
-                                style={{
-                                  backgroundColor: '#FFFFFF',
-                                  borderWidth: 1,
-                                  padding: 10,
-                                  marginBottom: hp('1%'),
-                                  marginTop: hp('1%'),
-                                }}
-                              />
-                            </View>
-                            <View style={{flexDirection: 'row'}}>
-                              <View style={{flex: 1}}>
-                                <Text>$</Text>
-                              </View>
-                              <View style={{flex: 15}}>
-                                <TextInput
-                                  placeholder="price"
-                                  style={{
-                                    backgroundColor: '#FFFFFF',
-                                    borderWidth: 1,
-                                    padding: 10,
-                                    marginBottom: hp('1%'),
-                                  }}
-                                />
-                              </View>
-                            </View>
-                          </View>
-                        </View>
-                      </View>
-                    </View>
-                  );
-                })}
-              </View>
-              <View>
+              {editDisabled ? null : (
                 <View>
                   <TouchableOpacity
-                    onPress={() => this.addNewPurchaseLine()}
+                    onPress={() => this.updateCasualPurchase()}
                     style={{
-                      paddingVertical: 10,
-                      width: wp('50%'),
+                      paddingVertical: '2%',
+                      width: wp('90%'),
                       backgroundColor: '#94C01F',
                       justifyContent: 'center',
                       alignItems: 'center',
-                      marginTop: 20,
+                      marginTop: 10,
+                      flexDirection: 'row',
                     }}>
+                    <View>
+                      <Image
+                        source={img.checkIcon}
+                        style={{
+                          width: 20,
+                          height: 20,
+                          resizeMode: 'contain',
+                          tintColor: 'white',
+                        }}
+                      />
+                    </View>
                     <View style={{}}>
                       <Text
                         style={{
@@ -1558,274 +1085,14 @@ class EditPurchase extends Component {
                           fontWeight: 'bold',
                           marginLeft: 5,
                         }}>
-                        {translate('Audit Complete')}
+                        {translate('Save')}
                       </Text>
                     </View>
                   </TouchableOpacity>
                 </View>
-              </View>
-              <View style={{alignItems: 'space-between', margin: 20}}>
-                <View>
-                  <Text>{translate('Total')}</Text>
-                </View>
-                <View>
-                  <Text>$ 0.00</Text>
-                </View>
-                <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                  <Text>HTVA?</Text>
-                  <CheckBox
-                    value={htvaIsSelected}
-                    onValueChange={() => this.setState({htva: true})}
-                    style={{
-                      margin: 5,
-                      height: 20,
-                      width: 20,
-                    }}
-                  />
-                </View>
-                <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                  <Text>{translate('Audit Complete')}</Text>
-                  <CheckBox
-                    value={auditIsSelected}
-                    style={{
-                      margin: 5,
-                      height: 20,
-                      width: 20,
-                    }}
-                  />
-                </View>
-              </View>
-              <View>
-                <TouchableOpacity
-                  onPress={() => this.handleChoosePhoto()}
-                  style={{
-                    paddingVertical: 10,
-                    width: wp('50%'),
-                    backgroundColor: '#94C01F',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    marginTop: 20,
-                  }}>
-                  <View style={{}}>
-                    <Text
-                      style={{
-                        color: 'white',
-                        fontWeight: 'bold',
-                        marginLeft: 5,
-                      }}>
-                      {translate('Add image')}
-                    </Text>
-                  </View>
-                </TouchableOpacity>
-              </View>
-              {photo ? (
-                <View>
-                  <Image
-                    source={{uri: photo.uri}}
-                    style={{width: 100, height: 100}}
-                  />
-                </View>
-              ) : null}
-              <View style={{margin: 15, flexDirection: 'row'}}>
-                <View style={{flex: 1}}>
-                  <Text style={{}}>{translate('Note')} </Text>
-                </View>
-                <View
-                  style={{
-                    flex: 6,
-                    borderWidth: 1,
-                    borderColor: '#A2A2A2',
-                    padding: 10,
-                  }}>
-                  <TextInput
-                    style={{paddingVertical: '40%'}}
-                    multiline={true}
-                    numberOfLines={4}
-                    onChangeText={note => this.setState({note})}
-                    value={this.state.note}
-                  />
-                </View>
-              </View>
-              <View>
-                <TouchableOpacity
-                  onPress={() => this.showCasualPurchases()}
-                  style={{
-                    paddingVertical: '2%',
-                    width: wp('90%'),
-                    backgroundColor: '#E7943B',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    marginTop: 20,
-                    flexDirection: 'row',
-                  }}>
-                  <View>
-                    <Image
-                      source={img.cancelIcon}
-                      style={{
-                        width: 20,
-                        height: 20,
-                        resizeMode: 'contain',
-                        tintColor: 'white',
-                      }}
-                    />
-                  </View>
-                  <View style={{}}>
-                    <Text
-                      style={{
-                        color: 'white',
-                        fontWeight: 'bold',
-                        marginLeft: 5,
-                      }}>
-                      {translate('Cancel')}
-                    </Text>
-                  </View>
-                </TouchableOpacity>
-              </View>
-              <View>
-                <TouchableOpacity
-                  onPress={() => this.createOrder()}
-                  style={{
-                    paddingVertical: '2%',
-                    width: wp('90%'),
-                    backgroundColor: '#94C01F',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    marginTop: 10,
-                    flexDirection: 'row',
-                  }}>
-                  <View>
-                    <Image
-                      source={img.checkIcon}
-                      style={{
-                        width: 20,
-                        height: 20,
-                        resizeMode: 'contain',
-                        tintColor: 'white',
-                      }}
-                    />
-                  </View>
-                  <View style={{}}>
-                    <Text
-                      style={{
-                        color: 'white',
-                        fontWeight: 'bold',
-                        marginLeft: 5,
-                      }}>
-                      {translate('Save')}
-                    </Text>
-                  </View>
-                </TouchableOpacity>
-              </View>
+              )}
             </View>
-          ) : null}
-          {showPurchaseList ? (
-            <View style={{}}>
-              <View
-                style={{
-                  flexDirection: 'row',
-                  borderBottomColor: '#EAEAF0',
-                  borderBottomWidth: 2,
-                }}>
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    padding: 10,
-                    marginLeft: 20,
-                    flex: 1,
-                  }}>
-                  <Text style={{fontWeight: 'bold'}}>{translate('Date')}</Text>
-                  <Pressable>
-                    <Image
-                      style={{
-                        width: 15,
-                        height: 15,
-                        resizeMode: 'contain',
-                        marginLeft: 10,
-                      }}
-                      source={img.doubleArrowIcon}
-                    />
-                  </Pressable>
-                </View>
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    padding: 10,
-                    marginLeft: 10,
-                    flex: 1,
-                  }}>
-                  <Text style={{fontWeight: 'bold'}}>
-                    {translate('Supplier')}
-                  </Text>
-                  <Pressable>
-                    <Image
-                      style={{
-                        width: 15,
-                        height: 15,
-                        resizeMode: 'contain',
-                        marginLeft: 10,
-                      }}
-                      source={img.doubleArrowIcon}
-                    />
-                  </Pressable>
-                </View>
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    padding: 10,
-                    flex: 1,
-                  }}>
-                  <Text style={{fontWeight: 'bold'}}>
-                    $ {translate('Total')} HTVA
-                  </Text>
-                  <Pressable>
-                    <Image
-                      style={{
-                        width: 15,
-                        height: 15,
-                        resizeMode: 'contain',
-                        marginLeft: 10,
-                      }}
-                      source={img.doubleArrowIcon}
-                    />
-                  </Pressable>
-                </View>
-              </View>
-              {casualPurchases.map(item => {
-                const date = moment(item.orderDate).format('MM/DD/YYYY');
-                const price = Math.round(item.htva);
-                return (
-                  <View
-                    style={{
-                      borderBottomColor: '#EAEAF0',
-                      borderBottomWidth: 1,
-                      marginBottom: hp('2%'),
-                    }}>
-                    <TouchableOpacity
-                      style={{
-                        flexDirection: 'row',
-                        paddingLeft: 30,
-                        alignItems: 'flex-start',
-                        // marginLeft: 35,
-                        // marginRight: 35,
-                      }}
-                      onPress={() => this.showEditCasualPurchase(item)}>
-                      <View style={{margin: 5, flex: 3}}>
-                        <Text style={{fontWeight: 'bold'}}>{date}</Text>
-                      </View>
-                      <View style={{margin: 5, flex: 3, paddingLeft: 50}}>
-                        <Text style={{fontWeight: 'bold'}}>
-                          {item.supplierName}
-                        </Text>
-                      </View>
-                      <View style={{margin: 5, flex: 2, paddingLeft: 50}}>
-                        <Text style={{fontWeight: 'bold'}}>$ {price}</Text>
-                      </View>
-                    </TouchableOpacity>
-                  </View>
-                );
-              })}
-            </View>
-          ) : null}
+          )}
         </ScrollView>
       </View>
     );

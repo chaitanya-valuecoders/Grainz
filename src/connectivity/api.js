@@ -246,6 +246,15 @@ export async function getInventoryListApi() {
   });
 }
 
+export const updateOrderApi = async payload => {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.post(baseURL + '/Order/update casual purchase order', payload, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
 export const getOrderItemByIdApi = async id => {
   let url = baseURL + `/Order/order item by id?Id=${id}`;
   const token = await AsyncStorage.getItem('@appToken');

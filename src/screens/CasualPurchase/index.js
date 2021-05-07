@@ -148,8 +148,10 @@ class index extends Component {
   }
 
   componentDidMount() {
+    this.props.navigation.addListener('focus', () => {
+      this.getCasualPurchasesData();
+    });
     this.getProfileDataFun();
-    this.getCasualPurchasesData();
   }
 
   myProfileFun = () => {
@@ -167,12 +169,13 @@ class index extends Component {
       {
         showPurchaseList: false,
         casualPurchases: [],
+        orderItemsFinal: [],
       },
       () => this.getSupplierListData(),
     );
   }
 
-  showEditCasualPurchase(order) {
+  navigateToEditFun(order) {
     this.props.navigation.navigate('EditPurchase', {
       orderData: order,
     });
@@ -213,14 +216,6 @@ class index extends Component {
     });
   };
 
-  addNewPurchaseLine() {
-    const {selectedItemObjects} = this.state;
-
-    let firstArray = [];
-    firstArray.push(selectedItemObjects);
-    console.warn('frist array', firstArray);
-  }
-
   addPurchaseLine() {
     const {
       quantityValue,
@@ -229,17 +224,19 @@ class index extends Component {
       selectedItemObjects,
       orderItemsFinal,
     } = this.state;
+    const unitIdFinal =
+      selectedItemObjects[0] && selectedItemObjects[0].units[0].id;
     let obj = {
       action: 'New',
       id: '',
-      inventoryId: '57fd7685-204d-4efa-8bca-43bb8e656551',
+      inventoryId: selectedItemObjects[0].id,
       inventoryProductMappingId: '',
       isCorrect: false,
       notes: '',
       position: arrayObjPosition,
       quantityOrdered: quantityValue,
       tdcVolume: 0,
-      unitId: 'e8820b99-ff3a-4aba-b89e-94f45ea14509',
+      unitId: unitIdFinal,
       unitPrice: price,
     };
     if (quantityValue === '' || price === '') {
@@ -337,7 +334,6 @@ class index extends Component {
   };
 
   getManualData = () => {
-    // this.getRecipesTypesData();
     this.getItemListData();
   };
 
@@ -594,7 +590,7 @@ class index extends Component {
                           paddingLeft: 10,
                           alignItems: 'flex-start',
                         }}
-                        onPress={() => this.showEditCasualPurchase(item)}>
+                        onPress={() => this.navigateToEditFun(item)}>
                         <View style={{margin: 5, flex: 3}}>
                           <Text style={{fontWeight: 'bold'}}>{date}</Text>
                         </View>
