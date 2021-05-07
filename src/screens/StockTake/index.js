@@ -6,6 +6,7 @@ import {
   Image,
   TextInput,
   ScrollView,
+  Pressable,
   ActivityIndicator,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -32,6 +33,8 @@ var minTime = new Date();
 minTime.setHours(0);
 minTime.setMinutes(0);
 minTime.setMilliseconds(0);
+const tomorrow = new Date(minTime);
+tomorrow.setDate(tomorrow.getDate() + 1);
 
 class index extends Component {
   constructor(props) {
@@ -39,15 +42,15 @@ class index extends Component {
     this.state = {
       buttons: [
         {name: translate('Bar'), id: 0},
-        {name: translate('Restaurant'), id: 1},
-        {name: translate('Retail'), id: 2},
-        {name: translate('Other'), id: 3},
+        {name: translate('Restaurant'), id: 2},
+        {name: translate('Retail'), id: 3},
+        {name: translate('Other'), id: 1},
         {name: translate('Back'), id: 4},
       ],
       token: '',
       firstName: '',
       firstPage: true,
-      barPage: false,
+      stockPage: false,
       departments: [],
       isDatePickerVisible: false,
       finalDate: null,
@@ -60,6 +63,7 @@ class index extends Component {
       showCategoryItems: false,
       collapse: 'Collapse All',
       pickedItem: {name: ''},
+      alphaLoader: false,
     };
   }
 
@@ -179,6 +183,8 @@ class index extends Component {
             position: pos,
             children: [],
             showChildren: false,
+            sortedAlpha: false,
+            sortedByDate: false,
           });
           pos = pos + 1;
         });
@@ -263,20 +269,74 @@ class index extends Component {
       pickedItem: item,
       isModalVisible: true,
     });
-    
+  }
+
+  sortItemsByDate(index) {
+    const {childrenList} = this.state;
+    let list = childrenList[index];
+    console.warn(list);
+  }
+
+  sortItemsAlpha(index) {
+    const {items, alphaLoader} = this.state;
+
+    let list = items[index].children;
+    let sortedList = null;
+    let newItems = [];
+
+    items.map(item => {
+      if (item.sortedAlpha == true) {
+      
+        sortedList = list.reverse();
+        if (item.position === index) {
+          newItems.push({
+            name: item.name,
+            id: item.id,
+            position: item.position,
+            children: sortedList,
+            showChildren: item.showChildren,
+            sortedAlpha: false,
+            sortedByDate: false,
+          });
+        } else {
+          newItems.push(item);
+        }
+      } else {
+        this.setState({alphaLoader: true});
+        console.warn('loder',alphaLoader)
+        sortedList = list.sort();
+        if (item.position === index) {
+          newItems.push({
+            name: item.name,
+            id: item.id,
+            position: item.position,
+            children: sortedList,
+            showChildren: item.showChildren,
+            sortedAlpha: true,
+            sortedByDate: false,
+          });
+        } else {
+          newItems.push(item);
+        }
+      }
+    });
+    this.setState({items: newItems, alphaLoader: false});
   }
 
   onPressFun = item => {
     if (item.id === 0) {
       // alert('Bar Clicked');
       let id = this.state.departments[item.id];
-      this.setState({firstPage: false, barPage: true, departmentId: id.id});
+      this.setState({firstPage: false, stockPage: true, departmentId: id.id});
     } else if (item.id === 1) {
-      alert('Restaurant Clicked');
+      let id = this.state.departments[item.id];
+      this.setState({firstPage: false, stockPage: true, departmentId: id.id});
     } else if (item.id === 2) {
-      alert('Retail Clicked');
+      let id = this.state.departments[item.id];
+      this.setState({firstPage: false, stockPage: true, departmentId: id.id});
     } else if (item.id === 3) {
-      alert('Other Clicked');
+      let id = this.state.departments[item.id];
+      this.setState({firstPage: false, stockPage: true, departmentId: id.id});
     } else {
       this.props.navigation.goBack();
     }
@@ -288,7 +348,7 @@ class index extends Component {
       buttons,
       isDatePickerVisible,
       firstPage,
-      barPage,
+      stockPage,
       items,
       showItemCategories,
       finalDate,
@@ -296,7 +356,10 @@ class index extends Component {
       isModalVisible,
       collapse,
       pickedItem,
+      alphaLoader,
     } = this.state;
+
+    console.warn('loader', alphaLoader);
 
     return (
       <View style={{flex: 1, backgroundColor: '#fff'}}>
@@ -333,7 +396,12 @@ class index extends Component {
                         borderRadius: 5,
                       }}>
                       <View style={{}}>
-                        <Text style={{color: 'white', marginLeft: 5}}>
+                        <Text
+                          style={{
+                            fontWeight: 'bold',
+                            color: 'white',
+                            marginLeft: 5,
+                          }}>
                           {item.name}
                         </Text>
                       </View>
@@ -343,7 +411,7 @@ class index extends Component {
               })}
             </View>
           ) : null}
-          {barPage ? (
+          {stockPage ? (
             <View>
               <View style={{alignItems: 'space-between', marginRight: 5}}>
                 <TouchableOpacity
@@ -412,8 +480,8 @@ class index extends Component {
                   mode={'date'}
                   onConfirm={this.handleConfirm}
                   onCancel={this.hideDatePicker}
-                  maximumDate={minTime}
-                  // minimumDate={new Date()}
+                  maximumDate={tomorrow}
+                  minimumDate={new Date()}
                 />
               </View>
               {showItemCategories ? (
@@ -435,24 +503,32 @@ class index extends Component {
                     {items.map(item => {
                       return (
                         <View style={{marginLeft: 5}}>
-                          <View style={{flexDirection: 'row'}}>
-                            <TouchableOpacity
+                          <View
+                            style={{
+                              flexDirection: 'row',
+                              flex: 10,
+                              backgroundColor: '#E7E7E7',
+                              borderWidth: 1,
+                              borderColor: '#CFCFCF',
+                              margin: 7,
+                            }}>
+                            <Pressable
                               onPress={() =>
                                 this.showCategoryItemsFun(item.position)
                               }
                               style={{
                                 margin: 5,
                                 backgroundColor: '#E7E7E7',
-                                width: wp('95%'),
+                                width: wp('90%'),
                                 height: hp('4%'),
-                                borderWidth: 1,
-                                borderColor: '#CFCFCF',
+                                // borderWidth: 1,
+                                // borderColor: '#CFCFCF',
                                 // justifyContent: 'center',
                                 alignItems: 'center',
                                 flexDirection: 'row',
                               }}>
                               {item.showChildren ? (
-                                <View>
+                                <View style={{flex: 1}}>
                                   <Image
                                     style={{
                                       height: 22,
@@ -464,7 +540,7 @@ class index extends Component {
                                   />
                                 </View>
                               ) : (
-                                <View>
+                                <View style={{flex: 1}}>
                                   <Image
                                     style={{
                                       height: 22,
@@ -476,71 +552,197 @@ class index extends Component {
                                   />
                                 </View>
                               )}
-                              <View>
-                                <Text style={{marginLeft: 5}}>{item.name}</Text>
+                              <View style={{flex: 7}}>
+                                <Text style={{marginLeft: 2}}>{item.name}</Text>
                               </View>
-                            </TouchableOpacity>
+                              <View style={{flexDirection: 'row', flex: 2}}>
+                                <Text style={{marginRight: 4}}>A - Z</Text>
+                                <Pressable
+                                  onPress={() =>
+                                    this.sortItemsAlpha(item.position)
+                                  }>
+                                  <Image
+                                    style={{
+                                      height: 18,
+                                      width: 18,
+                                      tintColor: 'grey',
+                                      resizeMode: 'contain',
+                                    }}
+                                    source={img.doubleArrowIcon}
+                                  />
+                                </Pressable>
+                              </View>
+                              <View style={{flexDirection: 'row', flex: 2}}>
+                                <Text style={{marginRight: 4}}>Date</Text>
+                                <Pressable
+                                  onPress={() =>
+                                    this.sortItemsByDate(item.position)
+                                  }>
+                                  <Image
+                                    style={{
+                                      height: 18,
+                                      width: 18,
+                                      tintColor: 'grey',
+                                      resizeMode: 'contain',
+                                    }}
+                                    source={img.doubleArrowIcon}
+                                  />
+                                </Pressable>
+                              </View>
+                            </Pressable>
                           </View>
-                          <View>
-                            {item.children.map(ele => {
-                              return (
-                                <View style={{justifyContent: 'center'}}>
-                                  <ScrollView
-                                    horizontal
-                                    showsHorizontalScrollIndicator={true}>
+                          {item.showChildren ? (
+                            <View>
+                              <ScrollView>
+                                <ScrollView
+                                  horizontal
+                                  showsHorizontalScrollIndicator={true}>
+                                  <View style={{}}>
                                     <View
                                       style={{
+                                        flexDirection: 'row',
                                         borderBottomColor: '#EAEAF0',
                                         borderBottomWidth: 2,
                                         padding: 8,
-                                        flexDirection: 'row',
-                                        alignItems: 'flex-start',
+                                        flex: 11,
                                       }}>
-                                      <View style={{padding: 3, flex: 3}}>
-                                        <Text
-                                          style={{
-                                            fontSize: 15,
-                                            fontWeight: 'bold',
-                                          }}>
-                                          {ele.name}
+                                      <View
+                                        style={{
+                                          padding: 2,
+                                          marginLeft: 4,
+                                          flex: 6,
+                                        }}>
+                                        <Text style={{fontWeight: 'bold'}}>
+                                          Name
                                         </Text>
-                                        <Text style={{fontSize: 12}}>
-                                          {moment(
-                                            ele.stockTakeLastUpdate,
-                                          ).format('DD/MM/YYYY')}
-                                        </Text>
-                                      </View>
-                                      <View style={{padding: 3, flex: 3}}>
-                                        <Text>{ele.systemSays}</Text>
                                       </View>
                                       <View
                                         style={{
-                                          justifyContent: 'center',
-                                          alignItems: 'center',
+                                          padding: 2,
+                                          marginLeft: 4,
+                                          flex: 3,
                                         }}>
-                                        <TouchableOpacity
-                                          onPress={() => this.openModalFun(ele)}
-                                          style={{
-                                            backgroundColor: '#FFFF00',
-                                            height: hp('4%'),
-                                            width: wp('13%'),
-                                            justifyContent: 'center',
-                                            // alignItems: 'center',
-                                            margin: 5,
-                                          }}></TouchableOpacity>
+                                        <Text style={{fontWeight: 'bold'}}>
+                                          System says
+                                        </Text>
                                       </View>
-                                      <View>
-                                        <Text>{ele.units[0].name}</Text>
+                                      <View
+                                        style={{
+                                          padding: 2,
+                                          marginLeft: 4,
+                                          flex: 3,
+                                        }}>
+                                        <Text style={{fontWeight: 'bold'}}>
+                                          Stock Take
+                                        </Text>
                                       </View>
-                                      <View style={{padding: 3, flex: 3}}>
-                                        <Text></Text>
+                                      <View
+                                        style={{
+                                          padding: 2,
+                                          marginLeft: 4,
+                                          flex: 1,
+                                        }}>
+                                        <Text style={{fontWeight: 'bold'}}>
+                                          Correction
+                                        </Text>
                                       </View>
                                     </View>
-                                  </ScrollView>
-                                </View>
-                              );
-                            })}
-                          </View>
+
+                                    {alphaLoader ? (
+                                      <ActivityIndicator
+                                        size="large"
+                                        color="grey"
+                                      />
+                                    ) : (
+                                      item.children.map(ele => {
+                                        return (
+                                          <View
+                                            style={{
+                                              borderBottomColor: '#EAEAF0',
+                                              borderBottomWidth: 2,
+                                              padding: 8,
+                                              flexDirection: 'row',
+                                              alignItems: 'flex-start',
+                                              flex: 20,
+                                              // justifyContent: 'center'
+                                            }}>
+                                            <View
+                                              style={{
+                                                margin: 5,
+                                                flex: 8,
+                                                // paddingLeft: 10,
+                                              }}>
+                                              <Text
+                                                style={{
+                                                  fontSize: 15,
+                                                  fontWeight: 'bold',
+                                                }}>
+                                                {ele.name}
+                                              </Text>
+                                              <Text style={{fontSize: 12}}>
+                                                {moment(
+                                                  ele.stockTakeLastUpdate,
+                                                ).format('DD/MM/YYYY')}
+                                              </Text>
+                                            </View>
+                                            <View
+                                              style={{
+                                                // margin: 5,
+                                                flex: 3,
+                                                // paddingLeft: 50,
+                                                flexDirection: 'row',
+                                              }}>
+                                              <Text>{ele.systemSays} </Text>
+                                              {ele.systemSays ? (
+                                                <Text>{ele.units[0].name}</Text>
+                                              ) : null}
+                                            </View>
+                                            <View
+                                              style={{
+                                                justifyContent: 'center',
+                                                alignItems: 'center',
+                                                margin: 5,
+                                                flex: 2,
+                                                // paddingLeft: 50,
+                                              }}>
+                                              <TouchableOpacity
+                                                onPress={() =>
+                                                  this.openModalFun(ele)
+                                                }
+                                                style={{
+                                                  backgroundColor: '#FFFF00',
+                                                  height: hp('4%'),
+                                                  width: wp('13%'),
+                                                  justifyContent: 'center',
+                                                  // alignItems: 'center',
+                                                  margin: 5,
+                                                }}></TouchableOpacity>
+                                            </View>
+                                            <View
+                                              style={{
+                                                margin: 5,
+                                                flex: 3,
+                                                paddingLeft: 20,
+                                              }}>
+                                              <Text>{ele.units[0].name}</Text>
+                                            </View>
+                                            <View
+                                              style={{
+                                                // margin: 5,
+                                                flex: 3,
+                                                // paddingLeft: 50,
+                                              }}>
+                                              <Text></Text>
+                                            </View>
+                                          </View>
+                                        );
+                                      })
+                                    )}
+                                  </View>
+                                </ScrollView>
+                              </ScrollView>
+                            </View>
+                          ) : null}
                         </View>
                       );
                     })}
@@ -558,50 +760,77 @@ class index extends Component {
                   backgroundColor: '#fff',
                   alignSelf: 'center',
                 }}>
-                <Text style={{color: 'white'}}>{pickedItem.name}</Text>
-
                 <ScrollView>
                   <View
                     style={{
                       backgroundColor: '#412916',
-                      height: hp('7%'),
+                      height: hp('5%'),
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      flex: 9,
                     }}>
-                    <TouchableOpacity
-                      onPress={() =>
-                        this.setState({
-                          isModalVisible: false,
-                        })
-                      }>
-                      <Image
-                        source={img.cancelIcon}
+                    <View style={{flex: 8}}>
+                      <Text
                         style={{
-                          height: 22,
-                          width: 22,
-                          tintColor: 'white',
-                          resizeMode: 'contain',
-                        }}
-                      />
-                    </TouchableOpacity>
+                          fontSize: 18,
+                          fontWeight: 'bold',
+                          color: 'white',
+                          paddingLeft: wp('2%'),
+                        }}>
+                        {pickedItem.name}
+                      </Text>
+                    </View>
+                    <View style={{flex: 1}}>
+                      <TouchableOpacity
+                        onPress={() =>
+                          this.setState({
+                            isModalVisible: false,
+                          })
+                        }>
+                        <Image
+                          source={img.cancelIcon}
+                          style={{
+                            height: 22,
+                            width: 22,
+                            tintColor: 'white',
+                            resizeMode: 'contain',
+                          }}
+                        />
+                      </TouchableOpacity>
+                    </View>
                   </View>
                   <View>
                     <View
                       style={{
                         flexDirection: 'row',
-                        borderBottomColor: '#EAEAF0',
+                        borderBottomColor: '#C9CCD7',
                         borderBottomWidth: 2,
                         padding: 8,
+                        margin: '4%',
+                        marginLeft: wp('5%'),
                       }}>
-                      <View style={{padding: 2, marginLeft: 4, flex: 1}}>
-                        <Text>Name</Text>
+                      <View>
+                        <Text
+                          style={{fontWeight: 'bold', paddingRight: wp('5%')}}>
+                          Quantity
+                        </Text>
                       </View>
-                      <View style={{padding: 2, marginLeft: 4, flex: 3}}>
-                        <Text>System says</Text>
+                      <View>
+                        <Text
+                          style={{fontWeight: 'bold', paddingRight: wp('5%')}}>
+                          Unit
+                        </Text>
                       </View>
-                      <View style={{padding: 2, marginLeft: 4, flex: 3}}>
-                        <Text>Stock Take</Text>
+                      <View>
+                        <Text
+                          style={{fontWeight: 'bold', paddingRight: wp('5%')}}>
+                          Inventory
+                        </Text>
                       </View>
-                      <View style={{padding: 2, marginLeft: 4, flex: 4}}>
-                        <Text>Correction</Text>
+                      <View>
+                        <Text style={{fontWeight: 'bold', paddingRight: '0%'}}>
+                          Name
+                        </Text>
                       </View>
                     </View>
                   </View>
