@@ -28,6 +28,7 @@ import {translate} from '../../utils/translations';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import moment from 'moment';
 import Modal from 'react-native-modal';
+import DropDownPicker from 'react-native-dropdown-picker';
 
 var minTime = new Date();
 minTime.setHours(0);
@@ -64,6 +65,12 @@ class index extends Component {
       collapse: 'Collapse All',
       pickedItem: {name: ''},
       alphaLoader: false,
+      units: [],
+      showUnits: false,
+      lines: [{quantity: '', name: '', unit: '', inventory: '', index: 0}],
+      unitHeight: '12%',
+      modalHeight: '42%',
+      inventory: '0',
     };
   }
 
@@ -271,6 +278,53 @@ class index extends Component {
     });
   }
 
+  closeModalFun() {
+    this.setState({
+      pickedItem: {name: ''},
+      isModalVisible: false,
+      lines: [{yo: 'yo'}],
+      unitHeight: '12%',
+      modalHeight: '42%',
+    });
+  }
+
+  addLine() {
+    const {lines} = this.state;
+    let list = lines;
+    list.push({quantity: '', name: '', unit: '', inventory: '', index: 0});
+    this.setState({lines: list});
+    if (list.length >= 1) {
+      this.setState({unitHeight: '18%', modalHeight: '47%'});
+    } else {
+      this.setState({unitHeight: '12%', modalHeight: '44%'});
+    }
+  }
+
+  setQuantity(text, item) {
+    const {lines} = this.state;
+    let newLine = {
+      quantity: text,
+      name: '',
+      unit: '',
+      inventory: text,
+      index: 0,
+    };
+    this.setState({lines: newLine});
+  }
+
+  showUnits() {
+    const {showUnits, pickedItem} = this.state;
+    let data = [];
+    if (showUnits == false) {
+      pickedItem.units.map(item => {
+        data.push({label: item.name, value: item.name});
+      });
+    } else {
+      null;
+    }
+    this.setState({units: data, showUnits: !showUnits});
+  }
+
   sortItemsByDate(index) {
     const {childrenList} = this.state;
     let list = childrenList[index];
@@ -286,7 +340,6 @@ class index extends Component {
 
     items.map(item => {
       if (item.sortedAlpha == true) {
-      
         sortedList = list.reverse();
         if (item.position === index) {
           newItems.push({
@@ -302,8 +355,6 @@ class index extends Component {
           newItems.push(item);
         }
       } else {
-        this.setState({alphaLoader: true});
-        console.warn('loder',alphaLoader)
         sortedList = list.sort();
         if (item.position === index) {
           newItems.push({
@@ -357,9 +408,12 @@ class index extends Component {
       collapse,
       pickedItem,
       alphaLoader,
+      units,
+      lines,
+      unitHeight,
+      modalHeight,
+      inventory,
     } = this.state;
-
-    console.warn('loader', alphaLoader);
 
     return (
       <View style={{flex: 1, backgroundColor: '#fff'}}>
@@ -629,8 +683,8 @@ class index extends Component {
                                       <View
                                         style={{
                                           padding: 2,
-                                          marginLeft: 4,
-                                          flex: 3,
+                                          marginLeft: 3,
+                                          flex: 2,
                                         }}>
                                         <Text style={{fontWeight: 'bold'}}>
                                           Stock Take
@@ -639,7 +693,7 @@ class index extends Component {
                                       <View
                                         style={{
                                           padding: 2,
-                                          marginLeft: 4,
+                                          marginLeft: 0,
                                           flex: 1,
                                         }}>
                                         <Text style={{fontWeight: 'bold'}}>
@@ -663,13 +717,13 @@ class index extends Component {
                                               padding: 8,
                                               flexDirection: 'row',
                                               alignItems: 'flex-start',
-                                              flex: 20,
+                                              // flex: 20,
                                               // justifyContent: 'center'
                                             }}>
                                             <View
                                               style={{
                                                 margin: 5,
-                                                flex: 8,
+                                                width: wp('35%'),
                                                 // paddingLeft: 10,
                                               }}>
                                               <Text
@@ -688,21 +742,22 @@ class index extends Component {
                                             <View
                                               style={{
                                                 // margin: 5,
-                                                flex: 3,
+                                                width: wp('25%'),
                                                 // paddingLeft: 50,
                                                 flexDirection: 'row',
                                               }}>
                                               <Text>{ele.systemSays} </Text>
-                                              {ele.systemSays ? (
+                                              {/* {ele.systemSays ? (
                                                 <Text>{ele.units[0].name}</Text>
-                                              ) : null}
+                                              ) : null} */}
                                             </View>
                                             <View
                                               style={{
                                                 justifyContent: 'center',
                                                 alignItems: 'center',
-                                                margin: 5,
-                                                flex: 2,
+                                                // margin: 5,
+                                                width: wp('20%'),
+                                                // flex: 2,
                                                 // paddingLeft: 50,
                                               }}>
                                               <TouchableOpacity
@@ -712,7 +767,7 @@ class index extends Component {
                                                 style={{
                                                   backgroundColor: '#FFFF00',
                                                   height: hp('4%'),
-                                                  width: wp('13%'),
+                                                  width: wp('15%'),
                                                   justifyContent: 'center',
                                                   // alignItems: 'center',
                                                   margin: 5,
@@ -721,15 +776,15 @@ class index extends Component {
                                             <View
                                               style={{
                                                 margin: 5,
-                                                flex: 3,
-                                                paddingLeft: 20,
+                                                width: wp('20%'),
+                                                paddingLeft: 2
                                               }}>
                                               <Text>{ele.units[0].name}</Text>
                                             </View>
                                             <View
                                               style={{
                                                 // margin: 5,
-                                                flex: 3,
+                                               width : ('20%')
                                                 // paddingLeft: 50,
                                               }}>
                                               <Text></Text>
@@ -755,86 +810,231 @@ class index extends Component {
             <Modal isVisible={isModalVisible} backdropOpacity={0.35}>
               <View
                 style={{
-                  width: wp('80%'),
-                  height: hp('80%'),
+                  width: wp('95%'),
+                  height: hp(modalHeight),
                   backgroundColor: '#fff',
                   alignSelf: 'center',
                 }}>
-                <ScrollView>
+                <View
+                  style={{
+                    backgroundColor: '#412916',
+                    height: hp('5%'),
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    // flex: 9,
+                  }}>
+                  <View style={{flex: 8}}>
+                    <Text
+                      style={{
+                        fontSize: 18,
+                        fontWeight: 'bold',
+                        color: 'white',
+                        paddingLeft: wp('2%'),
+                      }}>
+                      {pickedItem.name}
+                    </Text>
+                  </View>
+                  <View style={{flex: 1}}>
+                    <TouchableOpacity onPress={() => this.closeModalFun()}>
+                      <Image
+                        source={img.cancelIcon}
+                        style={{
+                          height: 22,
+                          width: 22,
+                          tintColor: 'white',
+                          resizeMode: 'contain',
+                        }}
+                      />
+                    </TouchableOpacity>
+                  </View>
+                </View>
+                <View>
                   <View
                     style={{
-                      backgroundColor: '#412916',
-                      height: hp('5%'),
                       flexDirection: 'row',
-                      alignItems: 'center',
-                      flex: 9,
+                      borderBottomColor: '#C9CCD7',
+                      borderBottomWidth: 2,
+                      padding: 8,
+                      margin: '4%',
+                      marginLeft: wp('5%'),
                     }}>
-                    <View style={{flex: 8}}>
+                    <View>
                       <Text
-                        style={{
-                          fontSize: 18,
-                          fontWeight: 'bold',
-                          color: 'white',
-                          paddingLeft: wp('2%'),
-                        }}>
-                        {pickedItem.name}
+                        style={{fontWeight: 'bold', paddingRight: wp('5%')}}>
+                        Quantity
                       </Text>
                     </View>
-                    <View style={{flex: 1}}>
+                    <View>
+                      <Text
+                        style={{fontWeight: 'bold', paddingRight: wp('5%')}}>
+                        Unit
+                      </Text>
+                    </View>
+                    <View>
+                      <Text
+                        style={{fontWeight: 'bold', paddingRight: wp('5%')}}>
+                        Inventory
+                      </Text>
+                    </View>
+                    <View>
+                      <Text style={{fontWeight: 'bold', paddingRight: '0%'}}>
+                        Name
+                      </Text>
+                    </View>
+                  </View>
+                  <ScrollView
+                    style={{
+                      height: hp(unitHeight),
+                      borderBottomColor: '#C9CCD7',
+                      borderBottomWidth: 1,
+                    }}>
+                    {lines.map(item => {
+                      return (
+                        <View
+                          style={{
+                            flex: 4,
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            borderBottomColor: '#C9CCD7',
+                            borderBottomWidth: 1,
+                            margin: '4%',
+                          }}>
+                          <View style={{margin: '4%', flex: 1}}>
+                            <TextInput
+                              style={{
+                                // backgroundColor: 'red',
+                                paddingVertical: '10%',
+                                borderColor: 'red',
+                                borderWidth: 1,
+                              }}
+                              multiline={true}
+                              numberOfLines={1}
+                              onChangeText={text =>
+                                this.setState({inventory: text})
+                              }
+                              value={inventory}
+                            />
+                            <Text style={{color: 'red', fontSize: 8}}>
+                              Quantity is required
+                            </Text>
+                          </View>
+                          <View style={{margin: '1%', flex: 1}}>
+                            <TouchableOpacity
+                              onPress={() => this.showUnits()}
+                              style={{flexDirection: 'row'}}>
+                              <Text>Units</Text>
+                              <Image
+                                source={img.arrowDownIcon}
+                                style={{
+                                  height: 22,
+                                  width: 22,
+                                  tintColor: 'grey',
+                                  resizeMode: 'contain',
+                                }}
+                              />
+                            </TouchableOpacity>
+                            {units.map(ele => {
+                              return (
+                                <View>
+                                  <Text>{ele.label}</Text>
+                                </View>
+                              );
+                            })}
+                          </View>
+                          <View style={{margin: '4%', flex: 1}}>
+                            <Text>{inventory}Unit</Text>
+                          </View>
+                          <View style={{margin: '0%', flex: 1}}>
+                            <Text>Nick balfour</Text>
+                          </View>
+                        </View>
+                      );
+                    })}
+                  </ScrollView>
+
+                  <View
+                    style={{
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      borderBottomColor: '#C9CCD7',
+                      borderBottomWidth: 1,
+                      padding: '2%',
+                      height: hp('8%'),
+                    }}>
+                    <TouchableOpacity
+                      onPress={() => this.addLine()}
+                      style={{
+                        paddingVertical: 5,
+                        width: wp('90%'),
+                        backgroundColor: '#94C01F',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        borderRadius: 2,
+                      }}>
+                      <Text style={{color: 'white'}}>Add new line</Text>
+                    </TouchableOpacity>
+                  </View>
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      padding: '2%',
+                      height: hp('8%'),
+                    }}>
+                    <View style={{margin: '2%'}}>
                       <TouchableOpacity
-                        onPress={() =>
-                          this.setState({
-                            isModalVisible: false,
-                          })
-                        }>
+                        style={{
+                          paddingVertical: 5,
+                          width: wp('41%'),
+                          backgroundColor: '#94C01F',
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                          marginRight: 6,
+                          borderRadius: 2,
+                          flexDirection: 'row',
+                        }}>
+                        <Image
+                          source={img.checkIcon}
+                          style={{
+                            tintColor: 'white',
+                            height: 16,
+                            width: 16,
+                            resizeMode: 'contain',
+                            marginRight: 5,
+                          }}
+                        />
+                        <Text style={{color: 'white'}}>Save</Text>
+                      </TouchableOpacity>
+                    </View>
+                    <View style={{margin: '2%'}}>
+                      <TouchableOpacity
+                        onPress={() => this.closeModalFun()}
+                        style={{
+                          paddingVertical: 5,
+                          width: wp('41%'),
+                          backgroundColor: '#E6940B',
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                          marginLeft: 6,
+                          borderRadius: 2,
+                          flexDirection: 'row',
+                        }}>
                         <Image
                           source={img.cancelIcon}
                           style={{
-                            height: 22,
-                            width: 22,
                             tintColor: 'white',
+                            height: 16,
+                            width: 16,
                             resizeMode: 'contain',
+                            marginRight: 5,
                           }}
                         />
+                        <Text style={{color: 'white'}}>Close</Text>
                       </TouchableOpacity>
                     </View>
                   </View>
-                  <View>
-                    <View
-                      style={{
-                        flexDirection: 'row',
-                        borderBottomColor: '#C9CCD7',
-                        borderBottomWidth: 2,
-                        padding: 8,
-                        margin: '4%',
-                        marginLeft: wp('5%'),
-                      }}>
-                      <View>
-                        <Text
-                          style={{fontWeight: 'bold', paddingRight: wp('5%')}}>
-                          Quantity
-                        </Text>
-                      </View>
-                      <View>
-                        <Text
-                          style={{fontWeight: 'bold', paddingRight: wp('5%')}}>
-                          Unit
-                        </Text>
-                      </View>
-                      <View>
-                        <Text
-                          style={{fontWeight: 'bold', paddingRight: wp('5%')}}>
-                          Inventory
-                        </Text>
-                      </View>
-                      <View>
-                        <Text style={{fontWeight: 'bold', paddingRight: '0%'}}>
-                          Name
-                        </Text>
-                      </View>
-                    </View>
-                  </View>
-                </ScrollView>
+                </View>
               </View>
             </Modal>
           </View>
