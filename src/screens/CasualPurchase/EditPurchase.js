@@ -27,7 +27,6 @@ import {
 import {UserTokenAction} from '../../redux/actions/UserTokenAction';
 import {
   getMyProfileApi,
-  getCasualPurchasesApi,
   getSupplierListApi,
   deleteOrderApi,
   updateOrderApi,
@@ -54,7 +53,6 @@ class EditPurchase extends Component {
       token: '',
       modalVisible: false,
       firstName: '',
-      casualPurchases: [],
       isDatePickerVisible: false,
       finalDate: '',
       productionDate: '',
@@ -83,29 +81,17 @@ class EditPurchase extends Component {
       items: [],
       selectedItems: [],
       selectedItemObjects: '',
-      yourOrderItems: [
-        {
-          name: null,
-          departmentName: null,
-          action: null,
-          id: null,
-          inventoryId: null,
-          inventoryProductMappingId: null,
-          isCorrect: null,
-          notes: null,
-          position: null,
-          quantityOrdered: null,
-          tdcVolume: null,
-          unitId: null,
-          unitPrice: null,
-        },
-      ],
+      yourOrderItems: [],
       newOrderItems: [],
       departmentName: '',
       testItem: null,
       orderTotal: null,
       photo: null,
       editDataLoader: true,
+      orderId: '',
+      orderItemsFinal: [],
+      deleteLoader: false,
+      updateLoader: false,
     };
   }
 
@@ -137,16 +123,6 @@ class EditPurchase extends Component {
       });
   };
 
-  getCasualPurchasesData() {
-    getCasualPurchasesApi()
-      .then(res => {
-        this.setState({casualPurchases: res.data});
-      })
-      .catch(err => {
-        console.warn('errR', err);
-      });
-  }
-
   getSupplierListData() {
     getSupplierListApi()
       .then(res => {
@@ -159,7 +135,6 @@ class EditPurchase extends Component {
 
   componentDidMount() {
     this.getProfileDataFun();
-    this.getCasualPurchasesData();
     this.getSupplierListData();
     const {route} = this.props;
     const order = route.params.orderData;
@@ -177,13 +152,17 @@ class EditPurchase extends Component {
   };
 
   showEditCasualPurchase(order) {
+    console.log('ORDRE', order);
     total = 0;
     this.getOrderById(order.id);
     this.setState({
       supplier: order.supplierName,
       yourOrder: order,
-
       departmentName: order.departmentName,
+      orderId: order.id,
+      supplierId: order.supplierId,
+      productionDate: order.orderDate,
+      auditIsSelected: order.isAuditComplete,
     });
     list = [];
 
@@ -191,47 +170,88 @@ class EditPurchase extends Component {
   }
 
   getOrderById(id) {
+    let list = [];
+    let obj = {};
     getOrderByIdApi(id)
       .then(res => {
-        this.setState({yourOrder: res.data});
-        // console.warn(res.data.orderItems);
+        console.log('res', res);
+
+        this.setState({
+          yourOrder: res.data,
+        });
         res.data.orderItems.map(item => {
-          // this.getInventoryList(item.id);
           this.getItem(item.inventoryId, item);
+          this.getFinalArray(item);
         });
       })
       .catch(error => console.warn(error));
   }
 
-  getItem(id, item) {
-    let obj = {};
-    getInventoryByIdApi(id)
-      .then(res => {
-        total = total + item.orderValue;
-        obj = {
-          name: res.data.name,
-          departmentName: res.data.departmentName,
-          quantityOrdered:
-            item.quantityOrdered && item.quantityOrdered.toString(),
-          unitPrice: item.unitPrice && item.unitPrice.toString(),
-        };
-        list.push(obj);
-        this.setState({orderTotal: total});
-        this.setState({yourOrderItems: list, editDataLoader: false});
-      })
-      .catch(error => console.warn('invIdError', error));
-  }
-
-  addItemLine() {
-    let obj = {
-      name: 'Select',
-      departmentName: 'Select',
-      quantityOrdered: null,
-      unitPrice: null,
+  getFinalArray = item => {
+    console.log('itemm', item);
+    const {orderItemsFinal} = this.state;
+    let objSec = {};
+    let newlist = [];
+    objSec = {
+      action: 'Update',
+      id: item.id,
+      inventoryId: item.inventoryId,
+      inventoryProductMappingId: '',
+      isCorrect: false,
+      notes: '',
+      position: 1,
+      quantityOrdered: item.quantityOrdered,
+      tdcVolume: 0,
+      unitId: item.unitId,
+      unitPrice: item.unitPrice,
     };
 
-    list.push(obj);
-    this.setState({yourOrderitems: list});
+    newlist.push(objSec);
+    this.setState({
+      orderItemsFinal: [...orderItemsFinal, ...newlist],
+    });
+  };
+
+  getItem(id, item) {
+    let obj = {};
+
+    getInventoryByIdApi(id)
+      .then(res => {
+        console.log('InventoryRes', res);
+
+        total = total + item.orderValue;
+        obj = {
+          action: 'Update',
+          id: item.id,
+          inventoryId: item.inventoryId,
+          inventoryProductMappingId: '',
+          isCorrect: false,
+          notes: '',
+          position: 1,
+          quantityOrdered:
+            item.quantityOrdered && item.quantityOrdered.toString(),
+          tdcVolume: 0,
+          unitId: item.unitId,
+          unitPrice: item.unitPrice && item.unitPrice.toString(),
+          name: res.data.name,
+          departmentName: res.data.departmentName,
+        };
+
+        // obj = {
+        //   name: res.data.name,
+        //   departmentName: res.data.departmentName,
+        //   quantityOrdered:
+        //     item.quantityOrdered && item.quantityOrdered.toString(),
+        //   unitPrice: item.unitPrice && item.unitPrice.toString(),
+        // };
+        list.push(obj);
+        this.setState({
+          orderTotal: total,
+          yourOrderItems: list.reverse(),
+          editDataLoader: false,
+        });
+      })
+      .catch(error => console.warn('invIdError', error));
   }
 
   showCasualPurchases() {
@@ -250,32 +270,22 @@ class EditPurchase extends Component {
     });
   }
 
-  createUpdatedOrder() {
-    console.warn(this.state.selectedItemObjects);
-  }
-
-  updateCasualPurchase(updatedOrder) {
+  updateCasualPurchase() {
+    const {
+      note,
+      auditIsSelected,
+      supplierId,
+      productionDate,
+      orderId,
+      orderItemsFinal,
+    } = this.state;
     let payload = {
-      id: 'b0fc7c8e-2f19-4254-b2d4-7dbdd373fba8',
-      supplierId: '61c4df4d-8b48-4090-98a1-5d222e09a8b0',
-      isAuditComplete: false,
-      orderDate: '2021-04-24T15:25:35.303Z',
-      notes: '',
-      orderItems: [
-        {
-          action: 'Update',
-          id: '185454da-4e14-4b06-9a01-fccc998b144f',
-          inventoryId: '9414590d-dc62-4219-82c9-9b0ee2a16a7f',
-          inventoryProductMappingId: '',
-          isCorrect: false,
-          notes: '',
-          position: 1,
-          quantityOrdered: 100,
-          tdcVolume: 0,
-          unitId: '01470493-50b7-4ebc-a3e7-8fafd6d7c85c',
-          unitPrice: 10,
-        },
-      ],
+      id: orderId,
+      supplierId: supplierId,
+      isAuditComplete: auditIsSelected,
+      orderDate: productionDate,
+      notes: note,
+      orderItems: orderItemsFinal,
       images: [],
       // images: [
       //   {
@@ -292,15 +302,27 @@ class EditPurchase extends Component {
 
     console.log('PAYLOAD', payload);
 
-    updateOrderApi(payload)
-      .then(res => {
-        Alert.alert('Grainz', 'Order updated successfully', [
-          {text: 'OK', onPress: () => this.goBackFun()},
-        ]);
-      })
-      .catch(error => {
-        console.warn('updateFailed', error.response);
-      });
+    this.setState(
+      {
+        updateLoader: true,
+      },
+      () =>
+        updateOrderApi(payload)
+          .then(res => {
+            this.setState({
+              updateLoader: false,
+            });
+            Alert.alert('Grainz', 'Order updated successfully', [
+              {text: 'OK', onPress: () => this.goBackFun()},
+            ]);
+          })
+          .catch(error => {
+            this.setState({
+              updateLoader: false,
+            });
+            console.warn('updateFailed', error.response);
+          }),
+    );
   }
 
   deleteCasualPurchase(param) {
@@ -318,19 +340,31 @@ class EditPurchase extends Component {
   }
 
   deleteFun = param => {
-    deleteOrderApi(param)
-      .then(res => {
-        this.showCasualPurchases();
-        Alert.alert('Grainz', 'Order deleted successfully', [
-          {
-            text: 'Okay',
-            onPress: () => this.goBackFun(),
-          },
-        ]);
-      })
-      .catch(error => {
-        console.warn('DELETEerror', error.response);
-      });
+    this.setState(
+      {
+        deleteLoader: true,
+      },
+      () =>
+        deleteOrderApi(param)
+          .then(res => {
+            this.showCasualPurchases();
+            this.setState({
+              deleteLoader: false,
+            });
+            Alert.alert('Grainz', 'Order deleted successfully', [
+              {
+                text: 'Okay',
+                onPress: () => this.goBackFun(),
+              },
+            ]);
+          })
+          .catch(error => {
+            this.setState({
+              deleteLoader: false,
+            });
+            console.warn('DELETEerror', error.response);
+          }),
+    );
   };
 
   handleConfirm = date => {
@@ -380,9 +414,9 @@ class EditPurchase extends Component {
     temp.push(temp[temp.length - 1] + 1);
     this.setState({purchaseLines: temp});
 
-    for (i = 0; i < temp.length; i++) {
-      temp2.push(obj);
-    }
+    // for (i = 0; i < temp.length; i++) {
+    //   temp2.push(obj);
+    // }
 
     this.setState({yourOrderItems: temp2});
   }
@@ -402,47 +436,9 @@ class EditPurchase extends Component {
     this.showSupplierList();
   }
 
-  reverseList() {
-    let temp = this.state.casualPurchases.reverse();
-    this.setState({casualPurchases: temp});
-  }
-
-  selectDepartementNameFun = item => {
-    this.setState(
-      {
-        departmentName: item.value,
-        loading: true,
-        viewStatus: true,
-      },
-      () => this.getManualData(),
-    );
-  };
-
   getManualData = () => {
-    // this.getRecipesTypesData();
     this.getItemListData();
   };
-
-  // getRecipesTypesData = () => {
-  //   getManualLogTypes()
-  //     .then(res => {
-  //       console.warn('RES', res);
-  //       const {data} = res;
-  //       let newData = [];
-  //       data.map(item => {
-  //         const obj = {};
-  //         obj.label = item.name;
-  //         obj.value = item.id;
-  //         newData = [...newData, obj];
-  //       });
-  //       this.setState({
-  //         itemsTypesArr: newData,
-  //       });
-  //     })
-  //     .catch(err => {
-  //       console.warn('Err', err);
-  //     });
-  // };
 
   getItemListData = () => {
     const {departmentName} = this.state;
@@ -496,28 +492,100 @@ class EditPurchase extends Component {
   }
 
   onSelectedItemsChange = selectedItems => {
+    console.log('asdasdaasdasdas', selectedItems);
     this.setState({selectedItems});
-  };
-
-  onSelectedItemObjectsChange = selectedItemObjects => {
-    this.setState({selectedItemObjects});
-    let temp = [];
-    temp.push(selectedItemObjects[0]);
-    // console.warn('temp', temp);
-    this.setState({newOrderItems: temp});
-    // this.setState({selectedItemObjects : ''})
-    // console.warn('slctdobjcts', selectedItemObjects);
   };
 
   goBackFun = () => {
     this.props.navigation.goBack();
   };
 
+  selectDepartementNameFun = (index, type, item) => {
+    const {yourOrderItems} = this.state;
+    const value = item.value;
+
+    let newArr = yourOrderItems.map(
+      (item, i) =>
+        index === i
+          ? {
+              ...item,
+              [type]: value,
+            }
+          : item,
+      //   if (index === i) {
+      //     if (type === 'quantityOrdered') {
+      //       return item.quantityOrdered === value;
+      //     }
+      //   }
+    );
+    this.setState(
+      {
+        yourOrderItems: [...newArr],
+        orderItemsFinal: [...newArr],
+        departmentName: item.value,
+        loading: true,
+        viewStatus: true,
+      },
+      () => this.getManualData(),
+    );
+  };
+
+  onSelectedItemObjectsChange = (
+    index,
+    type,
+    selectedItemObjects,
+    id,
+    invId,
+  ) => {
+    const {yourOrderItems} = this.state;
+    console.log('index|tye|value', index, type, selectedItemObjects, id, invId);
+
+    const value = selectedItemObjects[0].name;
+    const unitId = selectedItemObjects[0].units[0].id;
+    const inventoryId = selectedItemObjects[0].units[0].inventoryId;
+
+    console.log('unitId', unitId);
+    console.log('vinventoryIdalue', inventoryId);
+
+    let newArr = yourOrderItems.map((item, i) =>
+      index === i
+        ? {
+            ...item,
+            [type]: value,
+            [id]: unitId,
+            [invId]: inventoryId,
+          }
+        : item,
+    );
+    this.setState({
+      selectedItemObjects,
+      yourOrderItems: [...newArr],
+      orderItemsFinal: [...newArr],
+    });
+  };
+
+  editQuantityPriceFun = (index, type, value) => {
+    const {yourOrderItems} = this.state;
+
+    let newArr = yourOrderItems.map((item, i) =>
+      index === i
+        ? {
+            ...item,
+            [type]: value,
+          }
+        : item,
+    );
+    this.setState({
+      yourOrderItems: [...newArr],
+      orderItemsFinal: [...newArr],
+    });
+    console.log('yourOrderItems', yourOrderItems);
+  };
+
   render() {
     const {
       firstName,
       buttons,
-      casualPurchases,
       isDatePickerVisible,
       finalDate,
       purchaseLines,
@@ -544,7 +612,10 @@ class EditPurchase extends Component {
       photo,
       newOrderItems,
       editDataLoader,
+      deleteLoader,
+      updateLoader,
     } = this.state;
+    console.log('yourOrderItems', yourOrderItems);
     return (
       <View style={{flex: 1, backgroundColor: '#fff'}}>
         <Header
@@ -589,7 +660,11 @@ class EditPurchase extends Component {
                         }}
                       />
                       <Text style={{color: 'white', marginLeft: 5}}>
-                        {translate('Delete')}
+                        {deleteLoader ? (
+                          <ActivityIndicator color="#fff" size="small" />
+                        ) : (
+                          translate('Delete')
+                        )}
                       </Text>
                     </View>
                   </TouchableOpacity>
@@ -762,7 +837,7 @@ class EditPurchase extends Component {
                 ) : null}
               </View>
               <View>
-                {yourOrderItems.map(ele => {
+                {yourOrderItems.map((ele, index) => {
                   return (
                     <View style={{marginBottom: hp('6%')}}>
                       <View>
@@ -817,7 +892,11 @@ class EditPurchase extends Component {
                               }}
                               dropDownStyle={{backgroundColor: '#fff'}}
                               onChangeItem={item =>
-                                this.selectDepartementNameFun(item)
+                                this.selectDepartementNameFun(
+                                  index,
+                                  'departmentName',
+                                  item,
+                                )
                               }
                             />
                             <SectionedMultiSelect
@@ -857,16 +936,24 @@ class EditPurchase extends Component {
                               selectText={ele.name}
                               showDropDowns={true}
                               readOnlyHeadings={true}
-                              onSelectedItemObjectsChange={
-                                this.onSelectedItemObjectsChange
+                              onSelectedItemObjectsChange={obj =>
+                                this.onSelectedItemObjectsChange(
+                                  index,
+                                  'name',
+                                  obj,
+                                  'unitId',
+                                  'inventoryId',
+                                )
                               }
                               onSelectedItemsChange={this.onSelectedItemsChange}
-                              selectedItems={this.state.selectedItems}
+                              // selectedItems={this.state.selectedItems}
                             />
 
                             <View>
                               <TextInput
+                                editable={!editDisabled}
                                 placeholder="Quantity"
+                                // placeholder={ele.quantityOrdered}
                                 style={{
                                   backgroundColor: editColor,
                                   borderWidth: 1,
@@ -875,10 +962,11 @@ class EditPurchase extends Component {
                                   marginTop: hp('1%'),
                                 }}
                                 onChangeText={value => {
-                                  // let y = yourOrderItems
-                                  // let x = yourOrderItems[ele];
-                                  // x.quantityOrdered = value;
-                                  // y[ele] = x
+                                  this.editQuantityPriceFun(
+                                    index,
+                                    'quantityOrdered',
+                                    value,
+                                  );
                                 }}
                                 value={ele.quantityOrdered}
                               />
@@ -889,12 +977,22 @@ class EditPurchase extends Component {
                               </View>
                               <View style={{flex: 15}}>
                                 <TextInput
-                                  placeholder={ele.unitPrice}
+                                  editable={!editDisabled}
+                                  placeholder="Price"
+                                  // placeholder={ele.unitPrice}
                                   style={{
                                     backgroundColor: editColor,
                                     borderWidth: 1,
                                     padding: 10,
                                     marginBottom: hp('1%'),
+                                  }}
+                                  value={ele.unitPrice}
+                                  onChangeText={value => {
+                                    this.editQuantityPriceFun(
+                                      index,
+                                      'unitPrice',
+                                      value,
+                                    );
                                   }}
                                 />
                               </View>
@@ -946,7 +1044,9 @@ class EditPurchase extends Component {
                   <CheckBox
                     disabled={editDisabled}
                     value={htvaIsSelected}
-                    onValueChange={() => this.setState({htva: true})}
+                    onValueChange={() =>
+                      this.setState({htvaIsSelected: !htvaIsSelected})
+                    }
                     style={{
                       backgroundColor: editColor,
                       margin: 5,
@@ -960,6 +1060,9 @@ class EditPurchase extends Component {
                   <CheckBox
                     disabled={editDisabled}
                     value={auditIsSelected}
+                    onValueChange={() =>
+                      this.setState({auditIsSelected: !auditIsSelected})
+                    }
                     style={{
                       backgroundColor: editColor,
                       margin: 5,
@@ -1006,14 +1109,17 @@ class EditPurchase extends Component {
                     borderColor: '#A2A2A2',
                   }}>
                   <TextInput
+                    editable={!editDisabled}
                     style={{
                       backgroundColor: editColor,
                       paddingVertical: '40%',
+                      paddingLeft: 10,
+                      paddingTop: 10,
                     }}
                     multiline={true}
                     numberOfLines={4}
-                    onChangeText={note => this.setState({note})}
-                    value={this.state.note}
+                    onChangeText={value => this.setState({note: value})}
+                    value={note}
                   />
                 </View>
               </View>
@@ -1085,7 +1191,11 @@ class EditPurchase extends Component {
                           fontWeight: 'bold',
                           marginLeft: 5,
                         }}>
-                        {translate('Save')}
+                        {updateLoader ? (
+                          <ActivityIndicator size="small" color="#fff" />
+                        ) : (
+                          translate('Save')
+                        )}
                       </Text>
                     </View>
                   </TouchableOpacity>

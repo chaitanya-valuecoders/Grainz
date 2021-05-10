@@ -34,6 +34,7 @@ import {
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import {translate} from '../../utils/translations';
+import ImagePicker from 'react-native-image-crop-picker';
 
 var minTime = new Date();
 minTime.setHours(0);
@@ -73,7 +74,6 @@ class index extends Component {
       selectedItemObjects: '',
       departmentName: '',
       testItem: null,
-      orderTotal: null,
       photo: null,
       casualListLoader: false,
       supplierListLoader: false,
@@ -81,7 +81,9 @@ class index extends Component {
       arrayObjPosition: 1,
       quantityValue: '',
       price: '',
-      departmentValue: '',
+      orderTotal: 0,
+      saveLoader: false,
+      saveTouchableStatus: false,
     };
   }
 
@@ -185,6 +187,8 @@ class index extends Component {
     this.setState(
       {
         showPurchaseList: true,
+        saveLoader: false,
+        saveTouchableStatus: false,
       },
       () => this.getCasualPurchasesData(),
     );
@@ -201,7 +205,13 @@ class index extends Component {
   };
 
   handleChoosePhoto() {
-    alert('Phots');
+    ImagePicker.openPicker({
+      width: 300,
+      height: 400,
+      cropping: true,
+    }).then(image => {
+      console.log(image);
+    });
   }
 
   hideDatePicker = () => {
@@ -223,6 +233,7 @@ class index extends Component {
       arrayObjPosition,
       selectedItemObjects,
       orderItemsFinal,
+      orderTotal,
     } = this.state;
     const unitIdFinal =
       selectedItemObjects[0] && selectedItemObjects[0].units[0].id;
@@ -238,21 +249,23 @@ class index extends Component {
       tdcVolume: 0,
       unitId: unitIdFinal,
       unitPrice: price,
+      name: selectedItemObjects[0].name,
     };
     if (quantityValue === '' || price === '') {
       alert('Please fill all values');
     } else {
-      const value = selectedItemObjects[0].name;
       let arrayData = [];
 
       arrayData.push(obj);
+
+      const finalTotal = parseInt(orderTotal) + parseInt(price);
 
       this.setState({
         quantityValue: '',
         price: '',
         orderItemsFinal: [...orderItemsFinal, ...arrayData],
         arrayObjPosition: arrayObjPosition + 1,
-        departmentValue: value,
+        orderTotal: finalTotal,
       });
     }
   }
@@ -284,7 +297,16 @@ class index extends Component {
       deliveredDate: '',
       deliveryDate: '',
       frozenTemp: 0,
-      images: [],
+      images: [
+        {
+          action: 'New',
+          description: 'Desc',
+          id: null,
+          imageText: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAno',
+          name: 'Handshake',
+          type: 'png',
+        },
+      ],
       invoiceNumber: 0,
       isAuditComplete: auditIsSelected,
       isPlaced: false,
@@ -295,20 +317,26 @@ class index extends Component {
       placedBy: '',
       supplieReference: '',
     };
-    console.warn('yourpayload', payload);
 
     if (orderItemsFinal.length === 0) {
       alert('Please enter values first');
     } else {
-      addOrderApi(payload)
-        .then(res => {
-          Alert.alert('Grainz', 'Order added successfully', [
-            {text: 'OK', onPress: () => this.showCasualPurchases()},
-          ]);
-        })
-        .catch(error => {
-          console.warn('addfailed', error.response);
-        });
+      this.setState(
+        {
+          saveLoader: true,
+          saveTouchableStatus: true,
+        },
+        () =>
+          addOrderApi(payload)
+            .then(res => {
+              Alert.alert('Grainz', 'Order added successfully', [
+                {text: 'OK', onPress: () => this.showCasualPurchases()},
+              ]);
+            })
+            .catch(error => {
+              console.warn('addfailed', error.response);
+            }),
+      );
     }
   }
 
@@ -395,10 +423,10 @@ class index extends Component {
 
   onSelectedItemObjectsChange = selectedItemObjects => {
     this.setState({selectedItemObjects});
-    let temp = [];
-    temp.push(selectedItemObjects[0]);
-    console.warn('temp', temp);
-    console.warn('slctdobjcts', selectedItemObjects);
+    // let temp = [];
+    // temp.push(selectedItemObjects[0]);
+    // console.warn('temp', temp);
+    console.warn('selectedItemObjects', selectedItemObjects);
   };
 
   render() {
@@ -422,10 +450,10 @@ class index extends Component {
       loading,
       orderItemsFinal,
       departmentName,
-      departmentValue,
+      orderTotal,
+      saveLoader,
+      saveTouchableStatus,
     } = this.state;
-
-    console.log('FINAA', orderItemsFinal);
 
     return (
       <View style={{flex: 1, backgroundColor: '#fff'}}>
@@ -840,8 +868,32 @@ class index extends Component {
                     </View>
                   </View>
                   <View>
+                    <TouchableOpacity
+                      onPress={() => this.addPurchaseLine()}
+                      style={{
+                        paddingVertical: 10,
+                        width: wp('50%'),
+                        backgroundColor: '#94C01F',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        marginBottom: 20,
+                      }}>
+                      <View style={{}}>
+                        <Text
+                          style={{
+                            color: 'white',
+                            fontWeight: 'bold',
+                            marginLeft: 5,
+                          }}>
+                          {translate('Add Data')}
+                        </Text>
+                      </View>
+                    </TouchableOpacity>
+                  </View>
+                  <View>
                     {orderItemsFinal.length > 0 &&
                       orderItemsFinal.map((item, index) => {
+                        console.log('ITEM', item);
                         return (
                           <View style={{marginBottom: hp('6%')}}>
                             <View>
@@ -885,7 +937,7 @@ class index extends Component {
                                         marginBottom: hp('1%'),
                                         marginTop: hp('1%'),
                                       }}
-                                      value={departmentValue}
+                                      value={item.name}
                                     />
                                   </View>
 
@@ -928,37 +980,13 @@ class index extends Component {
                         );
                       })}
                   </View>
-                  <View>
-                    <View>
-                      <TouchableOpacity
-                        onPress={() => this.addPurchaseLine()}
-                        style={{
-                          paddingVertical: 10,
-                          width: wp('50%'),
-                          backgroundColor: '#94C01F',
-                          justifyContent: 'center',
-                          alignItems: 'center',
-                          marginTop: 20,
-                        }}>
-                        <View style={{}}>
-                          <Text
-                            style={{
-                              color: 'white',
-                              fontWeight: 'bold',
-                              marginLeft: 5,
-                            }}>
-                            {translate('Add line')}
-                          </Text>
-                        </View>
-                      </TouchableOpacity>
-                    </View>
-                  </View>
+
                   <View style={{alignItems: 'space-between', margin: 20}}>
                     <View>
                       <Text>{translate('Total')}</Text>
                     </View>
                     <View>
-                      <Text>$ 0.00</Text>
+                      <Text>{orderTotal}</Text>
                     </View>
                     <View style={{flexDirection: 'row', alignItems: 'center'}}>
                       <Text>HTVA?</Text>
@@ -991,6 +1019,7 @@ class index extends Component {
                   </View>
                   <View>
                     <TouchableOpacity
+                      onPress={() => this.handleChoosePhoto()}
                       style={{
                         paddingVertical: 10,
                         width: wp('50%'),
@@ -1068,6 +1097,7 @@ class index extends Component {
                   </View>
                   <View>
                     <TouchableOpacity
+                      disabled={saveTouchableStatus}
                       onPress={() => this.createOrder()}
                       style={{
                         paddingVertical: '2%',
@@ -1096,7 +1126,11 @@ class index extends Component {
                             fontWeight: 'bold',
                             marginLeft: 5,
                           }}>
-                          {translate('Save')}
+                          {saveLoader ? (
+                            <ActivityIndicator size="small" color="#fff" />
+                          ) : (
+                            translate('Save')
+                          )}
                         </Text>
                       </View>
                     </TouchableOpacity>
