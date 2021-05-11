@@ -413,25 +413,6 @@ class index extends Component {
         () => this.showNewStockTake(departmentId, finalDate);
       })
       .catch(error => console.warn('fek', error));
-
-    // let payload = [
-    //   {
-    //     id: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-    //     inventoryId: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-    //     stockTakeInventoryId: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-    //     stockTakeRecipeId: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-    //     recipeId: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-    //     departmentId: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-    //     unit: "string",
-    //     convertor: 0,
-    //     unitId: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-    //     isDefault: true,
-    //     quantity: 0,
-    //     countInInventory: true,
-    //     stockTakeDate: "2021-05-10T14:17:29.491Z",
-    //     action: "string"
-    //   }
-    // ]
   }
 
   onPressFun = item => {
@@ -553,7 +534,12 @@ class index extends Component {
                 </TouchableOpacity>
               </View>
               <Modal isVisible={newModalIsVisible} backdropOpacity={0.35}>
-                <View style={{width: wp('80%'), height: hp('30%'), backgroundColor : 'white'}}>
+                <View
+                  style={{
+                    width: wp('80%'),
+                    height: hp('30%'),
+                    backgroundColor: 'white',
+                  }}>
                   <View
                     style={{
                       backgroundColor: '#412916',

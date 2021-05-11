@@ -7,6 +7,7 @@ import {
   ScrollView,
   Modal,
   ActivityIndicator,
+  Alert,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {connect} from 'react-redux';
@@ -97,6 +98,7 @@ class index extends Component {
         });
       })
       .catch(err => {
+        console.warn('ERr', err.response);
         this.setState({
           loader: false,
           buttons: [
@@ -138,7 +140,9 @@ class index extends Component {
             // {name: translate('Events'), icon: img.addIcon, screen: 'EventsScreen'},
           ],
         });
-        console.warn('ERr', err);
+        Alert.alert('Grainz', 'Session Timeout', [
+          {text: 'OK', onPress: () => this.removeToken()},
+        ]);
       });
   };
 

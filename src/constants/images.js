@@ -12,5 +12,5 @@ export default {
   checkIcon: require('../assests/Images/check.png'),
   calenderIcon: require('../assests/Images/calender.png'),
   doubleArrowIcon: require('../assests/Images/doubleArrow.png'),
-  editIcon: require('../assests/Images/edit.png'),
+  editIcon: require('../assests/Images/editIcon.png'),
 };

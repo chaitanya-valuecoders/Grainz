@@ -249,12 +249,21 @@ export const getInventoryByIdApi = async id => {
 
 export async function getInventoryListApi() {
   const token = await AsyncStorage.getItem('@appToken');
-  return axios.get(baseURL + '/Manuallog/manual log item list', {
+  return axios.get(baseURL + '/Inventory/inventory list', {
     headers: {
       Authorization: `Bearer ${token}`,
     },
   });
 }
+
+export const updateOrderApi = async payload => {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.post(baseURL + '/Order/update casual purchase order', payload, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
 
 export const getOrderItemByIdApi = async id => {
   let url = baseURL + `/Order/order item by id?Id=${id}`;
