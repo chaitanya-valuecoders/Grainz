@@ -23,6 +23,8 @@ import {
   getMyProfileApi,
   getDepartmentsApi,
   getNewStockTakeApi,
+  updateStockTakeApi,
+  addStockTakeApi,
 } from '../../connectivity/api';
 import {translate} from '../../utils/translations';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
@@ -71,6 +73,7 @@ class index extends Component {
       unitHeight: '12%',
       modalHeight: '42%',
       inventory: '0',
+      newModalIsVisible: false,
     };
   }
 
@@ -278,6 +281,10 @@ class index extends Component {
     });
   }
 
+  openNewModalFun() {
+    this.setState({newModalIsVisible: true});
+  }
+
   closeModalFun() {
     this.setState({
       pickedItem: {name: ''},
@@ -374,6 +381,59 @@ class index extends Component {
     this.setState({items: newItems, alphaLoader: false});
   }
 
+  saveFun(ele) {
+    const {inventory, departmentId, finalDate, childrenList} = this.state;
+
+    let payload = [];
+
+    childrenList.map(item => {
+      payload.push({
+        id: null,
+        inventoryId: item.inventoryId,
+        stockTakeInventoryId: item.stockTakeInventoryId,
+        stockTakeRecipeId: item.stockTakeRecipeId,
+        recipeId: item.recipeId,
+        departmentId: departmentId,
+        unit: item.unit,
+        convertor: item.converter,
+        unitId: null,
+        isDefault: item.isDefault,
+        quantity: 5,
+        countInInventory: true,
+        stockTakeDate: item.stockTakeDate,
+        action: item.action,
+      });
+    });
+
+    console.warn(payload);
+
+    addStockTakeApi(payload)
+      .then(res => {
+        () => this.closeModalFun();
+        () => this.showNewStockTake(departmentId, finalDate);
+      })
+      .catch(error => console.warn('fek', error));
+
+    // let payload = [
+    //   {
+    //     id: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    //     inventoryId: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    //     stockTakeInventoryId: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    //     stockTakeRecipeId: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    //     recipeId: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    //     departmentId: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    //     unit: "string",
+    //     convertor: 0,
+    //     unitId: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    //     isDefault: true,
+    //     quantity: 0,
+    //     countInInventory: true,
+    //     stockTakeDate: "2021-05-10T14:17:29.491Z",
+    //     action: "string"
+    //   }
+    // ]
+  }
+
   onPressFun = item => {
     if (item.id === 0) {
       // alert('Bar Clicked');
@@ -413,6 +473,7 @@ class index extends Component {
       unitHeight,
       modalHeight,
       inventory,
+      newModalIsVisible,
     } = this.state;
 
     return (
@@ -469,7 +530,7 @@ class index extends Component {
             <View>
               <View style={{alignItems: 'space-between', marginRight: 5}}>
                 <TouchableOpacity
-                  // onPress={() => this.onPressFun(item)}
+                  onPress={() => this.openNewModalFun()}
                   style={{
                     height: hp('4%'),
                     width: wp('20%'),
@@ -491,6 +552,25 @@ class index extends Component {
                   </View>
                 </TouchableOpacity>
               </View>
+              <Modal isVisible={newModalIsVisible} backdropOpacity={0.35}>
+                <View style={{width: wp('80%'), height: hp('30%'), backgroundColor : 'white'}}>
+                  <View
+                    style={{
+                      backgroundColor: '#412916',
+                      height: hp('5%'),
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                    }}>
+                    <Text style={{color: 'white'}}>Stock take quantity</Text>
+                  </View>
+                  <View>
+                    <Text>
+                      Stock take must be done at the start of the day or at the
+                      end of the day
+                    </Text>
+                  </View>
+                </View>
+              </Modal>
               <View>
                 <Text
                   style={{
@@ -683,8 +763,8 @@ class index extends Component {
                                       <View
                                         style={{
                                           padding: 2,
-                                          marginLeft: 3,
-                                          flex: 2,
+                                          marginLeft: 4,
+                                          flex: 3,
                                         }}>
                                         <Text style={{fontWeight: 'bold'}}>
                                           Stock Take
@@ -693,7 +773,7 @@ class index extends Component {
                                       <View
                                         style={{
                                           padding: 2,
-                                          marginLeft: 0,
+                                          marginLeft: 4,
                                           flex: 1,
                                         }}>
                                         <Text style={{fontWeight: 'bold'}}>
@@ -771,20 +851,22 @@ class index extends Component {
                                                   justifyContent: 'center',
                                                   // alignItems: 'center',
                                                   margin: 5,
-                                                }}></TouchableOpacity>
+                                                }}>
+                                                <Text>{ele.quantity}</Text>
+                                              </TouchableOpacity>
                                             </View>
                                             <View
                                               style={{
                                                 margin: 5,
                                                 width: wp('20%'),
-                                                paddingLeft: 2
+                                                paddingLeft: 2,
                                               }}>
                                               <Text>{ele.units[0].name}</Text>
                                             </View>
                                             <View
                                               style={{
                                                 // margin: 5,
-                                               width : ('20%')
+                                                width: '20%',
                                                 // paddingLeft: 50,
                                               }}>
                                               <Text></Text>
@@ -984,6 +1066,7 @@ class index extends Component {
                     }}>
                     <View style={{margin: '2%'}}>
                       <TouchableOpacity
+                        onPress={() => this.saveFun(pickedItem)}
                         style={{
                           paddingVertical: 5,
                           width: wp('41%'),

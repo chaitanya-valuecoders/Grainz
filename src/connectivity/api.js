@@ -285,3 +285,27 @@ export async function getNewStockTakeApi(id, date) {
     },
   });
 }
+
+export const updateStockTakeApi = async payload => {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.get(baseURL + '/StockTake/update stocktake', payload, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+
+export const addStockTakeApi = async payload => {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.post(baseURL + '/StockTake/add stocktake', payload, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+
+
+
+
