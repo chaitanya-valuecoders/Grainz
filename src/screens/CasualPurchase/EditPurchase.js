@@ -11,6 +11,7 @@ import {
   Pressable,
   Alert,
 } from 'react-native';
+import Modal from 'react-native-modal';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {connect} from 'react-redux';
 import img from '../../constants/images';
@@ -33,10 +34,12 @@ import {
   getOrderByIdApi,
   getInventoryByIdApi,
   getInventoryListApi,
+  getOrderImagesByIdApi,
 } from '../../connectivity/api';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import {translate} from '../../utils/translations';
+import ImagePicker from 'react-native-image-crop-picker';
 
 var minTime = new Date();
 minTime.setHours(0);
@@ -92,6 +95,12 @@ class EditPurchase extends Component {
       orderItemsFinal: [],
       deleteLoader: false,
       updateLoader: false,
+      imageData: '',
+      imageShow: false,
+      imageModalStatus: false,
+      imageName: '',
+      imageDesc: '',
+      imageDataEdit: '',
     };
   }
 
@@ -139,7 +148,22 @@ class EditPurchase extends Component {
     const {route} = this.props;
     const order = route.params.orderData;
     this.showEditCasualPurchase(order);
+    this.getImagesFun(order);
   }
+
+  getImagesFun = order => {
+    const id = order.id;
+    getOrderImagesByIdApi(id)
+      .then(res => {
+        console.log('IMAGESSSS', res);
+        this.setState({
+          imageData: res.data.length > 0 ? res.data[0] : '',
+        });
+      })
+      .catch(error => {
+        console.warn(error);
+      });
+  };
 
   myProfileFun = () => {
     this.props.navigation.navigate('MyProfile');
@@ -163,6 +187,7 @@ class EditPurchase extends Component {
       supplierId: order.supplierId,
       productionDate: order.orderDate,
       auditIsSelected: order.isAuditComplete,
+      note: order.notes,
     });
     list = [];
 
@@ -174,7 +199,7 @@ class EditPurchase extends Component {
     let obj = {};
     getOrderByIdApi(id)
       .then(res => {
-        console.log('res', res);
+        // console.log('res', res);
 
         this.setState({
           yourOrder: res.data,
@@ -188,7 +213,7 @@ class EditPurchase extends Component {
   }
 
   getFinalArray = item => {
-    console.log('itemm', item);
+    // console.log('itemm', item);
     const {orderItemsFinal} = this.state;
     let objSec = {};
     let newlist = [];
@@ -217,7 +242,7 @@ class EditPurchase extends Component {
 
     getInventoryByIdApi(id)
       .then(res => {
-        console.log('InventoryRes', res);
+        // console.log('InventoryRes', res);
 
         total = total + item.orderValue;
         obj = {
@@ -278,6 +303,10 @@ class EditPurchase extends Component {
       productionDate,
       orderId,
       orderItemsFinal,
+      imageName,
+      imageDesc,
+      imageData,
+      imageDataEdit,
     } = this.state;
     let payload = {
       id: orderId,
@@ -287,17 +316,31 @@ class EditPurchase extends Component {
       notes: note,
       orderItems: orderItemsFinal,
       images: [],
-      // images: [
-      //   {
-      //     id: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
-      //     description: 'string',
-      //     position: 0,
-      //     type: 'string',
-      //     imageText: 'string',
-      //     action: 'string',
-      //     name: 'string',
-      //   },
-      // ],
+      images: imageDataEdit
+        ? [
+            {
+              // id: '',
+              description: imageDesc,
+              position: 0,
+              type: 'png',
+              imageText: `data:image/png;base64,${imageDataEdit.data}`,
+              action: 'New',
+              name: imageName,
+            },
+          ]
+        : imageData
+        ? [
+            {
+              action: null,
+              description: imageData.description,
+              id: imageData.id,
+              imageText: `${imageData.imageText}`,
+              name: imageData.name,
+              position: 0,
+              type: 'png       ',
+            },
+          ]
+        : [],
     };
 
     console.log('PAYLOAD', payload);
@@ -378,7 +421,17 @@ class EditPurchase extends Component {
   };
 
   handleChoosePhoto() {
-    alert('Phots');
+    ImagePicker.openPicker({
+      width: 300,
+      height: 400,
+      includeBase64: true,
+      cropping: true,
+    }).then(image => {
+      this.setState({
+        imageModalStatus: true,
+        imageDataEdit: image,
+      });
+    });
   }
 
   hideDatePicker = () => {
@@ -492,7 +545,7 @@ class EditPurchase extends Component {
   }
 
   onSelectedItemsChange = selectedItems => {
-    console.log('asdasdaasdasdas', selectedItems);
+    // console.log('asdasdaasdasdas', selectedItems);
     this.setState({selectedItems});
   };
 
@@ -538,14 +591,14 @@ class EditPurchase extends Component {
     invId,
   ) => {
     const {yourOrderItems} = this.state;
-    console.log('index|tye|value', index, type, selectedItemObjects, id, invId);
+    // console.log('index|tye|value', index, type, selectedItemObjects, id, invId);
 
     const value = selectedItemObjects[0].name;
     const unitId = selectedItemObjects[0].units[0].id;
     const inventoryId = selectedItemObjects[0].units[0].inventoryId;
 
-    console.log('unitId', unitId);
-    console.log('vinventoryIdalue', inventoryId);
+    // console.log('unitId', unitId);
+    // console.log('vinventoryIdalue', inventoryId);
 
     let newArr = yourOrderItems.map((item, i) =>
       index === i
@@ -579,7 +632,29 @@ class EditPurchase extends Component {
       yourOrderItems: [...newArr],
       orderItemsFinal: [...newArr],
     });
-    console.log('yourOrderItems', yourOrderItems);
+    // console.log('yourOrderItems', yourOrderItems);
+  };
+
+  setModalVisibleImage = () => {
+    this.setState({
+      imageModalStatus: false,
+      imageDataEdit: '',
+    });
+  };
+
+  deleteImageFun = () => {
+    this.setState({
+      imageModalStatus: false,
+      imageDataEdit: '',
+      imageShow: false,
+    });
+  };
+
+  saveImageFun = () => {
+    this.setState({
+      imageModalStatus: false,
+      imageShow: true,
+    });
   };
 
   render() {
@@ -614,8 +689,16 @@ class EditPurchase extends Component {
       editDataLoader,
       deleteLoader,
       updateLoader,
+      imageData,
+      imageShow,
+      imageModalStatus,
+      imageDesc,
+      imageName,
+      imageDataEdit,
     } = this.state;
-    console.log('yourOrderItems', yourOrderItems);
+    // console.log('imageData', imageData);
+    // console.log('imageDataEdit', imageDataEdit);
+
     return (
       <View style={{flex: 1, backgroundColor: '#fff'}}>
         <Header
@@ -1072,6 +1155,36 @@ class EditPurchase extends Component {
                   />
                 </View>
               </View>
+              {editDisabled && imageData ? (
+                <View style={{marginTop: 15}}>
+                  <Image
+                    style={{
+                      width: wp('60%'),
+                      height: 100,
+                      resizeMode: 'cover',
+                    }}
+                    source={{uri: imageData && imageData.imageText}}
+                  />
+                </View>
+              ) : null}
+              {imageShow ? (
+                <TouchableOpacity
+                  style={{marginTop: 15}}
+                  onPress={() =>
+                    this.setState({
+                      imageModalStatus: true,
+                    })
+                  }>
+                  <Image
+                    style={{
+                      width: wp('60%'),
+                      height: 100,
+                      resizeMode: 'cover',
+                    }}
+                    source={{uri: imageDataEdit.path}}
+                  />
+                </TouchableOpacity>
+              ) : null}
               {editDisabled ? null : (
                 <View>
                   <TouchableOpacity
@@ -1097,6 +1210,19 @@ class EditPurchase extends Component {
                   </TouchableOpacity>
                 </View>
               )}
+
+              {/* {imageData && imageShow === false ? (
+                <View style={{marginTop: 15}}>
+                  <Image
+                    style={{
+                      width: wp('60%'),
+                      height: 100,
+                      resizeMode: 'cover',
+                    }}
+                    source={{uri: imageData && imageData.imageText}}
+                  />
+                </View>
+              ) : null} */}
 
               <View style={{margin: 15, flexDirection: 'row'}}>
                 <View style={{flex: 1}}>
@@ -1203,6 +1329,141 @@ class EditPurchase extends Component {
               )}
             </View>
           )}
+          <Modal isVisible={imageModalStatus} backdropOpacity={0.35}>
+            <View
+              style={{
+                width: wp('80%'),
+                height: hp('70%'),
+                backgroundColor: '#fff',
+                alignSelf: 'center',
+              }}>
+              <View
+                style={{
+                  backgroundColor: '#412916',
+                  height: hp('7%'),
+                  flexDirection: 'row',
+                }}>
+                <View
+                  style={{
+                    flex: 3,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}>
+                  <Text style={{fontSize: 16, color: '#fff'}}>
+                    {translate('Manual Log small')} -{' '}
+                    {translate('Add new item')}
+                  </Text>
+                </View>
+                <View
+                  style={{
+                    flex: 1,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}>
+                  <TouchableOpacity
+                    onPress={() => this.setModalVisibleImage(false)}>
+                    <Image
+                      source={img.cancelIcon}
+                      style={{
+                        height: 22,
+                        width: 22,
+                        tintColor: 'white',
+                        resizeMode: 'contain',
+                      }}
+                    />
+                  </TouchableOpacity>
+                </View>
+              </View>
+              <ScrollView>
+                <View style={{padding: hp('3%')}}>
+                  <View>
+                    <Image
+                      style={{
+                        width: wp('60%'),
+                        height: 100,
+                        resizeMode: 'cover',
+                      }}
+                      source={{uri: imageDataEdit.path}}
+                    />
+                  </View>
+                  <View style={{}}>
+                    <TextInput
+                      placeholder="Enter Name"
+                      value={imageName}
+                      style={{
+                        borderWidth: 1,
+                        padding: 12,
+                        marginBottom: hp('3%'),
+                        justifyContent: 'space-between',
+                        marginTop: 20,
+                      }}
+                      onChangeText={value => {
+                        this.setState({
+                          imageName: value,
+                        });
+                      }}
+                    />
+                  </View>
+                  <View style={{}}>
+                    <TextInput
+                      placeholder="Enter Description"
+                      value={imageDesc}
+                      style={{
+                        borderWidth: 1,
+                        padding: 12,
+                        marginBottom: hp('3%'),
+                        justifyContent: 'space-between',
+                      }}
+                      onChangeText={value => {
+                        this.setState({
+                          imageDesc: value,
+                        });
+                      }}
+                    />
+                  </View>
+                  <TouchableOpacity
+                    onPress={() => this.deleteImageFun()}
+                    style={{
+                      width: wp('70%'),
+                      height: hp('5%'),
+                      alignSelf: 'flex-end',
+                      backgroundColor: 'red',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                    }}>
+                    <Text
+                      style={{
+                        color: '#fff',
+                        fontSize: 15,
+                        fontWeight: 'bold',
+                      }}>
+                      {translate('Delete')}
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => this.saveImageFun()}
+                    style={{
+                      width: wp('70%'),
+                      height: hp('5%'),
+                      alignSelf: 'flex-end',
+                      backgroundColor: '#94C036',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      marginTop: 10,
+                    }}>
+                    <Text
+                      style={{
+                        color: '#fff',
+                        fontSize: 15,
+                        fontWeight: 'bold',
+                      }}>
+                      {translate('Save')}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </ScrollView>
+            </View>
+          </Modal>
         </ScrollView>
       </View>
     );

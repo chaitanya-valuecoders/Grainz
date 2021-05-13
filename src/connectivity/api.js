@@ -264,3 +264,13 @@ export const getOrderItemByIdApi = async id => {
     },
   });
 };
+
+export const getOrderImagesByIdApi = async id => {
+  let url = baseURL + `/Order/order images by id?id=${id}`;
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.get(url, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
