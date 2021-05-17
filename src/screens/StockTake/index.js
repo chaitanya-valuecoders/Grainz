@@ -3,7 +3,6 @@ import {
   View,
   Text,
   TouchableOpacity,
-  Image,
   ScrollView,
   ActivityIndicator,
 } from 'react-native';
@@ -17,27 +16,24 @@ import {
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
 import {UserTokenAction} from '../../redux/actions/UserTokenAction';
-import {getMyProfileApi} from '../../connectivity/api';
+import {getMyProfileApi, getDepartmentsApi} from '../../connectivity/api';
 import {translate} from '../../utils/translations';
 
 var minTime = new Date();
 minTime.setHours(0);
 minTime.setMinutes(0);
 minTime.setMilliseconds(0);
+const tomorrow = new Date(minTime);
+tomorrow.setDate(tomorrow.getDate() + 1);
 
 class index extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      buttons: [
-        {name: translate('Bar'), id: 0},
-        {name: translate('Restaurant'), id: 1},
-        {name: translate('Retail'), id: 2},
-        {name: translate('Other'), id: 3},
-        {name: translate('Back'), id: 4},
-      ],
+      buttons: [],
       token: '',
       firstName: '',
+      pageLoader: false,
     };
   }
 
@@ -69,30 +65,41 @@ class index extends Component {
       });
   };
 
+  getDepartmentsFun() {
+    this.setState(
+      {
+        pageLoader: true,
+      },
+      () =>
+        getDepartmentsApi()
+          .then(res => {
+            this.setState({buttons: res.data, pageLoader: false});
+          })
+          .catch(error => {
+            this.setState({pageLoader: false});
+            console.warn('err', error);
+          }),
+    );
+  }
+
   componentDidMount() {
     this.getProfileDataFun();
+    this.getDepartmentsFun();
   }
 
   myProfileFun = () => {
     this.props.navigation.navigate('MyProfile');
   };
 
-  onPressFun = item => {
-    if (item.id === 0) {
-      alert('Bar Clicked');
-    } else if (item.id === 1) {
-      alert('Restaurant Clicked');
-    } else if (item.id === 2) {
-      alert('Retail Clicked');
-    } else if (item.id === 3) {
-      alert('Other Clicked');
-    } else {
-      this.props.navigation.goBack();
-    }
+  onPressFun = data => {
+    this.props.navigation.navigate('StockScreen', {
+      departmentData: data,
+    });
   };
 
   render() {
-    const {firstName, buttons} = this.state;
+    const {firstName, buttons, pageLoader} = this.state;
+
     return (
       <View style={{flex: 1, backgroundColor: '#fff'}}>
         <Header
@@ -102,40 +109,49 @@ class index extends Component {
         />
         {/* <SubHeader /> */}
         <ScrollView style={{marginBottom: hp('5%')}}>
-          <View
-            style={{
-              alignItems: 'center',
-              paddingVertical: hp('3%'),
-              borderTopWidth: 0.2,
-              borderTopColor: '#E9E9E9',
-            }}>
-            <Text style={{color: '#656565', fontSize: 18}}>
-              {translate('Select which department you wish to stock take')}
-            </Text>
-            {buttons.map((item, index) => {
-              return (
-                <View style={{}} key={index}>
-                  <TouchableOpacity
-                    onPress={() => this.onPressFun(item)}
-                    style={{
-                      height: hp('6%'),
-                      width: wp('70%'),
-                      backgroundColor: '#94C036',
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                      marginTop: 18,
-                      borderRadius: 5,
-                    }}>
-                    <View style={{}}>
-                      <Text style={{color: 'white', marginLeft: 5}}>
-                        {item.name}
-                      </Text>
-                    </View>
-                  </TouchableOpacity>
-                </View>
-              );
-            })}
-          </View>
+          {pageLoader ? (
+            <ActivityIndicator color="grey" size="large" />
+          ) : (
+            <View
+              style={{
+                alignItems: 'center',
+                paddingVertical: hp('3%'),
+                borderTopWidth: 0.2,
+                borderTopColor: '#E9E9E9',
+              }}>
+              <Text style={{color: '#656565', fontSize: 18}}>
+                {translate('Select which department you wish to stock take')}
+              </Text>
+              {buttons.map((item, index) => {
+                return (
+                  <View style={{}} key={index}>
+                    <TouchableOpacity
+                      onPress={() => this.onPressFun(item)}
+                      style={{
+                        height: hp('6%'),
+                        width: wp('70%'),
+                        backgroundColor: '#94C036',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        marginTop: 18,
+                        borderRadius: 5,
+                      }}>
+                      <View style={{}}>
+                        <Text
+                          style={{
+                            fontWeight: 'bold',
+                            color: 'white',
+                            marginLeft: 5,
+                          }}>
+                          {item.name}
+                        </Text>
+                      </View>
+                    </TouchableOpacity>
+                  </View>
+                );
+              })}
+            </View>
+          )}
         </ScrollView>
       </View>
     );
