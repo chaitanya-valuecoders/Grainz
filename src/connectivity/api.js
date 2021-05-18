@@ -295,6 +295,19 @@ export async function getNewStockTakeApi(id, date) {
   });
 }
 
+export async function getNewTopStockTakeApi(id, date, count) {
+  let url =
+    baseURL +
+    `/StockTake/top new stock?DepartmentId=${id}&StockTakeDate=${date}&count=${count}`;
+  console.log('URL', url);
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.get(url, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+}
+
 export async function getPreviousStockDatesApi(id) {
   let url =
     baseURL +

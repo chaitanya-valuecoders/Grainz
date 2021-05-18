@@ -26,6 +26,7 @@ import {
   updateStockTakeApi,
   addStockTakeApi,
   getPreviousStockDatesApi,
+  getNewTopStockTakeApi,
 } from '../../connectivity/api';
 import {translate} from '../../utils/translations';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
@@ -33,6 +34,7 @@ import moment from 'moment';
 import Modal from 'react-native-modal';
 import DropDownPicker from 'react-native-dropdown-picker';
 import CheckBox from '@react-native-community/checkbox';
+import {Calendar, CalendarList, Agenda} from 'react-native-calendars';
 
 var minTime = new Date();
 minTime.setHours(0);
@@ -71,7 +73,7 @@ class index extends Component {
           isDefault: true,
           quantity: '',
           recipeId: null,
-          stockTakeDate: '2021-05-17T06:30:00.000Z',
+          stockTakeDate: '2021-05-18T06:30:00.000Z',
           unit: 'ml',
           unitId: '',
         },
@@ -79,10 +81,14 @@ class index extends Component {
       inventory: '',
       newModalIsVisible: false,
       unitModalText: false,
-      isModalVisibleLoader: false,
-      unitText: 'Select Quantity',
       linesIndex: 0,
       editableStatus: true,
+      quantityError: false,
+      allSelected: true,
+      topSelected: false,
+      topCount: '',
+      buttonStatus: '',
+      pageDate: '',
     };
   }
 
@@ -151,10 +157,15 @@ class index extends Component {
   };
 
   handleConfirm = date => {
+    console.log('date', date);
     let newdate = moment(date).format('MM/DD/YYYY');
+    let finalPageDate = date.toISOString();
     this.setState(
       {
         finalDate: newdate,
+        topCount: '',
+        buttonStatus: '',
+        pageDate: finalPageDate,
       },
       () => this.showNewStockTake(),
     );
@@ -167,12 +178,21 @@ class index extends Component {
   };
 
   showNewStockTake() {
-    this.setState(
-      {
-        listloader: true,
-      },
-      () => this.getStockDataFun(),
-    );
+    const {topCount, buttonStatus} = this.state;
+    if (topCount) {
+      if (buttonStatus === 'Start') {
+        this.startFun();
+      } else {
+        this.endFun();
+      }
+    } else {
+      this.setState(
+        {
+          listloader: true,
+        },
+        () => this.getStockDataFun(),
+      );
+    }
   }
 
   getStockDataFun = () => {
@@ -332,17 +352,65 @@ class index extends Component {
   };
 
   openModalFun(item) {
-    this.setState(
-      {
-        pickedItem: item,
-        inventory: item.quantity && JSON.stringify(item.quantity),
-        lines: item.updateStockTakeItems
-          ? item.updateStockTakeItems
-          : this.state.lines,
-        editableStatus: item.updateStockTakeItems ? false : true,
-      },
-      () => this.openQuantityModalFun(),
-    );
+    const obj = {};
+    const finalArr = [];
+    const {pageDate} = this.state;
+
+    if (item.updateStockTakeItems) {
+      for (var i = 0; i < item.updateStockTakeItems.length; i++) {
+        finalArr.push({
+          action: 'Update',
+          convertor: 1,
+          id: null,
+          inventoryId: item.updateStockTakeItems[i].inventoryId,
+          isDefault: true,
+          quantity: JSON.stringify(item.updateStockTakeItems[i].quantity),
+          recipeId: null,
+          // stockTakeDate: '2021-05-17T06:30:00.000Z',
+          stockTakeDate: pageDate,
+          // stockTakeDate: item.updateStockTakeItems[i].stockTakeDate,
+          stockTakeInventoryId:
+            item.updateStockTakeItems[i].stockTakeInventoryId,
+          stockTakeRecipeId: null,
+          unit: item.updateStockTakeItems[i].unit,
+          unitId: item.updateStockTakeItems[i].unitId,
+        });
+      }
+      this.setState(
+        {
+          pickedItem: item,
+          inventory: item.quantity && JSON.stringify(item.quantity),
+          lines: finalArr,
+          editableStatus: item.updateStockTakeItems ? false : true,
+        },
+        () => this.openQuantityModalFun(),
+      );
+    } else {
+      finalArr.push({
+        action: 'New',
+        convertor: 1,
+        id: null,
+        inventoryId: item.inventoryId,
+        isDefault: true,
+        quantity: '',
+        recipeId: null,
+        stockTakeDate: pageDate,
+        // stockTakeDate: '2021-05-19T06:30:00.000Z',
+        // stockTakeDate: item.updateStockTakeItems[i].stockTakeDate,
+        unit: item.units[0].name,
+        unitId: item.units[0].id,
+      });
+
+      this.setState(
+        {
+          pickedItem: item,
+          inventory: item.quantity && JSON.stringify(item.quantity),
+          lines: finalArr,
+          editableStatus: item.updateStockTakeItems ? false : true,
+        },
+        () => this.openQuantityModalFun(),
+      );
+    }
   }
 
   openQuantityModalFun = () => {
@@ -356,7 +424,12 @@ class index extends Component {
   }
 
   closeNewModalFun() {
-    this.setState({newModalIsVisible: false});
+    this.setState({
+      newModalIsVisible: false,
+      topCount: '',
+      allSelected: true,
+      topSelected: false,
+    });
   }
 
   closeModalFun() {
@@ -367,28 +440,25 @@ class index extends Component {
   }
 
   addLine() {
-    // const {lines} = this.state;
-    // let list = lines;
-    // list.push({quantity: '', name: '', unit: '', inventory: '', index: 0});
-    // this.setState({lines: list});
+    const {inventory, lines, pickedItem, pageDate} = this.state;
 
-    const {inventory, lines} = this.state;
+    console.log('PICKED', pickedItem);
 
-    // let err = lines.map((item) => {
-    //   return item.quantity
-    // })
+    const unit = pickedItem.units[0].name;
+    const unitId = pickedItem.units[0].id;
 
     let obj = {
       action: 'New',
       convertor: 1,
       id: null,
-      inventoryId: '',
+      inventoryId: pickedItem.inventoryId,
       isDefault: true,
-      quantity: inventory,
+      quantity: '',
       recipeId: null,
-      stockTakeDate: '2021-05-17T06:30:00.000Z',
-      unit: '',
-      unitId: '',
+      stockTakeDate: pageDate,
+      // stockTakeDate: '2021-05-18T06:30:00.000Z',
+      unit: unit,
+      unitId: unitId,
     };
     let arrayData = [];
 
@@ -413,19 +483,6 @@ class index extends Component {
     };
     this.setState({lines: newLine});
   }
-
-  // showUnits() {
-  //   const {showUnits, pickedItem} = this.state;
-  //   let data = [];
-  //   if (showUnits == false) {
-  //     pickedItem.units.map(item => {
-  //       data.push({label: item.name, value: item.name});
-  //     });
-  //   } else {
-  //     null;
-  //   }
-  //   this.setState({units: data, showUnits: !showUnits});
-  // }
 
   sortItemsByDate(index) {
     alert('date');
@@ -479,50 +536,146 @@ class index extends Component {
   saveFun(data) {
     const {lines} = this.state;
 
-    // let payload = [
-    //   {
-    //     action: 'New',
-    //     convertor: 1,
-    //     id: null,
-    //     inventoryId: '7f4fb055-56ad-4949-9171-476c988d5c52',
-    //     isDefault: true,
-    //     quantity: 50,
-    //     recipeId: null,
-    //     stockTakeDate: '2021-05-17T06:30:00.000Z',
-    //     unit: 'ltrs',
-    //     unitId: 'd3452799-9d0f-4686-a0e1-cb5124e1f8e2',
-    //   },
-    // ];
-
     let payload = lines;
 
     console.warn('payload', payload);
+    if (this.payloadValidation()) {
+      addStockTakeApi(payload)
+        .then(res => {
+          console.log('RES', res);
+          this.setState({
+            isModalVisible: false,
+          });
+          Alert.alert('Grainz', 'Stock trade added successfully', [
+            {
+              text: 'Okay',
+              onPress: () => this.showNewStockTake(),
+            },
+          ]);
 
-    addStockTakeApi(payload)
-      .then(res => {
-        console.log('RES', res);
-        this.setState({
-          isModalVisible: false,
-        });
-        Alert.alert('Grainz', 'Stock trade added successfully', [
-          {
-            text: 'Okay',
-            onPress: () => this.showNewStockTake(),
-          },
-        ]);
-
-        // () => this.closeModalFun();
-        // () => this.showNewStockTake(departmentId, finalDate);
-      })
-      .catch(error => console.warn('fek', error));
+          // () => this.closeModalFun();
+          // () => this.showNewStockTake(departmentId, finalDate);
+        })
+        .catch(error => console.warn('fek', error));
+    }
   }
 
   startFun = () => {
-    alert('start');
+    const {topCount} = this.state;
+    let newdate = moment(new Date()).format('MM/DD/YYYY');
+    const finalDate = new Date().toISOString();
+    if (topCount) {
+      this.setState(
+        {
+          listloader: true,
+          finalDate: newdate,
+          newModalIsVisible: false,
+          buttonStatus: 'Start',
+          pageDate: finalDate,
+        },
+        () => this.getStockDataCountFun(),
+      );
+    } else {
+      this.setState(
+        {
+          listloader: true,
+          finalDate: newdate,
+          newModalIsVisible: false,
+          buttonStatus: 'Start',
+          pageDate: finalDate,
+        },
+        () => this.getStockDataFun(),
+      );
+    }
+  };
+
+  getStockDataCountFun = () => {
+    const {departmentId, finalDate, topCount} = this.state;
+    getNewTopStockTakeApi(departmentId, finalDate, topCount)
+      .then(res => {
+        this.setState({newStock: res.data});
+
+        function groupByKey(array, key) {
+          return array.reduce((hash, obj) => {
+            if (obj[key] === undefined) return hash;
+            return Object.assign(hash, {
+              [obj[key]]: (hash[obj[key]] || []).concat(obj),
+            });
+          }, {});
+        }
+
+        let groupedCategory = groupByKey(res.data, 'category');
+
+        let finalArray = Object.keys(groupedCategory).map((item, index) => {
+          return {
+            name: item,
+            id: item,
+            children: groupedCategory[item],
+          };
+        });
+
+        let childrenList = [];
+        let list = [...finalArray];
+        let newItems = [];
+        let pos = 0;
+        list.map(item => {
+          // console.warn('lll', item);
+          childrenList.push(item.children);
+          newItems.push({
+            name: item.name,
+            id: item.id,
+            position: pos,
+            children: [],
+            showChildren: false,
+            sortedAlpha: false,
+            sortedByDate: false,
+          });
+          pos = pos + 1;
+        });
+        this.setState({
+          items: newItems,
+          childrenList: childrenList,
+          listloader: false,
+          itemsStatus: true,
+        });
+      })
+      .catch(err => {
+        this.setState({
+          listloader: false,
+        });
+        console.warn('Err', err.response);
+      });
   };
 
   endFun = () => {
-    alert('End');
+    const {topCount} = this.state;
+    var tomorrow = new Date();
+    tomorrow.setDate(new Date().getDate() + 1);
+    let newdate = moment(tomorrow).format('MM/DD/YYYY');
+    const finalDate = tomorrow.toISOString();
+    if (topCount) {
+      this.setState(
+        {
+          listloader: true,
+          finalDate: newdate,
+          newModalIsVisible: false,
+          buttonStatus: 'End',
+          pageDate: finalDate,
+        },
+        () => this.getStockDataCountFun(),
+      );
+    } else {
+      this.setState(
+        {
+          listloader: true,
+          finalDate: newdate,
+          newModalIsVisible: false,
+          buttonStatus: 'End',
+          pageDate: finalDate,
+        },
+        () => this.getStockDataFun(),
+      );
+    }
   };
 
   deleteQuantityFun = item => {
@@ -540,6 +693,9 @@ class index extends Component {
 
   deleteFun = item => {
     // alert('DELETE');
+    console.log('ITEM', item);
+
+    const {pageDate} = this.state;
 
     let payload = [
       {
@@ -550,7 +706,8 @@ class index extends Component {
         isDefault: true,
         quantity: 25,
         recipeId: null,
-        stockTakeDate: item.stockTakeDate,
+        stockTakeDate: pageDate,
+        // stockTakeDate: item.stockTakeDate,
         stockTakeInventoryId: item.stockTakeInventoryId,
         stockTakeRecipeId: null,
         unit: item.unit,
@@ -560,53 +717,84 @@ class index extends Component {
 
     console.log('PAYLOAD', payload);
 
-    this.setState(
-      {
-        isModalVisibleLoader: true,
-      },
-      () =>
-        addStockTakeApi(payload)
-          .then(res => {
-            this.setState({
-              isModalVisibleLoader: false,
-              isModalVisible: false,
-              lines: [
-                {
-                  action: 'New',
-                  convertor: 1,
-                  id: null,
-                  inventoryId: '',
-                  isDefault: true,
-                  quantity: '',
-                  recipeId: null,
-                  stockTakeDate: '2021-05-17T06:30:00.000Z',
-                  unit: 'ml',
-                  unitId: '',
-                },
-              ],
-            });
-            Alert.alert('Grainz', 'Stock trade deleted successfully', [
-              {
-                text: 'Okay',
-                onPress: () => this.showNewStockTake(),
-              },
-            ]);
-          })
-          .catch(error => {
-            this.setState({
-              isModalVisibleLoader: false,
-            });
-            console.warn('DELETEerror', error.response);
-          }),
-    );
+    addStockTakeApi(payload)
+      .then(res => {
+        this.setState({
+          isModalVisible: false,
+          lines: [
+            {
+              action: 'New',
+              convertor: 1,
+              id: null,
+              inventoryId: '',
+              isDefault: true,
+              quantity: '',
+              recipeId: null,
+              stockTakeDate: pageDate,
+              // stockTakeDate: '2021-05-18T06:30:00.000Z',
+              unit: 'ml',
+              unitId: '',
+            },
+          ],
+        });
+        Alert.alert('Grainz', 'Stock trade deleted successfully', [
+          {
+            text: 'Okay',
+            onPress: () => this.showNewStockTake(),
+          },
+        ]);
+      })
+      .catch(error => {
+        console.warn('DELETEerror', error.response);
+      });
   };
 
   editQuantityFun = () => {
-    alert('EDIT');
+    this.setState({
+      editableStatus: true,
+    });
   };
 
-  deleteLineQuantityFun = () => {
-    alert('DELETE LINE');
+  payloadValidation = () => {
+    const {lines} = this.state;
+    let formIsValid = true;
+    let newArray = [...lines];
+    if (newArray.length > 0) {
+      for (let i of newArray) {
+        if (i.quantity == '') {
+          // i.error = 'Please provide email address for booking';
+          formIsValid = false;
+          this.setState({
+            quantityError: true,
+          });
+        }
+      }
+    }
+    return formIsValid;
+  };
+
+  editQuantitySaveFun = () => {
+    const {lines} = this.state;
+    let payload = lines;
+
+    console.log('PAYLOAD UPDATE', payload);
+
+    addStockTakeApi(payload)
+      .then(res => {
+        this.setState({
+          // isModalVisible: false,
+          editableStatus: false,
+        });
+        Alert.alert('Grainz', 'Stock trade updated successfully', [
+          {
+            text: 'Okay',
+            onPress: () => this.showNewStockTake(),
+          },
+        ]);
+      })
+      .catch(error => {
+        console.warn('DELETEerror', error.response);
+      });
   };
 
   editQuantityPriceFun = (index, type, value) => {
@@ -624,6 +812,7 @@ class index extends Component {
     );
     this.setState({
       lines: [...newArr],
+      quantityError: false,
     });
     // console.log('yourOrderItems', yourOrderItems);
   };
@@ -643,15 +832,10 @@ class index extends Component {
     const {lines, linesIndex, pickedItem} = this.state;
     console.log(pickedItem);
 
-    this.setState({
-      unitText: unitName,
-      unitModalText: false,
-    });
-
-    const unit = pickedItem.unit;
+    const unit = unitName;
     const unitId = item.id;
     const inventoryId = item.inventoryId;
-    const stockTakeDate = pickedItem.stockTakeLastUpdate;
+    // const stockTakeDate = pickedItem.stockTakeLastUpdate;
 
     let newArr = lines.map((item, i) =>
       linesIndex === i
@@ -665,10 +849,27 @@ class index extends Component {
         : item,
     );
     this.setState({
+      unitModalText: false,
       lines: [...newArr],
     });
     // this.setState({supplier: param, supplierId: id, supplieReference: ref});
   }
+
+  cancelEditFun = index => {
+    const {lines} = this.state;
+    console.log('INDEX', index);
+    const action = lines[0].action;
+    if (action === 'New') {
+      let temp = this.state.lines;
+      // temp.pop();
+      temp.splice(index, 1);
+      this.setState({lines: temp});
+    } else {
+      this.setState({
+        editableStatus: false,
+      });
+    }
+  };
 
   render() {
     const {
@@ -684,17 +885,20 @@ class index extends Component {
       lines,
       inventory,
       newModalIsVisible,
-      htvaIsSelected,
+      allSelected,
       listloader,
       itemsStatus,
       unitModalText,
-      isModalVisibleLoader,
-      unitText,
       linesIndex,
       editableStatus,
+      quantityError,
+      topSelected,
+      topCount,
+      buttonStatus,
+      pageDate,
     } = this.state;
 
-    console.log('Lines', lines);
+    console.log('pageDate', pageDate);
 
     return (
       <View style={{flex: 1, backgroundColor: '#fff'}}>
@@ -734,7 +938,7 @@ class index extends Component {
               <View
                 style={{
                   width: wp('80%'),
-                  height: hp('60%'),
+                  height: hp('45%'),
                   backgroundColor: '#fff',
                   alignSelf: 'center',
                 }}>
@@ -786,19 +990,66 @@ class index extends Component {
 
                       <View
                         style={{flexDirection: 'row', alignItems: 'center'}}>
-                        <Text>HTVA?</Text>
+                        <Text>All</Text>
                         <CheckBox
-                          value={htvaIsSelected}
+                          value={allSelected}
                           onValueChange={() =>
-                            this.setState({htvaIsSelected: !htvaIsSelected})
+                            this.setState({
+                              allSelected: true,
+                              topSelected: false,
+                            })
                           }
                           style={{
-                            margin: 5,
                             height: 20,
                             width: 20,
+                            marginLeft: 10,
                           }}
                         />
                       </View>
+
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          alignItems: 'center',
+                          marginTop: 10,
+                        }}>
+                        <Text>Top</Text>
+                        <CheckBox
+                          value={topSelected}
+                          onValueChange={() =>
+                            this.setState({
+                              topSelected: true,
+                              allSelected: false,
+                            })
+                          }
+                          style={{
+                            height: 20,
+                            width: 20,
+                            marginLeft: 4,
+                          }}
+                        />
+                      </View>
+
+                      {topSelected ? (
+                        <TextInput
+                          style={{
+                            paddingVertical: 10,
+                            borderColor: 'grey',
+                            borderWidth: 1,
+                            width: wp('20%'),
+                            paddingLeft: 10,
+                            marginTop: hp('2%'),
+                          }}
+                          multiline={true}
+                          numberOfLines={1}
+                          onChangeText={value => {
+                            this.setState({
+                              topCount: value,
+                            });
+                          }}
+                          value={topCount}
+                        />
+                      ) : null}
 
                       <View
                         style={{
@@ -895,7 +1146,7 @@ class index extends Component {
                 onConfirm={this.handleConfirm}
                 onCancel={this.hideDatePicker}
                 // maximumDate={tomorrow}
-                minimumDate={new Date()}
+                // minimumDate={new Date()}
               />
             </View>
             {listloader ? (
@@ -1100,7 +1351,12 @@ class index extends Component {
                                           <Text style={{fontSize: 12}}>
                                             {moment(
                                               ele.stockTakeLastUpdate,
-                                            ).format('DD/MM/YYYY')}
+                                            ).format('DD/MM/YYYY') ===
+                                            'Invalid date'
+                                              ? ''
+                                              : moment(
+                                                  ele.stockTakeLastUpdate,
+                                                ).format('DD/MM/YYYY')}
                                           </Text>
                                         </View>
                                         <View
@@ -1113,7 +1369,9 @@ class index extends Component {
                                             width: wp('40%'),
                                           }}>
                                           <Text>{ele.systemSays} </Text>
-                                          <Text>{ele.unit}</Text>
+                                          <Text>
+                                            {ele.unit ? ele.unit : 'ml'}
+                                          </Text>
                                           {/* {ele.systemSays ? (
                                               <Text>{ele.units[0].name}</Text>
                                             ) : null} */}
@@ -1134,7 +1392,9 @@ class index extends Component {
                                               this.openModalFun(ele)
                                             }
                                             style={{
-                                              backgroundColor: '#FFFF00',
+                                              backgroundColor: ele.quantity
+                                                ? '#E9ECEF'
+                                                : '#FFFF00',
                                               height: hp('4%'),
                                               width: wp('20%'),
                                               alignItems: 'center',
@@ -1148,11 +1408,13 @@ class index extends Component {
                                           <View
                                             style={{
                                               margin: 5,
-                                              width: wp('10%'),
+                                              width: wp('12%'),
                                               paddingLeft: 2,
                                               paddingHorizontal: wp('3%'),
                                             }}>
-                                            <Text>{ele.unit}</Text>
+                                            <Text>
+                                              {ele.unit ? ele.unit : 'ml'}
+                                            </Text>
                                           </View>
                                         </View>
 
@@ -1167,7 +1429,7 @@ class index extends Component {
                                           }}>
                                           <Text>{ele.correction}</Text>
                                           <Text style={{marginLeft: 5}}>
-                                            {ele.unit}
+                                            {ele.correction ? 'ml' : null}
                                           </Text>
                                         </View>
                                       </View>
@@ -1245,140 +1507,137 @@ class index extends Component {
                   <View>
                     <ScrollView
                       horizontal
-                      contentContainerStyle={{width: wp('200%')}}>
-                      {isModalVisibleLoader ? (
-                        <ActivityIndicator color="grey" size="large" />
-                      ) : (
-                        <View style={{}}>
+                      contentContainerStyle={{width: wp('230%')}}>
+                      <View style={{}}>
+                        <View
+                          style={{
+                            flexDirection: 'row',
+                            borderBottomColor: '#C9CCD7',
+                            borderBottomWidth: 2,
+                            paddingVertical: hp('3%'),
+                            marginLeft: wp('5%'),
+                          }}>
                           <View
                             style={{
-                              flexDirection: 'row',
-                              borderBottomColor: '#C9CCD7',
-                              borderBottomWidth: 2,
-                              paddingVertical: hp('3%'),
-                              marginLeft: wp('5%'),
+                              width: wp('35%'),
+                              alignItems: 'center',
                             }}>
-                            <View
+                            <Text
                               style={{
-                                width: wp('35%'),
-                                alignItems: 'center',
+                                fontWeight: 'bold',
                               }}>
-                              <Text
-                                style={{
-                                  fontWeight: 'bold',
-                                }}>
-                                Quantity
-                              </Text>
-                            </View>
-                            <View
-                              style={{
-                                width: wp('30%'),
-                                alignItems: 'center',
-                              }}>
-                              <Text
-                                style={{
-                                  fontWeight: 'bold',
-                                }}>
-                                Unit
-                              </Text>
-                            </View>
-                            <View
-                              style={{
-                                width: wp('30%'),
-                                alignItems: 'center',
-                              }}>
-                              <Text
-                                style={{
-                                  fontWeight: 'bold',
-                                }}>
-                                Inventory
-                              </Text>
-                            </View>
-                            <View
-                              style={{
-                                width: wp('30%'),
-                                alignItems: 'center',
-                              }}>
-                              <Text
-                                style={{
-                                  fontWeight: 'bold',
-                                }}>
-                                Name
-                              </Text>
-                            </View>
-                            <View
-                              style={{
-                                width: wp('30%'),
-                                alignItems: 'center',
-                                marginLeft: wp('20%'),
-                              }}>
-                              <Text
-                                style={{
-                                  fontWeight: 'bold',
-                                }}>
-                                Action
-                              </Text>
-                            </View>
+                              Quantity
+                            </Text>
                           </View>
+                          <View
+                            style={{
+                              width: wp('30%'),
+                              alignItems: 'center',
+                            }}>
+                            <Text
+                              style={{
+                                fontWeight: 'bold',
+                              }}>
+                              Unit
+                            </Text>
+                          </View>
+                          <View
+                            style={{
+                              width: wp('30%'),
+                              alignItems: 'center',
+                            }}>
+                            <Text
+                              style={{
+                                fontWeight: 'bold',
+                              }}>
+                              Inventory
+                            </Text>
+                          </View>
+                          <View
+                            style={{
+                              width: wp('30%'),
+                              alignItems: 'center',
+                            }}>
+                            <Text
+                              style={{
+                                fontWeight: 'bold',
+                              }}>
+                              Name
+                            </Text>
+                          </View>
+                          <View
+                            style={{
+                              width: wp('30%'),
+                              alignItems: 'center',
+                              marginLeft: wp('20%'),
+                            }}>
+                            <Text
+                              style={{
+                                fontWeight: 'bold',
+                              }}>
+                              Action
+                            </Text>
+                          </View>
+                        </View>
 
-                          {lines.map((item, index) => {
-                            return (
+                        {lines.map((item, index) => {
+                          return (
+                            <View
+                              style={{
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                                borderBottomColor: '#C9CCD7',
+                                borderBottomWidth: 1,
+                                marginLeft: wp('5%'),
+                              }}>
                               <View
                                 style={{
-                                  flexDirection: 'row',
+                                  width: wp('35%'),
                                   alignItems: 'center',
-                                  borderBottomColor: '#C9CCD7',
-                                  borderBottomWidth: 1,
-                                  marginLeft: wp('5%'),
+                                  marginVertical: '2%',
                                 }}>
-                                <View
-                                  style={{
-                                    width: wp('35%'),
-                                    alignItems: 'center',
-                                    marginVertical: '2%',
-                                  }}>
-                                  {editableStatus ? (
-                                    <TextInput
-                                      editable={editableStatus}
-                                      style={{
-                                        paddingVertical: 10,
-                                        borderColor: 'red',
-                                        borderWidth: 1,
-                                        width: wp('20%'),
-                                        paddingLeft: 10,
-                                      }}
-                                      multiline={true}
-                                      numberOfLines={1}
-                                      onChangeText={value => {
-                                        this.editQuantityPriceFun(
-                                          index,
-                                          'quantity',
-                                          value,
-                                        );
-                                      }}
-                                      // onChangeText={text =>
-                                      //   this.setState({inventory: text})
-                                      // }
-                                      value={item.quantity}
-                                    />
-                                  ) : (
-                                    <Text
-                                      style={{
-                                        paddingVertical: 10,
-                                        borderColor: 'red',
-                                        borderWidth: 1,
-                                        width: wp('20%'),
-                                        paddingLeft: 10,
-                                      }}>
-                                      {item.quantity}
-                                    </Text>
-                                  )}
-                                </View>
-                                <View
-                                  style={{
-                                    width: wp('30%'),
-                                    alignItems: 'center',
-                                  }}>
+                                {editableStatus ? (
+                                  <TextInput
+                                    style={{
+                                      paddingVertical: 10,
+                                      borderColor: 'red',
+                                      borderWidth: 1,
+                                      width: wp('20%'),
+                                      paddingLeft: 10,
+                                    }}
+                                    multiline={true}
+                                    numberOfLines={1}
+                                    onChangeText={value => {
+                                      this.editQuantityPriceFun(
+                                        index,
+                                        'quantity',
+                                        value,
+                                      );
+                                    }}
+                                    // onChangeText={text =>
+                                    //   this.setState({inventory: text})
+                                    // }
+                                    value={item.quantity}
+                                  />
+                                ) : (
+                                  <Text
+                                    style={{
+                                      paddingVertical: 10,
+                                      borderColor: 'red',
+                                      borderWidth: 1,
+                                      width: wp('20%'),
+                                      paddingLeft: 10,
+                                    }}>
+                                    {item.quantity}
+                                  </Text>
+                                )}
+                              </View>
+                              <View
+                                style={{
+                                  width: wp('30%'),
+                                  alignItems: 'center',
+                                }}>
+                                {editableStatus ? (
                                   <TouchableOpacity
                                     onPress={() => this.showSupplierList(index)}
                                     style={{
@@ -1387,7 +1646,7 @@ class index extends Component {
                                       flexDirection: 'row',
                                       justifyContent: 'space-between',
                                     }}>
-                                    <Text>{unitText}</Text>
+                                    <Text>{item.unit}</Text>
                                     <Image
                                       source={img.arrowDownIcon}
                                       style={{
@@ -1397,9 +1656,12 @@ class index extends Component {
                                       }}
                                     />
                                   </TouchableOpacity>
-                                </View>
+                                ) : (
+                                  <Text>{item.unit}</Text>
+                                )}
+                              </View>
 
-                                {/* <View
+                              {/* <View
                                 style={{
                                   width: wp('30%'),
                                   alignItems: 'center',
@@ -1407,7 +1669,7 @@ class index extends Component {
                                 <TouchableOpacity
                                   style={{flexDirection: 'row'}}>
                                   <Text>{item.unit}</Text> */}
-                                {/* <Image
+                              {/* <Image
                                 source={img.arrowDownIcon}
                                 style={{
                                   height: 22,
@@ -1416,42 +1678,72 @@ class index extends Component {
                                   resizeMode: 'contain',
                                 }}
                               /> */}
-                                {/* </TouchableOpacity> */}
-                                {/* {units.map(ele => {
+                              {/* </TouchableOpacity> */}
+                              {/* {units.map(ele => {
                               return (
                                 <View>
                                   <Text>{ele.label}</Text>
                                 </View>
                               );
                             })} */}
-                                {/* </View> */}
-                                <View
-                                  style={{
-                                    width: wp('30%'),
-                                    alignItems: 'center',
-                                  }}>
-                                  <Text>{item.quantity} Unit</Text>
-                                </View>
-                                <View
-                                  style={{
-                                    width: wp('30%'),
-                                    alignItems: 'center',
-                                  }}>
-                                  <Text style={{textAlign: 'center'}}>
-                                    Nick balfour
-                                  </Text>
-                                </View>
+                              {/* </View> */}
+                              <View
+                                style={{
+                                  width: wp('30%'),
+                                  alignItems: 'center',
+                                }}>
+                                <Text>
+                                  {item.quantity} {item.unit}
+                                </Text>
+                              </View>
+                              <View
+                                style={{
+                                  width: wp('30%'),
+                                  alignItems: 'center',
+                                }}>
+                                <Text style={{textAlign: 'center'}}>
+                                  Nick balfour
+                                </Text>
+                              </View>
 
+                              <View
+                                style={{
+                                  flexDirection: 'row',
+                                  alignItems: 'center',
+                                }}>
                                 <View
                                   style={{
-                                    flexDirection: 'row',
+                                    width: wp('30%'),
                                     alignItems: 'center',
                                   }}>
-                                  <View
-                                    style={{
-                                      width: wp('30%'),
-                                      alignItems: 'center',
-                                    }}>
+                                  {editableStatus ? (
+                                    <TouchableOpacity
+                                      onPress={() =>
+                                        this.editQuantitySaveFun(pickedItem)
+                                      }
+                                      style={{
+                                        paddingVertical: 5,
+                                        width: wp('20%'),
+                                        backgroundColor: '#94C01F',
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                        marginRight: 6,
+                                        borderRadius: 2,
+                                        flexDirection: 'row',
+                                      }}>
+                                      <Image
+                                        source={img.editIcon}
+                                        style={{
+                                          tintColor: 'white',
+                                          height: 16,
+                                          width: 16,
+                                          resizeMode: 'contain',
+                                          marginRight: 5,
+                                        }}
+                                      />
+                                      <Text style={{color: 'white'}}>Save</Text>
+                                    </TouchableOpacity>
+                                  ) : (
                                     <TouchableOpacity
                                       onPress={() =>
                                         this.editQuantityFun(pickedItem)
@@ -1478,20 +1770,20 @@ class index extends Component {
                                       />
                                       <Text style={{color: 'white'}}>Edit</Text>
                                     </TouchableOpacity>
-                                  </View>
+                                  )}
+                                </View>
+                                {editableStatus ? (
                                   <View
                                     style={{
                                       width: wp('30%'),
                                       alignItems: 'center',
                                     }}>
                                     <TouchableOpacity
-                                      onPress={() =>
-                                        this.deleteQuantityFun(item)
-                                      }
+                                      onPress={() => this.cancelEditFun(index)}
                                       style={{
                                         paddingVertical: 5,
                                         width: wp('20%'),
-                                        backgroundColor: 'red',
+                                        backgroundColor: '#E7943B',
                                         justifyContent: 'center',
                                         alignItems: 'center',
                                         marginRight: 6,
@@ -1509,17 +1801,57 @@ class index extends Component {
                                         }}
                                       />
                                       <Text style={{color: 'white'}}>
-                                        Delete
+                                        Cancel
                                       </Text>
                                     </TouchableOpacity>
                                   </View>
+                                ) : null}
+                                <View
+                                  style={{
+                                    width: wp('30%'),
+                                    alignItems: 'center',
+                                  }}>
+                                  <TouchableOpacity
+                                    onPress={() => this.deleteQuantityFun(item)}
+                                    style={{
+                                      paddingVertical: 5,
+                                      width: wp('20%'),
+                                      backgroundColor: 'red',
+                                      justifyContent: 'center',
+                                      alignItems: 'center',
+                                      marginRight: 6,
+                                      borderRadius: 2,
+                                      flexDirection: 'row',
+                                    }}>
+                                    <Image
+                                      source={img.cancelIcon}
+                                      style={{
+                                        tintColor: 'white',
+                                        height: 16,
+                                        width: 16,
+                                        resizeMode: 'contain',
+                                        marginRight: 5,
+                                      }}
+                                    />
+                                    <Text style={{color: 'white'}}>Delete</Text>
+                                  </TouchableOpacity>
                                 </View>
                               </View>
-                            );
-                          })}
-                        </View>
-                      )}
+                            </View>
+                          );
+                        })}
+                      </View>
                     </ScrollView>
+                    {quantityError ? (
+                      <Text
+                        style={{
+                          marginLeft: wp('6%'),
+                          color: 'red',
+                          marginTop: hp('1%'),
+                        }}>
+                        Quantity is required
+                      </Text>
+                    ) : null}
                     {unitModalText ? (
                       <View
                         style={{
@@ -1549,36 +1881,36 @@ class index extends Component {
                                     )
                                   }>
                                   <Text>{item.name}</Text>
-                                  {/* <Text>{unitText}</Text> */}
                                 </Pressable>
                               </View>
                             );
                           })}
                       </View>
                     ) : null}
-                    <View
-                      style={{
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        borderBottomColor: '#C9CCD7',
-                        borderBottomWidth: 1,
-                        padding: '2%',
-                        height: hp('8%'),
-                      }}>
-                      <TouchableOpacity
-                        onPress={() => this.addLine()}
+                    {editableStatus ? (
+                      <View
                         style={{
-                          paddingVertical: 5,
-                          width: wp('90%'),
-                          backgroundColor: '#94C01F',
                           justifyContent: 'center',
                           alignItems: 'center',
-                          borderRadius: 2,
+                          borderBottomColor: '#C9CCD7',
+                          borderBottomWidth: 1,
+                          padding: '2%',
+                          height: hp('8%'),
                         }}>
-                        <Text style={{color: 'white'}}>Add new line</Text>
-                      </TouchableOpacity>
-                    </View>
-
+                        <TouchableOpacity
+                          onPress={() => this.addLine()}
+                          style={{
+                            paddingVertical: 5,
+                            width: wp('90%'),
+                            backgroundColor: '#94C01F',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            borderRadius: 2,
+                          }}>
+                          <Text style={{color: 'white'}}>Add new line</Text>
+                        </TouchableOpacity>
+                      </View>
+                    ) : null}
                     <View
                       style={{
                         flexDirection: 'row',
