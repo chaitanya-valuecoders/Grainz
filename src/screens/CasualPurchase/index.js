@@ -38,6 +38,7 @@ import * as ImagePicker from 'react-native-image-picker';
 import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 import {translate} from '../../utils/translations';
 import ImagePicker from 'react-native-image-crop-picker';
+import Modal from 'react-native-modal';
 
 var minTime = new Date();
 minTime.setHours(0);
@@ -87,6 +88,11 @@ class index extends Component {
       orderTotal: 0,
       saveLoader: false,
       saveTouchableStatus: false,
+      imageModalStatus: false,
+      imageDesc: '',
+      imageName: '',
+      imageData: '',
+      imageShow: false,
     };
   }
 
@@ -155,9 +161,19 @@ class index extends Component {
   componentDidMount() {
     this.props.navigation.addListener('focus', () => {
       this.getCasualPurchasesData();
+      this.clearData();
     });
     this.getProfileDataFun();
   }
+
+  clearData = () => {
+    this.setState({
+      imageData: '',
+      imageDesc: '',
+      imageName: '',
+      quantityValue: '',
+    });
+  };
 
   myProfileFun = () => {
     this.props.navigation.navigate('MyProfile');
@@ -211,9 +227,13 @@ class index extends Component {
     ImagePicker.openPicker({
       width: 300,
       height: 400,
+      includeBase64: true,
       cropping: true,
     }).then(image => {
-      console.log(image);
+      this.setState({
+        imageModalStatus: true,
+        imageData: image,
+      });
     });
   }
 
@@ -265,25 +285,26 @@ class index extends Component {
       orderItemsFinal,
       orderTotal,
     } = this.state;
-    const unitIdFinal =
-      selectedItemObjects[0] && selectedItemObjects[0].units[0].id;
-    let obj = {
-      action: 'New',
-      id: '',
-      inventoryId: selectedItemObjects[0].id,
-      inventoryProductMappingId: '',
-      isCorrect: false,
-      notes: '',
-      position: arrayObjPosition,
-      quantityOrdered: quantityValue,
-      tdcVolume: 0,
-      unitId: unitIdFinal,
-      unitPrice: price,
-      name: selectedItemObjects[0].name,
-    };
+
     if (quantityValue === '' || price === '') {
       alert('Please fill all values');
     } else {
+      const unitIdFinal =
+        selectedItemObjects[0] && selectedItemObjects[0].units[0].id;
+      let obj = {
+        action: 'New',
+        id: '',
+        inventoryId: selectedItemObjects[0].id,
+        inventoryProductMappingId: '',
+        isCorrect: false,
+        notes: '',
+        position: arrayObjPosition,
+        quantityOrdered: quantityValue,
+        tdcVolume: 0,
+        unitId: unitIdFinal,
+        unitPrice: price,
+        name: selectedItemObjects[0].name,
+      };
       let arrayData = [];
 
       arrayData.push(obj);
@@ -320,6 +341,9 @@ class index extends Component {
       htvaIsSelected,
       auditIsSelected,
       orderItemsFinal,
+      imageData,
+      imageDesc,
+      imageName,
     } = this.state;
 
     let payload = {
@@ -331,16 +355,18 @@ class index extends Component {
       deliveredDate: '',
       deliveryDate: '',
       frozenTemp: 0,
-      images: [
-        {
-          action: 'New',
-          description: 'Desc',
-          id: null,
-          imageText: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAno',
-          name: 'Handshake',
-          type: 'png',
-        },
-      ],
+      images: imageData
+        ? [
+            {
+              action: 'New',
+              description: imageDesc,
+              id: null,
+              imageText: `data:image/png;base64,${imageData.data}`,
+              name: imageName,
+              type: 'png',
+            },
+          ]
+        : [],
       invoiceNumber: 0,
       isAuditComplete: auditIsSelected,
       isPlaced: false,
@@ -351,6 +377,8 @@ class index extends Component {
       placedBy: '',
       supplieReference: '',
     };
+
+    console.log('PAYLOAD', payload);
 
     if (orderItemsFinal.length === 0) {
       alert('Please enter values first');
@@ -368,6 +396,10 @@ class index extends Component {
               ]);
             })
             .catch(error => {
+              this.setState({
+                saveLoader: false,
+                saveTouchableStatus: false,
+              });
               console.warn('addfailed', error.response);
             }),
       );
@@ -463,6 +495,27 @@ class index extends Component {
     console.warn('selectedItemObjects', selectedItemObjects);
   };
 
+  setModalVisibleImage = () => {
+    this.setState({
+      imageModalStatus: false,
+    });
+  };
+
+  deleteImageFun = () => {
+    this.setState({
+      imageModalStatus: false,
+      imageData: '',
+      imageShow: false,
+    });
+  };
+
+  saveImageFun = () => {
+    this.setState({
+      imageModalStatus: false,
+      imageShow: true,
+    });
+  };
+
   render() {
     const {
       firstName,
@@ -488,8 +541,13 @@ class index extends Component {
       orderTotal,
       saveLoader,
       saveTouchableStatus,
+      imageModalStatus,
+      imageDesc,
+      imageName,
+      imageData,
+      imageShow,
     } = this.state;
-
+    console.log('IMAGE', imageData);
     return (
       <View style={{flex: 1, backgroundColor: '#fff'}}>
         <Header
@@ -1075,6 +1133,18 @@ class index extends Component {
                       </View>
                     </TouchableOpacity>
                   </View>
+                  {imageShow ? (
+                    <View style={{marginTop: 15}}>
+                      <Image
+                        style={{
+                          width: wp('60%'),
+                          height: 100,
+                          resizeMode: 'cover',
+                        }}
+                        source={{uri: imageData.path}}
+                      />
+                    </View>
+                  ) : null}
                   <View style={{margin: 15, flexDirection: 'row'}}>
                     <View style={{flex: 1}}>
                       <Text style={{}}>{translate('Note')} </Text>
@@ -1174,6 +1244,141 @@ class index extends Component {
               )}
             </View>
           )}
+          <Modal isVisible={imageModalStatus} backdropOpacity={0.35}>
+            <View
+              style={{
+                width: wp('80%'),
+                height: hp('70%'),
+                backgroundColor: '#fff',
+                alignSelf: 'center',
+              }}>
+              <View
+                style={{
+                  backgroundColor: '#412916',
+                  height: hp('7%'),
+                  flexDirection: 'row',
+                }}>
+                <View
+                  style={{
+                    flex: 3,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}>
+                  <Text style={{fontSize: 16, color: '#fff'}}>
+                    {translate('Manual Log small')} -{' '}
+                    {translate('Add new item')}
+                  </Text>
+                </View>
+                <View
+                  style={{
+                    flex: 1,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}>
+                  <TouchableOpacity
+                    onPress={() => this.setModalVisibleImage(false)}>
+                    <Image
+                      source={img.cancelIcon}
+                      style={{
+                        height: 22,
+                        width: 22,
+                        tintColor: 'white',
+                        resizeMode: 'contain',
+                      }}
+                    />
+                  </TouchableOpacity>
+                </View>
+              </View>
+              <ScrollView>
+                <View style={{padding: hp('3%')}}>
+                  <View>
+                    <Image
+                      style={{
+                        width: wp('60%'),
+                        height: 100,
+                        resizeMode: 'cover',
+                      }}
+                      source={{uri: imageData.path}}
+                    />
+                  </View>
+                  <View style={{}}>
+                    <TextInput
+                      placeholder="Enter Name"
+                      value={imageName}
+                      style={{
+                        borderWidth: 1,
+                        padding: 12,
+                        marginBottom: hp('3%'),
+                        justifyContent: 'space-between',
+                        marginTop: 20,
+                      }}
+                      onChangeText={value => {
+                        this.setState({
+                          imageName: value,
+                        });
+                      }}
+                    />
+                  </View>
+                  <View style={{}}>
+                    <TextInput
+                      placeholder="Enter Description"
+                      value={imageDesc}
+                      style={{
+                        borderWidth: 1,
+                        padding: 12,
+                        marginBottom: hp('3%'),
+                        justifyContent: 'space-between',
+                      }}
+                      onChangeText={value => {
+                        this.setState({
+                          imageDesc: value,
+                        });
+                      }}
+                    />
+                  </View>
+                  <TouchableOpacity
+                    onPress={() => this.deleteImageFun()}
+                    style={{
+                      width: wp('70%'),
+                      height: hp('5%'),
+                      alignSelf: 'flex-end',
+                      backgroundColor: 'red',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                    }}>
+                    <Text
+                      style={{
+                        color: '#fff',
+                        fontSize: 15,
+                        fontWeight: 'bold',
+                      }}>
+                      {translate('Delete')}
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => this.saveImageFun()}
+                    style={{
+                      width: wp('70%'),
+                      height: hp('5%'),
+                      alignSelf: 'flex-end',
+                      backgroundColor: '#94C036',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      marginTop: 10,
+                    }}>
+                    <Text
+                      style={{
+                        color: '#fff',
+                        fontSize: 15,
+                        fontWeight: 'bold',
+                      }}>
+                      {translate('Save')}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </ScrollView>
+            </View>
+          </Modal>
         </ScrollView>
       </View>
     );

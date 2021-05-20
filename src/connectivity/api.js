@@ -275,46 +275,12 @@ export const getOrderItemByIdApi = async id => {
   });
 };
 
-export async function getDepartmentsApi() {
-  const token = await AsyncStorage.getItem('@appToken');
-  return axios.get(baseURL + '/Lookup/Departments', {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-}
-
-export async function getNewStockTakeApi(id, date) {
-  let url =
-    baseURL + `/StockTake/new stock?DepartmentId=${id}&StockTakeDate=${date}`;
+export const getOrderImagesByIdApi = async id => {
+  let url = baseURL + `/Order/order images by id?id=${id}`;
   const token = await AsyncStorage.getItem('@appToken');
   return axios.get(url, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
   });
-}
-
-export const updateStockTakeApi = async payload => {
-  const token = await AsyncStorage.getItem('@appToken');
-  return axios.get(baseURL + '/StockTake/update stocktake', payload, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
 };
-
-
-export const addStockTakeApi = async payload => {
-  const token = await AsyncStorage.getItem('@appToken');
-  return axios.post(baseURL + '/StockTake/add stocktake', payload, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-};
-
-
-
-
-
