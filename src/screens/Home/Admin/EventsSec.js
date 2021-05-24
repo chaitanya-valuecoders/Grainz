@@ -21,23 +21,29 @@ import {
 } from 'react-native-responsive-screen';
 import {UserTokenAction} from '../../../redux/actions/UserTokenAction';
 import {getMyProfileApi} from '../../../connectivity/api';
+import Modal from 'react-native-modal';
 
-import {translate, setI18nConfig} from '../../../utils/translations';
+import {translate} from '../../../utils/translations';
 
-var minTime = new Date();
-minTime.setHours(0);
-minTime.setMinutes(0);
-minTime.setMilliseconds(0);
-
-class Inventory extends Component {
+class EventsSec extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      buttons: [],
       token: '',
+      modalVisible: false,
       firstName: '',
+      recipeLoader: false,
+      sectionData: {},
+      isMakeMeStatus: true,
+      productionDate: '',
+      recipeID: '',
+      selectedItems: [],
+      items: [],
+      departmentName: '',
+      itemTypes: '',
+      loading: false,
+      selectedItemObjects: '',
       buttonsSubHeader: [],
-      loader: true,
     };
   }
 
@@ -48,6 +54,7 @@ class Inventory extends Component {
         this.setState(
           {
             token: value,
+            recipeLoader: true,
           },
           () => this.getProfileData(),
         );
@@ -62,7 +69,7 @@ class Inventory extends Component {
       .then(res => {
         this.setState({
           firstName: res.data.firstName,
-          loader: false,
+          recipeLoader: false,
           buttonsSubHeader: [
             {name: translate('ADMIN')},
             {name: translate('Setup')},
@@ -71,43 +78,23 @@ class Inventory extends Component {
         });
       })
       .catch(err => {
-        console.warn('ERr', err.response);
         this.setState({
-          loader: false,
+          recipeLoader: false,
         });
-        Alert.alert('Grainz', 'Session Timeout', [
-          {text: 'OK', onPress: () => this.removeToken()},
-        ]);
+        console.warn('ERr', err);
       });
-  };
-
-  removeToken = async () => {
-    await AsyncStorage.removeItem('@appToken');
-    this.props.UserTokenAction(null);
   };
 
   componentDidMount() {
     this.getData();
-    this.setLanguage();
   }
-
-  setLanguage = async () => {
-    setI18nConfig();
-    const lang = await AsyncStorage.getItem('Language');
-    if (lang !== null && lang !== undefined) {
-      setI18nConfig();
-    } else {
-      await AsyncStorage.setItem('Language', 'en');
-      setI18nConfig();
-    }
-  };
 
   myProfile = () => {
     this.props.navigation.navigate('MyProfile');
   };
 
   render() {
-    const {firstName, buttonsSubHeader, loader} = this.state;
+    const {recipeLoader, firstName, buttonsSubHeader} = this.state;
 
     return (
       <View style={{flex: 1, backgroundColor: '#fff'}}>
@@ -116,14 +103,23 @@ class Inventory extends Component {
           logoutFun={this.myProfile}
           logoFun={() => this.props.navigation.navigate('HomeScreen')}
         />
-        {loader ? (
-          <ActivityIndicator size="large" color="grey" />
+        {recipeLoader ? (
+          <ActivityIndicator color="grey" />
         ) : (
           <SubHeader {...this.props} buttons={buttonsSubHeader} />
         )}
         <ScrollView
           style={{marginBottom: hp('5%')}}
-          showsVerticalScrollIndicator={false}></ScrollView>
+          showsVerticalScrollIndicator={false}>
+          <View
+            style={{
+              backgroundColor: '#412916',
+              alignItems: 'center',
+              paddingVertical: hp('3%'),
+            }}>
+            <Text style={{fontSize: 22, color: 'white'}}>Events Sec</Text>
+          </View>
+        </ScrollView>
       </View>
     );
   }
@@ -136,4 +132,4 @@ const mapStateToProps = state => {
   };
 };
 
-export default connect(mapStateToProps, {UserTokenAction})(Inventory);
+export default connect(mapStateToProps, {UserTokenAction})(EventsSec);

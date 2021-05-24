@@ -16,6 +16,7 @@ import StockScreen from '../screens/StockTake/StockScreen';
 import SalesAdminScreen from '../screens/Home/Admin/Sales';
 import AccountAdminScreen from '../screens/Home/Admin/Account';
 import EventsAdminScreen from '../screens/Home/Admin/Events';
+import EventsSecAdminScreen from '../screens/Home/Admin/EventsSec';
 import InventoryAdminScreen from '../screens/Home/Admin/Inventory';
 import OrderingAdminScreen from '../screens/Home/Admin/Ordering';
 import ReportsAdminScreen from '../screens/Home/Admin/Reports';
@@ -45,6 +46,10 @@ export default function AppNavFun() {
       <AppNav.Screen name="SalesAdminScreen" component={SalesAdminScreen} />
       <AppNav.Screen name="AccountAdminScreen" component={AccountAdminScreen} />
       <AppNav.Screen name="EventsAdminScreen" component={EventsAdminScreen} />
+      <AppNav.Screen
+        name="EventsSecAdminScreen"
+        component={EventsSecAdminScreen}
+      />
       <AppNav.Screen
         name="InventoryAdminScreen"
         component={InventoryAdminScreen}

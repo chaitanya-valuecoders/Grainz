@@ -337,3 +337,52 @@ export const addStockTakeApi = async payload => {
     },
   });
 };
+
+export const inventoryLevelsApi = async () => {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.get(baseURL + '/Inventory/inventory levels', {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+export const eventsAdminApi = async () => {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.get(baseURL + '/Event/Events', {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+export const getDepartmentsAdminApi = async () => {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.get(baseURL + '/Lookup/Departments', {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+export const getDepartmentsReportsAdminApi = async (depId, time) => {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.get(
+    baseURL +
+      `/Report/GM report by department?DepartmentId=${depId}&Type=${time}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  );
+};
+
+export const menuAnalysisAdminApi = async () => {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.get(baseURL + `/Report/Menu analysis report`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
