@@ -11,13 +11,7 @@ import {translate, setI18nConfig} from '../../utils/translations';
 class SubHeader extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      buttons: [
-        {name: translate('ADMIN')},
-        {name: translate('Setup')},
-        {name: translate('INBOX')},
-      ],
-    };
+    this.state = {};
   }
   render() {
     return (
@@ -29,15 +23,16 @@ class SubHeader extends Component {
           borderBottomColor: 'grey',
           alignItems: 'center',
         }}>
-        {this.state.buttons.map((item, index) => {
+        {this.props.buttons.map((item, index) => {
           return (
             <View
               key={index}
               style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
               <TouchableOpacity
+                onPress={() => this.props.onPressSubHeader(item, index)}
                 style={{
                   height: '50%',
-                  width: '70%',
+                  width: '75%',
                   backgroundColor: '#94C036',
                   justifyContent: 'center',
                   alignItems: 'center',
