@@ -30,6 +30,7 @@ import Modal from 'react-native-modal';
 import Accordion from 'react-native-collapsible/Accordion';
 import moment from 'moment';
 import DropDownPicker from 'react-native-dropdown-picker';
+import CheckBox from '@react-native-community/checkbox';
 
 import {translate} from '../../../utils/translations';
 
@@ -62,6 +63,8 @@ class Reports extends Component {
       gmReportsArrStatus: false,
       menuAnalysisLoader: false,
       locationName: '',
+      showSubList: false,
+      SECTIONS_SEC: [],
     };
   }
 
@@ -167,22 +170,30 @@ class Reports extends Component {
             const name = location;
 
             let finalArray = menus.map((item, index) => {
+              const finalArr = [];
+              item.categories.map(subItem => {
+                finalArr.push({
+                  title: subItem.name,
+                  content: subItem.menuItems,
+                  status: false,
+                });
+              });
+
               return {
                 title: item.name,
-                content: item.categories,
+                content: [...finalArr],
+                inUse: item.inUse,
               };
             });
 
             const result = finalArray;
 
-            this.setState(
-              {
-                SECTIONS: [...result],
-                menuAnalysisLoader: false,
-                locationName: name,
-              },
-              () => this.createSecFun(),
-            );
+            this.setState({
+              SECTIONS: [...result],
+              menuAnalysisLoader: false,
+              locationName: name,
+              SECTIONS_SEC: [...result],
+            });
           })
           .catch(err => {
             this.setState({
@@ -193,26 +204,6 @@ class Reports extends Component {
           });
       },
     );
-  };
-
-  createSecFun = () => {
-    const {SECTIONS} = this.state;
-    let secondArray =
-      SECTIONS &&
-      SECTIONS.map((item, index) => {
-        return item.content.map((secItem, secIndex) => {
-          return {
-            title: secItem.name,
-            content: secItem.menuItems,
-          };
-        });
-      });
-
-    this.setState({
-      SECTIONS_SEC: [...secondArray],
-    });
-
-    console.log('secondArray-->', secondArray);
   };
 
   _renderHeader = (section, index, isActive) => {
@@ -226,75 +217,307 @@ class Reports extends Component {
           height: 60,
           marginTop: hp('2%'),
           alignItems: 'center',
+          justifyContent: 'space-between',
         }}>
-        <Image
+        <View
           style={{
-            height: 18,
-            width: 18,
-            resizeMode: 'contain',
-            marginLeft: wp('2%'),
-          }}
-          source={isActive ? img.arrowDownIcon : img.arrowRightIcon}
-        />
-        <Text
-          style={{
-            color: '#98989B',
-            fontSize: 15,
-            fontWeight: 'bold',
-            marginLeft: wp('2%'),
+            flexDirection: 'row',
+            alignItems: 'center',
           }}>
-          {section.title}
-        </Text>
+          <Image
+            style={{
+              height: 18,
+              width: 18,
+              resizeMode: 'contain',
+              marginLeft: wp('2%'),
+            }}
+            source={isActive ? img.arrowDownIcon : img.arrowRightIcon}
+          />
+          <Text
+            style={{
+              color: '#98989B',
+              fontSize: 15,
+              fontWeight: 'bold',
+              marginLeft: wp('2%'),
+            }}>
+            {section.title}
+          </Text>
+        </View>
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+          }}>
+          <Text
+            style={{
+              color: '#98989B',
+              fontSize: 15,
+              fontWeight: 'bold',
+            }}>
+            {translate('In use')}?
+          </Text>
+          <CheckBox
+            value={section.inUse}
+            // onValueChange={() =>
+            //   this.setState({htvaIsSelected: !htvaIsSelected})
+            // }
+            style={{
+              margin: 5,
+              height: 20,
+              width: 20,
+            }}
+          />
+        </View>
       </View>
     );
   };
 
-  openListFun = () => {};
+  openListFun = (index, section, sta, item) => {
+    console.log('item', item.title);
+    this.setState(
+      {
+        finalName: item.title,
+      },
+      () => this.createDataFun(index, section, sta, item),
+    );
+  };
+
+  createDataFun = (index, section, sta, subItem) => {
+    console.log('section', section);
+    console.log('inde', index);
+    console.log('status', sta);
+    const {SECTIONS, showSubList, finalName} = this.state;
+    console.log('finalName', finalName);
+    console.log('SECTIONS', SECTIONS);
+
+    const status = true;
+    // const status = !showSubList;
+    console.log('status', status);
+
+    let newArr = section.content.map((item, i) =>
+      finalName === item.title
+        ? {
+            ...item,
+            [sta]: status,
+          }
+        : {
+            ...item,
+            [sta]: false,
+          },
+    );
+    console.log('new', newArr);
+
+    const finalArrSections = [];
+
+    SECTIONS.map((item, index) => {
+      finalArrSections.push({
+        title: item.title,
+        content: newArr,
+      });
+    });
+
+    console.log('finalArrSections', finalArrSections);
+
+    this.setState({
+      SECTIONS: [...finalArrSections],
+      showSubList: status,
+    });
+  };
 
   _renderContent = section => {
-    const {SECTIONS_SEC, activeSections} = this.state;
+    const {activeSections, showSubList} = this.state;
 
     return (
-      <View style={{}}>
+      <View>
         {section.content.map((item, index) => {
           return (
-            <TouchableOpacity
-              onPress={() => this.openListFun(index)}
-              style={{
-                borderWidth: 1,
-                padding: 5,
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                marginTop: 10,
-              }}>
-              <Text>{item.name}</Text>
-              <Image
-                source={img.arrowDownIcon}
-                style={{
-                  width: 20,
-                  height: 20,
-                  resizeMode: 'contain',
-                }}
-              />
-            </TouchableOpacity>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+              <View>
+                <TouchableOpacity
+                  onPress={() =>
+                    this.openListFun(index, section, 'status', item)
+                  }
+                  style={{
+                    borderWidth: 1,
+                    paddingVertical: 15,
+                    paddingHorizontal: 5,
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    marginTop: 10,
+                  }}>
+                  <Image
+                    source={
+                      item.status ? img.arrowDownIcon : img.arrowRightIcon
+                    }
+                    style={{
+                      width: 20,
+                      height: 20,
+                      resizeMode: 'contain',
+                    }}
+                  />
+                  <View
+                    style={{
+                      width: wp('30%'),
+                      alignItems: 'center',
+                    }}>
+                    <Text>{item.title}</Text>
+                  </View>
+                  <View
+                    style={{
+                      width: wp('30%'),
+                      alignItems: 'center',
+                    }}>
+                    <Text>Guide price</Text>
+                  </View>
+                  <View
+                    style={{
+                      width: wp('30%'),
+                      alignItems: 'center',
+                    }}>
+                    <Text>Price</Text>
+                  </View>
+                  <View
+                    style={{
+                      width: wp('30%'),
+                      alignItems: 'center',
+                    }}>
+                    <Text>TVA %</Text>
+                  </View>
+                  <View
+                    style={{
+                      width: wp('30%'),
+                      alignItems: 'center',
+                    }}>
+                    <Text>Net Revenue</Text>
+                  </View>
+                  <View
+                    style={{
+                      width: wp('30%'),
+                      alignItems: 'center',
+                    }}>
+                    <Text>Cost</Text>
+                  </View>
+                  <View
+                    style={{
+                      width: wp('30%'),
+                      alignItems: 'center',
+                    }}>
+                    <Text>Gross Margin</Text>
+                  </View>
+                  <View
+                    style={{
+                      width: wp('30%'),
+                      alignItems: 'center',
+                    }}>
+                    <Text>%</Text>
+                  </View>
+                </TouchableOpacity>
+                {item.status
+                  ? item.content.map((subItem, subIndex) => {
+                      console.log('sub-->', subItem);
+                      return (
+                        <View
+                          style={{
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            paddingVertical: 10,
+                            paddingHorizontal: 5,
+                          }}>
+                          <View style={{width: 20}} />
+                          <View
+                            style={{
+                              width: wp('30%'),
+                              alignItems: 'center',
+                            }}>
+                            <Text>{subItem.name}</Text>
+                          </View>
+                          <View
+                            style={{
+                              width: wp('30%'),
+                              alignItems: 'center',
+                            }}>
+                            <Text>
+                              €{' '}
+                              {subItem.guidePrice ? subItem.guidePrice : '0.00'}
+                            </Text>
+                          </View>
+                          <View
+                            style={{
+                              width: wp('30%'),
+                              alignItems: 'center',
+                            }}>
+                            <Text>
+                              € {subItem.price ? subItem.price : '0.00'}
+                            </Text>
+                          </View>
+                          <View
+                            style={{
+                              width: wp('30%'),
+                              alignItems: 'center',
+                            }}>
+                            <Text>€ {subItem.vat ? subItem.vat : '0.00'}</Text>
+                          </View>
+                          <View
+                            style={{
+                              width: wp('30%'),
+                              alignItems: 'center',
+                            }}>
+                            <Text>
+                              €{' '}
+                              {subItem.netRevenue ? subItem.netRevenue : '0.00'}
+                            </Text>
+                          </View>
+                          <View
+                            style={{
+                              width: wp('30%'),
+                              alignItems: 'center',
+                            }}>
+                            <Text>
+                              € {subItem.foodCost ? subItem.foodCost : '0.00'}
+                            </Text>
+                          </View>
+                          <View
+                            style={{
+                              width: wp('30%'),
+                              alignItems: 'center',
+                            }}>
+                            <Text>
+                              €{' '}
+                              {subItem.grosMargin ? subItem.grosMargin : '0.00'}
+                            </Text>
+                          </View>
+                          <View
+                            style={{
+                              width: wp('30%'),
+                              alignItems: 'center',
+                            }}>
+                            <Text>%</Text>
+                          </View>
+                        </View>
+                      );
+                    })
+                  : null}
+              </View>
+            </ScrollView>
           );
         })}
-        {/* <Accordion
-          expandMultiple
-          underlayColor="#fff"
-          sections={SECTIONS}
-          activeSections={activeSections}
-          renderHeader={this._renderHeader}
-          renderContent={this._renderContent}
-          onChange={this._updateSections}
-        /> */}
       </View>
     );
   };
 
   _updateSections = activeSections => {
+    this.setState(
+      {
+        activeSections,
+      },
+      () => this.updateSubFun(),
+    );
+  };
+
+  updateSubFun = () => {
+    const {SECTIONS_SEC} = this.state;
     this.setState({
-      activeSections,
+      SECTIONS: [...SECTIONS_SEC],
     });
   };
 
@@ -364,7 +587,6 @@ class Reports extends Component {
       periodName,
       menuAnalysisLoader,
       locationName,
-      SECTIONS_SEC,
     } = this.state;
 
     return (
@@ -541,7 +763,7 @@ class Reports extends Component {
               ) : (
                 <View style={{}}>
                   <Accordion
-                    expandMultiple
+                    // expandMultiple
                     underlayColor="#fff"
                     sections={SECTIONS}
                     activeSections={activeSections}
