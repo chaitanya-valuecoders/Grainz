@@ -52,6 +52,8 @@ class Events extends Component {
       loading: false,
       selectedItemObjects: '',
       buttonsSubHeader: [],
+      SECTIONS_BACKUP: [],
+      searchItem: '',
     };
   }
 
@@ -133,6 +135,7 @@ class Events extends Component {
         this.setState({
           SECTIONS: [...result],
           recipeLoader: false,
+          SECTIONS_BACKUP: [...result],
         });
       })
       .catch(err => {
@@ -262,6 +265,30 @@ class Events extends Component {
     });
   };
 
+  searchFun = txt => {
+    this.setState(
+      {
+        searchItem: txt,
+      },
+      () => this.filterData(txt),
+    );
+  };
+
+  filterData = text => {
+    //passing the inserted text in textinput
+    const newData = this.state.SECTIONS_BACKUP.filter(function (item) {
+      //applying filter for the inserted text in search bar
+      const itemData = item.title ? item.title.toUpperCase() : ''.toUpperCase();
+      const textData = text.toUpperCase();
+      return itemData.indexOf(textData) > -1;
+    });
+    this.setState({
+      //setting the filtered newData on datasource
+      //After setting the data it will automatically re-render the view
+      SECTIONS: newData,
+      searchItem: text,
+    });
+  };
   render() {
     const {
       recipeLoader,
@@ -270,6 +297,7 @@ class Events extends Component {
       firstName,
       buttons,
       buttonsSubHeader,
+      searchItem,
     } = this.state;
 
     return (
@@ -338,6 +366,7 @@ class Events extends Component {
           </View>
           <TextInput
             placeholder="Search"
+            value={searchItem}
             style={{
               flexDirection: 'row',
               height: hp('5%'),
@@ -348,6 +377,7 @@ class Events extends Component {
               alignSelf: 'center',
               borderColor: '#C9CCD7',
             }}
+            onChangeText={value => this.searchFun(value)}
           />
           {recipeLoader ? (
             <ActivityIndicator color="#94C036" size="large" />
