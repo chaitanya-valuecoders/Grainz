@@ -65,6 +65,12 @@ class Reports extends Component {
       locationName: '',
       showSubList: false,
       SECTIONS_SEC: [],
+      finalName: '',
+      modalVisibleSetup: false,
+      modalData: [],
+      modalLoader: false,
+      finalName: '',
+      sectionName: '',
     };
   }
 
@@ -277,6 +283,9 @@ class Reports extends Component {
     this.setState(
       {
         finalName: item.title,
+        modalVisibleSetup: true,
+        modalLoader: true,
+        sectionName: section.title,
       },
       () => this.createDataFun(index, section, sta, item),
     );
@@ -307,21 +316,29 @@ class Reports extends Component {
     );
     console.log('new', newArr);
 
-    const finalArrSections = [];
+    // const finalArrSections = [];
 
-    SECTIONS.map((item, index) => {
-      finalArrSections.push({
-        title: item.title,
-        content: newArr,
+    // SECTIONS.map((item, index) => {
+    //   finalArrSections.push({
+    //     title: item.title,
+    //     content: newArr,
+    //   });
+    // });
+
+    // console.log('finalArrSections', finalArrSections);
+
+    setTimeout(() => {
+      this.setState({
+        showSubList: status,
+        modalData: newArr,
+        modalLoader: false,
       });
-    });
+    }, 300);
 
-    console.log('finalArrSections', finalArrSections);
-
-    this.setState({
-      SECTIONS: [...finalArrSections],
-      showSubList: status,
-    });
+    // this.setState({
+    //   // SECTIONS: [...finalArrSections],
+    //   showSubList: status,
+    // });
   };
 
   _renderContent = section => {
@@ -346,9 +363,7 @@ class Reports extends Component {
                     marginTop: 10,
                   }}>
                   <Image
-                    source={
-                      item.status ? img.arrowDownIcon : img.arrowRightIcon
-                    }
+                    source={img.arrowRightIcon}
                     style={{
                       width: 20,
                       height: 20,
@@ -412,91 +427,6 @@ class Reports extends Component {
                     <Text>%</Text>
                   </View>
                 </TouchableOpacity>
-                {item.status
-                  ? item.content.map((subItem, subIndex) => {
-                      console.log('sub-->', subItem);
-                      return (
-                        <View
-                          style={{
-                            flexDirection: 'row',
-                            alignItems: 'center',
-                            paddingVertical: 10,
-                            paddingHorizontal: 5,
-                          }}>
-                          <View style={{width: 20}} />
-                          <View
-                            style={{
-                              width: wp('30%'),
-                              alignItems: 'center',
-                            }}>
-                            <Text>{subItem.name}</Text>
-                          </View>
-                          <View
-                            style={{
-                              width: wp('30%'),
-                              alignItems: 'center',
-                            }}>
-                            <Text>
-                              €{' '}
-                              {subItem.guidePrice ? subItem.guidePrice : '0.00'}
-                            </Text>
-                          </View>
-                          <View
-                            style={{
-                              width: wp('30%'),
-                              alignItems: 'center',
-                            }}>
-                            <Text>
-                              € {subItem.price ? subItem.price : '0.00'}
-                            </Text>
-                          </View>
-                          <View
-                            style={{
-                              width: wp('30%'),
-                              alignItems: 'center',
-                            }}>
-                            <Text>€ {subItem.vat ? subItem.vat : '0.00'}</Text>
-                          </View>
-                          <View
-                            style={{
-                              width: wp('30%'),
-                              alignItems: 'center',
-                            }}>
-                            <Text>
-                              €{' '}
-                              {subItem.netRevenue ? subItem.netRevenue : '0.00'}
-                            </Text>
-                          </View>
-                          <View
-                            style={{
-                              width: wp('30%'),
-                              alignItems: 'center',
-                            }}>
-                            <Text>
-                              € {subItem.foodCost ? subItem.foodCost : '0.00'}
-                            </Text>
-                          </View>
-                          <View
-                            style={{
-                              width: wp('30%'),
-                              alignItems: 'center',
-                            }}>
-                            <Text>
-                              €{' '}
-                              {subItem.grosMargin ? subItem.grosMargin : '0.00'}
-                            </Text>
-                          </View>
-                          <View
-                            style={{
-                              width: wp('30%'),
-                              alignItems: 'center',
-                            }}>
-                            <Text>%</Text>
-                          </View>
-                        </View>
-                      );
-                    })
-                  : null}
               </View>
             </ScrollView>
           );
@@ -515,9 +445,8 @@ class Reports extends Component {
   };
 
   updateSubFun = () => {
-    const {SECTIONS_SEC} = this.state;
     this.setState({
-      SECTIONS: [...SECTIONS_SEC],
+      modalData: [],
     });
   };
 
@@ -571,6 +500,15 @@ class Reports extends Component {
     );
   };
 
+  setAdminModalVisible = visible => {
+    this.setState(
+      {
+        modalVisibleSetup: visible,
+      },
+      () => this.updateSubFun(),
+    );
+  };
+
   render() {
     const {
       recipeLoader,
@@ -587,6 +525,11 @@ class Reports extends Component {
       periodName,
       menuAnalysisLoader,
       locationName,
+      modalVisibleSetup,
+      modalData,
+      modalLoader,
+      finalName,
+      sectionName,
     } = this.state;
 
     return (
@@ -597,7 +540,7 @@ class Reports extends Component {
           logoFun={() => this.props.navigation.navigate('HomeScreen')}
         />
         {recipeLoader ? (
-          <ActivityIndicator color="grey" size="small" />
+          <ActivityIndicator size="small" color="#94C036" />
         ) : (
           <SubHeader {...this.props} buttons={buttonsSubHeader} />
         )}
@@ -775,6 +718,253 @@ class Reports extends Component {
               )}
             </View>
           ) : null}
+          <Modal isVisible={modalVisibleSetup} backdropOpacity={0.35}>
+            <View
+              style={{
+                width: wp('80%'),
+                height: hp('80%'),
+                backgroundColor: '#fff',
+                alignSelf: 'center',
+              }}>
+              <View
+                style={{
+                  backgroundColor: '#412916',
+                  height: hp('7%'),
+                  flexDirection: 'row',
+                }}>
+                <View
+                  style={{
+                    flex: 3,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}>
+                  <Text style={{fontSize: 16, color: '#fff'}}>
+                    {sectionName}
+                  </Text>
+                </View>
+                <View
+                  style={{
+                    flex: 1,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}>
+                  <TouchableOpacity
+                    onPress={() => this.setAdminModalVisible(false)}>
+                    <Image
+                      source={img.cancelIcon}
+                      style={{
+                        height: 22,
+                        width: 22,
+                        tintColor: 'white',
+                        resizeMode: 'contain',
+                      }}
+                    />
+                  </TouchableOpacity>
+                </View>
+              </View>
+              <ScrollView>
+                {modalLoader ? (
+                  <ActivityIndicator size="large" color="grey" />
+                ) : (
+                  <View
+                    style={{
+                      padding: hp('3%'),
+                    }}>
+                    <ScrollView
+                      horizontal
+                      showsHorizontalScrollIndicator={false}>
+                      <View>
+                        <View
+                          style={{
+                            borderWidth: 1,
+                            paddingVertical: 15,
+                            paddingHorizontal: 5,
+                            flexDirection: 'row',
+                            justifyContent: 'space-between',
+                            marginTop: 10,
+                          }}>
+                          <Image
+                            source={img.arrowRightIcon}
+                            style={{
+                              width: 20,
+                              height: 20,
+                              resizeMode: 'contain',
+                            }}
+                          />
+                          <View
+                            style={{
+                              width: wp('30%'),
+                              alignItems: 'center',
+                            }}>
+                            <Text>{finalName}</Text>
+                          </View>
+                          <View
+                            style={{
+                              width: wp('30%'),
+                              alignItems: 'center',
+                            }}>
+                            <Text>Guide price</Text>
+                          </View>
+                          <View
+                            style={{
+                              width: wp('30%'),
+                              alignItems: 'center',
+                            }}>
+                            <Text>Price</Text>
+                          </View>
+                          <View
+                            style={{
+                              width: wp('30%'),
+                              alignItems: 'center',
+                            }}>
+                            <Text>TVA %</Text>
+                          </View>
+                          <View
+                            style={{
+                              width: wp('30%'),
+                              alignItems: 'center',
+                            }}>
+                            <Text>Net Revenue</Text>
+                          </View>
+                          <View
+                            style={{
+                              width: wp('30%'),
+                              alignItems: 'center',
+                            }}>
+                            <Text>Cost</Text>
+                          </View>
+                          <View
+                            style={{
+                              width: wp('30%'),
+                              alignItems: 'center',
+                            }}>
+                            <Text>Gross Margin</Text>
+                          </View>
+                          <View
+                            style={{
+                              width: wp('30%'),
+                              alignItems: 'center',
+                            }}>
+                            <Text>%</Text>
+                          </View>
+                        </View>
+                        <View>
+                          {modalData && modalData.length > 0
+                            ? modalData.map((item, index) => {
+                                if (item.status === true) {
+                                  return item.content.map(
+                                    (subItem, subIndex) => {
+                                      console.log('sub-->', subItem);
+                                      return (
+                                        <View
+                                          style={{
+                                            flexDirection: 'row',
+                                            alignItems: 'center',
+                                            paddingVertical: 10,
+                                            paddingHorizontal: 5,
+                                          }}>
+                                          <View style={{width: 20}} />
+                                          <View
+                                            style={{
+                                              width: wp('30%'),
+                                              alignItems: 'center',
+                                            }}>
+                                            <Text>{subItem.name}</Text>
+                                          </View>
+                                          <View
+                                            style={{
+                                              width: wp('30%'),
+                                              alignItems: 'center',
+                                            }}>
+                                            <Text>
+                                              €{' '}
+                                              {subItem.guidePrice
+                                                ? subItem.guidePrice
+                                                : '0.00'}
+                                            </Text>
+                                          </View>
+                                          <View
+                                            style={{
+                                              width: wp('30%'),
+                                              alignItems: 'center',
+                                            }}>
+                                            <Text>
+                                              €{' '}
+                                              {subItem.price
+                                                ? subItem.price
+                                                : '0.00'}
+                                            </Text>
+                                          </View>
+                                          <View
+                                            style={{
+                                              width: wp('30%'),
+                                              alignItems: 'center',
+                                            }}>
+                                            <Text>
+                                              €{' '}
+                                              {subItem.vat
+                                                ? subItem.vat
+                                                : '0.00'}
+                                            </Text>
+                                          </View>
+                                          <View
+                                            style={{
+                                              width: wp('30%'),
+                                              alignItems: 'center',
+                                            }}>
+                                            <Text>
+                                              €{' '}
+                                              {subItem.netRevenue
+                                                ? subItem.netRevenue
+                                                : '0.00'}
+                                            </Text>
+                                          </View>
+                                          <View
+                                            style={{
+                                              width: wp('30%'),
+                                              alignItems: 'center',
+                                            }}>
+                                            <Text>
+                                              €{' '}
+                                              {subItem.foodCost
+                                                ? subItem.foodCost
+                                                : '0.00'}
+                                            </Text>
+                                          </View>
+                                          <View
+                                            style={{
+                                              width: wp('30%'),
+                                              alignItems: 'center',
+                                            }}>
+                                            <Text>
+                                              €{' '}
+                                              {subItem.grosMargin
+                                                ? subItem.grosMargin
+                                                : '0.00'}
+                                            </Text>
+                                          </View>
+                                          <View
+                                            style={{
+                                              width: wp('30%'),
+                                              alignItems: 'center',
+                                            }}>
+                                            <Text>%</Text>
+                                          </View>
+                                        </View>
+                                      );
+                                    },
+                                  );
+                                }
+                              })
+                            : null}
+                        </View>
+                      </View>
+                    </ScrollView>
+                  </View>
+                )}
+              </ScrollView>
+            </View>
+          </Modal>
           {gmReportsArrStatus ? (
             <ActivityIndicator size="large" color="grey" />
           ) : (
