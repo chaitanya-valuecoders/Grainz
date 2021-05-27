@@ -1,8 +1,8 @@
 {
-    "1": {
+    "DEV": {
         "BaseURL": "https://grainzwebapid.azurewebsites.net/api"
     },
-    "2": {
-        "BaseURL": "https://grainzwebapid.azurewebsites.net/api"
+    "STAGING": {
+        "BaseURL": "https://grainzwebapiq.azurewebsites.net/api"
     }
 }

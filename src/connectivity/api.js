@@ -2,11 +2,11 @@ import axios from 'axios';
 import url from './Environment.json';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-let baseURL = url[1].BaseURL;
+let baseURL = url['STAGING'].BaseURL;
 
 export const loginApi = payload => {
   return axios.post(
-    'https://grainzwebapid.azurewebsites.net/connect/token',
+    'https://grainzwebapiq.azurewebsites.net/connect/token',
     payload,
     {
       headers: {
@@ -381,6 +381,19 @@ export const getDepartmentsReportsAdminApi = async (depId, time) => {
 export const menuAnalysisAdminApi = async () => {
   const token = await AsyncStorage.getItem('@appToken');
   return axios.get(baseURL + `/Report/Menu analysis report`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+export const salesReportAdminApi = async (startDate, endDate) => {
+  const token = await AsyncStorage.getItem('@appToken');
+  const url =
+    baseURL + `/report/sales report?StartDate=${startDate}&EndDate=${endDate}`;
+
+  console.log('URWL', url);
+  return axios.get(url, {
     headers: {
       Authorization: `Bearer ${token}`,
     },

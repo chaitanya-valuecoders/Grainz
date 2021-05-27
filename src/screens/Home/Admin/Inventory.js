@@ -411,7 +411,7 @@ class Inventory extends Component {
           <SubHeader {...this.props} buttons={buttonsSubHeader} />
         )}
         <ScrollView
-          style={{marginBottom: hp('10%')}}
+          style={{marginBottom: hp('5%')}}
           showsVerticalScrollIndicator={false}>
           <View
             style={{
