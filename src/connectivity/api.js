@@ -2,11 +2,11 @@ import axios from 'axios';
 import url from './Environment.json';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-let baseURL = url['STAGING'].BaseURL;
+let baseURL = url['DEV'].BaseURL;
 
 export const loginApi = payload => {
   return axios.post(
-    'https://grainzwebapiq.azurewebsites.net/connect/token',
+    'https://grainzwebapid.azurewebsites.net/connect/token',
     payload,
     {
       headers: {
@@ -16,6 +16,19 @@ export const loginApi = payload => {
     },
   );
 };
+
+// export const loginApi = payload => {
+//   return axios.post(
+//     'https://grainzwebapiq.azurewebsites.net/connect/token',
+//     payload,
+//     {
+//       headers: {
+//         Accept: '*/*',
+//         'Content-Type': 'application/x-www-form-urlencoded',
+//       },
+//     },
+//   );
+// };
 
 export async function getMyProfileApi() {
   const token = await AsyncStorage.getItem('@appToken');
@@ -394,6 +407,33 @@ export const salesReportAdminApi = async (startDate, endDate) => {
 
   console.log('URWL', url);
   return axios.get(url, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+export const getOrderingCountApi = async () => {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.get(baseURL + `/Order/orders count`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+export const draftOrderingApi = async () => {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.get(baseURL + `/Order/draft orders`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+export const deliveryPendingApi = async () => {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.get(baseURL + `/Order/non delivered orders`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
