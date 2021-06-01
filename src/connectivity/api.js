@@ -439,3 +439,30 @@ export const deliveryPendingApi = async () => {
     },
   });
 };
+
+export const reviewOrderApi = async () => {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.get(baseURL + `/Order/review orders`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+export const historyOrderApi = async () => {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.get(baseURL + `/Order/history orders`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+export const getCustomerDataApi = async () => {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.get(baseURL + `/Customer/get customer`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};

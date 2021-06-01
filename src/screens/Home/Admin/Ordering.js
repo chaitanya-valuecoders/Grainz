@@ -25,6 +25,8 @@ import {
   getOrderingCountApi,
   draftOrderingApi,
   deliveryPendingApi,
+  reviewOrderApi,
+  historyOrderApi,
 } from '../../../connectivity/api';
 import Modal from 'react-native-modal';
 import moment from 'moment';
@@ -53,6 +55,7 @@ class Ordering extends Component {
       modalVisibleCommon: false,
       deliveryPendingData: [],
       deliveryPendingDataBackup: [],
+      listId: '',
     };
   }
 
@@ -179,6 +182,34 @@ class Ordering extends Component {
       });
   };
 
+  getReviewOrdersData = () => {
+    reviewOrderApi()
+      .then(res => {
+        this.setState({
+          deliveryPendingData: res.data,
+          deliveryPendingDataBackup: res.data,
+          modalLoaderDrafts: false,
+        });
+      })
+      .catch(err => {
+        console.warn('err', err);
+      });
+  };
+
+  getHistoryOrdersData = () => {
+    historyOrderApi()
+      .then(res => {
+        this.setState({
+          deliveryPendingData: res.data,
+          deliveryPendingDataBackup: res.data,
+          modalLoaderDrafts: false,
+        });
+      })
+      .catch(err => {
+        console.warn('err', err);
+      });
+  };
+
   onPressFun = id => {
     if (id === 0) {
       alert('0');
@@ -187,6 +218,7 @@ class Ordering extends Component {
         {
           modalVisibleDraftOrder: true,
           modalLoaderDrafts: true,
+          listId: 1,
         },
         () => this.getDraftOrderData(),
       );
@@ -195,13 +227,28 @@ class Ordering extends Component {
         {
           modalVisibleCommon: true,
           modalLoaderDrafts: true,
+          listId: 2,
         },
         () => this.getDeliveryPendingData(),
       );
     } else if (id === 3) {
-      alert('3');
+      this.setState(
+        {
+          modalVisibleCommon: true,
+          modalLoaderDrafts: true,
+          listId: 3,
+        },
+        () => this.getReviewOrdersData(),
+      );
     } else {
-      alert('4');
+      this.setState(
+        {
+          modalVisibleCommon: true,
+          modalLoaderDrafts: true,
+          listId: 4,
+        },
+        () => this.getHistoryOrdersData(),
+      );
     }
   };
 
@@ -257,6 +304,7 @@ class Ordering extends Component {
       draftsOrderData,
       modalVisibleCommon,
       deliveryPendingData,
+      listId,
     } = this.state;
 
     return (
@@ -507,7 +555,13 @@ class Ordering extends Component {
                     justifyContent: 'center',
                   }}>
                   <Text style={{fontSize: 16, color: '#fff'}}>
-                    {translate('Pending Deliveries')}
+                    {listId === 2
+                      ? translate('Pending Deliveries')
+                      : listId === 3
+                      ? translate('Review')
+                      : listId === 4
+                      ? translate('History')
+                      : null}
                   </Text>
                 </View>
                 <View
@@ -599,7 +653,9 @@ class Ordering extends Component {
                               width: wp('30%'),
                               alignItems: 'center',
                             }}>
-                            <Text>Delivery date</Text>
+                            <Text>
+                              {listId === 2 ? 'Delivery date' : 'Order date'}
+                            </Text>
                           </View>
                           <View
                             style={{
