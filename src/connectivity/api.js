@@ -466,3 +466,12 @@ export const getCustomerDataApi = async () => {
     },
   });
 };
+
+export const updateCustomerDataApi = async payload => {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.post(baseURL + '/Customer/update customer', payload, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
