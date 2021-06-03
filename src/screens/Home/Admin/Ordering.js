@@ -212,7 +212,7 @@ class Ordering extends Component {
 
   onPressFun = id => {
     if (id === 0) {
-      alert('0');
+      this.props.navigation.navigate('OrderingSecAdminScreen');
     } else if (id === 1) {
       this.setState(
         {
