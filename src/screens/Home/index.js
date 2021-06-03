@@ -5,8 +5,9 @@ import {
   TouchableOpacity,
   Image,
   ScrollView,
-  Modal,
   ActivityIndicator,
+  Switch,
+  TextInput,
   Alert,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -20,7 +21,15 @@ import {
 } from 'react-native-responsive-screen';
 import {UserTokenAction} from '../../redux/actions/UserTokenAction';
 import {getMyProfileApi} from '../../connectivity/api';
+import Modal from 'react-native-modal';
+import moment from 'moment';
+
 import {translate, setI18nConfig} from '../../utils/translations';
+
+var minTime = new Date();
+minTime.setHours(0);
+minTime.setMinutes(0);
+minTime.setMilliseconds(0);
 
 class index extends Component {
   constructor(props) {
@@ -29,8 +38,7 @@ class index extends Component {
       buttons: [],
       token: '',
       firstName: '',
-      loader: false,
-      language: '',
+      buttonsSubHeader: [],
       loader: true,
     };
   }
@@ -95,50 +103,17 @@ class index extends Component {
             },
             // {name: translate('Events'), icon: img.addIcon, screen: 'EventsScreen'},
           ],
+          buttonsSubHeader: [
+            {name: translate('ADMIN')},
+            {name: translate('Setup')},
+            {name: translate('INBOX')},
+          ],
         });
       })
       .catch(err => {
         console.warn('ERr', err.response);
         this.setState({
           loader: false,
-          buttons: [
-            {
-              name: translate('Stock Take'),
-              icon: img.addIcon,
-              screen: 'StockTakeScreen',
-            },
-            {
-              name: translate('Mise-en-Place'),
-              icon: img.addIcon,
-              screen: 'MepScreen',
-            },
-            // {
-            //   name: translate('Recipes'),
-            //   icon: img.searchIcon,
-            //   screen: 'RecipeScreen',
-            // },
-            // {
-            //   name: translate('Menu-Items'),
-            //   icon: img.searchIcon,
-            //   screen: 'MenuItemsScreen',
-            // },
-            {
-              name: translate('Manual Log small'),
-              icon: img.addIcon,
-              screen: 'ManualLogScreen',
-            },
-            // {
-            //   name: translate('Deliveries'),
-            //   icon: img.addIcon,
-            //   screen: 'DeliveriesScreen',
-            // },
-            {
-              name: translate('Casual purchase'),
-              icon: img.addIcon,
-              screen: 'CasualPurchaseScreen',
-            },
-            // {name: translate('Events'), icon: img.addIcon, screen: 'EventsScreen'},
-          ],
         });
         Alert.alert('Grainz', 'Session Timeout', [
           {text: 'OK', onPress: () => this.removeToken()},
@@ -146,7 +121,12 @@ class index extends Component {
       });
   };
 
-  async componentDidMount() {
+  removeToken = async () => {
+    await AsyncStorage.removeItem('@appToken');
+    this.props.UserTokenAction(null);
+  };
+
+  componentDidMount() {
     this.getData();
     this.setLanguage();
   }
@@ -162,99 +142,68 @@ class index extends Component {
     }
   };
 
-  removeToken = async () => {
-    await AsyncStorage.removeItem('@appToken');
-    this.props.UserTokenAction(null);
-  };
-
   myProfile = () => {
     this.props.navigation.navigate('MyProfile');
   };
 
+  onPressFun = item => {
+    this.props.navigation.navigate(item.screen);
+  };
+
   render() {
+    const {firstName, buttons, buttonsSubHeader, loader} = this.state;
+
     return (
       <View style={{flex: 1, backgroundColor: '#fff'}}>
         <Header
-          logout={this.state.firstName}
+          logout={firstName}
           logoutFun={this.myProfile}
           logoFun={() => this.props.navigation.navigate('HomeScreen')}
         />
-        <Modal
-          animationType="fade"
-          transparent={true}
-          visible={this.state.loader}>
-          <View
-            style={{
-              flex: 1,
-              backgroundColor: 'transparent',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}>
-            <View
-              style={{
-                flexDirection: 'row',
-                backgroundColor: '#00000090',
-                alignContent: 'center',
-                justifyContent: 'center',
-                width: wp('1000%'),
-                height: hp('100%'),
-              }}>
-              <ActivityIndicator size="large" color={'#ffffff'} />
-            </View>
-          </View>
-        </Modal>
-        {/* <SubHeader /> */}
+        {loader ? (
+          <ActivityIndicator size="large" color="grey" />
+        ) : (
+          <SubHeader {...this.props} buttons={buttonsSubHeader} />
+        )}
         <ScrollView
-          style={{marginTop: hp('2%'), marginBottom: hp('2%')}}
+          style={{marginBottom: hp('5%')}}
           showsVerticalScrollIndicator={false}>
-          {this.state.buttons.map((item, index) => {
-            return (
-              <View
-                key={index}
-                style={{
-                  flex: 1,
-                }}>
-                <View
-                  style={{
-                    marginTop: hp('1%'),
-                    flex: 1,
-                  }}>
+          <View style={{justifyContent: 'center', alignItems: 'center'}}>
+            {buttons.map((item, index) => {
+              return (
+                <View style={{}} key={index}>
                   <TouchableOpacity
-                    onPress={() => this.props.navigation.navigate(item.screen)}
+                    onPress={() => this.onPressFun(item)}
                     style={{
                       flexDirection: 'row',
+                      height: hp('6%'),
+                      width: wp('70%'),
                       backgroundColor: '#94C036',
-                      marginHorizontal: wp('10%'),
                       alignItems: 'center',
-                      paddingVertical: hp('1%'),
-                      marginVertical: hp('1%'),
+                      marginTop: 20,
                     }}>
-                    <View
-                      style={{
-                        flex: 1,
-                        alignItems: 'center',
-                      }}>
+                    <View style={{}}>
                       <Image
                         source={item.icon}
                         style={{
-                          height: 35,
-                          width: 35,
+                          height: 22,
+                          width: 22,
                           tintColor: 'white',
                           resizeMode: 'contain',
+                          marginLeft: 15,
                         }}
                       />
                     </View>
-                    <View style={{flex: 4}}>
-                      <Text style={{color: 'white', fontSize: 18}}>
-                        {' '}
-                        {item.name}{' '}
+                    <View style={{}}>
+                      <Text style={{color: 'white', marginLeft: 5}}>
+                        {item.name}
                       </Text>
                     </View>
                   </TouchableOpacity>
                 </View>
-              </View>
-            );
-          })}
+              );
+            })}
+          </View>
         </ScrollView>
       </View>
     );

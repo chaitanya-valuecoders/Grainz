@@ -2,7 +2,7 @@ import axios from 'axios';
 import url from './Environment.json';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-let baseURL = url[1].BaseURL;
+let baseURL = url['DEV'].BaseURL;
 
 export const loginApi = payload => {
   return axios.post(
@@ -16,6 +16,19 @@ export const loginApi = payload => {
     },
   );
 };
+
+// export const loginApi = payload => {
+//   return axios.post(
+//     'https://grainzwebapiq.azurewebsites.net/connect/token',
+//     payload,
+//     {
+//       headers: {
+//         Accept: '*/*',
+//         'Content-Type': 'application/x-www-form-urlencoded',
+//       },
+//     },
+//   );
+// };
 
 export async function getMyProfileApi() {
   const token = await AsyncStorage.getItem('@appToken');
@@ -342,6 +355,131 @@ export const updateStockTakeApi = async payload => {
 export const addStockTakeApi = async payload => {
   const token = await AsyncStorage.getItem('@appToken');
   return axios.post(baseURL + '/StockTake/add stocktake', payload, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+export const inventoryLevelsApi = async () => {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.get(baseURL + '/Inventory/inventory levels', {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+export const eventsAdminApi = async () => {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.get(baseURL + '/Event/Events', {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+export const getDepartmentsAdminApi = async () => {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.get(baseURL + '/Lookup/Departments', {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+export const getDepartmentsReportsAdminApi = async (depId, time) => {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.get(
+    baseURL +
+      `/Report/GM report by department?DepartmentId=${depId}&Type=${time}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  );
+};
+
+export const menuAnalysisAdminApi = async () => {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.get(baseURL + `/Report/Menu analysis report`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+export const salesReportAdminApi = async (startDate, endDate) => {
+  const token = await AsyncStorage.getItem('@appToken');
+  const url =
+    baseURL + `/report/sales report?StartDate=${startDate}&EndDate=${endDate}`;
+
+  console.log('URWL', url);
+  return axios.get(url, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+export const getOrderingCountApi = async () => {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.get(baseURL + `/Order/orders count`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+export const draftOrderingApi = async () => {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.get(baseURL + `/Order/draft orders`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+export const deliveryPendingApi = async () => {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.get(baseURL + `/Order/non delivered orders`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+export const reviewOrderApi = async () => {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.get(baseURL + `/Order/review orders`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+export const historyOrderApi = async () => {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.get(baseURL + `/Order/history orders`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+export const getCustomerDataApi = async () => {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.get(baseURL + `/Customer/get customer`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+export const updateCustomerDataApi = async payload => {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.post(baseURL + '/Customer/update customer', payload, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
