@@ -12,6 +12,7 @@ import MenuItemsScreen from '../screens/MenuItems';
 import DeliveriesScreen from '../screens/Deliveries';
 import EventsScreen from '../screens/Events';
 import EditPurchase from '../screens/CasualPurchase/EditPurchase';
+import StockScreen from '../screens/StockTake/StockScreen';
 
 const AppNav = createStackNavigator();
 
@@ -33,6 +34,7 @@ export default function AppNavFun() {
       <AppNav.Screen name="DeliveriesScreen" component={DeliveriesScreen} />
       <AppNav.Screen name="EventsScreen" component={EventsScreen} />
       <AppNav.Screen name="EditPurchase" component={EditPurchase} />
+      <AppNav.Screen name="StockScreen" component={StockScreen} />
     </AppNav.Navigator>
   );
 }

@@ -1087,7 +1087,7 @@ class EditPurchase extends Component {
                   );
                 })}
               </View>
-              <View>
+              {/* <View>
                 {editDisabled ? null : (
                   <View>
                     <TouchableOpacity
@@ -1114,7 +1114,7 @@ class EditPurchase extends Component {
                     </TouchableOpacity>
                   </View>
                 )}
-              </View>
+              </View> */}
               <View style={{alignItems: 'space-between', margin: 20}}>
                 <View>
                   <Text>{translate('Total')}</Text>

@@ -3,8 +3,11 @@ import {
   View,
   Text,
   TouchableOpacity,
+<<<<<<< HEAD
   Image,
   TextInput,
+=======
+>>>>>>> 21350db41e1cd1da93184d29c7748c17038ddf78
   ScrollView,
   Pressable,
   ActivityIndicator,
@@ -19,6 +22,7 @@ import {
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
 import {UserTokenAction} from '../../redux/actions/UserTokenAction';
+<<<<<<< HEAD
 import {
   getMyProfileApi,
   getDepartmentsApi,
@@ -26,6 +30,9 @@ import {
   updateStockTakeApi,
   addStockTakeApi,
 } from '../../connectivity/api';
+=======
+import {getMyProfileApi, getDepartmentsApi} from '../../connectivity/api';
+>>>>>>> 21350db41e1cd1da93184d29c7748c17038ddf78
 import {translate} from '../../utils/translations';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import moment from 'moment';
@@ -43,6 +50,7 @@ class index extends Component {
   constructor(props) {
     super(props);
     this.state = {
+<<<<<<< HEAD
       buttons: [
         {name: translate('Bar'), id: 0},
         {name: translate('Restaurant'), id: 2},
@@ -74,6 +82,12 @@ class index extends Component {
       modalHeight: '42%',
       inventory: '0',
       newModalIsVisible: false,
+=======
+      buttons: [],
+      token: '',
+      firstName: '',
+      pageLoader: false,
+>>>>>>> 21350db41e1cd1da93184d29c7748c17038ddf78
     };
   }
 
@@ -106,6 +120,7 @@ class index extends Component {
   };
 
   getDepartmentsFun() {
+<<<<<<< HEAD
     getDepartmentsApi()
       .then(res => {
         this.setState({departments: res.data});
@@ -113,6 +128,22 @@ class index extends Component {
       .catch(error => {
         console.warn('err', error);
       });
+=======
+    this.setState(
+      {
+        pageLoader: true,
+      },
+      () =>
+        getDepartmentsApi()
+          .then(res => {
+            this.setState({buttons: res.data, pageLoader: false});
+          })
+          .catch(error => {
+            this.setState({pageLoader: false});
+            console.warn('err', error);
+          }),
+    );
+>>>>>>> 21350db41e1cd1da93184d29c7748c17038ddf78
   }
 
   componentDidMount() {
@@ -124,6 +155,7 @@ class index extends Component {
     this.props.navigation.navigate('MyProfile');
   };
 
+<<<<<<< HEAD
   showDatePickerFun = () => {
     this.setState({
       isDatePickerVisible: true,
@@ -456,6 +488,16 @@ class index extends Component {
       inventory,
       newModalIsVisible,
     } = this.state;
+=======
+  onPressFun = data => {
+    this.props.navigation.navigate('StockScreen', {
+      departmentData: data,
+    });
+  };
+
+  render() {
+    const {firstName, buttons, pageLoader} = this.state;
+>>>>>>> 21350db41e1cd1da93184d29c7748c17038ddf78
 
     return (
       <View style={{flex: 1, backgroundColor: '#fff'}}>
@@ -466,7 +508,13 @@ class index extends Component {
         />
         {/* <SubHeader /> */}
         <ScrollView style={{marginBottom: hp('5%')}}>
+<<<<<<< HEAD
           {firstPage ? (
+=======
+          {pageLoader ? (
+            <ActivityIndicator color="grey" size="large" />
+          ) : (
+>>>>>>> 21350db41e1cd1da93184d29c7748c17038ddf78
             <View
               style={{
                 alignItems: 'center',
@@ -506,6 +554,7 @@ class index extends Component {
                 );
               })}
             </View>
+<<<<<<< HEAD
           ) : null}
           {stockPage ? (
             <View>
@@ -1107,6 +1156,9 @@ class index extends Component {
               </View>
             </Modal>
           </View>
+=======
+          )}
+>>>>>>> 21350db41e1cd1da93184d29c7748c17038ddf78
         </ScrollView>
       </View>
     );
