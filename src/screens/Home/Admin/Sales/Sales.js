@@ -12,21 +12,24 @@ import {
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {connect} from 'react-redux';
-import img from '../../../constants/images';
-import SubHeader from '../../../components/SubHeader';
-import Header from '../../../components/Header';
+import img from '../../../../constants/images';
+import SubHeader from '../../../../components/SubHeader';
+import Header from '../../../../components/Header';
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
-import {UserTokenAction} from '../../../redux/actions/UserTokenAction';
-import {getMyProfileApi, salesReportAdminApi} from '../../../connectivity/api';
+import {UserTokenAction} from '../../../../redux/actions/UserTokenAction';
+import {
+  getMyProfileApi,
+  salesReportAdminApi,
+} from '../../../../connectivity/api';
 import Modal from 'react-native-modal';
 import Accordion from 'react-native-collapsible/Accordion';
 import moment from 'moment';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 
-import {translate} from '../../../utils/translations';
+import {translate} from '../../../../utils/translations';
 
 class Sales extends Component {
   constructor(props) {

@@ -13,15 +13,15 @@ import DeliveriesScreen from '../screens/Deliveries';
 import EventsScreen from '../screens/Events';
 import EditPurchase from '../screens/CasualPurchase/EditPurchase';
 import StockScreen from '../screens/StockTake/StockScreen';
-import SalesAdminScreen from '../screens/Home/Admin/Sales';
-import AccountAdminScreen from '../screens/Home/Admin/Account';
-import EventsAdminScreen from '../screens/Home/Admin/Events';
-import EventsSecAdminScreen from '../screens/Home/Admin/EventsSec';
-import InventoryAdminScreen from '../screens/Home/Admin/Inventory';
-import OrderingAdminScreen from '../screens/Home/Admin/Ordering';
-import OrderingSecAdminScreen from '../screens/Home/Admin/OrderingSec';
-import ReportsAdminScreen from '../screens/Home/Admin/Reports';
-import StaffAdminScreen from '../screens/Home/Admin/Staff';
+import SalesAdminScreen from '../screens/Home/Admin/Sales/Sales';
+import AccountAdminScreen from '../screens/Home/Admin/Account/Account';
+import EventsAdminScreen from '../screens/Home/Admin/Events/Events';
+import EventsSecAdminScreen from '../screens/Home/Admin/Events/EventsSec';
+import InventoryAdminScreen from '../screens/Home/Admin/Inventory/Inventory';
+import OrderingAdminScreen from '../screens/Home/Admin/Ordering/Ordering';
+import OrderingSecAdminScreen from '../screens/Home/Admin/Ordering/OrderingSec';
+import OrderingThreeAdminScreen from '../screens/Home/Admin/Ordering/OrderingThree';
+import ReportsAdminScreen from '../screens/Home/Admin/Reports/Reports';
 
 const AppNav = createStackNavigator();
 
@@ -60,10 +60,13 @@ export default function AppNavFun() {
         component={OrderingAdminScreen}
       />
       <AppNav.Screen name="ReportsAdminScreen" component={ReportsAdminScreen} />
-      <AppNav.Screen name="StaffAdminScreen" component={StaffAdminScreen} />
       <AppNav.Screen
         name="OrderingSecAdminScreen"
         component={OrderingSecAdminScreen}
+      />
+      <AppNav.Screen
+        name="OrderingThreeAdminScreen"
+        component={OrderingThreeAdminScreen}
       />
     </AppNav.Navigator>
   );

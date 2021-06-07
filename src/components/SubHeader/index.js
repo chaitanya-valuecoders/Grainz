@@ -38,23 +38,49 @@ class SubHeader extends Component {
           id: 3,
         },
         {
-          name: translate('Staff Costs'),
-          screen: 'StaffAdminScreen',
-          id: 4,
-        },
-        {
           name: translate('Reports & Analysis'),
           screen: 'ReportsAdminScreen',
-          id: 5,
+          id: 4,
         },
         {
           name: translate('Account Admin'),
           screen: 'AccountAdminScreen',
-          id: 6,
+          id: 5,
         },
         {
-          name: translate('Back'),
-          id: 7,
+          name: translate('Close'),
+          id: 6,
+        },
+      ],
+      setupArr: [
+        {
+          name: translate('Inventory List'),
+          screen: 'SalesAdminScreen',
+          id: 0,
+        },
+        {
+          name: translate('Suppliers'),
+          screen: 'InventoryAdminScreen',
+          id: 1,
+        },
+        {
+          name: translate('Recipes'),
+          screen: 'OrderingAdminScreen',
+          id: 2,
+        },
+        {
+          name: translate('Menu item'),
+          screen: 'EventsAdminScreen',
+          id: 3,
+        },
+        {
+          name: translate('Menus'),
+          screen: 'ReportsAdminScreen',
+          id: 4,
+        },
+        {
+          name: translate('Close'),
+          id: 5,
         },
       ],
     };
@@ -79,7 +105,7 @@ class SubHeader extends Component {
   };
 
   adminModalFun = (item, index) => {
-    if (item.id === 7) {
+    if (item.id === 6) {
       this.setAdminModalVisible(false);
     } else if (item.id === 0) {
       this.setAdminModalVisible(false);
@@ -104,14 +130,45 @@ class SubHeader extends Component {
     } else if (item.id === 4) {
       this.setAdminModalVisible(false);
       setTimeout(() => {
-        this.props.navigation.navigate('StaffAdminScreen');
+        this.props.navigation.navigate('ReportsAdminScreen');
       }, 300);
     } else if (item.id === 5) {
       this.setAdminModalVisible(false);
       setTimeout(() => {
+        this.props.navigation.navigate('AccountAdminScreen');
+      }, 300);
+    }
+  };
+
+  setupModalFun = (item, index) => {
+    if (item.id === 5) {
+      this.setAdminModalVisible(false);
+    } else if (item.id === 0) {
+      this.setAdminModalVisible(false);
+      setTimeout(() => {
+        this.props.navigation.navigate('SalesAdminScreen');
+      }, 300);
+    } else if (item.id === 1) {
+      this.setAdminModalVisible(false);
+      setTimeout(() => {
+        this.props.navigation.navigate('InventoryAdminScreen');
+      }, 300);
+    } else if (item.id === 2) {
+      this.setAdminModalVisible(false);
+      setTimeout(() => {
+        this.props.navigation.navigate('OrderingAdminScreen');
+      }, 300);
+    } else if (item.id === 3) {
+      this.setAdminModalVisible(false);
+      setTimeout(() => {
+        this.props.navigation.navigate('EventsAdminScreen');
+      }, 300);
+    } else if (item.id === 4) {
+      this.setAdminModalVisible(false);
+      setTimeout(() => {
         this.props.navigation.navigate('ReportsAdminScreen');
       }, 300);
-    } else if (item.id === 6) {
+    } else if (item.id === 5) {
       this.setAdminModalVisible(false);
       setTimeout(() => {
         this.props.navigation.navigate('AccountAdminScreen');
@@ -125,6 +182,7 @@ class SubHeader extends Component {
       modalVisibleAdmin,
       modalVisibleSetup,
       adminArr,
+      setupArr,
     } = this.state;
     return (
       <View
@@ -279,27 +337,38 @@ class SubHeader extends Component {
                         </TouchableOpacity>
                       </View>
                     </View>
-                    <ScrollView style={{marginBottom: hp('2%')}}>
+                    <ScrollView
+                      style={{marginBottom: hp('2%')}}
+                      showsVerticalScrollIndicator={false}>
                       <View
                         style={{
                           padding: hp('3%'),
                         }}>
-                        <View style={{}}>
-                          <TouchableOpacity
-                            style={{
-                              height: hp('5%'),
-                              width: wp('50%'),
-                              backgroundColor: '#94C036',
-                              alignSelf: 'center',
-                              marginTop: hp('5%'),
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                            }}>
-                            <Text style={{color: '#fff', fontSize: 16}}>
-                              {translate('Collapse All')}
-                            </Text>
-                          </TouchableOpacity>
-                        </View>
+                        {setupArr && setupArr.length > 0 ? (
+                          <View style={{}}>
+                            {setupArr.map((item, index) => {
+                              return (
+                                <TouchableOpacity
+                                  onPress={() =>
+                                    this.setupModalFun(item, index)
+                                  }
+                                  style={{
+                                    height: hp('7%'),
+                                    width: wp('70%'),
+                                    backgroundColor: '#EEEEEE',
+                                    alignSelf: 'center',
+                                    marginTop: hp('1.8%'),
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                  }}>
+                                  <Text style={{fontSize: 16}}>
+                                    {item.name}
+                                  </Text>
+                                </TouchableOpacity>
+                              );
+                            })}
+                          </View>
+                        ) : null}
                       </View>
                     </ScrollView>
                   </View>
@@ -357,16 +426,15 @@ class SubHeader extends Component {
                         <View style={{}}>
                           <TouchableOpacity
                             style={{
-                              height: hp('5%'),
-                              width: wp('50%'),
-                              backgroundColor: '#94C036',
+                              backgroundColor: '#EEEEEE',
                               alignSelf: 'center',
                               marginTop: hp('5%'),
                               alignItems: 'center',
                               justifyContent: 'center',
+                              padding: 20,
                             }}>
-                            <Text style={{color: '#fff', fontSize: 16}}>
-                              {translate('Collapse All')}
+                            <Text style={{color: 'black', fontSize: 16}}>
+                              This section is in development
                             </Text>
                           </TouchableOpacity>
                         </View>

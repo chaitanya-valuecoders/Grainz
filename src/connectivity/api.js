@@ -2,24 +2,11 @@ import axios from 'axios';
 import url from './Environment.json';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-let baseURL = url['DEV'].BaseURL;
-
-export const loginApi = payload => {
-  return axios.post(
-    'https://grainzwebapid.azurewebsites.net/connect/token',
-    payload,
-    {
-      headers: {
-        Accept: '*/*',
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-    },
-  );
-};
+let baseURL = url['STAGING'].BaseURL;
 
 // export const loginApi = payload => {
 //   return axios.post(
-//     'https://grainzwebapiq.azurewebsites.net/connect/token',
+//     'https://grainzwebapid.azurewebsites.net/connect/token',
 //     payload,
 //     {
 //       headers: {
@@ -29,6 +16,19 @@ export const loginApi = payload => {
 //     },
 //   );
 // };
+
+export const loginApi = payload => {
+  return axios.post(
+    'https://grainzwebapiq.azurewebsites.net/connect/token',
+    payload,
+    {
+      headers: {
+        Accept: '*/*',
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+    },
+  );
+};
 
 export async function getMyProfileApi() {
   const token = await AsyncStorage.getItem('@appToken');
@@ -474,4 +474,85 @@ export const updateCustomerDataApi = async payload => {
       Authorization: `Bearer ${token}`,
     },
   });
+};
+
+export const getSupplierListAdminApi = async () => {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.get(baseURL + `/Supplier/Supplier list`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+export const getCurrentLocUsersAdminApi = async () => {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.get(baseURL + `/User/get current location users`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+export const clonePreviousApi = async supplierId => {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.get(
+    baseURL + `/Order/orders by supplier?SupplierId=${supplierId}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  );
+};
+
+export const inventoryListAdminApi = async supplierId => {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.get(
+    baseURL +
+      `/InventoryProductMapping/Inventory product mappings by supplierId?supplierId=${supplierId}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  );
+};
+
+export const supplierAdminApi = async supplierId => {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.get(
+    baseURL + `/Product/Products by supplier id?SupplierId=${supplierId}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  );
+};
+
+export const unMapProductApi = async payload => {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.post(
+    baseURL + '/InventoryProductMapping/remove product mapping',
+    payload,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  );
+};
+
+export const updateInventoryProductApi = async payload => {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.post(
+    baseURL + '/InventoryProductMapping/update custom fields',
+    payload,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  );
 };
