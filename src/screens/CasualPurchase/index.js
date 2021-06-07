@@ -34,14 +34,14 @@ import {
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 // import ImagePicker from 'react-native-image-picker';
-import * as ImagePicker from 'react-native-image-picker';
+// import * as ImagePicker from 'react-native-image-picker';
 import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 import {translate} from '../../utils/translations';
 import ImagePicker from 'react-native-image-crop-picker';
 import Modal from 'react-native-modal';
 
 var minTime = new Date();
-minTime.setHours(0);
+minTime.setHours(0); 
 minTime.setMinutes(0);
 minTime.setMilliseconds(0);
 

@@ -219,6 +219,16 @@ export async function getSupplierListApi() {
   });
 }
 
+export const getSupplierDetailsApi = async id => {
+  let url = baseURL + `/Supplier/Supplier details?Id=${id}`;
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.get(url, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
 // export const deleteOrder = async id => {
 //   const token = await AsyncStorage.getItem('@appToken');
 //   return axios.post(baseURL + `/Order/Delete order?Id=5bbb87d8-ce2f-4347-a678-e228310e5e8a`, {

@@ -16,6 +16,37 @@ class SubHeader extends Component {
       modalVisibleInbox: false,
       modalVisibleAdmin: false,
       modalVisibleSetup: false,
+      setupArr: [
+        {
+          name: translate('Inventory List'),
+          screen: 'InventorySetupScreen',
+          id: 0,
+        },
+        {
+          name: translate('Suppliers'),
+          screen: 'SupplierSetupScreen',
+          id: 1,
+        },
+        {
+          name: translate('Recipes'),
+          screen: 'RecipeSetupScreen',
+          id: 2,
+        },
+        {
+          name: translate('Menu Items'),
+          screen: 'MenuItemSetupScreen',
+          id: 3,
+        },
+        {
+          name: translate('Menus'),
+          screen: 'MenuSetupScreen',
+          id: 4,
+        },
+        {
+          name: translate('Back'),
+          id: 5,
+        },
+      ],
       adminArr: [
         {
           name: translate('Sales'),
@@ -67,6 +98,37 @@ class SubHeader extends Component {
       this.setState({modalVisibleSetup: true});
     } else {
       this.setState({modalVisibleInbox: true});
+    }
+  };
+
+  setupModalFun = (item, index) => {
+    if (item.id === 5) {
+      this.setAdminModalVisible(false);
+    } else if (item.id === 0) {
+      this.setAdminModalVisible(false);
+      setTimeout(() => {
+        this.props.navigation.navigate('InventorySetupScreen');
+      }, 300);
+    } else if (item.id === 1) {
+      this.setAdminModalVisible(false);
+      setTimeout(() => {
+        this.props.navigation.navigate('SupplierSetupScreen');
+      }, 300);
+    } else if (item.id === 2) {
+      this.setAdminModalVisible(false);
+      setTimeout(() => {
+        this.props.navigation.navigate('RecipeSetupScreen');
+      }, 300);
+    } else if (item.id === 3) {
+      this.setAdminModalVisible(false);
+      setTimeout(() => {
+        this.props.navigation.navigate('MenuItemSetupScreen');
+      }, 300);
+    } else if (item.id === 4) {
+      this.setAdminModalVisible(false);
+      setTimeout(() => {
+        this.props.navigation.navigate('MenuSetupScreen');
+      }, 300);
     }
   };
 
@@ -125,6 +187,7 @@ class SubHeader extends Component {
       modalVisibleAdmin,
       modalVisibleSetup,
       adminArr,
+      setupArr,
     } = this.state;
     return (
       <View
@@ -284,7 +347,7 @@ class SubHeader extends Component {
                         style={{
                           padding: hp('3%'),
                         }}>
-                        <View style={{}}>
+                        {/* <View style={{}}>
                           <TouchableOpacity
                             style={{
                               height: hp('5%'),
@@ -299,6 +362,36 @@ class SubHeader extends Component {
                               {translate('Collapse All')}
                             </Text>
                           </TouchableOpacity>
+                        </View> */}
+                        <View
+                          style={{
+                            padding: hp('3%'),
+                          }}>
+                          {setupArr && setupArr.length > 0 ? (
+                            <View style={{}}>
+                              {setupArr.map((item, index) => {
+                                return (
+                                  <TouchableOpacity
+                                    onPress={() =>
+                                      this.setupModalFun(item, index)
+                                    }
+                                    style={{
+                                      height: hp('7%'),
+                                      width: wp('70%'),
+                                      backgroundColor: '#EEEEEE',
+                                      alignSelf: 'center',
+                                      marginTop: hp('1.8%'),
+                                      alignItems: 'center',
+                                      justifyContent: 'center',
+                                    }}>
+                                    <Text style={{fontSize: 16}}>
+                                      {item.name}
+                                    </Text>
+                                  </TouchableOpacity>
+                                );
+                              })}
+                            </View>
+                          ) : null}
                         </View>
                       </View>
                     </ScrollView>
