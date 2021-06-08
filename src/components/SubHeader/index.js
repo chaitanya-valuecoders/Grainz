@@ -55,27 +55,27 @@ class SubHeader extends Component {
       setupArr: [
         {
           name: translate('Inventory List'),
-          screen: 'SalesAdminScreen',
+          screen: 'InventorySetupScreen',
           id: 0,
         },
         {
           name: translate('Suppliers'),
-          screen: 'InventoryAdminScreen',
+          screen: 'SupplierScreen',
           id: 1,
         },
         {
           name: translate('Recipes'),
-          screen: 'OrderingAdminScreen',
+          screen: 'RecipeSetupScreen',
           id: 2,
         },
         {
           name: translate('Menu item'),
-          screen: 'EventsAdminScreen',
+          screen: 'MenuItemScreen',
           id: 3,
         },
         {
           name: translate('Menus'),
-          screen: 'ReportsAdminScreen',
+          screen: 'MenusScreen',
           id: 4,
         },
         {
@@ -146,32 +146,27 @@ class SubHeader extends Component {
     } else if (item.id === 0) {
       this.setAdminModalVisible(false);
       setTimeout(() => {
-        this.props.navigation.navigate('SalesAdminScreen');
+        this.props.navigation.navigate('InventorySetupScreen');
       }, 300);
     } else if (item.id === 1) {
       this.setAdminModalVisible(false);
       setTimeout(() => {
-        this.props.navigation.navigate('InventoryAdminScreen');
+        this.props.navigation.navigate('SupplierScreen');
       }, 300);
     } else if (item.id === 2) {
       this.setAdminModalVisible(false);
       setTimeout(() => {
-        this.props.navigation.navigate('OrderingAdminScreen');
+        this.props.navigation.navigate('RecipeSetupScreen');
       }, 300);
     } else if (item.id === 3) {
       this.setAdminModalVisible(false);
       setTimeout(() => {
-        this.props.navigation.navigate('EventsAdminScreen');
+        this.props.navigation.navigate('MenuItemScreen');
       }, 300);
     } else if (item.id === 4) {
       this.setAdminModalVisible(false);
       setTimeout(() => {
-        this.props.navigation.navigate('ReportsAdminScreen');
-      }, 300);
-    } else if (item.id === 5) {
-      this.setAdminModalVisible(false);
-      setTimeout(() => {
-        this.props.navigation.navigate('AccountAdminScreen');
+        this.props.navigation.navigate('MenusScreen');
       }, 300);
     }
   };

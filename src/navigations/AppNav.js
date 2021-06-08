@@ -22,6 +22,11 @@ import OrderingAdminScreen from '../screens/Home/Admin/Ordering/Ordering';
 import OrderingSecAdminScreen from '../screens/Home/Admin/Ordering/OrderingSec';
 import OrderingThreeAdminScreen from '../screens/Home/Admin/Ordering/OrderingThree';
 import ReportsAdminScreen from '../screens/Home/Admin/Reports/Reports';
+import InventorySetupScreen from '../screens/Home/Setup/Inventory/InventorySetup';
+import MenuItemScreen from '../screens/Home/Setup/MenuItem/MenuItem';
+import MenusScreen from '../screens/Home/Setup/Menus/Menus';
+import RecipeSetupScreen from '../screens/Home/Setup/Recipe/Recipe';
+import SupplierScreen from '../screens/Home/Setup/Supplier/Supplier';
 
 const AppNav = createStackNavigator();
 
@@ -68,6 +73,14 @@ export default function AppNavFun() {
         name="OrderingThreeAdminScreen"
         component={OrderingThreeAdminScreen}
       />
+      <AppNav.Screen
+        name="InventorySetupScreen"
+        component={InventorySetupScreen}
+      />
+      <AppNav.Screen name="MenuItemScreen" component={MenuItemScreen} />
+      <AppNav.Screen name="MenusScreen" component={MenusScreen} />
+      <AppNav.Screen name="RecipeSetupScreen" component={RecipeSetupScreen} />
+      <AppNav.Screen name="SupplierScreen" component={SupplierScreen} />
     </AppNav.Navigator>
   );
 }
