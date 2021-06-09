@@ -18,8 +18,7 @@ class index extends Component {
             flexDirection: 'row',
             justifyContent: 'center',
             alignItems: 'center',
-            borderBottomWidth: 0.5,
-            backgroundColor: 'red',
+            backgroundColor: '#fff',
           }}>
           <TouchableOpacity
             onPress={this.props.logoFun}
@@ -36,12 +35,25 @@ class index extends Component {
               }}
             />
           </TouchableOpacity>
-          <View style={{flex: 1}}>
-            <TouchableOpacity onPress={this.props.logoutFun}>
-              <Text style={{fontSize: 20, color: 'grey', textAlign: 'center'}}>
+          <View
+            style={{
+              flex: 1,
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}>
+            <TouchableOpacity
+              onPress={this.props.logoutFun}
+              style={{
+                width: 40,
+                height: 40,
+                borderRadius: 60 / 2,
+                backgroundColor: 'red',
+                borderColor: 'black',
+              }}>
+              {/* <Text style={{fontSize: 20, color: 'grey', textAlign: 'center'}}>
                 {' '}
                 {this.props.logout}{' '}
-              </Text>
+              </Text> */}
             </TouchableOpacity>
           </View>
         </View>

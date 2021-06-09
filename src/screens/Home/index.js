@@ -9,6 +9,7 @@ import {
   Switch,
   TextInput,
   Alert,
+  FlatList,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {connect} from 'react-redux';
@@ -21,6 +22,7 @@ import {
 } from 'react-native-responsive-screen';
 import {UserTokenAction} from '../../redux/actions/UserTokenAction';
 import {getMyProfileApi} from '../../connectivity/api';
+import styles from './style';
 import Modal from 'react-native-modal';
 import moment from 'moment';
 
@@ -68,12 +70,12 @@ class index extends Component {
           buttons: [
             {
               name: translate('Stock Take'),
-              icon: img.addIcon,
+              icon: img.stokeTakeIcon,
               screen: 'StockTakeScreen',
             },
             {
               name: translate('Mise-en-Place'),
-              icon: img.addIcon,
+              icon: img.miscIcon,
               screen: 'MepScreen',
             },
             // {
@@ -88,7 +90,7 @@ class index extends Component {
             // },
             {
               name: translate('Manual Log small'),
-              icon: img.addIcon,
+              icon: img.ManualIcon,
               screen: 'ManualLogScreen',
             },
             // {
@@ -98,7 +100,7 @@ class index extends Component {
             // },
             {
               name: translate('Casual purchase'),
-              icon: img.addIcon,
+              icon: img.CasualIcon,
               screen: 'CasualPurchaseScreen',
             },
             // {name: translate('Events'), icon: img.addIcon, screen: 'EventsScreen'},
@@ -156,7 +158,7 @@ class index extends Component {
     return (
       <View style={{flex: 1, backgroundColor: '#F0F4FE'}}>
         <Header
-          logout={firstName}
+          // logout={firstName}
           logoutFun={this.myProfile}
           logoFun={() => this.props.navigation.navigate('HomeScreen')}
         />
@@ -165,11 +167,59 @@ class index extends Component {
         ) : (
           <SubHeader {...this.props} buttons={buttonsSubHeader} />
         )}
-        <ScrollView
-          style={{marginBottom: hp('5%')}}
-          showsVerticalScrollIndicator={false}>
-          <View style={{justifyContent: 'center', alignItems: 'center'}}>
-            {buttons.map((item, index) => {
+
+        <View
+          style={{
+            marginTop: hp('2%'),
+          }}>
+          <FlatList
+            data={buttons}
+            renderItem={({item}) => (
+              <View style={styles.itemContainer}>
+                <TouchableOpacity
+                  onPress={() => this.onPressFun(item)}
+                  style={{
+                    backgroundColor: '#fff',
+                    flex: 1,
+                    margin: 10,
+                    borderRadius: 8,
+                    padding: 10,
+                  }}>
+                  <View
+                    style={{
+                      flex: 1,
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                    }}>
+                    <Image
+                      source={item.icon}
+                      style={{
+                        height: 30,
+                        width: 30,
+                        resizeMode: 'contain',
+                      }}
+                    />
+                  </View>
+                  <View
+                    style={{
+                      flex: 1,
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                    }}>
+                    <Text
+                      style={{fontSize: 13, textAlign: 'center'}}
+                      numberOfLines={1}>
+                      {' '}
+                      {item.name}
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              </View>
+            )}
+            keyExtractor={item => item.id}
+            numColumns={3}
+          />
+          {/* {buttons.map((item, index) => {
               return (
                 <View style={{}} key={index}>
                   <TouchableOpacity
@@ -202,9 +252,8 @@ class index extends Component {
                   </TouchableOpacity>
                 </View>
               );
-            })}
-          </View>
-        </ScrollView>
+            })} */}
+        </View>
       </View>
     );
   }

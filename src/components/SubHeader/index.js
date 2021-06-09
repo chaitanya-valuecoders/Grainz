@@ -184,9 +184,10 @@ class SubHeader extends Component {
         style={{
           height: hp('12%'),
           flexDirection: 'row',
-          borderBottomWidth: 1,
+          borderBottomWidth: 0.5,
           borderBottomColor: 'grey',
           alignItems: 'center',
+          marginHorizontal: wp('5%'),
         }}>
         {this.props.buttons.map((item, index) => {
           return (
@@ -196,12 +197,12 @@ class SubHeader extends Component {
               <TouchableOpacity
                 onPress={() => this.subHeaderFun(item, index)}
                 style={{
-                  height: '50%',
-                  width: '75%',
-                  backgroundColor: '#94C036',
+                  height: '55%',
+                  width: '85%',
+                  backgroundColor: '#9AC33F',
                   justifyContent: 'center',
                   alignItems: 'center',
-                  borderRadius: 5,
+                  borderRadius: 100,
                 }}>
                 <Text style={{color: 'white'}}>{item.name}</Text>
               </TouchableOpacity>
