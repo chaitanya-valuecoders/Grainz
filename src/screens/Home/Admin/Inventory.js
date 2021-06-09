@@ -20,7 +20,12 @@ import {
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
 import {UserTokenAction} from '../../../redux/actions/UserTokenAction';
-import {getMyProfileApi, inventoryLevelsApi} from '../../../connectivity/api';
+import {
+  getMyProfileApi,
+  inventoryLevelsApi,
+  getInventoryCategoriesByDepartmentApi,
+  getDepartmentsAdminApi,
+} from '../../../connectivity/api';
 import Modal from 'react-native-modal';
 import Accordion from 'react-native-collapsible/Accordion';
 import moment from 'moment';
@@ -54,6 +59,9 @@ class Inventory extends Component {
       modalData: [],
       modalLoader: false,
       sectionName: '',
+      list: [],
+      departments: [],
+      childrenList: [],
     };
   }
 
@@ -396,6 +404,8 @@ class Inventory extends Component {
       modalLoader,
       finalName,
       sectionName,
+      list,
+      departments,
     } = this.state;
 
     return (
@@ -440,6 +450,41 @@ class Inventory extends Component {
               </TouchableOpacity>
             </View>
           </View>
+          <View style={{marginLeft: '2%'}}>
+            {list.map(item => {
+              return (
+                <View>
+                  <TouchableOpacity
+                    style={{
+                      margin: 5,
+                      backgroundColor: '#E7E7E7',
+                      width: wp('90%'),
+                      paddingVertical: hp('1.8%'),
+                      alignItems: 'center',
+                      flexDirection: 'row',
+                    }}
+                    onPress={() =>
+                      this.getInventoryCategoriesByDepartment(item)
+                    }>
+                    {/* {showCategories} */}
+                    <View style={{}}>
+                      <Text style={{marginLeft: 2, color: '#646464'}}>
+                        {item.departmentName}
+                      </Text>
+                    </View>
+                  </TouchableOpacity>
+                  {item.children.map(ele => {
+                    return (
+                      <View>
+                        <Text>{ele.name}</Text>
+                      </View>
+                    );
+                  })}
+                </View>
+              );
+            })}
+          </View>
+
           {recipeLoader ? (
             <ActivityIndicator color="#94C036" size="large" />
           ) : (

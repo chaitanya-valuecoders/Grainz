@@ -495,3 +495,15 @@ export const updateCustomerDataApi = async payload => {
     },
   });
 };
+
+
+export const getInventoryCategoriesByDepartmentApi = async id => {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.get(baseURL + `/Lookup/Inventory categories by department?DepartmentId=${id}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+
