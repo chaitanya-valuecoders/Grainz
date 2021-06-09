@@ -496,14 +496,128 @@ export const updateCustomerDataApi = async payload => {
   });
 };
 
+<<<<<<< HEAD
 
 export const getInventoryCategoriesByDepartmentApi = async id => {
   const token = await AsyncStorage.getItem('@appToken');
   return axios.get(baseURL + `/Lookup/Inventory categories by department?DepartmentId=${id}`, {
+=======
+export const getSupplierListAdminApi = async () => {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.get(baseURL + `/Supplier/Supplier list`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
   });
 };
 
+export const getCurrentLocUsersAdminApi = async () => {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.get(baseURL + `/User/get current location users`, {
+>>>>>>> 6bf3dd4eeea276944521f74dac0cfcf82a537022
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
 
+<<<<<<< HEAD
+
+=======
+export const clonePreviousApi = async supplierId => {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.get(
+    baseURL + `/Order/orders by supplier?SupplierId=${supplierId}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  );
+};
+
+export const inventoryListAdminApi = async supplierId => {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.get(
+    baseURL +
+      `/InventoryProductMapping/Inventory product mappings by supplierId?supplierId=${supplierId}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  );
+};
+
+export const supplierAdminApi = async supplierId => {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.get(
+    baseURL + `/Product/Products by supplier id?SupplierId=${supplierId}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  );
+};
+
+export const unMapProductApi = async payload => {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.post(
+    baseURL + '/InventoryProductMapping/remove product mapping',
+    payload,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  );
+};
+
+export const updateInventoryProductApi = async payload => {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.post(
+    baseURL + '/InventoryProductMapping/update custom fields',
+    payload,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  );
+};
+
+export const lookupDepartmentsApi = async () => {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.get(baseURL + `/Lookup/Departments`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+export const lookupCategoriesApi = async deptId => {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.get(
+    baseURL +
+      `/Lookup/Inventory categories by department?DepartmentId=${deptId}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  );
+};
+
+export const lookupInsideCategoriesApi = async catId => {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.get(
+    baseURL + `/Inventory/inventory levels?CategoryId=${catId}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  );
+};
+>>>>>>> 6bf3dd4eeea276944521f74dac0cfcf82a537022

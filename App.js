@@ -42,9 +42,9 @@ class App extends Component {
     return (
       <SafeAreaView style={{flex: 1}}>
         <StatusBar
-          animated={true}
-          backgroundColor="#fff"
-          barStyle="dark-content"
+          backgroundColor={'red'}
+          barStyle={'dark-content'}
+          translucent={false}
         />
         <NavigationContainer>
           <Provider store={store}>

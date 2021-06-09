@@ -154,7 +154,7 @@ class index extends Component {
     const {firstName, buttons, buttonsSubHeader, loader} = this.state;
 
     return (
-      <View style={{flex: 1, backgroundColor: '#fff'}}>
+      <View style={{flex: 1, backgroundColor: '#F0F4FE'}}>
         <Header
           logout={firstName}
           logoutFun={this.myProfile}

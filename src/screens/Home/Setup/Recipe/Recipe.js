@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import {View, Text} from 'react-native';
 
-class Staff extends Component {
+class Recipe extends Component {
   constructor(props) {
     super(props);
     this.state = {};
@@ -10,10 +10,10 @@ class Staff extends Component {
   render() {
     return (
       <View>
-        <Text> Staff </Text>
+        <Text> Recipe </Text>
       </View>
     );
   }
 }
 
-export default Staff;
+export default Recipe;

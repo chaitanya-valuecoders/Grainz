@@ -19,6 +19,7 @@ class index extends Component {
             justifyContent: 'center',
             alignItems: 'center',
             borderBottomWidth: 0.5,
+            backgroundColor: 'red',
           }}>
           <TouchableOpacity
             onPress={this.props.logoFun}

@@ -12,25 +12,25 @@ import {
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {connect} from 'react-redux';
-import img from '../../../constants/images';
-import SubHeader from '../../../components/SubHeader';
-import Header from '../../../components/Header';
+import img from '../../../../constants/images';
+import SubHeader from '../../../../components/SubHeader';
+import Header from '../../../../components/Header';
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
-import {UserTokenAction} from '../../../redux/actions/UserTokenAction';
+import {UserTokenAction} from '../../../../redux/actions/UserTokenAction';
 import {
   getMyProfileApi,
   getCustomerDataApi,
   updateCustomerDataApi,
-} from '../../../connectivity/api';
+} from '../../../../connectivity/api';
 import CheckBox from '@react-native-community/checkbox';
 import Modal from 'react-native-modal';
 import Accordion from 'react-native-collapsible/Accordion';
 import moment from 'moment';
 
-import {translate} from '../../../utils/translations';
+import {translate} from '../../../../utils/translations';
 
 class Account extends Component {
   constructor(props) {

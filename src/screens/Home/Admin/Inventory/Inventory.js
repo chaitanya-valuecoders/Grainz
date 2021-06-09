@@ -12,13 +12,14 @@ import {
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {connect} from 'react-redux';
-import img from '../../../constants/images';
-import SubHeader from '../../../components/SubHeader';
-import Header from '../../../components/Header';
+import img from '../../../../constants/images';
+import SubHeader from '../../../../components/SubHeader';
+import Header from '../../../../components/Header';
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
+<<<<<<< HEAD:src/screens/Home/Admin/Inventory.js
 import {UserTokenAction} from '../../../redux/actions/UserTokenAction';
 import {
   getMyProfileApi,
@@ -26,11 +27,20 @@ import {
   getInventoryCategoriesByDepartmentApi,
   getDepartmentsAdminApi,
 } from '../../../connectivity/api';
+=======
+import {UserTokenAction} from '../../../../redux/actions/UserTokenAction';
+import {
+  getMyProfileApi,
+  lookupDepartmentsApi,
+  lookupCategoriesApi,
+  lookupInsideCategoriesApi,
+} from '../../../../connectivity/api';
+>>>>>>> 6bf3dd4eeea276944521f74dac0cfcf82a537022:src/screens/Home/Admin/Inventory/Inventory.js
 import Modal from 'react-native-modal';
 import Accordion from 'react-native-collapsible/Accordion';
 import moment from 'moment';
 
-import {translate} from '../../../utils/translations';
+import {translate} from '../../../../utils/translations';
 
 class Inventory extends Component {
   constructor(props) {
@@ -59,9 +69,13 @@ class Inventory extends Component {
       modalData: [],
       modalLoader: false,
       sectionName: '',
+<<<<<<< HEAD:src/screens/Home/Admin/Inventory.js
       list: [],
       departments: [],
       childrenList: [],
+=======
+      categoryLoader: false,
+>>>>>>> 6bf3dd4eeea276944521f74dac0cfcf82a537022:src/screens/Home/Admin/Inventory/Inventory.js
     };
   }
 
@@ -108,59 +122,16 @@ class Inventory extends Component {
   };
 
   createFirstData = () => {
-    inventoryLevelsApi()
+    lookupDepartmentsApi()
       .then(res => {
-        // console.log('RES', res);
-
-        function groupByKey(array, key) {
-          return array.reduce((hash, obj) => {
-            if (obj[key] === undefined) return hash;
-            return Object.assign(hash, {
-              [obj[key]]: (hash[obj[key]] || []).concat(obj),
-            });
-          }, {});
-        }
-
-        function extract() {
-          var groups = {};
-
-          res.data.forEach(function (val) {
-            var depat = val.departmentName;
-            if (depat in groups) {
-              groups[depat].push(val);
-            } else {
-              groups[depat] = new Array(val);
-            }
-          });
-
-          return groups;
-        }
-
-        let final = extract();
-        // console.log('FINAL', final);
-
-        let finalArray = Object.keys(final).map((item, index) => {
-          let groupedCategory = groupByKey(final[item], 'categoryName');
-          // console.log('groupedCategory', groupedCategory);
-
-          let catArray = Object.keys(groupedCategory).map((subItem, index) => {
-            return {
-              title: subItem,
-              content: groupedCategory[subItem],
-              status: false,
-            };
-          });
-
-          // console.log('catArray', catArray);
-
+        let finalArray = res.data.map((item, index) => {
           return {
-            title: item,
-            content: catArray,
+            title: item.name,
+            content: item.id,
           };
         });
-        // console.log('finalArray', finalArray);
 
-        const result = finalArray.reverse();
+        const result = finalArray;
 
         this.setState({
           SECTIONS: [...result],
@@ -224,146 +195,111 @@ class Inventory extends Component {
     );
   };
 
-  openListFun = (index, section, sta, item) => {
-    console.log('item', item.title);
+  openListFun = (item, index, section) => {
+    console.log('item', item);
     this.setState(
       {
-        finalName: item.title,
+        finalName: item.name,
         modalVisibleSetup: true,
         modalLoader: true,
         sectionName: section.title,
       },
-      () => this.createDataFun(index, section, sta, item),
+      () => this.getInsideCatFun(item.id),
     );
   };
 
-  createDataFun = (index, section, sta, subItem) => {
-    console.log('section', section);
-    console.log('inde', index);
-    console.log('status', sta);
-    const {SECTIONS, showSubList, finalName} = this.state;
-    console.log('finalName', finalName);
-    console.log('SECTIONS', SECTIONS);
-
-    const status = true;
-    // const status = !showSubList;
-    console.log('status', status);
-
-    let newArr = section.content.map((item, i) =>
-      finalName === item.title
-        ? {
-            ...item,
-            [sta]: status,
-          }
-        : {
-            ...item,
-            [sta]: false,
-          },
-    );
-    console.log('new', newArr);
-
-    // const finalArrSections = [];
-
-    // SECTIONS.map((item, index) => {
-    //   finalArrSections.push({
-    //     title: item.title,
-    //     content: newArr,
-    //   });
-    // });
-
-    // console.log('finalArrSections', finalArrSections);
-
-    setTimeout(() => {
-      this.setState({
-        showSubList: status,
-        modalData: newArr,
-        modalLoader: false,
+  getInsideCatFun = catId => {
+    lookupInsideCategoriesApi(catId)
+      .then(res => {
+        this.setState({
+          modalData: res.data,
+          modalLoader: false,
+        });
+      })
+      .catch(err => {
+        console.warn('err', err);
       });
-    }, 300);
   };
 
   _renderContent = section => {
-    console.log('sec', section);
+    const {categoryLoader, catArray} = this.state;
     return (
       <View>
-        {section.content.map((item, index) => {
-          return (
-            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              <View>
-                <TouchableOpacity
-                  onPress={() =>
-                    this.openListFun(index, section, 'status', item)
-                  }
-                  style={{
-                    borderWidth: 1,
-                    paddingVertical: 15,
-                    paddingHorizontal: 5,
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                    marginTop: 10,
-                  }}>
-                  <Image
-                    source={img.arrowRightIcon}
-                    style={{
-                      width: 20,
-                      height: 20,
-                      resizeMode: 'contain',
-                    }}
-                  />
-                  <View
-                    style={{
-                      width: wp('30%'),
-                      alignItems: 'center',
-                    }}>
-                    <Text style={{textAlign: 'center'}}>{item.title}</Text>
-                  </View>
-                  <View
-                    style={{
-                      width: wp('30%'),
-                      alignItems: 'center',
-                    }}>
-                    <Text>Current inventory</Text>
-                  </View>
-                  <View
-                    style={{
-                      width: wp('30%'),
-                      alignItems: 'center',
-                    }}>
-                    <Text>On Order</Text>
-                  </View>
-                  <View
-                    style={{
-                      width: wp('30%'),
-                      alignItems: 'center',
-                    }}>
-                    <Text>Events(+7d)</Text>
-                  </View>
-                  <View
-                    style={{
-                      width: wp('30%'),
-                      alignItems: 'center',
-                    }}>
-                    <Text>Target</Text>
-                  </View>
-                  <View
-                    style={{
-                      width: wp('30%'),
-                      alignItems: 'center',
-                    }}>
-                    <Text>Delta</Text>
-                  </View>
-                  <View
-                    style={{
-                      width: wp('30%'),
-                      alignItems: 'center',
-                    }}>
-                    <Text>Order Now</Text>
-                  </View>
-                </TouchableOpacity>
-              </View>
-            </ScrollView>
-          );
-        })}
+        {categoryLoader ? (
+          <ActivityIndicator size="large" color="#94C036" />
+        ) : (
+          <View>
+            {catArray &&
+              catArray.map((item, index) => {
+                return (
+                  <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                    <View>
+                      <TouchableOpacity
+                        onPress={() => this.openListFun(item, index, section)}
+                        style={{
+                          borderWidth: 1,
+                          paddingVertical: 15,
+                          paddingHorizontal: 5,
+                          flexDirection: 'row',
+                          justifyContent: 'space-between',
+                          marginTop: 10,
+                        }}>
+                        <View
+                          style={{
+                            width: wp('30%'),
+                            alignItems: 'center',
+                          }}>
+                          <Text style={{textAlign: 'center'}}>{item.name}</Text>
+                        </View>
+                        <View
+                          style={{
+                            width: wp('30%'),
+                            alignItems: 'center',
+                          }}>
+                          <Text>Current inventory</Text>
+                        </View>
+                        <View
+                          style={{
+                            width: wp('30%'),
+                            alignItems: 'center',
+                          }}>
+                          <Text>On Order</Text>
+                        </View>
+                        <View
+                          style={{
+                            width: wp('30%'),
+                            alignItems: 'center',
+                          }}>
+                          <Text>Events(+7d)</Text>
+                        </View>
+                        <View
+                          style={{
+                            width: wp('30%'),
+                            alignItems: 'center',
+                          }}>
+                          <Text>Target</Text>
+                        </View>
+                        <View
+                          style={{
+                            width: wp('30%'),
+                            alignItems: 'center',
+                          }}>
+                          <Text>Delta</Text>
+                        </View>
+                        <View
+                          style={{
+                            width: wp('30%'),
+                            alignItems: 'center',
+                          }}>
+                          <Text>Order Now</Text>
+                        </View>
+                      </TouchableOpacity>
+                    </View>
+                  </ScrollView>
+                );
+              })}
+          </View>
+        )}
       </View>
     );
   };
@@ -372,24 +308,38 @@ class Inventory extends Component {
     this.setState(
       {
         activeSections,
+        categoryLoader: true,
       },
       () => this.updateSubFun(),
     );
   };
 
   updateSubFun = () => {
-    this.setState({
-      modalData: [],
-    });
+    const {SECTIONS, activeSections} = this.state;
+    if (activeSections.length > 0) {
+      const deptId = SECTIONS[activeSections].content;
+      lookupCategoriesApi(deptId)
+        .then(res => {
+          this.setState({
+            catArray: res.data,
+            categoryLoader: false,
+          });
+        })
+        .catch(err => {
+          console.log('ERR', err);
+        });
+    } else {
+      this.setState({
+        activeSections: [],
+        categoryLoader: false,
+      });
+    }
   };
 
   setAdminModalVisible = visible => {
-    this.setState(
-      {
-        modalVisibleSetup: visible,
-      },
-      () => this.updateSubFun(),
-    );
+    this.setState({
+      modalVisibleSetup: visible,
+    });
   };
 
   render() {
@@ -618,80 +568,77 @@ class Inventory extends Component {
                           </View>
                         </View>
                         <View>
-                          {modalData && modalData.length > 0
-                            ? modalData.map((item, index) => {
-                                if (item.status === true) {
-                                  return item.content.map(
-                                    (subItem, subIndex) => {
-                                      console.log('sub-->', subItem);
-                                      return (
-                                        <View
-                                          style={{
-                                            paddingVertical: 10,
-                                            paddingHorizontal: 5,
-                                            flexDirection: 'row',
-                                          }}>
-                                          <View
-                                            style={{
-                                              width: wp('30%'),
-                                              alignItems: 'center',
-                                            }}>
-                                            <Text style={{textAlign: 'center'}}>
-                                              {subItem.name}
-                                            </Text>
-                                          </View>
-                                          <View
-                                            style={{
-                                              width: wp('30%'),
-                                              alignItems: 'center',
-                                            }}>
-                                            <Text>
-                                              {subItem.currentInventory}
-                                            </Text>
-                                          </View>
-                                          <View
-                                            style={{
-                                              width: wp('30%'),
-                                              alignItems: 'center',
-                                            }}>
-                                            <Text>{subItem.onOrder}</Text>
-                                          </View>
-                                          <View
-                                            style={{
-                                              width: wp('30%'),
-                                              alignItems: 'center',
-                                            }}>
-                                            <Text>{subItem.eventsOnOrder}</Text>
-                                          </View>
-                                          <View
-                                            style={{
-                                              width: wp('30%'),
-                                              alignItems: 'center',
-                                            }}>
-                                            <Text>{subItem.reorderLevel}</Text>
-                                          </View>
-                                          <View
-                                            style={{
-                                              width: wp('30%'),
-                                              alignItems: 'center',
-                                            }}>
-                                            <Text>{subItem.reorderLevel}</Text>
-                                          </View>
-                                          <TouchableOpacity
-                                            onPress={() => alert('ORDER NOW')}
-                                            style={{
-                                              width: wp('30%'),
-                                              alignItems: 'center',
-                                            }}>
-                                            <Text>ORDER NOW</Text>
-                                          </TouchableOpacity>
-                                        </View>
-                                      );
-                                    },
-                                  );
-                                }
-                              })
-                            : null}
+                          {modalData && modalData.length > 0 ? (
+                            modalData.map((item, index) => {
+                              return (
+                                <View
+                                  style={{
+                                    paddingVertical: 10,
+                                    paddingHorizontal: 5,
+                                    flexDirection: 'row',
+                                  }}>
+                                  <View
+                                    style={{
+                                      width: wp('30%'),
+                                      alignItems: 'center',
+                                    }}>
+                                    <Text style={{textAlign: 'center'}}>
+                                      {item.name}
+                                    </Text>
+                                  </View>
+                                  <View
+                                    style={{
+                                      width: wp('30%'),
+                                      alignItems: 'center',
+                                    }}>
+                                    <Text>{item.currentInventory}</Text>
+                                  </View>
+                                  <View
+                                    style={{
+                                      width: wp('30%'),
+                                      alignItems: 'center',
+                                    }}>
+                                    <Text>{item.onOrder}</Text>
+                                  </View>
+                                  <View
+                                    style={{
+                                      width: wp('30%'),
+                                      alignItems: 'center',
+                                    }}>
+                                    <Text>{item.eventsOnOrder}</Text>
+                                  </View>
+                                  <View
+                                    style={{
+                                      width: wp('30%'),
+                                      alignItems: 'center',
+                                    }}>
+                                    <Text>{item.targetInventory}</Text>
+                                  </View>
+                                  <View
+                                    style={{
+                                      width: wp('30%'),
+                                      alignItems: 'center',
+                                    }}>
+                                    <Text>{item.delta}</Text>
+                                  </View>
+                                  <TouchableOpacity
+                                    onPress={() => alert('ORDER NOW')}
+                                    style={{
+                                      width: wp('30%'),
+                                      alignItems: 'center',
+                                    }}>
+                                    <Text>ORDER NOW</Text>
+                                  </TouchableOpacity>
+                                </View>
+                              );
+                            })
+                          ) : (
+                            <View style={{marginTop: hp('3%')}}>
+                              <Text style={{color: 'red', fontSize: 20}}>
+                                No data available
+                              </Text>
+                            </View>
+                          )}
                         </View>
                       </View>
                     </ScrollView>

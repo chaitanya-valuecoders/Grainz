@@ -8,9 +8,11 @@ import {
   ActivityIndicator,
   Switch,
   Modal,
+  Image,
 } from 'react-native';
 import styles from './style';
 import Header from '../../components/Header';
+import img from '../../constants/images';
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
@@ -157,7 +159,6 @@ class index extends Component {
   render() {
     return (
       <View style={styles.container}>
-        <Header headerTitle="Grainz" />
         <KeyboardAwareScrollView
           keyboardShouldPersistTaps="always"
           showsVerticalScrollIndicator={false}
@@ -187,34 +188,17 @@ class index extends Component {
             </View>
           </Modal>
 
-          <View
-            style={{
-              height: hp('80%'),
-              justifyContent: 'center',
-            }}>
-            <View
-              style={{
-                flex: 1,
-                justifyContent: 'center',
-                alignItems: 'center',
-              }}>
-              <Text
-                style={{
-                  fontSize: 40,
-                  color: '#94C036',
-                  fontWeight: 'bold',
-                }}>
-                {translate('Login')}{' '}
-              </Text>
+          <View style={styles.secondContainer}>
+            <View style={styles.imageContainer}>
+              <Image source={img.appLogo} style={styles.logoStyling} />
             </View>
-            <View
-              style={{
-                flex: 2,
-              }}>
-              <View
-                style={{
-                  marginHorizontal: wp('10%'),
-                }}>
+            <View>
+              <View style={styles.insideContainer}>
+                <View>
+                  <Text style={styles.textStyling}>
+                    {translate('username')}*
+                  </Text>
+                </View>
                 <TextInput
                   value={this.state.email}
                   onChangeText={value =>
@@ -224,23 +208,20 @@ class index extends Component {
                     })
                   }
                   placeholder={translate('username')}
-                  style={{
-                    borderBottomWidth: 1,
-                    borderBottomColor: 'grey',
-                    paddingVertical: 5,
-                  }}
+                  style={styles.textInputStyling}
                 />
                 {this.state.emailError ? (
-                  <View
-                    style={{
-                      height: hp('5%'),
-                      justifyContent: 'center',
-                    }}>
-                    <Text style={{fontSize: 14, color: 'red'}}>
+                  <View style={styles.errorContainer}>
+                    <Text style={styles.errorStyling}>
                       {this.state.emailError}
                     </Text>
                   </View>
                 ) : null}
+                <View style={styles.passContainer}>
+                  <Text style={styles.textStyling}>
+                    {translate('Password')}*
+                  </Text>
+                </View>
                 <TextInput
                   value={this.state.password}
                   secureTextEntry={true}
@@ -251,55 +232,29 @@ class index extends Component {
                     })
                   }
                   placeholder={translate('Password')}
-                  style={{
-                    borderBottomWidth: 1,
-                    borderBottomColor: 'grey',
-                    marginTop: hp('4%'),
-                    paddingVertical: 5,
-                  }}
+                  style={styles.textInputStyling}
                 />
                 {this.state.passwordError ? (
-                  <View
-                    style={{
-                      height: hp('5%'),
-                      justifyContent: 'center',
-                    }}>
-                    <Text style={{fontSize: 14, color: 'red'}}>
+                  <View style={styles.errorContainer}>
+                    <Text style={styles.errorStyling}>
                       {this.state.passwordError}
                     </Text>
                   </View>
                 ) : null}
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    marginTop: hp('3%'),
-                  }}>
-                  <Text
-                    style={{fontSize: wp('4%'), color: 'grey', padding: '2%'}}>
-                    English
-                  </Text>
+                <View style={styles.langContainer}>
+                  <Text style={styles.langStyling}>English</Text>
                   <Switch
-                    thumbColor={'orange'}
+                    thumbColor={'#94BB3B'}
                     trackColor={{false: 'grey', true: 'grey'}}
                     ios_backgroundColor="white"
                     onValueChange={this.toggleSwitch}
                     value={this.state.switchValue}
                   />
-                  <Text
-                    style={{fontSize: wp('4%'), color: 'grey', padding: '2%'}}>
-                    Français
-                  </Text>
+                  <Text style={styles.langStyling}>Français</Text>
                 </View>
                 <TouchableOpacity
                   onPress={() => this.signInFun()}
-                  style={{
-                    height: hp('8%'),
-                    backgroundColor: '#94C036',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    marginTop: hp('8%'),
-                  }}>
+                  style={styles.signInStyling}>
                   {this.state.buttonLoader ? (
                     <ActivityIndicator color="#fff" size="small" />
                   ) : (
@@ -310,20 +265,6 @@ class index extends Component {
                   )}
                 </TouchableOpacity>
               </View>
-            </View>
-
-            <View
-              style={{
-                alignItems: 'center',
-                justifyContent: 'center',
-                marginTop: hp('10%'),
-              }}>
-              <TouchableOpacity
-                onPress={() => this.props.navigation.navigate('AboutUsScreen')}>
-                <Text style={{fontSize: 25, color: 'grey', fontWeight: 'bold'}}>
-                  {translate('About')}
-                </Text>
-              </TouchableOpacity>
             </View>
           </View>
         </KeyboardAwareScrollView>
