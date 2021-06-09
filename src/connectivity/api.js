@@ -556,3 +556,37 @@ export const updateInventoryProductApi = async payload => {
     },
   );
 };
+
+export const lookupDepartmentsApi = async () => {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.get(baseURL + `/Lookup/Departments`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+export const lookupCategoriesApi = async deptId => {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.get(
+    baseURL +
+      `/Lookup/Inventory categories by department?DepartmentId=${deptId}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  );
+};
+
+export const lookupInsideCategoriesApi = async catId => {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.get(
+    baseURL + `/Inventory/inventory levels?CategoryId=${catId}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  );
+};

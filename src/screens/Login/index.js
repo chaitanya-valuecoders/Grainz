@@ -8,9 +8,11 @@ import {
   ActivityIndicator,
   Switch,
   Modal,
+  Image,
 } from 'react-native';
 import styles from './style';
 import Header from '../../components/Header';
+import img from '../../constants/images';
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
@@ -157,7 +159,7 @@ class index extends Component {
   render() {
     return (
       <View style={styles.container}>
-        <Header headerTitle="Grainz" />
+        {/* <Header headerTitle="Grainz" /> */}
         <KeyboardAwareScrollView
           keyboardShouldPersistTaps="always"
           showsVerticalScrollIndicator={false}
@@ -189,7 +191,7 @@ class index extends Component {
 
           <View
             style={{
-              height: hp('80%'),
+              flex: 1,
               justifyContent: 'center',
             }}>
             <View
@@ -197,24 +199,28 @@ class index extends Component {
                 flex: 1,
                 justifyContent: 'center',
                 alignItems: 'center',
+                height: hp('30%'),
               }}>
-              <Text
+              <Image
+                source={img.appLogo}
                 style={{
-                  fontSize: 40,
-                  color: '#94C036',
-                  fontWeight: 'bold',
-                }}>
-                {translate('Login')}{' '}
-              </Text>
+                  height: 150,
+                  width: 150,
+                  resizeMode: 'contain',
+                }}
+              />
             </View>
             <View
               style={{
-                flex: 2,
+                flex: 3,
               }}>
               <View
                 style={{
                   marginHorizontal: wp('10%'),
                 }}>
+                <View>
+                  <Text>Email address*</Text>
+                </View>
                 <TextInput
                   value={this.state.email}
                   onChangeText={value =>
@@ -241,6 +247,9 @@ class index extends Component {
                     </Text>
                   </View>
                 ) : null}
+                <View style={{marginTop: hp('4%')}}>
+                  <Text>Email address*</Text>
+                </View>
                 <TextInput
                   value={this.state.password}
                   secureTextEntry={true}
@@ -254,7 +263,6 @@ class index extends Component {
                   style={{
                     borderBottomWidth: 1,
                     borderBottomColor: 'grey',
-                    marginTop: hp('4%'),
                     paddingVertical: 5,
                   }}
                 />
@@ -310,20 +318,6 @@ class index extends Component {
                   )}
                 </TouchableOpacity>
               </View>
-            </View>
-
-            <View
-              style={{
-                alignItems: 'center',
-                justifyContent: 'center',
-                marginTop: hp('10%'),
-              }}>
-              <TouchableOpacity
-                onPress={() => this.props.navigation.navigate('AboutUsScreen')}>
-                <Text style={{fontSize: 25, color: 'grey', fontWeight: 'bold'}}>
-                  {translate('About')}
-                </Text>
-              </TouchableOpacity>
             </View>
           </View>
         </KeyboardAwareScrollView>
