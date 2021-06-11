@@ -13,6 +13,9 @@ import DeliveriesScreen from '../screens/Deliveries';
 import EventsScreen from '../screens/Events';
 import EditPurchase from '../screens/CasualPurchase/EditPurchase';
 import StockScreen from '../screens/StockTake/StockScreen';
+import AdminScreen from '../screens/Home/Admin';
+import SetupScreen from '../screens/Home/Setup';
+import InboxScreen from '../screens/Home/Inbox';
 import SalesAdminScreen from '../screens/Home/Admin/Sales/Sales';
 import AccountAdminScreen from '../screens/Home/Admin/Account/Account';
 import EventsAdminScreen from '../screens/Home/Admin/Events/Events';
@@ -81,6 +84,9 @@ export default function AppNavFun() {
       <AppNav.Screen name="MenusScreen" component={MenusScreen} />
       <AppNav.Screen name="RecipeSetupScreen" component={RecipeSetupScreen} />
       <AppNav.Screen name="SupplierScreen" component={SupplierScreen} />
+      <AppNav.Screen name="AdminScreen" component={AdminScreen} />
+      <AppNav.Screen name="SetupScreen" component={SetupScreen} />
+      <AppNav.Screen name="InboxScreen" component={InboxScreen} />
     </AppNav.Navigator>
   );
 }

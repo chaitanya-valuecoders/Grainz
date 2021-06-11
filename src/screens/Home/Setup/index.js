@@ -4,34 +4,24 @@ import {
   Text,
   TouchableOpacity,
   Image,
-  ScrollView,
   ActivityIndicator,
-  Switch,
-  TextInput,
   Alert,
   FlatList,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {connect} from 'react-redux';
-import img from '../../constants/images';
-import SubHeader from '../../components/SubHeader';
-import Header from '../../components/Header';
+import img from '../../../constants/images';
+import SubHeader from '../../../components/SubHeader';
+import Header from '../../../components/Header';
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
-import {UserTokenAction} from '../../redux/actions/UserTokenAction';
-import {getMyProfileApi} from '../../connectivity/api';
+import {UserTokenAction} from '../../../redux/actions/UserTokenAction';
+import {getMyProfileApi} from '../../../connectivity/api';
 import styles from './style';
-import Modal from 'react-native-modal';
-import moment from 'moment';
 
-import {translate, setI18nConfig} from '../../utils/translations';
-
-var minTime = new Date();
-minTime.setHours(0);
-minTime.setMinutes(0);
-minTime.setMilliseconds(0);
+import {translate} from '../../../utils/translations';
 
 class index extends Component {
   constructor(props) {
@@ -39,7 +29,6 @@ class index extends Component {
     this.state = {
       buttons: [],
       token: '',
-      firstName: '',
       buttonsSubHeader: [],
       loader: true,
     };
@@ -65,45 +54,38 @@ class index extends Component {
     getMyProfileApi()
       .then(res => {
         this.setState({
-          firstName: res.data.firstName,
           loader: false,
           buttons: [
             {
-              name: translate('Stock Take'),
-              icon: img.stokeTakeIcon,
-              screen: 'StockTakeScreen',
+              name: translate('Inventory List'),
+              screen: 'InventorySetupScreen',
+              icon: img.inventoryIcon,
+              id: 0,
             },
             {
-              name: translate('Mise-en-Place'),
-              icon: img.miscIcon,
-              screen: 'MepScreen',
+              name: translate('Suppliers'),
+              screen: 'SupplierScreen',
+              icon: img.supplierIcon,
+              id: 1,
             },
-            // {
-            //   name: translate('Recipes'),
-            //   icon: img.searchIcon,
-            //   screen: 'RecipeScreen',
-            // },
-            // {
-            //   name: translate('Menu-Items'),
-            //   icon: img.searchIcon,
-            //   screen: 'MenuItemsScreen',
-            // },
             {
-              name: translate('Manual Log small'),
-              icon: img.ManualIcon,
-              screen: 'ManualLogScreen',
+              name: translate('Recipes'),
+              screen: 'RecipeSetupScreen',
+              icon: img.recipeIcon,
+              id: 2,
             },
-            // {
-            //   name: translate('Deliveries'),
-            //   icon: img.addIcon,
-            //   screen: 'DeliveriesScreen',
-            // },
             {
-              name: translate('Casual purchase'),
-              icon: img.CasualIcon,
-              screen: 'CasualPurchaseScreen',
+              name: translate('Menu item'),
+              screen: 'MenuItemScreen',
+              icon: img.menuItemsIcon,
+              id: 3,
             },
-            // {name: translate('Events'), icon: img.addIcon, screen: 'EventsScreen'},
+            {
+              name: translate('Menus'),
+              screen: 'MenusScreen',
+              icon: img.menusIcon,
+              id: 4,
+            },
           ],
           buttonsSubHeader: [
             {name: translate('ADMIN')},
@@ -130,19 +112,7 @@ class index extends Component {
 
   componentDidMount() {
     this.getData();
-    this.setLanguage();
   }
-
-  setLanguage = async () => {
-    setI18nConfig();
-    const lang = await AsyncStorage.getItem('Language');
-    if (lang !== null && lang !== undefined) {
-      setI18nConfig();
-    } else {
-      await AsyncStorage.setItem('Language', 'en');
-      setI18nConfig();
-    }
-  };
 
   myProfile = () => {
     this.props.navigation.navigate('MyProfile');
@@ -153,12 +123,11 @@ class index extends Component {
   };
 
   render() {
-    const {firstName, buttons, buttonsSubHeader, loader} = this.state;
+    const {buttons, buttonsSubHeader, loader} = this.state;
 
     return (
       <View style={{flex: 1, backgroundColor: '#F0F4FE'}}>
         <Header
-          // logout={firstName}
           logoutFun={this.myProfile}
           logoFun={() => this.props.navigation.navigate('HomeScreen')}
         />
@@ -223,40 +192,6 @@ class index extends Component {
             keyExtractor={item => item.id}
             numColumns={3}
           />
-          {/* {buttons.map((item, index) => {
-              return (
-                <View style={{}} key={index}>
-                  <TouchableOpacity
-                    onPress={() => this.onPressFun(item)}
-                    style={{
-                      flexDirection: 'row',
-                      height: hp('6%'),
-                      width: wp('70%'),
-                      backgroundColor: '#94C036',
-                      alignItems: 'center',
-                      marginTop: 20,
-                    }}>
-                    <View style={{}}>
-                      <Image
-                        source={item.icon}
-                        style={{
-                          height: 22,
-                          width: 22,
-                          tintColor: 'white',
-                          resizeMode: 'contain',
-                          marginLeft: 15,
-                        }}
-                      />
-                    </View>
-                    <View style={{}}>
-                      <Text style={{color: 'white', marginLeft: 5}}>
-                        {item.name}
-                      </Text>
-                    </View>
-                  </TouchableOpacity>
-                </View>
-              );
-            })} */}
         </View>
       </View>
     );

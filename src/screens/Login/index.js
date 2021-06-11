@@ -136,7 +136,6 @@ class index extends Component {
   };
 
   toggleSwitch = value => {
-    // console.warn('swictched value', value);
     this.setState({switchValue: value, loader: true}, () =>
       this.languageSelector(),
     );
@@ -258,7 +257,7 @@ class index extends Component {
                   {this.state.buttonLoader ? (
                     <ActivityIndicator color="#fff" size="small" />
                   ) : (
-                    <Text style={{fontSize: 20, color: '#fff'}}>
+                    <Text style={styles.signInStylingText}>
                       {' '}
                       {translate('Sign in')}
                     </Text>

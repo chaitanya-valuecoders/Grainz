@@ -30,6 +30,7 @@ const styles = StyleSheet.create({
   textStyling: {
     color: '#4A4C55',
     fontSize: 14,
+    fontFamily: 'Inter-Regular',
   },
   textInputStyling: {
     borderBottomWidth: 1,
@@ -48,7 +49,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: hp('2%'),
   },
-  langStyling: {fontSize: wp('4%'), color: 'grey', padding: '2%'},
+  langStyling: {
+    fontSize: wp('4%'),
+    color: 'grey',
+    padding: '2%',
+    fontFamily: 'Inter-Regular',
+  },
   signInStyling: {
     height: hp('8%'),
     backgroundColor: '#99C13E',
@@ -57,6 +63,12 @@ const styles = StyleSheet.create({
     marginTop: hp('8%'),
     width: wp('55%'),
     borderRadius: 100,
+    alignSelf: 'center',
+  },
+  signInStylingText: {
+    fontSize: 20,
+    color: '#fff',
+    fontFamily: 'Inter-SemiBold',
   },
 });
 export default styles;
