@@ -134,13 +134,23 @@ class index extends Component {
         {loader ? (
           <ActivityIndicator size="large" color="grey" />
         ) : (
-          <SubHeader {...this.props} buttons={buttonsSubHeader} />
+          <SubHeader {...this.props} buttons={buttonsSubHeader} index={1} />
         )}
 
         <View
           style={{
             marginTop: hp('2%'),
           }}>
+          <View style={styles.firstContainer}>
+            <View style={{flex: 1}}>
+              <Text style={styles.adminTextStyle}>{translate('Setup')}</Text>
+            </View>
+            <TouchableOpacity
+              onPress={() => this.props.navigation.goBack()}
+              style={styles.goBackContainer}>
+              <Text style={styles.goBackTextStyle}>Go Back</Text>
+            </TouchableOpacity>
+          </View>
           <FlatList
             data={buttons}
             renderItem={({item}) => (

@@ -132,7 +132,7 @@ class index extends Component {
     const {buttons, buttonsSubHeader, loader} = this.state;
 
     return (
-      <View style={{flex: 1, backgroundColor: '#F0F4FE'}}>
+      <View style={styles.container}>
         <Header
           logoutFun={this.myProfile}
           logoFun={() => this.props.navigation.navigate('HomeScreen')}
@@ -140,13 +140,20 @@ class index extends Component {
         {loader ? (
           <ActivityIndicator size="large" color="grey" />
         ) : (
-          <SubHeader {...this.props} buttons={buttonsSubHeader} />
+          <SubHeader {...this.props} buttons={buttonsSubHeader} index={0} />
         )}
 
-        <View
-          style={{
-            marginTop: hp('2%'),
-          }}>
+        <View style={styles.subContainer}>
+          <View style={styles.firstContainer}>
+            <View style={{flex: 1}}>
+              <Text style={styles.adminTextStyle}>{translate('ADMIN')}</Text>
+            </View>
+            <TouchableOpacity
+              onPress={() => this.props.navigation.goBack()}
+              style={styles.goBackContainer}>
+              <Text style={styles.goBackTextStyle}>Go Back</Text>
+            </TouchableOpacity>
+          </View>
           <FlatList
             data={buttons}
             renderItem={({item}) => (

@@ -158,7 +158,6 @@ class index extends Component {
     return (
       <View style={{flex: 1, backgroundColor: '#F0F4FE'}}>
         <Header
-          // logout={firstName}
           logoutFun={this.myProfile}
           logoFun={() => this.props.navigation.navigate('HomeScreen')}
         />

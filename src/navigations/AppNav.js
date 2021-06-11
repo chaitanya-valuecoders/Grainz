@@ -25,6 +25,8 @@ import OrderingAdminScreen from '../screens/Home/Admin/Ordering/Ordering';
 import OrderingSecAdminScreen from '../screens/Home/Admin/Ordering/OrderingSec';
 import OrderingThreeAdminScreen from '../screens/Home/Admin/Ordering/OrderingThree';
 import ReportsAdminScreen from '../screens/Home/Admin/Reports/Reports';
+import GrossMarginAdminScreen from '../screens/Home/Admin/Reports/GrossMargin';
+import MenuAnalysisAdminScreen from '../screens/Home/Admin/Reports/MenuAnalysis';
 import InventorySetupScreen from '../screens/Home/Setup/Inventory/InventorySetup';
 import MenuItemScreen from '../screens/Home/Setup/MenuItem/MenuItem';
 import MenusScreen from '../screens/Home/Setup/Menus/Menus';
@@ -87,6 +89,14 @@ export default function AppNavFun() {
       <AppNav.Screen name="AdminScreen" component={AdminScreen} />
       <AppNav.Screen name="SetupScreen" component={SetupScreen} />
       <AppNav.Screen name="InboxScreen" component={InboxScreen} />
+      <AppNav.Screen
+        name="GrossMarginAdminScreen"
+        component={GrossMarginAdminScreen}
+      />
+      <AppNav.Screen
+        name="MenuAnalysisAdminScreen"
+        component={MenuAnalysisAdminScreen}
+      />
     </AppNav.Navigator>
   );
 }

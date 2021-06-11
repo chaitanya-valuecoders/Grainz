@@ -24,6 +24,7 @@ import {getMyProfileApi, eventsAdminApi} from '../../../../connectivity/api';
 import Modal from 'react-native-modal';
 import Accordion from 'react-native-collapsible/Accordion';
 import moment from 'moment';
+import styles from './style';
 
 import {translate} from '../../../../utils/translations';
 
@@ -31,10 +32,6 @@ class Events extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      buttons: [
-        {name: translate('Add new'), icon: img.addIcon, id: 0},
-        {name: translate('Back'), id: 1},
-      ],
       token: '',
       modalVisible: false,
       firstName: '',
@@ -172,13 +169,18 @@ class Events extends Component {
     return (
       <View
         style={{
-          backgroundColor: '#EAEAF1',
+          backgroundColor: '#FFFFFF',
           flexDirection: 'row',
-          borderWidth: 1,
-          borderColor: '#D1D1D6',
+          borderTopWidth: 1,
+          borderLeftWidth: 1,
+          borderTopColor: '#F0F0F0',
+          borderLeftColor: '#F0F0F0',
+          borderRightWidth: 1,
+          borderRightColor: '#F0F0F0',
           height: 60,
           marginTop: hp('2%'),
           alignItems: 'center',
+          borderRadius: 6,
         }}>
         <Image
           style={{
@@ -191,10 +193,10 @@ class Events extends Component {
         />
         <Text
           style={{
-            color: '#98989B',
-            fontSize: 15,
-            fontWeight: 'bold',
+            color: '#492813',
+            fontSize: 14,
             marginLeft: wp('2%'),
+            fontFamily: 'Inter-Regular',
           }}>
           {todayFinal === finalData ? 'Today' : finalData}
         </Text>
@@ -204,58 +206,94 @@ class Events extends Component {
 
   _renderContent = section => {
     return (
-      <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-        <View style={{marginTop: hp('2%')}}>
-          <View
-            style={{
-              flexDirection: 'row',
-              paddingBottom: 10,
-            }}>
-            <View style={{width: wp('30%')}}>
-              <Text style={{fontSize: 15, fontWeight: 'bold'}}>Time</Text>
-            </View>
-            <View style={{width: wp('40%')}}>
-              <Text style={{fontSize: 15, fontWeight: 'bold'}}>Name</Text>
-            </View>
-            <View style={{width: wp('30%')}}>
-              <Text style={{fontSize: 15, fontWeight: 'bold'}}>
-                No. of people
-              </Text>
-            </View>
+      // <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+      <View style={{backgroundColor: '#fff'}}>
+        <View
+          style={{
+            flexDirection: 'row',
+            paddingBottom: 15,
+            marginHorizontal: wp('3%'),
+          }}>
+          <View style={{width: wp('30%')}}>
+            <Text
+              style={{
+                fontSize: 14,
+                color: '#161C27',
+                fontFamily: 'Inter-SemiBold',
+              }}>
+              Time
+            </Text>
           </View>
-          {section.content.map((item, index) => {
-            return (
-              <TouchableOpacity
-                onPress={() =>
-                  this.props.navigation.navigate('EventsSecAdminScreen')
-                }
-                style={{
-                  flexDirection: 'row',
-                  borderTopWidth: 0.5,
-                  paddingVertical: 10,
-                }}>
-                <View style={{width: wp('30%')}}>
-                  <Text style={{fontSize: 15, fontWeight: 'bold'}}>
-                    {item.eventTime}
-                  </Text>
-                </View>
-                <View style={{width: wp('40%')}}>
-                  <Text
-                    style={{fontSize: 15, fontWeight: 'bold'}}
-                    numberOfLines={1}>
-                    {item.clientName}
-                  </Text>
-                </View>
-                <View style={{width: wp('30%')}}>
-                  <Text style={{fontSize: 15, fontWeight: 'bold'}}>
-                    {item.pax}
-                  </Text>
-                </View>
-              </TouchableOpacity>
-            );
-          })}
+          <View style={{width: wp('30')}}>
+            <Text
+              style={{
+                fontSize: 14,
+                color: '#161C27',
+                fontFamily: 'Inter-SemiBold',
+              }}>
+              Name
+            </Text>
+          </View>
+          <View style={{width: wp('30%')}}>
+            <Text
+              style={{
+                fontSize: 14,
+                color: '#161C27',
+                fontFamily: 'Inter-SemiBold',
+              }}>
+              No. of people
+            </Text>
+          </View>
         </View>
-      </ScrollView>
+        {section.content.map((item, index) => {
+          return (
+            <TouchableOpacity
+              onPress={() =>
+                this.props.navigation.navigate('EventsSecAdminScreen')
+              }
+              style={{
+                flexDirection: 'row',
+                borderTopWidth: 1,
+                paddingVertical: 10,
+                marginHorizontal: wp('3%'),
+                borderTopColor: '#0000001A',
+              }}>
+              <View style={{width: wp('30%')}}>
+                <Text
+                  style={{
+                    fontSize: 14,
+                    color: '#161C27',
+                    fontFamily: 'Inter-Regular',
+                  }}>
+                  {item.eventTime}
+                </Text>
+              </View>
+              <View style={{width: wp('40%')}}>
+                <Text
+                  style={{
+                    fontSize: 14,
+                    color: '#161C27',
+                    fontFamily: 'Inter-Regular',
+                  }}
+                  numberOfLines={1}>
+                  {item.clientName}
+                </Text>
+              </View>
+              <View style={{width: wp('30%')}}>
+                <Text
+                  style={{
+                    fontSize: 14,
+                    color: '#161C27',
+                    fontFamily: 'Inter-Regular',
+                  }}>
+                  {item.pax}
+                </Text>
+              </View>
+            </TouchableOpacity>
+          );
+        })}
+      </View>
+      // </ScrollView>
     );
   };
 
@@ -295,13 +333,12 @@ class Events extends Component {
       SECTIONS,
       activeSections,
       firstName,
-      buttons,
       buttonsSubHeader,
       searchItem,
     } = this.state;
 
     return (
-      <View style={{flex: 1, backgroundColor: '#fff'}}>
+      <View style={styles.container}>
         <Header
           logout={firstName}
           logoutFun={this.myProfile}
@@ -310,79 +347,87 @@ class Events extends Component {
         {recipeLoader ? (
           <ActivityIndicator size="small" color="#94C036" />
         ) : (
-          <SubHeader {...this.props} buttons={buttonsSubHeader} />
+          <SubHeader {...this.props} buttons={buttonsSubHeader} index={0} />
         )}
         <ScrollView
           style={{marginBottom: hp('5%')}}
           showsVerticalScrollIndicator={false}>
-          <View
-            style={{
-              backgroundColor: '#412916',
-              alignItems: 'center',
-              paddingVertical: hp('3%'),
-            }}>
-            <Text style={{fontSize: 22, color: 'white'}}>
-              {translate('Events')}
-            </Text>
-            {buttons.map((item, index) => {
-              return (
-                <View style={{}} key={index}>
-                  <TouchableOpacity
-                    onPress={() => this.onPressFun(item)}
-                    style={{
-                      flexDirection: 'row',
-                      height: hp('6%'),
-                      width: wp('70%'),
-                      backgroundColor: '#94C036',
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                      marginTop: 20,
-                    }}>
-                    <View style={{}}>
-                      <Image
-                        source={item.icon}
-                        style={{
-                          height: 22,
-                          width: 22,
-                          tintColor: 'white',
-                          resizeMode: 'contain',
-                        }}
-                      />
-                    </View>
-                    <View style={{}}>
-                      <Text style={{color: 'white', marginLeft: 5}}>
-                        {item.name}
-                      </Text>
-                    </View>
-                  </TouchableOpacity>
-                </View>
-              );
-            })}
-          </View>
-          <View
-            style={{
-              marginTop: 20,
-              marginLeft: wp('15%'),
-            }}>
-            <View style={{}}>
-              <Text style={{color: 'grey'}}>{translate('Search')} : </Text>
+          <View style={styles.subContainer}>
+            <View style={styles.firstContainer}>
+              <View style={{flex: 1}}>
+                <Text style={styles.adminTextStyle}>{translate('Events')}</Text>
+              </View>
+              <TouchableOpacity
+                onPress={() => this.props.navigation.goBack()}
+                style={styles.goBackContainer}>
+                <Text style={styles.goBackTextStyle}>Go Back</Text>
+              </TouchableOpacity>
             </View>
           </View>
-          <TextInput
-            placeholder="Search"
-            value={searchItem}
+          <View
             style={{
               flexDirection: 'row',
-              height: hp('5%'),
-              width: wp('70%'),
-              marginTop: 10,
-              paddingLeft: 10,
+              alignItems: 'center',
               borderWidth: 1,
+              borderColor: '#E2E8F0',
+              height: hp('7%'),
+              width: wp('90%'),
+              borderRadius: 100,
+              backgroundColor: '#fff',
               alignSelf: 'center',
-              borderColor: '#C9CCD7',
-            }}
-            onChangeText={value => this.searchFun(value)}
-          />
+              justifyContent: 'space-between',
+            }}>
+            <TextInput
+              placeholder="Search"
+              value={searchItem}
+              style={{
+                padding: 15,
+                width: wp('75%'),
+              }}
+              onChangeText={value => this.searchFun(value)}
+            />
+            <Image
+              style={{
+                height: 18,
+                width: 18,
+                resizeMode: 'contain',
+                marginRight: wp('5%'),
+              }}
+              source={img.searchIcon}
+            />
+          </View>
+          <View style={{justifyContent: 'center', alignItems: 'center'}}>
+            <TouchableOpacity
+              onPress={() =>
+                this.props.navigation.navigate('EventsSecAdminScreen')
+              }
+              style={{
+                height: hp('7%'),
+                width: wp('80%'),
+                backgroundColor: '#94C036',
+                justifyContent: 'center',
+                alignItems: 'center',
+                marginTop: hp('3%'),
+                borderRadius: 100,
+              }}>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                }}>
+                <Image
+                  source={img.addIcon}
+                  style={{
+                    width: 20,
+                    height: 20,
+                    tintColor: '#fff',
+                    resizeMode: 'contain',
+                  }}
+                />
+                <Text style={{color: 'white', marginLeft: 10}}>Add New</Text>
+              </View>
+            </TouchableOpacity>
+          </View>
           {recipeLoader ? (
             <ActivityIndicator color="#94C036" size="large" />
           ) : (

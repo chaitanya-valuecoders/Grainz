@@ -29,6 +29,7 @@ import {
 import Modal from 'react-native-modal';
 import Accordion from 'react-native-collapsible/Accordion';
 import moment from 'moment';
+import styles from './style';
 
 import {translate} from '../../../../utils/translations';
 
@@ -149,13 +150,14 @@ class Inventory extends Component {
     return (
       <View
         style={{
-          backgroundColor: '#EAEAF1',
+          backgroundColor: '#FFFFFF',
           flexDirection: 'row',
-          borderWidth: 1,
-          borderColor: '#D1D1D6',
+          borderWidth: 0.5,
+          borderColor: '#F0F0F0',
           height: 60,
           marginTop: hp('2%'),
           alignItems: 'center',
+          borderRadius: 6,
         }}>
         <Image
           style={{
@@ -168,10 +170,10 @@ class Inventory extends Component {
         />
         <Text
           style={{
-            color: '#98989B',
-            fontSize: 15,
-            fontWeight: 'bold',
+            color: '#492813',
+            fontSize: 14,
             marginLeft: wp('2%'),
+            fontFamily: 'Inter-Regular',
           }}>
           {section.title}
         </Text>
@@ -216,40 +218,57 @@ class Inventory extends Component {
             {catArray &&
               catArray.map((item, index) => {
                 return (
-                  <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                    <View>
-                      <TouchableOpacity
-                        onPress={() => this.openListFun(item, index, section)}
-                        style={{
-                          borderWidth: 1,
-                          paddingVertical: 15,
-                          paddingHorizontal: 5,
-                          flexDirection: 'row',
-                          justifyContent: 'space-between',
-                          marginTop: 10,
-                        }}>
-                        <View
-                          style={{
-                            width: wp('30%'),
-                            alignItems: 'center',
-                          }}>
-                          <Text style={{textAlign: 'center'}}>{item.name}</Text>
-                        </View>
-                        <View
-                          style={{
-                            width: wp('30%'),
-                            alignItems: 'center',
-                          }}>
-                          <Text>Current inventory</Text>
-                        </View>
-                        <View
-                          style={{
-                            width: wp('30%'),
-                            alignItems: 'center',
-                          }}>
-                          <Text>On Order</Text>
-                        </View>
-                        <View
+                  // <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                  <View>
+                    <TouchableOpacity
+                      onPress={() => this.openListFun(item, index, section)}
+                      style={{
+                        borderWidth: 1,
+                        paddingVertical: 15,
+                        paddingHorizontal: 10,
+                        flexDirection: 'row',
+                        justifyContent: 'space-between',
+                        marginTop: 10,
+                        width: wp('89%'),
+                        borderRadius: 6,
+                        borderColor: '#00000099',
+                      }}>
+                      <View
+                        style={
+                          {
+                            // width: wp('25%'),
+                            // alignItems: 'center',
+                          }
+                        }>
+                        <Text
+                          style={{textAlign: 'center', color: '#161C27'}}
+                          numberOfLines={1}>
+                          {item.name}{' '}
+                        </Text>
+                      </View>
+                      <View
+                        style={
+                          {
+                            // width: wp('25%'),
+                            // alignItems: 'center',
+                          }
+                        }>
+                        <Text style={{textAlign: 'center', color: '#161C27'}}>
+                          Current inventory
+                        </Text>
+                      </View>
+                      <View
+                        style={
+                          {
+                            // width: wp('25%'),
+                            // alignItems: 'center',
+                          }
+                        }>
+                        <Text style={{textAlign: 'center', color: '#161C27'}}>
+                          On Order
+                        </Text>
+                      </View>
+                      {/* <View
                           style={{
                             width: wp('30%'),
                             alignItems: 'center',
@@ -276,10 +295,10 @@ class Inventory extends Component {
                             alignItems: 'center',
                           }}>
                           <Text>Order Now</Text>
-                        </View>
-                      </TouchableOpacity>
-                    </View>
-                  </ScrollView>
+                        </View> */}
+                    </TouchableOpacity>
+                  </View>
+                  // </ScrollView>
                 );
               })}
           </View>
@@ -341,51 +360,37 @@ class Inventory extends Component {
     } = this.state;
 
     return (
-      <View style={{flex: 1, backgroundColor: '#fff'}}>
+      <View style={styles.container}>
         <Header
-          logout={firstName}
           logoutFun={this.myProfile}
           logoFun={() => this.props.navigation.navigate('HomeScreen')}
         />
         {recipeLoader ? (
           <ActivityIndicator color="#94C036" size="small" />
         ) : (
-          <SubHeader {...this.props} buttons={buttonsSubHeader} />
+          <SubHeader {...this.props} buttons={buttonsSubHeader} index={0} />
         )}
         <ScrollView
           style={{marginBottom: hp('5%')}}
           showsVerticalScrollIndicator={false}>
-          <View
-            style={{
-              backgroundColor: '#412916',
-              alignItems: 'center',
-              paddingVertical: hp('3%'),
-            }}>
-            <Text style={{fontSize: 22, color: 'white'}}>
-              {translate('Inventory Levels')}
-            </Text>
-            <View style={{}}>
+          <View style={styles.subContainer}>
+            <View style={styles.firstContainer}>
+              <View style={{flex: 1}}>
+                <Text style={styles.adminTextStyle}>
+                  {translate('Inventory Level')}
+                </Text>
+              </View>
               <TouchableOpacity
-                onPress={() => this.onPressFun()}
-                style={{
-                  flexDirection: 'row',
-                  height: hp('6%'),
-                  width: wp('70%'),
-                  backgroundColor: '#94C036',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  marginTop: 20,
-                }}>
-                <View style={{}}>
-                  <Text style={{color: 'white', marginLeft: 5}}>Back</Text>
-                </View>
+                onPress={() => this.props.navigation.goBack()}
+                style={styles.goBackContainer}>
+                <Text style={styles.goBackTextStyle}>Go Back</Text>
               </TouchableOpacity>
             </View>
           </View>
           {recipeLoader ? (
             <ActivityIndicator color="#94C036" size="large" />
           ) : (
-            <View style={{marginTop: hp('3%'), marginHorizontal: wp('5%')}}>
+            <View style={{marginTop: hp('2%'), marginHorizontal: wp('5%')}}>
               <Accordion
                 // expandMultiple
                 underlayColor="#fff"

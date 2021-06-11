@@ -44,12 +44,19 @@ class index extends Component {
             <TouchableOpacity
               onPress={this.props.logoutFun}
               style={{
-                width: 40,
-                height: 40,
+                width: 45,
+                height: 45,
                 borderRadius: 60 / 2,
-                backgroundColor: 'red',
                 borderColor: 'black',
               }}>
+              <Image
+                style={{
+                  height: '100%',
+                  width: '100%',
+                  resizeMode: 'contain',
+                }}
+                source={img.profilePhotoIcon}
+              />
               {/* <Text style={{fontSize: 20, color: 'grey', textAlign: 'center'}}>
                 {' '}
                 {this.props.logout}{' '}

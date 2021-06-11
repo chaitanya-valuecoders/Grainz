@@ -1,5 +1,11 @@
 import React, {Component} from 'react';
-import {View, Text, ActivityIndicator, Alert} from 'react-native';
+import {
+  View,
+  Text,
+  ActivityIndicator,
+  Alert,
+  TouchableOpacity,
+} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {connect} from 'react-redux';
 import img from '../../../constants/images';
@@ -94,18 +100,33 @@ class index extends Component {
         {loader ? (
           <ActivityIndicator size="large" color="grey" />
         ) : (
-          <SubHeader {...this.props} buttons={buttonsSubHeader} />
+          <SubHeader {...this.props} buttons={buttonsSubHeader} index={2} />
         )}
 
         <View
           style={{
             marginTop: hp('2%'),
-            justifyContent: 'center',
-            alignItems: 'center',
           }}>
-          <Text style={{fontWeight: 'bold', fontSize: 18}}>
-            Work in Progress
-          </Text>
+          <View style={styles.firstContainer}>
+            <View style={{flex: 1}}>
+              <Text style={styles.adminTextStyle}>{translate('Setup')}</Text>
+            </View>
+            <TouchableOpacity
+              onPress={() => this.props.navigation.goBack()}
+              style={styles.goBackContainer}>
+              <Text style={styles.goBackTextStyle}>Go Back</Text>
+            </TouchableOpacity>
+          </View>
+          <View
+            style={{
+              justifyContent: 'center',
+              alignItems: 'center',
+              marginTop: hp('5%'),
+            }}>
+            <Text style={{fontWeight: 'bold', fontSize: 18}}>
+              Work in Progress
+            </Text>
+          </View>
         </View>
       </View>
     );

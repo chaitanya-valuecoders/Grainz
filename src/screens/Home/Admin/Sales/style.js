@@ -6,20 +6,9 @@ import {
 const numColumns = 3;
 
 const styles = StyleSheet.create({
-  container: {flex: 1, backgroundColor: '#F0F4FE'},
+  container: {flex: 1, backgroundColor: '#EEF2FD'},
   subContainer: {
     marginTop: hp('2%'),
-  },
-  itemContainer: {
-    width: Dimensions.get('window').width / numColumns,
-    height: Dimensions.get('window').width / numColumns,
-    borderRadius: 50,
-  },
-  item: {
-    flex: 1,
-    margin: 5,
-    backgroundColor: 'lightblue',
-    borderRadius: 50,
   },
   firstContainer: {
     flexDirection: 'row',
@@ -28,7 +17,7 @@ const styles = StyleSheet.create({
     marginVertical: hp('2%'),
   },
   adminTextStyle: {
-    fontSize: 16,
+    fontSize: 18,
     fontFamily: 'Inter-SemiBold',
     color: '#523622',
   },

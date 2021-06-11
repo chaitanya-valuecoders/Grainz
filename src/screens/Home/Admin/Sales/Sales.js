@@ -28,6 +28,7 @@ import Modal from 'react-native-modal';
 import Accordion from 'react-native-collapsible/Accordion';
 import moment from 'moment';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
+import styles from './style';
 
 import {translate} from '../../../../utils/translations';
 
@@ -311,13 +312,14 @@ class Sales extends Component {
     return (
       <View
         style={{
-          backgroundColor: '#EAEAF1',
+          backgroundColor: '#FFFFFF',
           flexDirection: 'row',
-          borderWidth: 1,
-          borderColor: '#D1D1D6',
+          borderWidth: 0.5,
+          borderColor: '#F0F0F0',
           height: 60,
           marginTop: hp('2%'),
           alignItems: 'center',
+          borderRadius: 6,
         }}>
         <Image
           style={{
@@ -330,10 +332,10 @@ class Sales extends Component {
         />
         <Text
           style={{
-            color: '#98989B',
-            fontSize: 15,
-            fontWeight: 'bold',
+            color: '#492813',
+            fontSize: 14,
             marginLeft: wp('2%'),
+            fontFamily: 'Inter-Regular',
           }}>
           {section.title}
         </Text>
@@ -345,13 +347,14 @@ class Sales extends Component {
     return (
       <View
         style={{
-          backgroundColor: '#EAEAF1',
+          backgroundColor: '#FFFFFF',
           flexDirection: 'row',
-          borderWidth: 1,
-          borderColor: '#D1D1D6',
+          borderWidth: 0.5,
+          borderColor: '#F0F0F0',
           height: 60,
           marginTop: hp('2%'),
           alignItems: 'center',
+          borderRadius: 6,
         }}>
         <Image
           style={{
@@ -364,10 +367,10 @@ class Sales extends Component {
         />
         <Text
           style={{
-            color: '#98989B',
+            color: '#492813',
             fontSize: 15,
-            fontWeight: 'bold',
             marginLeft: wp('2%'),
+            fontFamily: 'Inter-Regular',
           }}>
           {section.title}
         </Text>
@@ -379,13 +382,14 @@ class Sales extends Component {
     return (
       <View
         style={{
-          backgroundColor: '#EAEAF1',
+          backgroundColor: '#FFFFFF',
           flexDirection: 'row',
-          borderWidth: 1,
-          borderColor: '#D1D1D6',
+          borderWidth: 0.5,
+          borderColor: '#F0F0F0',
           height: 60,
           marginTop: hp('2%'),
           alignItems: 'center',
+          borderRadius: 6,
         }}>
         <Image
           style={{
@@ -398,10 +402,10 @@ class Sales extends Component {
         />
         <Text
           style={{
-            color: '#98989B',
+            color: '#492813',
             fontSize: 15,
-            fontWeight: 'bold',
             marginLeft: wp('2%'),
+            fontFamily: 'Inter-Regular',
           }}>
           {section.title}
         </Text>
@@ -413,13 +417,14 @@ class Sales extends Component {
     return (
       <View
         style={{
-          backgroundColor: '#EAEAF1',
+          backgroundColor: '#FFFFFF',
           flexDirection: 'row',
-          borderWidth: 1,
-          borderColor: '#D1D1D6',
+          borderWidth: 0.5,
+          borderColor: '#F0F0F0',
           height: 60,
           marginTop: hp('2%'),
           alignItems: 'center',
+          borderRadius: 6,
         }}>
         <Image
           style={{
@@ -432,10 +437,10 @@ class Sales extends Component {
         />
         <Text
           style={{
-            color: '#98989B',
+            color: '#492813',
             fontSize: 15,
-            fontWeight: 'bold',
             marginLeft: wp('2%'),
+            fontFamily: 'Inter-Regular',
           }}>
           {section.title}
         </Text>
@@ -871,68 +876,50 @@ class Sales extends Component {
     } = this.state;
 
     return (
-      <View style={{flex: 1, backgroundColor: '#fff'}}>
+      <View style={styles.container}>
         <Header
-          logout={firstName}
           logoutFun={this.myProfile}
           logoFun={() => this.props.navigation.navigate('HomeScreen')}
         />
         {recipeLoader ? (
           <ActivityIndicator size="small" color="#94C036" />
         ) : (
-          <SubHeader {...this.props} buttons={buttonsSubHeader} />
+          <SubHeader {...this.props} buttons={buttonsSubHeader} index={0} />
         )}
         <ScrollView
           style={{marginBottom: hp('5%')}}
           showsVerticalScrollIndicator={false}>
-          <View
-            style={{
-              backgroundColor: '#412916',
-              alignItems: 'center',
-              paddingVertical: hp('3%'),
-            }}>
-            <Text style={{fontSize: 22, color: 'white'}}>
-              {translate('Sales')}
-            </Text>
-            <View style={{}}>
+          <View style={styles.subContainer}>
+            <View style={styles.firstContainer}>
+              <View style={{flex: 1}}>
+                <Text style={styles.adminTextStyle}>{translate('Sales')}</Text>
+              </View>
               <TouchableOpacity
-                onPress={() => this.onPressFun()}
-                style={{
-                  flexDirection: 'row',
-                  height: hp('6%'),
-                  width: wp('70%'),
-                  backgroundColor: '#94C036',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  marginTop: 20,
-                }}>
-                <View style={{}}>
-                  <Text style={{color: 'white', marginLeft: 5}}>Back</Text>
-                </View>
+                onPress={() => this.props.navigation.goBack()}
+                style={styles.goBackContainer}>
+                <Text style={styles.goBackTextStyle}>Go Back</Text>
               </TouchableOpacity>
             </View>
           </View>
+
           <View
             style={{
               justifyContent: 'center',
               alignItems: 'center',
-              flexDirection: 'row',
               marginTop: hp('2%'),
             }}>
-            <View style={{marginRight: wp('2%')}}>
-              <Text style={{}}>Start Date:</Text>
-            </View>
             <TouchableOpacity
               onPress={() => this.showDatePickerFunStart()}
               style={{
-                width: wp('60%'),
-                borderWidth: 1,
-                padding: 12,
+                width: wp('90%'),
+                padding: 15,
                 flexDirection: 'row',
                 justifyContent: 'space-between',
+                borderRadius: 5,
+                backgroundColor: '#fff',
               }}>
               <TextInput
-                placeholder="dd-mm-yy"
+                placeholder="Select start date"
                 value={finalDateStart}
                 editable={false}
               />
@@ -958,24 +945,20 @@ class Sales extends Component {
             style={{
               justifyContent: 'center',
               alignItems: 'center',
-              flexDirection: 'row',
-              marginTop: hp('2%'),
+              marginTop: hp('3%'),
             }}>
-            <View style={{marginRight: wp('2%')}}>
-              <Text style={{}}>End Date:</Text>
-            </View>
             <TouchableOpacity
               onPress={() => this.showDatePickerFunEnd()}
               style={{
-                width: wp('60%'),
-                borderWidth: 1,
-                padding: 12,
+                width: wp('90%'),
+                padding: 15,
                 flexDirection: 'row',
                 justifyContent: 'space-between',
-                marginLeft: 10,
+                borderRadius: 5,
+                backgroundColor: '#fff',
               }}>
               <TextInput
-                placeholder="dd-mm-yy"
+                placeholder="Select end date"
                 value={finalDateEnd}
                 editable={false}
               />
@@ -1002,12 +985,13 @@ class Sales extends Component {
               onPress={() => this.findReportFun()}
               style={{
                 flexDirection: 'row',
-                height: hp('6%'),
+                height: hp('7%'),
                 width: wp('80%'),
                 backgroundColor: '#94C036',
                 justifyContent: 'center',
                 alignItems: 'center',
-                marginTop: 20,
+                marginTop: hp('5%'),
+                borderRadius: 100,
               }}>
               {buttonLoader ? (
                 <ActivityIndicator color="#fff" size="small" />
@@ -1024,10 +1008,15 @@ class Sales extends Component {
             style={{
               justifyContent: 'center',
               alignItems: 'center',
-              marginTop: hp('2%'),
+              marginTop: hp('4%'),
             }}>
             {dataStatus ? (
-              <Text style={{fontSize: 25, color: '#646464'}}>
+              <Text
+                style={{
+                  fontSize: 20,
+                  color: '#492813',
+                  fontFamily: 'Inter-Regular',
+                }}>
                 {reportTitle}
               </Text>
             ) : null}
@@ -1060,16 +1049,29 @@ class Sales extends Component {
               <TouchableOpacity
                 onPress={() => this.addLineFun()}
                 style={{
-                  flexDirection: 'row',
-                  height: hp('6%'),
+                  height: hp('7%'),
                   width: wp('80%'),
                   backgroundColor: '#94C036',
                   justifyContent: 'center',
                   alignItems: 'center',
-                  marginTop: 20,
+                  marginTop: hp('5%'),
+                  borderRadius: 100,
                 }}>
-                <View style={{}}>
-                  <Text style={{color: 'white', marginLeft: 5}}>Add Line</Text>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                  }}>
+                  <Image
+                    source={img.addIcon}
+                    style={{
+                      width: 20,
+                      height: 20,
+                      tintColor: '#fff',
+                      resizeMode: 'contain',
+                    }}
+                  />
+                  <Text style={{color: 'white', marginLeft: 10}}>Add Line</Text>
                 </View>
               </TouchableOpacity>
             </View>

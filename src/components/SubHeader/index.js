@@ -11,78 +11,7 @@ import {translate} from '../../utils/translations';
 class SubHeader extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      modalVisibleInbox: false,
-      modalVisibleAdmin: false,
-      modalVisibleSetup: false,
-      adminArr: [
-        {
-          name: translate('Sales'),
-          screen: 'SalesAdminScreen',
-          id: 0,
-        },
-        {
-          name: translate('Inventory Levels'),
-          screen: 'InventoryAdminScreen',
-          id: 1,
-        },
-        {
-          name: translate('Ordering'),
-          screen: 'OrderingAdminScreen',
-          id: 2,
-        },
-        {
-          name: translate('Events'),
-          screen: 'EventsAdminScreen',
-          id: 3,
-        },
-        {
-          name: translate('Reports & Analysis'),
-          screen: 'ReportsAdminScreen',
-          id: 4,
-        },
-        {
-          name: translate('Account Admin'),
-          screen: 'AccountAdminScreen',
-          id: 5,
-        },
-        {
-          name: translate('Close'),
-          id: 6,
-        },
-      ],
-      setupArr: [
-        {
-          name: translate('Inventory List'),
-          screen: 'InventorySetupScreen',
-          id: 0,
-        },
-        {
-          name: translate('Suppliers'),
-          screen: 'SupplierScreen',
-          id: 1,
-        },
-        {
-          name: translate('Recipes'),
-          screen: 'RecipeSetupScreen',
-          id: 2,
-        },
-        {
-          name: translate('Menu item'),
-          screen: 'MenuItemScreen',
-          id: 3,
-        },
-        {
-          name: translate('Menus'),
-          screen: 'MenusScreen',
-          id: 4,
-        },
-        {
-          name: translate('Close'),
-          id: 5,
-        },
-      ],
-    };
+    this.state = {};
   }
 
   subHeaderFun = (item, index) => {
@@ -121,9 +50,23 @@ class SubHeader extends Component {
                   alignItems: 'center',
                   borderRadius: 100,
                 }}>
-                <Text style={{color: 'white', fontFamily: 'Inter-Bold'}}>
-                  {item.name}
-                </Text>
+                {index === this.props.index ? (
+                  <Text
+                    style={{
+                      color: index === this.props.index ? '#496618' : 'white',
+                      fontFamily: 'Inter-Bold',
+                    }}>
+                    {item.name}
+                  </Text>
+                ) : (
+                  <Text
+                    style={{
+                      color: 'white',
+                      fontFamily: 'Inter-Bold',
+                    }}>
+                    {item.name}
+                  </Text>
+                )}
               </TouchableOpacity>
               <View></View>
             </View>
