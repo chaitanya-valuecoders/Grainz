@@ -328,7 +328,7 @@ class Sales extends Component {
             resizeMode: 'contain',
             marginLeft: wp('2%'),
           }}
-          source={isActive ? img.arrowDownIcon : img.arrowRightIcon}
+          source={isActive ? img.upArrowIcon : img.arrowRightIcon}
         />
         <Text
           style={{
@@ -363,7 +363,7 @@ class Sales extends Component {
             resizeMode: 'contain',
             marginLeft: wp('2%'),
           }}
-          source={isActive ? img.arrowDownIcon : img.arrowRightIcon}
+          source={isActive ? img.upArrowIcon : img.arrowRightIcon}
         />
         <Text
           style={{
@@ -398,7 +398,7 @@ class Sales extends Component {
             resizeMode: 'contain',
             marginLeft: wp('2%'),
           }}
-          source={isActive ? img.arrowDownIcon : img.arrowRightIcon}
+          source={isActive ? img.upArrowIcon : img.arrowRightIcon}
         />
         <Text
           style={{
@@ -433,7 +433,7 @@ class Sales extends Component {
             resizeMode: 'contain',
             marginLeft: wp('2%'),
           }}
-          source={isActive ? img.arrowDownIcon : img.arrowRightIcon}
+          source={isActive ? img.upArrowIcon : img.arrowRightIcon}
         />
         <Text
           style={{
@@ -515,14 +515,6 @@ class Sales extends Component {
                     justifyContent: 'space-between',
                     marginTop: 10,
                   }}>
-                  <Image
-                    source={img.arrowRightIcon}
-                    style={{
-                      width: 20,
-                      height: 20,
-                      resizeMode: 'contain',
-                    }}
-                  />
                   <View
                     style={{
                       width: wp('30%'),

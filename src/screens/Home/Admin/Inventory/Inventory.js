@@ -166,7 +166,7 @@ class Inventory extends Component {
             resizeMode: 'contain',
             marginLeft: wp('2%'),
           }}
-          source={isActive ? img.arrowDownIcon : img.arrowRightIcon}
+          source={isActive ? img.upArrowIcon : img.arrowRightIcon}
         />
         <Text
           style={{

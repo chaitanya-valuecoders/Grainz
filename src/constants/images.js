@@ -30,4 +30,5 @@ export default {
   profilePhotoIcon: require('../assests/Images/profilePhotoIcon.png'),
   menuAnalysisIcon: require('../assests/Images/menuAnalysisIcon.png'),
   grossMarginIcon: require('../assests/Images/grossMarginIcon.png'),
+  upArrowIcon: require('../assests/Images/upArrowIcon.png'),
 };

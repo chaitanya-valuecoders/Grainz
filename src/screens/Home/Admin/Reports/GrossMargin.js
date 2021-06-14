@@ -20,6 +20,7 @@ import {UserTokenAction} from '../../../../redux/actions/UserTokenAction';
 import {
   getMyProfileApi,
   getDepartmentsReportsAdminApi,
+  getDepartmentsAdminApi,
 } from '../../../../connectivity/api';
 import DropDownPicker from 'react-native-dropdown-picker';
 import styles from './style';
@@ -30,35 +31,12 @@ class MenuAnalysis extends Component {
     super(props);
     this.state = {
       token: '',
-      modalVisible: false,
       recipeLoader: false,
-      sectionData: {},
-      isMakeMeStatus: true,
-      productionDate: '',
-      recipeID: '',
-      selectedItems: [],
-      items: [],
       departmentId: '',
-      itemTypes: '',
-      loading: false,
-      selectedItemObjects: '',
       buttonsSubHeader: [],
-      backStatus: false,
-      grossMarginStatus: false,
-      menuAnalysisStatus: false,
       periodName: 'Select Period',
       departmentArr: [],
       gmReportsArrStatus: false,
-      menuAnalysisLoader: false,
-      locationName: '',
-      showSubList: false,
-      SECTIONS_SEC: [],
-      finalName: '',
-      modalVisibleSetup: false,
-      modalData: [],
-      modalLoader: false,
-      finalName: '',
-      sectionName: '',
     };
   }
 
@@ -101,7 +79,27 @@ class MenuAnalysis extends Component {
 
   componentDidMount() {
     this.getData();
+    this.getDepartmentsData();
   }
+
+  getDepartmentsData = () => {
+    getDepartmentsAdminApi()
+      .then(res => {
+        const finalArr = [];
+        res.data.map(item => {
+          finalArr.push({
+            label: item.name,
+            value: item.id,
+          });
+        });
+        this.setState({
+          departmentArr: [...finalArr],
+        });
+      })
+      .catch(err => {
+        console.warn('ERr', err);
+      });
+  };
 
   myProfile = () => {
     this.props.navigation.navigate('MyProfile');
@@ -134,27 +132,32 @@ class MenuAnalysis extends Component {
 
   selectPeriodtNameFun = item => {
     const {departmentId} = this.state;
-    this.setState(
-      {
-        periodName: item.value,
-        gmReportsArrStatus: true,
-      },
-      () => {
-        getDepartmentsReportsAdminApi(departmentId, item.value)
-          .then(res => {
-            this.setState({
-              gmReportsArr: res.data,
-              gmReportsArrStatus: false,
+    console.log('de', departmentId);
+    if (departmentId) {
+      this.setState(
+        {
+          periodName: item.value,
+          gmReportsArrStatus: true,
+        },
+        () => {
+          getDepartmentsReportsAdminApi(departmentId, item.value)
+            .then(res => {
+              this.setState({
+                gmReportsArr: res.data,
+                gmReportsArrStatus: false,
+              });
+            })
+            .catch(err => {
+              this.setState({
+                gmReportsArrStatus: false,
+              });
+              console.warn('ERr', err);
             });
-          })
-          .catch(err => {
-            this.setState({
-              gmReportsArrStatus: false,
-            });
-            console.warn('ERr', err);
-          });
-      },
-    );
+        },
+      );
+    } else {
+      alert('Please select department first');
+    }
   };
 
   render() {
@@ -179,13 +182,13 @@ class MenuAnalysis extends Component {
           <SubHeader {...this.props} buttons={buttonsSubHeader} index={0} />
         )}
         <ScrollView
-          style={{marginBottom: hp('5%')}}
+          style={{marginBottom: hp('2%')}}
           showsVerticalScrollIndicator={false}>
           <View style={styles.subContainer}>
             <View style={styles.firstContainer}>
               <View style={{flex: 1}}>
                 <Text style={styles.adminTextStyle}>
-                  {translate('Reports & Analysis')}
+                  {translate('Gross Margin')}
                 </Text>
               </View>
               <TouchableOpacity
@@ -196,22 +199,29 @@ class MenuAnalysis extends Component {
             </View>
           </View>
 
-          <View style={{marginHorizontal: wp('10%')}}>
+          <View style={{marginHorizontal: wp('8%')}}>
             <View style={{alignSelf: 'center', marginVertical: hp('2%')}}>
-              <Text>GM ({periodName})</Text>
+              <Text
+                style={{
+                  fontSize: 20,
+                  color: '#492813',
+                  fontFamily: 'Inter-Regular',
+                }}>
+                Order From
+              </Text>
             </View>
             <View>
               <DropDownPicker
                 placeholder="Select Department"
                 items={departmentArr}
-                zIndex={1000000000}
+                zIndex={3000}
                 containerStyle={{
                   height: 50,
                   marginBottom: hp('3%'),
+                  borderColor: 'red',
                 }}
                 style={{
                   backgroundColor: '#fff',
-                  borderColor: 'black',
                 }}
                 itemStyle={{
                   justifyContent: 'flex-start',
@@ -241,11 +251,11 @@ class MenuAnalysis extends Component {
                 }}
                 style={{
                   backgroundColor: '#fff',
-                  borderColor: 'black',
                 }}
                 itemStyle={{
                   justifyContent: 'flex-start',
                 }}
+                zIndex={2000}
                 dropDownStyle={{backgroundColor: '#fff'}}
                 onChangeItem={item => this.selectPeriodtNameFun(item)}
               />
@@ -253,16 +263,22 @@ class MenuAnalysis extends Component {
                 onPress={() => alert('Print')}
                 style={{
                   flexDirection: 'row',
-                  height: hp('6%'),
-                  width: wp('70%'),
+                  height: hp('7%'),
+                  width: wp('80%'),
                   backgroundColor: '#94C036',
                   justifyContent: 'center',
                   alignItems: 'center',
                   marginTop: 10,
                   alignSelf: 'center',
+                  borderRadius: 100,
                 }}>
                 <View style={{}}>
-                  <Text style={{color: 'white', marginLeft: 5}}>
+                  <Text
+                    style={{
+                      color: 'white',
+                      fontFamily: 'Inter-SemiBold',
+                      fontSize: 15,
+                    }}>
                     {translate('Print')}
                   </Text>
                 </View>
@@ -273,13 +289,13 @@ class MenuAnalysis extends Component {
           {gmReportsArrStatus ? (
             <ActivityIndicator size="large" color="grey" />
           ) : (
-            <View>
+            <View style={{marginTop: hp('8%')}}>
               {gmReportsArr && gmReportsArr.length > 0 ? (
                 <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                   <View
                     style={{
-                      marginHorizontal: wp('2%'),
                       flexDirection: 'row',
+                      marginLeft: wp('5%'),
                     }}>
                     <View style={{}}>
                       <View
@@ -287,6 +303,7 @@ class MenuAnalysis extends Component {
                           width: wp('30%'),
                           height: hp('6%'),
                           justifyContent: 'center',
+                          backgroundColor: '#EFFBCF',
                         }}>
                         <Text style={{fontSize: 15, fontWeight: 'bold'}}>
                           $
@@ -297,6 +314,7 @@ class MenuAnalysis extends Component {
                           width: wp('30%'),
                           height: hp('10%'),
                           justifyContent: 'center',
+                          backgroundColor: '#FFFFFF',
                         }}>
                         <Text style={{fontSize: 15, fontWeight: 'bold'}}>
                           Sales HTVA
@@ -307,6 +325,7 @@ class MenuAnalysis extends Component {
                           width: wp('30%'),
                           height: hp('10%'),
                           justifyContent: 'center',
+                          backgroundColor: '#F7F8F5',
                         }}>
                         <Text style={{fontSize: 15, fontWeight: 'bold'}}>
                           Cost of sales (29%)
@@ -317,6 +336,7 @@ class MenuAnalysis extends Component {
                           width: wp('30%'),
                           height: hp('10%'),
                           justifyContent: 'center',
+                          backgroundColor: '#FFFFFF',
                         }}>
                         <Text style={{fontSize: 15, fontWeight: 'bold'}}>
                           Waste (1%)
@@ -327,6 +347,7 @@ class MenuAnalysis extends Component {
                           width: wp('30%'),
                           height: hp('10%'),
                           justifyContent: 'center',
+                          backgroundColor: '#F7F8F5',
                         }}>
                         <Text style={{fontSize: 15, fontWeight: 'bold'}}>
                           Staff (1%)
@@ -337,6 +358,7 @@ class MenuAnalysis extends Component {
                           width: wp('30%'),
                           height: hp('10%'),
                           justifyContent: 'center',
+                          backgroundColor: '#FFFFFF',
                         }}>
                         <Text style={{fontSize: 15, fontWeight: 'bold'}}>
                           R & D (1%)
@@ -347,6 +369,7 @@ class MenuAnalysis extends Component {
                           width: wp('30%'),
                           height: hp('10%'),
                           justifyContent: 'center',
+                          backgroundColor: '#F7F8F5',
                         }}>
                         <Text style={{fontSize: 15, fontWeight: 'bold'}}>
                           Other (1%)
@@ -357,6 +380,7 @@ class MenuAnalysis extends Component {
                           width: wp('30%'),
                           height: hp('10%'),
                           justifyContent: 'center',
+                          backgroundColor: '#FFFFFF',
                         }}>
                         <Text style={{fontSize: 15, fontWeight: 'bold'}}>
                           Grainz correction (1%)
@@ -367,6 +391,7 @@ class MenuAnalysis extends Component {
                           width: wp('30%'),
                           height: hp('10%'),
                           justifyContent: 'center',
+                          backgroundColor: '#F7F8F5',
                         }}>
                         <Text style={{fontSize: 15, fontWeight: 'bold'}}>
                           Total costs(1%)
@@ -377,6 +402,7 @@ class MenuAnalysis extends Component {
                           width: wp('30%'),
                           height: hp('10%'),
                           justifyContent: 'center',
+                          backgroundColor: '#FFFFFF',
                         }}>
                         <Text style={{fontSize: 15, fontWeight: 'bold'}}>
                           Gross Margin (1%)
@@ -384,7 +410,6 @@ class MenuAnalysis extends Component {
                       </View>
                     </View>
                     {gmReportsArr.map((item, index) => {
-                      console.log('iTEM', item.data);
                       const {data} = item;
                       return (
                         <View>
@@ -394,6 +419,7 @@ class MenuAnalysis extends Component {
                               height: hp('6%'),
                               width: wp('40%'),
                               alignItems: 'center',
+                              backgroundColor: '#EFFBCF',
                             }}>
                             <Text style={{fontSize: 15, fontWeight: 'bold'}}>
                               {item.title}
@@ -404,6 +430,7 @@ class MenuAnalysis extends Component {
                               width: wp('40%'),
                               height: hp('10%'),
                               justifyContent: 'center',
+                              backgroundColor: '#FFFFFF',
                             }}>
                             <Text style={{fontSize: 15, fontWeight: 'bold'}}>
                               {data.salesHTVA}
@@ -414,6 +441,7 @@ class MenuAnalysis extends Component {
                               width: wp('40%'),
                               height: hp('10%'),
                               justifyContent: 'center',
+                              backgroundColor: '#F7F8F5',
                             }}>
                             <Text style={{fontSize: 15, fontWeight: 'bold'}}>
                               {data.costOfSales} {data.percentageCostOfSales}
@@ -424,6 +452,7 @@ class MenuAnalysis extends Component {
                               width: wp('40%'),
                               height: hp('10%'),
                               justifyContent: 'center',
+                              backgroundColor: '#FFFFFF',
                             }}>
                             <Text style={{fontSize: 15, fontWeight: 'bold'}}>
                               {data.waste} {data.percentageWaste}
@@ -434,6 +463,7 @@ class MenuAnalysis extends Component {
                               width: wp('40%'),
                               height: hp('10%'),
                               justifyContent: 'center',
+                              backgroundColor: '#F7F8F5',
                             }}>
                             <Text style={{fontSize: 15, fontWeight: 'bold'}}>
                               {data.stafFood} {data.percentageStaffFood}
@@ -444,6 +474,7 @@ class MenuAnalysis extends Component {
                               width: wp('40%'),
                               height: hp('10%'),
                               justifyContent: 'center',
+                              backgroundColor: '#FFFFFF',
                             }}>
                             <Text style={{fontSize: 15, fontWeight: 'bold'}}>
                               {data.rAndD} {data.percentageRAndD}
@@ -454,6 +485,7 @@ class MenuAnalysis extends Component {
                               width: wp('40%'),
                               height: hp('10%'),
                               justifyContent: 'center',
+                              backgroundColor: '#F7F8F5',
                             }}>
                             <Text style={{fontSize: 15, fontWeight: 'bold'}}>
                               {data.other} {data.percentageOther}
@@ -464,6 +496,7 @@ class MenuAnalysis extends Component {
                               width: wp('40%'),
                               height: hp('10%'),
                               justifyContent: 'center',
+                              backgroundColor: '#FFFFFF',
                             }}>
                             <Text style={{fontSize: 15, fontWeight: 'bold'}}>
                               {data.grainZError} {data.percentageGrainzError}
@@ -474,6 +507,7 @@ class MenuAnalysis extends Component {
                               width: wp('40%'),
                               height: hp('10%'),
                               justifyContent: 'center',
+                              backgroundColor: '#F7F8F5',
                             }}>
                             <Text style={{fontSize: 15, fontWeight: 'bold'}}>
                               {data.totalCost} {data.percentageTotalCost}
@@ -484,6 +518,7 @@ class MenuAnalysis extends Component {
                               width: wp('40%'),
                               height: hp('10%'),
                               justifyContent: 'center',
+                              backgroundColor: '#FFFFFF',
                             }}>
                             <Text style={{fontSize: 15, fontWeight: 'bold'}}>
                               {data.grossMargin} {data.percentageGrossMargin}

@@ -32,6 +32,7 @@ import MenuItemScreen from '../screens/Home/Setup/MenuItem/MenuItem';
 import MenusScreen from '../screens/Home/Setup/Menus/Menus';
 import RecipeSetupScreen from '../screens/Home/Setup/Recipe/Recipe';
 import SupplierScreen from '../screens/Home/Setup/Supplier/Supplier';
+import MenuAnalysisSec from '../screens/Home/Admin/Reports/MenuAnalysisSec';
 
 const AppNav = createStackNavigator();
 
@@ -97,6 +98,7 @@ export default function AppNavFun() {
         name="MenuAnalysisAdminScreen"
         component={MenuAnalysisAdminScreen}
       />
+      <AppNav.Screen name="MenuAnalysisSec" component={MenuAnalysisSec} />
     </AppNav.Navigator>
   );
 }

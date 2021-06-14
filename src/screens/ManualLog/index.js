@@ -262,7 +262,7 @@ class index extends Component {
             resizeMode: 'contain',
             marginLeft: wp('2%'),
           }}
-          source={isActive ? img.arrowDownIcon : img.arrowRightIcon}
+          source={isActive ? img.upArrowIcon : img.arrowRightIcon}
         />
         <Text
           style={{
@@ -452,13 +452,8 @@ class index extends Component {
   };
 
   updateRecipeDetailsFun = () => {
-    const {
-      sectionData,
-      quantity,
-      notes,
-      itemTypes,
-      selectedItemObjects,
-    } = this.state;
+    const {sectionData, quantity, notes, itemTypes, selectedItemObjects} =
+      this.state;
     let payload = {
       id: sectionData.id,
       itemId: sectionData.itemId,

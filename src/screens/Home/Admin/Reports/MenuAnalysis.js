@@ -23,7 +23,6 @@ import {UserTokenAction} from '../../../../redux/actions/UserTokenAction';
 import {
   getMyProfileApi,
   menuAnalysisAdminApi,
-  getDepartmentsAdminApi,
 } from '../../../../connectivity/api';
 import Modal from 'react-native-modal';
 import Accordion from 'react-native-collapsible/Accordion';
@@ -148,27 +147,7 @@ class MenuAnalysis extends Component {
   componentDidMount() {
     this.getData();
     this.getManualLogsData();
-    this.getDepartmentsData();
   }
-
-  getDepartmentsData = () => {
-    getDepartmentsAdminApi()
-      .then(res => {
-        const finalArr = [];
-        res.data.map(item => {
-          finalArr.push({
-            label: item.name,
-            value: item.id,
-          });
-        });
-        this.setState({
-          departmentArr: [...finalArr],
-        });
-      })
-      .catch(err => {
-        console.warn('ERr', err);
-      });
-  };
 
   myProfile = () => {
     this.props.navigation.navigate('MyProfile');
@@ -183,10 +162,6 @@ class MenuAnalysis extends Component {
   };
 
   _renderHeader = (section, index, isActive) => {
-    var todayFinal = moment(new Date()).format('dddd, MMM DD YYYY');
-
-    const finalData = moment(section.title).format('dddd, MMM DD YYYY');
-
     return (
       <View
         style={{
@@ -212,7 +187,7 @@ class MenuAnalysis extends Component {
               resizeMode: 'contain',
               marginLeft: wp('2%'),
             }}
-            source={isActive ? img.arrowDownIcon : img.arrowRightIcon}
+            source={isActive ? img.upArrowIcon : img.arrowRightIcon}
           />
           <Text
             style={{
@@ -253,6 +228,14 @@ class MenuAnalysis extends Component {
       </View>
     );
   };
+  openListFun = (index, section, sta, item) => {
+    this.props.navigation.navigate('MenuAnalysisSec', {
+      index,
+      section,
+      sta,
+      item,
+    });
+  };
 
   _renderContent = section => {
     return (
@@ -273,14 +256,6 @@ class MenuAnalysis extends Component {
                     justifyContent: 'space-between',
                     marginTop: 10,
                   }}>
-                  <Image
-                    source={img.arrowRightIcon}
-                    style={{
-                      width: 20,
-                      height: 20,
-                      resizeMode: 'contain',
-                    }}
-                  />
                   <View
                     style={{
                       width: wp('30%'),
@@ -352,30 +327,6 @@ class MenuAnalysis extends Component {
     });
   };
 
-  searchFun = txt => {
-    this.setState(
-      {
-        searchItem: txt,
-      },
-      () => this.filterData(txt),
-    );
-  };
-
-  filterData = text => {
-    //passing the inserted text in textinput
-    const newData = this.state.SECTIONS_BACKUP.filter(function (item) {
-      //applying filter for the inserted text in search bar
-      const itemData = item.title ? item.title.toUpperCase() : ''.toUpperCase();
-      const textData = text.toUpperCase();
-      return itemData.indexOf(textData) > -1;
-    });
-    this.setState({
-      //setting the filtered newData on datasource
-      //After setting the data it will automatically re-render the view
-      SECTIONS: newData,
-      searchItem: text,
-    });
-  };
   render() {
     const {
       recipeLoader,
@@ -383,7 +334,6 @@ class MenuAnalysis extends Component {
       activeSections,
       firstName,
       buttonsSubHeader,
-      searchItem,
     } = this.state;
 
     return (

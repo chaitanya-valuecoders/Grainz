@@ -4,10 +4,7 @@ import {
   Text,
   TouchableOpacity,
   Image,
-  ScrollView,
   ActivityIndicator,
-  Switch,
-  TextInput,
   Alert,
   FlatList,
 } from 'react-native';
@@ -23,15 +20,8 @@ import {
 import {UserTokenAction} from '../../../../redux/actions/UserTokenAction';
 import {getMyProfileApi} from '../../../../connectivity/api';
 import styles from './style';
-import Modal from 'react-native-modal';
-import moment from 'moment';
 
-import {translate, setI18nConfig} from '../../../../utils/translations';
-
-var minTime = new Date();
-minTime.setHours(0);
-minTime.setMinutes(0);
-minTime.setMilliseconds(0);
+import {translate} from '../../../../utils/translations';
 
 class Reports extends Component {
   constructor(props) {
@@ -39,7 +29,6 @@ class Reports extends Component {
     this.state = {
       buttons: [],
       token: '',
-      firstName: '',
       buttonsSubHeader: [],
       loader: true,
     };
@@ -65,7 +54,6 @@ class Reports extends Component {
     getMyProfileApi()
       .then(res => {
         this.setState({
-          firstName: res.data.firstName,
           loader: false,
           buttons: [
             {
@@ -88,9 +76,6 @@ class Reports extends Component {
       })
       .catch(err => {
         console.warn('ERr', err.response);
-        this.setState({
-          loader: false,
-        });
         Alert.alert('Grainz', 'Session Timeout', [
           {text: 'OK', onPress: () => this.removeToken()},
         ]);
@@ -104,19 +89,7 @@ class Reports extends Component {
 
   componentDidMount() {
     this.getData();
-    this.setLanguage();
   }
-
-  setLanguage = async () => {
-    setI18nConfig();
-    const lang = await AsyncStorage.getItem('Language');
-    if (lang !== null && lang !== undefined) {
-      setI18nConfig();
-    } else {
-      await AsyncStorage.setItem('Language', 'en');
-      setI18nConfig();
-    }
-  };
 
   myProfile = () => {
     this.props.navigation.navigate('MyProfile');
@@ -127,7 +100,7 @@ class Reports extends Component {
   };
 
   render() {
-    const {firstName, buttons, buttonsSubHeader, loader} = this.state;
+    const {buttons, buttonsSubHeader, loader} = this.state;
 
     return (
       <View style={styles.container}>
@@ -136,15 +109,12 @@ class Reports extends Component {
           logoFun={() => this.props.navigation.navigate('HomeScreen')}
         />
         {loader ? (
-          <ActivityIndicator size="large" color="grey" />
+          <ActivityIndicator size="small" color="#98C13E" />
         ) : (
           <SubHeader {...this.props} buttons={buttonsSubHeader} index={0} />
         )}
 
-        <View
-          style={{
-            marginTop: hp('2%'),
-          }}>
+        <View style={styles.subContainer}>
           <View style={styles.firstContainer}>
             <View style={{flex: 1}}>
               <Text style={styles.adminTextStyle}>
@@ -209,40 +179,6 @@ class Reports extends Component {
             keyExtractor={item => item.id}
             numColumns={3}
           />
-          {/* {buttons.map((item, index) => {
-              return (
-                <View style={{}} key={index}>
-                  <TouchableOpacity
-                    onPress={() => this.onPressFun(item)}
-                    style={{
-                      flexDirection: 'row',
-                      height: hp('6%'),
-                      width: wp('70%'),
-                      backgroundColor: '#94C036',
-                      alignItems: 'center',
-                      marginTop: 20,
-                    }}>
-                    <View style={{}}>
-                      <Image
-                        source={item.icon}
-                        style={{
-                          height: 22,
-                          width: 22,
-                          tintColor: 'white',
-                          resizeMode: 'contain',
-                          marginLeft: 15,
-                        }}
-                      />
-                    </View>
-                    <View style={{}}>
-                      <Text style={{color: 'white', marginLeft: 5}}>
-                        {item.name}
-                      </Text>
-                    </View>
-                  </TouchableOpacity>
-                </View>
-              );
-            })} */}
         </View>
       </View>
     );
