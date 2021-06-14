@@ -6,9 +6,6 @@ import {
   Image,
   ScrollView,
   ActivityIndicator,
-  Switch,
-  TextInput,
-  Alert,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {connect} from 'react-redux';
@@ -24,11 +21,8 @@ import {
   getMyProfileApi,
   lookupDepartmentsApi,
   lookupCategoriesApi,
-  lookupInsideCategoriesApi,
 } from '../../../../connectivity/api';
-import Modal from 'react-native-modal';
 import Accordion from 'react-native-collapsible/Accordion';
-import moment from 'moment';
 import styles from './style';
 
 import {translate} from '../../../../utils/translations';
@@ -183,28 +177,10 @@ class Inventory extends Component {
 
   openListFun = (item, index, section) => {
     console.log('item', item);
-    this.setState(
-      {
-        finalName: item.name,
-        modalVisibleSetup: true,
-        modalLoader: true,
-        sectionName: section.title,
-      },
-      () => this.getInsideCatFun(item.id),
-    );
-  };
-
-  getInsideCatFun = catId => {
-    lookupInsideCategoriesApi(catId)
-      .then(res => {
-        this.setState({
-          modalData: res.data,
-          modalLoader: false,
-        });
-      })
-      .catch(err => {
-        console.warn('err', err);
-      });
+    this.props.navigation.navigate('InventoryAdminSec', {
+      item,
+      section,
+    });
   };
 
   _renderContent = section => {
@@ -346,18 +322,8 @@ class Inventory extends Component {
   };
 
   render() {
-    const {
-      recipeLoader,
-      SECTIONS,
-      activeSections,
-      firstName,
-      buttonsSubHeader,
-      modalVisibleSetup,
-      modalData,
-      modalLoader,
-      finalName,
-      sectionName,
-    } = this.state;
+    const {recipeLoader, SECTIONS, activeSections, buttonsSubHeader} =
+      this.state;
 
     return (
       <View style={styles.container}>
@@ -392,7 +358,6 @@ class Inventory extends Component {
           ) : (
             <View style={{marginTop: hp('2%'), marginHorizontal: wp('5%')}}>
               <Accordion
-                // expandMultiple
                 underlayColor="#fff"
                 sections={SECTIONS}
                 activeSections={activeSections}
@@ -402,203 +367,6 @@ class Inventory extends Component {
               />
             </View>
           )}
-          <Modal isVisible={modalVisibleSetup} backdropOpacity={0.35}>
-            <View
-              style={{
-                width: wp('80%'),
-                height: hp('80%'),
-                backgroundColor: '#fff',
-                alignSelf: 'center',
-              }}>
-              <View
-                style={{
-                  backgroundColor: '#412916',
-                  height: hp('7%'),
-                  flexDirection: 'row',
-                }}>
-                <View
-                  style={{
-                    flex: 3,
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}>
-                  <Text style={{fontSize: 16, color: '#fff'}}>
-                    {sectionName}
-                  </Text>
-                </View>
-                <View
-                  style={{
-                    flex: 1,
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}>
-                  <TouchableOpacity
-                    onPress={() => this.setAdminModalVisible(false)}>
-                    <Image
-                      source={img.cancelIcon}
-                      style={{
-                        height: 22,
-                        width: 22,
-                        tintColor: 'white',
-                        resizeMode: 'contain',
-                      }}
-                    />
-                  </TouchableOpacity>
-                </View>
-              </View>
-              <ScrollView>
-                {modalLoader ? (
-                  <ActivityIndicator size="large" color="grey" />
-                ) : (
-                  <View
-                    style={{
-                      padding: hp('3%'),
-                    }}>
-                    <ScrollView
-                      horizontal
-                      showsHorizontalScrollIndicator={false}>
-                      <View>
-                        <View
-                          style={{
-                            paddingVertical: 15,
-                            paddingHorizontal: 5,
-                            marginTop: 10,
-                            flexDirection: 'row',
-                            justifyContent: 'space-between',
-                            borderWidth: 1,
-                          }}>
-                          <View
-                            style={{
-                              width: wp('30%'),
-                              alignItems: 'center',
-                            }}>
-                            <Text style={{textAlign: 'center'}}>
-                              {finalName}
-                            </Text>
-                          </View>
-                          <View
-                            style={{
-                              width: wp('30%'),
-                              alignItems: 'center',
-                            }}>
-                            <Text>Current inventory</Text>
-                          </View>
-                          <View
-                            style={{
-                              width: wp('30%'),
-                              alignItems: 'center',
-                            }}>
-                            <Text>On Order</Text>
-                          </View>
-                          <View
-                            style={{
-                              width: wp('30%'),
-                              alignItems: 'center',
-                            }}>
-                            <Text>Events(+7d)</Text>
-                          </View>
-                          <View
-                            style={{
-                              width: wp('30%'),
-                              alignItems: 'center',
-                            }}>
-                            <Text>Target</Text>
-                          </View>
-                          <View
-                            style={{
-                              width: wp('30%'),
-                              alignItems: 'center',
-                            }}>
-                            <Text>Delta</Text>
-                          </View>
-                          <View
-                            style={{
-                              width: wp('30%'),
-                              alignItems: 'center',
-                            }}>
-                            <Text>Order Now</Text>
-                          </View>
-                        </View>
-                        <View>
-                          {modalData && modalData.length > 0 ? (
-                            modalData.map((item, index) => {
-                              return (
-                                <View
-                                  style={{
-                                    paddingVertical: 10,
-                                    paddingHorizontal: 5,
-                                    flexDirection: 'row',
-                                  }}>
-                                  <View
-                                    style={{
-                                      width: wp('30%'),
-                                      alignItems: 'center',
-                                    }}>
-                                    <Text style={{textAlign: 'center'}}>
-                                      {item.name}
-                                    </Text>
-                                  </View>
-                                  <View
-                                    style={{
-                                      width: wp('30%'),
-                                      alignItems: 'center',
-                                    }}>
-                                    <Text>{item.currentInventory}</Text>
-                                  </View>
-                                  <View
-                                    style={{
-                                      width: wp('30%'),
-                                      alignItems: 'center',
-                                    }}>
-                                    <Text>{item.onOrder}</Text>
-                                  </View>
-                                  <View
-                                    style={{
-                                      width: wp('30%'),
-                                      alignItems: 'center',
-                                    }}>
-                                    <Text>{item.eventsOnOrder}</Text>
-                                  </View>
-                                  <View
-                                    style={{
-                                      width: wp('30%'),
-                                      alignItems: 'center',
-                                    }}>
-                                    <Text>{item.targetInventory}</Text>
-                                  </View>
-                                  <View
-                                    style={{
-                                      width: wp('30%'),
-                                      alignItems: 'center',
-                                    }}>
-                                    <Text>{item.delta}</Text>
-                                  </View>
-                                  <TouchableOpacity
-                                    onPress={() => alert('ORDER NOW')}
-                                    style={{
-                                      width: wp('30%'),
-                                      alignItems: 'center',
-                                    }}>
-                                    <Text>ORDER NOW</Text>
-                                  </TouchableOpacity>
-                                </View>
-                              );
-                            })
-                          ) : (
-                            <View style={{marginTop: hp('3%')}}>
-                              <Text style={{color: 'red', fontSize: 20}}>
-                                No data available
-                              </Text>
-                            </View>
-                          )}
-                        </View>
-                      </View>
-                    </ScrollView>
-                  </View>
-                )}
-              </ScrollView>
-            </View>
-          </Modal>
         </ScrollView>
       </View>
     );

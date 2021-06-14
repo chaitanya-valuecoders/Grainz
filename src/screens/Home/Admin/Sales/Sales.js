@@ -260,7 +260,6 @@ class Sales extends Component {
                 return {
                   title: subItem,
                   content: groupedCategory[subItem],
-                  status: false,
                 };
               },
             );
@@ -448,52 +447,47 @@ class Sales extends Component {
     );
   };
 
-  openListFun = (index, section, sta, item) => {
-    console.log('item', item.title);
-    this.setState(
-      {
-        finalName: item.title,
-        modalVisibleSetup: true,
-        modalLoader: true,
-        sectionName: section.title,
-      },
-      () => this.createDataFun(index, section, sta, item),
-    );
+  openListFun = (index, section, item) => {
+    this.props.navigation.navigate('SalesAdminSec', {
+      index,
+      section,
+      item,
+    });
   };
 
-  createDataFun = (index, section, sta, subItem) => {
-    console.log('section', section);
-    console.log('inde', index);
-    console.log('status', sta);
-    const {SECTIONS, showSubList, finalName} = this.state;
-    console.log('finalName', finalName);
-    console.log('SECTIONS', SECTIONS);
+  // createDataFun = (index, section, sta, subItem) => {
+  //   console.log('section', section);
+  //   console.log('inde', index);
+  //   console.log('status', sta);
+  //   const {SECTIONS, showSubList, finalName} = this.state;
+  //   console.log('finalName', finalName);
+  //   console.log('SECTIONS', SECTIONS);
 
-    const status = true;
-    // const status = !showSubList;
-    console.log('status', status);
+  //   const status = true;
+  //   // const status = !showSubList;
+  //   console.log('status', status);
 
-    let newArr = section.content.map((item, i) =>
-      finalName === item.title
-        ? {
-            ...item,
-            [sta]: status,
-          }
-        : {
-            ...item,
-            [sta]: false,
-          },
-    );
-    console.log('new', newArr);
+  //   let newArr = section.content.map((item, i) =>
+  //     finalName === item.title
+  //       ? {
+  //           ...item,
+  //           [sta]: status,
+  //         }
+  //       : {
+  //           ...item,
+  //           [sta]: false,
+  //         },
+  //   );
+  //   console.log('new', newArr);
 
-    setTimeout(() => {
-      this.setState({
-        showSubList: status,
-        modalData: newArr,
-        modalLoader: false,
-      });
-    }, 300);
-  };
+  //   setTimeout(() => {
+  //     this.setState({
+  //       showSubList: status,
+  //       modalData: newArr,
+  //       modalLoader: false,
+  //     });
+  //   }, 300);
+  // };
 
   _renderContent = section => {
     // console.log('sec', section);
@@ -504,9 +498,7 @@ class Sales extends Component {
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
               <View>
                 <TouchableOpacity
-                  onPress={() =>
-                    this.openListFun(index, section, 'status', item)
-                  }
+                  onPress={() => this.openListFun(index, section, item)}
                   style={{
                     borderWidth: 1,
                     paddingVertical: 15,
@@ -514,6 +506,7 @@ class Sales extends Component {
                     flexDirection: 'row',
                     justifyContent: 'space-between',
                     marginTop: 10,
+                    borderRadius: 6,
                   }}>
                   <View
                     style={{
@@ -616,31 +609,28 @@ class Sales extends Component {
                   <Text
                     style={{
                       fontSize: 15,
-                      fontWeight: 'bold',
                       textAlign: 'center',
                     }}>
                     {item && item.content.name}
                   </Text>
                 </View>
                 <View style={{width: wp('30%')}}>
-                  <Text
-                    style={{fontSize: 15, fontWeight: 'bold'}}
-                    numberOfLines={1}>
+                  <Text style={{fontSize: 15}} numberOfLines={1}>
                     {item && item.content.vat}%
                   </Text>
                 </View>
                 <View style={{width: wp('30%')}}>
-                  <Text style={{fontSize: 15, fontWeight: 'bold'}}>
+                  <Text style={{fontSize: 15}}>
                     ${item && item.content.amount}
                   </Text>
                 </View>
                 <View style={{width: wp('30%')}}>
-                  <Text style={{fontSize: 15, fontWeight: 'bold'}}>
+                  <Text style={{fontSize: 15}}>
                     ${item && item.content.vatAmountFormatted}
                   </Text>
                 </View>
                 <View style={{width: wp('30%')}}>
-                  <Text style={{fontSize: 15, fontWeight: 'bold'}}>
+                  <Text style={{fontSize: 15}}>
                     ${item && item.content.priceExcludingVATFormatted}
                   </Text>
                 </View>
@@ -693,26 +683,24 @@ class Sales extends Component {
                   <Text
                     style={{
                       fontSize: 15,
-                      fontWeight: 'bold',
+
                       textAlign: 'center',
                     }}>
                     {item && item.content.vat}%
                   </Text>
                 </View>
                 <View style={{width: wp('30%')}}>
-                  <Text
-                    style={{fontSize: 15, fontWeight: 'bold'}}
-                    numberOfLines={1}>
+                  <Text style={{fontSize: 15}} numberOfLines={1}>
                     ${item && item.content.totalPriceFormatted}
                   </Text>
                 </View>
                 <View style={{width: wp('30%')}}>
-                  <Text style={{fontSize: 15, fontWeight: 'bold'}}>
+                  <Text style={{fontSize: 15}}>
                     ${item && item.content.vatAmountFormatted}
                   </Text>
                 </View>
                 <View style={{width: wp('30%')}}>
-                  <Text style={{fontSize: 15, fontWeight: 'bold'}}>
+                  <Text style={{fontSize: 15}}>
                     ${item && item.content.priceExcludingVATFormatted}
                   </Text>
                 </View>
@@ -763,26 +751,24 @@ class Sales extends Component {
                   <Text
                     style={{
                       fontSize: 15,
-                      fontWeight: 'bold',
+
                       textAlign: 'center',
                     }}>
                     {item && item.content.department}
                   </Text>
                 </View>
                 <View style={{width: wp('30%')}}>
-                  <Text
-                    style={{fontSize: 15, fontWeight: 'bold'}}
-                    numberOfLines={1}>
+                  <Text style={{fontSize: 15}} numberOfLines={1}>
                     ${item && item.content.totalPriceFormatted}
                   </Text>
                 </View>
                 <View style={{width: wp('30%')}}>
-                  <Text style={{fontSize: 15, fontWeight: 'bold'}}>
+                  <Text style={{fontSize: 15}}>
                     ${item && item.content.vatAmountFormatted}
                   </Text>
                 </View>
                 <View style={{width: wp('30%')}}>
-                  <Text style={{fontSize: 15, fontWeight: 'bold'}}>
+                  <Text style={{fontSize: 15}}>
                     ${item && item.content.priceExcludingVATFormatted}
                   </Text>
                 </View>
@@ -989,7 +975,7 @@ class Sales extends Component {
                 <ActivityIndicator color="#fff" size="small" />
               ) : (
                 <View style={{}}>
-                  <Text style={{color: 'white', marginLeft: 5}}>
+                  <Text style={{color: 'white', fontFamily: 'Inter-SemiBold'}}>
                     Find Report
                   </Text>
                 </View>
@@ -1063,7 +1049,14 @@ class Sales extends Component {
                       resizeMode: 'contain',
                     }}
                   />
-                  <Text style={{color: 'white', marginLeft: 10}}>Add Line</Text>
+                  <Text
+                    style={{
+                      color: 'white',
+                      marginLeft: 10,
+                      fontFamily: 'Inter-SemiBold',
+                    }}>
+                    Add Line
+                  </Text>
                 </View>
               </TouchableOpacity>
             </View>

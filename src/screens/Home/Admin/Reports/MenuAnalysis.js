@@ -255,6 +255,7 @@ class MenuAnalysis extends Component {
                     flexDirection: 'row',
                     justifyContent: 'space-between',
                     marginTop: 10,
+                    borderRadius: 6,
                   }}>
                   <View
                     style={{

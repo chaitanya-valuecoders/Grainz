@@ -9,6 +9,7 @@ import {
   Switch,
   TextInput,
   Alert,
+  FlatList,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {connect} from 'react-redux';
@@ -26,6 +27,7 @@ import {
   updateCustomerDataApi,
 } from '../../../../connectivity/api';
 import CheckBox from '@react-native-community/checkbox';
+import styles from './style';
 import Modal from 'react-native-modal';
 import Accordion from 'react-native-collapsible/Accordion';
 import moment from 'moment';
@@ -37,14 +39,12 @@ class Account extends Component {
     super(props);
     this.state = {
       buttons: [
-        {name: translate('Price Plan'), id: 0},
-        {name: translate('Locations'), id: 1},
-        {name: translate('Users'), id: 2},
-        {name: translate('Back'), id: 3},
+        {name: translate('Price Plan'), id: 0, icon: img.pricePlanIcon},
+        {name: translate('Locations'), id: 1, icon: img.locationIcon},
+        {name: translate('Users'), id: 2, icon: img.userIcon},
       ],
       token: '',
       modalVisible: false,
-      firstName: '',
       recipeLoader: false,
       pageLoading: false,
       selectedItemObjects: '',
@@ -81,7 +81,6 @@ class Account extends Component {
     getMyProfileApi()
       .then(res => {
         this.setState({
-          firstName: res.data.firstName,
           recipeLoader: false,
           buttonsSubHeader: [
             {name: translate('ADMIN')},
@@ -260,7 +259,6 @@ class Account extends Component {
     const {
       recipeLoader,
       pageLoading,
-      firstName,
       buttons,
       buttonsSubHeader,
       accountName,
@@ -276,83 +274,113 @@ class Account extends Component {
     } = this.state;
 
     return (
-      <View style={{flex: 1, backgroundColor: '#fff'}}>
+      <View style={styles.container}>
         <Header
-          logout={firstName}
           logoutFun={this.myProfile}
           logoFun={() => this.props.navigation.navigate('HomeScreen')}
         />
         {recipeLoader ? (
           <ActivityIndicator size="small" color="#94C036" />
         ) : (
-          <SubHeader {...this.props} buttons={buttonsSubHeader} />
+          <SubHeader {...this.props} buttons={buttonsSubHeader} index={0} />
         )}
         <ScrollView
           style={{marginBottom: hp('5%')}}
           showsVerticalScrollIndicator={false}>
-          <View
-            style={{
-              backgroundColor: '#412916',
-              alignItems: 'center',
-              paddingVertical: hp('3%'),
-            }}>
-            <Text style={{fontSize: 22, color: 'white'}}>
-              {translate('Account Set Up').toLocaleUpperCase()}
-            </Text>
-            {buttons.map((item, index) => {
-              return (
-                <View style={{}} key={index}>
-                  <TouchableOpacity
-                    onPress={() => this.onPressFun(item)}
+          <View style={styles.subContainer}>
+            <View style={styles.firstContainer}>
+              <View style={{flex: 1}}>
+                <Text style={styles.adminTextStyle}>
+                  {translate('Account Set Up')}
+                </Text>
+              </View>
+              <TouchableOpacity
+                onPress={() => this.props.navigation.goBack()}
+                style={styles.goBackContainer}>
+                <Text style={styles.goBackTextStyle}>Go Back</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+          <FlatList
+            data={buttons}
+            renderItem={({item}) => (
+              <View style={styles.itemContainer}>
+                <TouchableOpacity
+                  onPress={() => this.onPressFun(item)}
+                  style={{
+                    backgroundColor: '#fff',
+                    flex: 1,
+                    margin: 10,
+                    borderRadius: 8,
+                    padding: 10,
+                  }}>
+                  <View
                     style={{
-                      height: hp('6%'),
-                      width: wp('70%'),
-                      backgroundColor: '#94C036',
+                      flex: 1,
                       justifyContent: 'center',
                       alignItems: 'center',
-                      marginTop: 20,
                     }}>
-                    <View style={{}}>
-                      <Text style={{color: 'white', marginLeft: 5}}>
-                        {item.name}
-                      </Text>
-                    </View>
-                  </TouchableOpacity>
-                </View>
-              );
-            })}
-          </View>
+                    <Image
+                      source={item.icon}
+                      style={{
+                        height: 40,
+                        width: 40,
+                        resizeMode: 'contain',
+                      }}
+                    />
+                  </View>
+                  <View
+                    style={{
+                      flex: 1,
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                    }}>
+                    <Text
+                      style={{
+                        fontSize: 13,
+                        textAlign: 'center',
+                        fontFamily: 'Inter-Regular',
+                      }}
+                      numberOfLines={1}>
+                      {' '}
+                      {item.name}
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              </View>
+            )}
+            keyExtractor={item => item.id}
+            numColumns={3}
+          />
 
           {pageLoading ? (
             <ActivityIndicator color="#94C036" size="large" />
           ) : (
             <View style={{marginTop: hp('3%'), marginHorizontal: wp('5%')}}>
               <View>
-                <View>
-                  <Text style={{fontSize: 20, color: '#656565'}}>
-                    ACCOUNT -
+                <View style={{alignSelf: 'center'}}>
+                  <Text
+                    style={{
+                      fontSize: 20,
+                      color: '#492813',
+                      fontFamily: 'Inter-Regular',
+                    }}>
+                    Account
                   </Text>
                 </View>
                 <View
                   style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    marginTop: hp('3%'),
+                    marginTop: hp('5%'),
                   }}>
-                  <View
-                    style={{
-                      width: wp('30%'),
-                    }}>
-                    <Text>Account name: </Text>
-                  </View>
-                  <View style={{marginLeft: wp('3%')}}>
+                  <View style={{}}>
                     <TextInput
                       value={accountName}
                       placeholder="Account name"
                       style={{
-                        borderWidth: 1,
-                        padding: 10,
-                        width: wp('50%'),
+                        padding: 15,
+                        width: wp('90%'),
+                        backgroundColor: '#fff',
+                        borderRadius: 5,
                       }}
                       onChangeText={value =>
                         this.setState({
@@ -364,24 +392,17 @@ class Account extends Component {
                 </View>
                 <View
                   style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
                     marginTop: hp('3%'),
                   }}>
-                  <View
-                    style={{
-                      width: wp('30%'),
-                    }}>
-                    <Text>Business name: </Text>
-                  </View>
-                  <View style={{marginLeft: wp('3%')}}>
+                  <View style={{}}>
                     <TextInput
                       value={businessName}
                       placeholder="Business name"
                       style={{
-                        borderWidth: 1,
-                        padding: 10,
-                        width: wp('50%'),
+                        padding: 15,
+                        width: wp('90%'),
+                        backgroundColor: '#fff',
+                        borderRadius: 5,
                       }}
                       onChangeText={value =>
                         this.setState({
@@ -393,24 +414,17 @@ class Account extends Component {
                 </View>
                 <View
                   style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
                     marginTop: hp('3%'),
                   }}>
-                  <View
-                    style={{
-                      width: wp('30%'),
-                    }}>
-                    <Text>URL: </Text>
-                  </View>
-                  <View style={{marginLeft: wp('3%')}}>
+                  <View style={{}}>
                     <TextInput
                       value={url}
                       placeholder="URL"
                       style={{
-                        borderWidth: 1,
-                        padding: 10,
-                        width: wp('50%'),
+                        padding: 15,
+                        width: wp('90%'),
+                        backgroundColor: '#fff',
+                        borderRadius: 5,
                       }}
                       onChangeText={value =>
                         this.setState({
@@ -422,31 +436,26 @@ class Account extends Component {
                 </View>
               </View>
               <View>
-                <View style={{marginTop: hp('3%')}}>
-                  <Text style={{fontSize: 20, color: '#656565'}}>
-                    INVOICE ADDRESS -
+                <View style={{marginVertical: hp('5%'), alignSelf: 'center'}}>
+                  <Text
+                    style={{
+                      fontSize: 20,
+                      color: '#492813',
+                      fontFamily: 'Inter-Regular',
+                    }}>
+                    Invoice Address
                   </Text>
                 </View>
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    marginTop: hp('3%'),
-                  }}>
-                  <View
-                    style={{
-                      width: wp('30%'),
-                    }}>
-                    <Text>Street address: </Text>
-                  </View>
-                  <View style={{marginLeft: wp('3%')}}>
+                <View style={{}}>
+                  <View style={{}}>
                     <TextInput
                       value={streetAddress}
                       placeholder="Street address"
                       style={{
-                        borderWidth: 1,
-                        padding: 10,
-                        width: wp('50%'),
+                        padding: 15,
+                        width: wp('90%'),
+                        backgroundColor: '#fff',
+                        borderRadius: 5,
                       }}
                       onChangeText={value =>
                         this.setState({
@@ -458,24 +467,17 @@ class Account extends Component {
                 </View>
                 <View
                   style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
                     marginTop: hp('3%'),
                   }}>
-                  <View
-                    style={{
-                      width: wp('30%'),
-                    }}>
-                    <Text>Town: </Text>
-                  </View>
-                  <View style={{marginLeft: wp('3%')}}>
+                  <View style={{}}>
                     <TextInput
                       value={town}
                       placeholder="Town"
                       style={{
-                        borderWidth: 1,
-                        padding: 10,
-                        width: wp('50%'),
+                        padding: 15,
+                        width: wp('90%'),
+                        backgroundColor: '#fff',
+                        borderRadius: 5,
                       }}
                       onChangeText={value =>
                         this.setState({
@@ -487,24 +489,17 @@ class Account extends Component {
                 </View>
                 <View
                   style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
                     marginTop: hp('3%'),
                   }}>
-                  <View
-                    style={{
-                      width: wp('30%'),
-                    }}>
-                    <Text>Postal code: </Text>
-                  </View>
-                  <View style={{marginLeft: wp('3%')}}>
+                  <View style={{}}>
                     <TextInput
                       value={postalCode}
                       placeholder="Postal code"
                       style={{
-                        borderWidth: 1,
-                        padding: 10,
-                        width: wp('50%'),
+                        padding: 15,
+                        width: wp('90%'),
+                        backgroundColor: '#fff',
+                        borderRadius: 5,
                       }}
                       onChangeText={value =>
                         this.setState({
@@ -516,23 +511,16 @@ class Account extends Component {
                 </View>
                 <View
                   style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
                     marginTop: hp('3%'),
                   }}>
-                  <View
-                    style={{
-                      width: wp('30%'),
-                    }}>
-                    <Text>Country: </Text>
-                  </View>
-                  <View style={{marginLeft: wp('3%')}}>
+                  <View style={{}}>
                     <TextInput
                       placeholder="Country"
                       style={{
-                        borderWidth: 1,
-                        padding: 10,
-                        width: wp('50%'),
+                        padding: 15,
+                        width: wp('90%'),
+                        backgroundColor: '#fff',
+                        borderRadius: 5,
                       }}
                     />
                   </View>
@@ -542,12 +530,17 @@ class Account extends Component {
                     flexDirection: 'row',
                     alignItems: 'center',
                     marginTop: hp('3%'),
+                    justifyContent: 'space-between',
                   }}>
-                  <View
-                    style={{
-                      width: wp('30%'),
-                    }}>
-                    <Text>T&Cs accepted?: </Text>
+                  <View style={{}}>
+                    <Text
+                      style={{
+                        fontSize: 15,
+                        fontFamily: 'Inter-Regular',
+                        color: '#161C27',
+                      }}>
+                      T&Cs accepted?:{' '}
+                    </Text>
                   </View>
                   <View style={{}}>
                     <CheckBox
@@ -569,12 +562,17 @@ class Account extends Component {
                     flexDirection: 'row',
                     alignItems: 'center',
                     marginTop: hp('3%'),
+                    justifyContent: 'space-between',
                   }}>
-                  <View
-                    style={{
-                      width: wp('30%'),
-                    }}>
-                    <Text>Contract signed?: </Text>
+                  <View style={{}}>
+                    <Text
+                      style={{
+                        fontSize: 15,
+                        fontFamily: 'Inter-Regular',
+                        color: '#161C27',
+                      }}>
+                      Contract signed?:{' '}
+                    </Text>
                   </View>
                   <View style={{}}>
                     <CheckBox
@@ -596,12 +594,17 @@ class Account extends Component {
                     flexDirection: 'row',
                     alignItems: 'center',
                     marginTop: hp('3%'),
+                    justifyContent: 'space-between',
                   }}>
-                  <View
-                    style={{
-                      width: wp('30%'),
-                    }}>
-                    <Text>Active?: </Text>
+                  <View style={{}}>
+                    <Text
+                      style={{
+                        fontSize: 15,
+                        fontFamily: 'Inter-Regular',
+                        color: '#161C27',
+                      }}>
+                      Active?:{' '}
+                    </Text>
                   </View>
                   <View style={{}}>
                     <CheckBox
@@ -618,26 +621,59 @@ class Account extends Component {
                 </View>
               </View>
               <View>
-                <View style={{marginTop: hp('3%')}}>
-                  <Text style={{fontSize: 20, color: '#656565'}}>
-                    INVOICE ADDRESS -
+                <View style={{marginVertical: hp('5%'), alignSelf: 'center'}}>
+                  <Text
+                    style={{
+                      fontSize: 20,
+                      color: '#492813',
+                      fontFamily: 'Inter-Regular',
+                    }}>
+                    Invoice Address -
                   </Text>
                 </View>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                   <View>
-                    <View style={{flexDirection: 'row', marginTop: hp('3%')}}>
+                    <View style={{flexDirection: 'row'}}>
                       <View style={{width: wp('40%')}}></View>
                       <View style={{width: wp('40%')}}>
-                        <Text>Bar</Text>
+                        <Text
+                          style={{
+                            color: '#161C27',
+                            fontSize: 14,
+                            fontFamily: 'Inter-Bold',
+                          }}>
+                          Bar
+                        </Text>
                       </View>
                       <View style={{width: wp('40%')}}>
-                        <Text>Kitchen</Text>
+                        <Text
+                          style={{
+                            color: '#161C27',
+                            fontSize: 14,
+                            fontFamily: 'Inter-Bold',
+                          }}>
+                          Kitchen
+                        </Text>
                       </View>
                       <View style={{width: wp('40%')}}>
-                        <Text>Retail</Text>
+                        <Text
+                          style={{
+                            color: '#161C27',
+                            fontSize: 14,
+                            fontFamily: 'Inter-Bold',
+                          }}>
+                          Retail
+                        </Text>
                       </View>
                       <View style={{width: wp('40%')}}>
-                        <Text>Other</Text>
+                        <Text
+                          style={{
+                            color: '#161C27',
+                            fontSize: 14,
+                            fontFamily: 'Inter-Bold',
+                          }}>
+                          Other
+                        </Text>
                       </View>
                     </View>
                     <View>
@@ -651,7 +687,14 @@ class Account extends Component {
                           style={{
                             width: wp('40%'),
                           }}>
-                          <Text>Cost of goods sold: </Text>
+                          <Text
+                            style={{
+                              color: '#161C27',
+                              fontSize: 14,
+                              fontFamily: 'Inter-Regular',
+                            }}>
+                            Cost of goods sold:{' '}
+                          </Text>
                         </View>
                         <View
                           style={{
@@ -664,6 +707,7 @@ class Account extends Component {
                               borderWidth: 1,
                               padding: 10,
                               width: wp('20%'),
+                              borderRadius: 5,
                             }}
                           />
                           <Text style={{marginLeft: 5}}>%</Text>
@@ -679,6 +723,7 @@ class Account extends Component {
                               borderWidth: 1,
                               padding: 10,
                               width: wp('20%'),
+                              borderRadius: 5,
                             }}
                           />
                           <Text style={{marginLeft: 5}}>%</Text>
@@ -694,6 +739,7 @@ class Account extends Component {
                               borderWidth: 1,
                               padding: 10,
                               width: wp('20%'),
+                              borderRadius: 5,
                             }}
                           />
                           <Text style={{marginLeft: 5}}>%</Text>
@@ -709,6 +755,7 @@ class Account extends Component {
                               borderWidth: 1,
                               padding: 10,
                               width: wp('20%'),
+                              borderRadius: 5,
                             }}
                           />
                           <Text style={{marginLeft: 5}}>%</Text>
@@ -737,6 +784,7 @@ class Account extends Component {
                               borderWidth: 1,
                               padding: 10,
                               width: wp('20%'),
+                              borderRadius: 5,
                             }}
                           />
                           <Text style={{marginLeft: 5}}>%</Text>
@@ -752,6 +800,7 @@ class Account extends Component {
                               borderWidth: 1,
                               padding: 10,
                               width: wp('20%'),
+                              borderRadius: 5,
                             }}
                           />
                           <Text style={{marginLeft: 5}}>%</Text>
@@ -767,6 +816,7 @@ class Account extends Component {
                               borderWidth: 1,
                               padding: 10,
                               width: wp('20%'),
+                              borderRadius: 5,
                             }}
                           />
                           <Text style={{marginLeft: 5}}>%</Text>
@@ -782,6 +832,7 @@ class Account extends Component {
                               borderWidth: 1,
                               padding: 10,
                               width: wp('20%'),
+                              borderRadius: 5,
                             }}
                           />
                           <Text style={{marginLeft: 5}}>%</Text>
@@ -810,6 +861,7 @@ class Account extends Component {
                               borderWidth: 1,
                               padding: 10,
                               width: wp('20%'),
+                              borderRadius: 5,
                             }}
                           />
                           <Text style={{marginLeft: 5}}>%</Text>
@@ -825,6 +877,7 @@ class Account extends Component {
                               borderWidth: 1,
                               padding: 10,
                               width: wp('20%'),
+                              borderRadius: 5,
                             }}
                           />
                           <Text style={{marginLeft: 5}}>%</Text>
@@ -840,6 +893,7 @@ class Account extends Component {
                               borderWidth: 1,
                               padding: 10,
                               width: wp('20%'),
+                              borderRadius: 5,
                             }}
                           />
                           <Text style={{marginLeft: 5}}>%</Text>
@@ -855,6 +909,7 @@ class Account extends Component {
                               borderWidth: 1,
                               padding: 10,
                               width: wp('20%'),
+                              borderRadius: 5,
                             }}
                           />
                           <Text style={{marginLeft: 5}}>%</Text>
@@ -883,6 +938,7 @@ class Account extends Component {
                               borderWidth: 1,
                               padding: 10,
                               width: wp('20%'),
+                              borderRadius: 5,
                             }}
                           />
                           <Text style={{marginLeft: 5}}>%</Text>
@@ -898,6 +954,7 @@ class Account extends Component {
                               borderWidth: 1,
                               padding: 10,
                               width: wp('20%'),
+                              borderRadius: 5,
                             }}
                           />
                           <Text style={{marginLeft: 5}}>%</Text>
@@ -913,6 +970,7 @@ class Account extends Component {
                               borderWidth: 1,
                               padding: 10,
                               width: wp('20%'),
+                              borderRadius: 5,
                             }}
                           />
                           <Text style={{marginLeft: 5}}>%</Text>
@@ -928,6 +986,7 @@ class Account extends Component {
                               borderWidth: 1,
                               padding: 10,
                               width: wp('20%'),
+                              borderRadius: 5,
                             }}
                           />
                           <Text style={{marginLeft: 5}}>%</Text>
@@ -956,6 +1015,7 @@ class Account extends Component {
                               borderWidth: 1,
                               padding: 10,
                               width: wp('20%'),
+                              borderRadius: 5,
                             }}
                           />
                           <Text style={{marginLeft: 5}}>%</Text>
@@ -971,6 +1031,7 @@ class Account extends Component {
                               borderWidth: 1,
                               padding: 10,
                               width: wp('20%'),
+                              borderRadius: 5,
                             }}
                           />
                           <Text style={{marginLeft: 5}}>%</Text>
@@ -986,6 +1047,7 @@ class Account extends Component {
                               borderWidth: 1,
                               padding: 10,
                               width: wp('20%'),
+                              borderRadius: 5,
                             }}
                           />
                           <Text style={{marginLeft: 5}}>%</Text>
@@ -1001,6 +1063,7 @@ class Account extends Component {
                               borderWidth: 1,
                               padding: 10,
                               width: wp('20%'),
+                              borderRadius: 5,
                             }}
                           />
                           <Text style={{marginLeft: 5}}>%</Text>
@@ -1029,6 +1092,7 @@ class Account extends Component {
                               borderWidth: 1,
                               padding: 10,
                               width: wp('20%'),
+                              borderRadius: 5,
                             }}
                           />
                           <Text style={{marginLeft: 5}}>%</Text>
@@ -1044,6 +1108,7 @@ class Account extends Component {
                               borderWidth: 1,
                               padding: 10,
                               width: wp('20%'),
+                              borderRadius: 5,
                             }}
                           />
                           <Text style={{marginLeft: 5}}>%</Text>
@@ -1059,6 +1124,7 @@ class Account extends Component {
                               borderWidth: 1,
                               padding: 10,
                               width: wp('20%'),
+                              borderRadius: 5,
                             }}
                           />
                           <Text style={{marginLeft: 5}}>%</Text>
@@ -1074,6 +1140,7 @@ class Account extends Component {
                               borderWidth: 1,
                               padding: 10,
                               width: wp('20%'),
+                              borderRadius: 5,
                             }}
                           />
                           <Text style={{marginLeft: 5}}>%</Text>
@@ -1089,7 +1156,12 @@ class Account extends Component {
                           style={{
                             width: wp('40%'),
                           }}>
-                          <Text style={{fontWeight: 'bold'}}>
+                          <Text
+                            style={{
+                              color: '#161C27',
+                              fontSize: 14,
+                              fontFamily: 'Inter-Bold',
+                            }}>
                             Total inventory cost:{' '}
                           </Text>
                         </View>
@@ -1104,6 +1176,7 @@ class Account extends Component {
                               borderWidth: 1,
                               padding: 10,
                               width: wp('20%'),
+                              borderRadius: 5,
                             }}
                           />
                           <Text style={{marginLeft: 5}}>%</Text>
@@ -1119,6 +1192,7 @@ class Account extends Component {
                               borderWidth: 1,
                               padding: 10,
                               width: wp('20%'),
+                              borderRadius: 5,
                             }}
                           />
                           <Text style={{marginLeft: 5}}>%</Text>
@@ -1134,6 +1208,7 @@ class Account extends Component {
                               borderWidth: 1,
                               padding: 10,
                               width: wp('20%'),
+                              borderRadius: 5,
                             }}
                           />
                           <Text style={{marginLeft: 5}}>%</Text>
@@ -1149,6 +1224,7 @@ class Account extends Component {
                               borderWidth: 1,
                               padding: 10,
                               width: wp('20%'),
+                              borderRadius: 5,
                             }}
                           />
                           <Text style={{marginLeft: 5}}>%</Text>
@@ -1164,7 +1240,12 @@ class Account extends Component {
                           style={{
                             width: wp('40%'),
                           }}>
-                          <Text style={{fontWeight: 'bold'}}>
+                          <Text
+                            style={{
+                              color: '#161C27',
+                              fontSize: 14,
+                              fontFamily: 'Inter-Bold',
+                            }}>
                             Total gross margin:{' '}
                           </Text>
                         </View>
@@ -1179,6 +1260,7 @@ class Account extends Component {
                               borderWidth: 1,
                               padding: 10,
                               width: wp('20%'),
+                              borderRadius: 5,
                             }}
                           />
                           <Text style={{marginLeft: 5}}>%</Text>
@@ -1193,6 +1275,23 @@ class Account extends Component {
                             style={{
                               borderWidth: 1,
                               padding: 10,
+                              width: wp('20%'),
+                              borderRadius: 5,
+                            }}
+                          />
+                          <Text style={{marginLeft: 5}}>%</Text>
+                        </View>
+                        <View
+                          style={{
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            width: wp('40%'),
+                          }}>
+                          <TextInput
+                            style={{
+                              borderWidth: 1,
+                              padding: 10,
+                              borderRadius: 5,
                               width: wp('20%'),
                             }}
                           />
@@ -1209,21 +1308,7 @@ class Account extends Component {
                               borderWidth: 1,
                               padding: 10,
                               width: wp('20%'),
-                            }}
-                          />
-                          <Text style={{marginLeft: 5}}>%</Text>
-                        </View>
-                        <View
-                          style={{
-                            flexDirection: 'row',
-                            alignItems: 'center',
-                            width: wp('40%'),
-                          }}>
-                          <TextInput
-                            style={{
-                              borderWidth: 1,
-                              padding: 10,
-                              width: wp('20%'),
+                              borderRadius: 5,
                             }}
                           />
                           <Text style={{marginLeft: 5}}>%</Text>
@@ -1246,15 +1331,20 @@ class Account extends Component {
               <TouchableOpacity
                 onPress={() => this.props.navigation.goBack()}
                 style={{
-                  height: hp('6%'),
+                  height: hp('7%'),
                   width: wp('30%'),
-                  backgroundColor: '#E7943B',
                   justifyContent: 'center',
                   alignItems: 'center',
                   marginTop: 20,
+                  borderWidth: 1,
+                  borderRadius: 100,
+                  borderColor: '#482813',
                 }}>
                 <View style={{}}>
-                  <Text style={{color: 'white', marginLeft: 5}}>Cancel</Text>
+                  <Text
+                    style={{color: '#492813', fontFamily: 'Inter-SemiBold'}}>
+                    Cancel
+                  </Text>
                 </View>
               </TouchableOpacity>
             </View>
@@ -1262,9 +1352,8 @@ class Account extends Component {
               {updateLoader ? (
                 <View
                   style={{
-                    height: hp('6%'),
+                    height: hp('7%'),
                     width: wp('30%'),
-                    backgroundColor: '#94C036',
                     justifyContent: 'center',
                     alignItems: 'center',
                     marginTop: 20,
@@ -1277,15 +1366,18 @@ class Account extends Component {
                 <TouchableOpacity
                   onPress={() => this.updateFun()}
                   style={{
-                    height: hp('6%'),
+                    height: hp('7%'),
                     width: wp('30%'),
                     backgroundColor: '#94C036',
                     justifyContent: 'center',
                     alignItems: 'center',
                     marginTop: 20,
+                    borderRadius: 100,
                   }}>
                   <View style={{}}>
-                    <Text style={{color: 'white', marginLeft: 5}}>Update</Text>
+                    <Text style={{color: '#fff', fontFamily: 'Inter-SemiBold'}}>
+                      Update
+                    </Text>
                   </View>
                 </TouchableOpacity>
               )}

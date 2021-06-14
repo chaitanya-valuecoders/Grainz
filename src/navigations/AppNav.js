@@ -33,6 +33,8 @@ import MenusScreen from '../screens/Home/Setup/Menus/Menus';
 import RecipeSetupScreen from '../screens/Home/Setup/Recipe/Recipe';
 import SupplierScreen from '../screens/Home/Setup/Supplier/Supplier';
 import MenuAnalysisSec from '../screens/Home/Admin/Reports/MenuAnalysisSec';
+import SalesAdminSec from '../screens/Home/Admin/Sales/SalesSec';
+import InventoryAdminSec from '../screens/Home/Admin/Inventory/InventorySec';
 
 const AppNav = createStackNavigator();
 
@@ -99,6 +101,8 @@ export default function AppNavFun() {
         component={MenuAnalysisAdminScreen}
       />
       <AppNav.Screen name="MenuAnalysisSec" component={MenuAnalysisSec} />
+      <AppNav.Screen name="SalesAdminSec" component={SalesAdminSec} />
+      <AppNav.Screen name="InventoryAdminSec" component={InventoryAdminSec} />
     </AppNav.Navigator>
   );
 }
