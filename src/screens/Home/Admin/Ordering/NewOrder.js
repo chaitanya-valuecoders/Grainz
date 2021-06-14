@@ -9,6 +9,7 @@ import {
   Switch,
   TextInput,
   Alert,
+  FlatList,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {connect} from 'react-redux';
@@ -35,6 +36,7 @@ import Accordion from 'react-native-collapsible/Accordion';
 import moment from 'moment';
 import RNPickerSelect from 'react-native-picker-select';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
+import styles from './style';
 
 import {translate} from '../../../../utils/translations';
 
@@ -42,12 +44,7 @@ class OrderingSec extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      buttons: [
-        {name: translate('Clone previous'), id: 0},
-        {name: translate('Back'), id: 1},
-        {name: translate('Save'), id: 2},
-        {name: translate('Send'), id: 3},
-      ],
+      buttons: [],
       token: '',
       modalVisible: false,
       firstName: '',
@@ -103,6 +100,32 @@ class OrderingSec extends Component {
       .then(res => {
         this.setState({
           firstName: res.data.firstName,
+          buttons: [
+            {
+              name: translate('Inventory List'),
+              icon: img.addIconNew,
+              screen: 'NewOrderScreen',
+              id: 0,
+            },
+            {
+              name: translate('Supplier catalog'),
+              icon: img.draftIcon,
+              screen: 'SalesAdminScreen',
+              id: 1,
+            },
+
+            {
+              name: translate('View'),
+              icon: img.pendingIcon,
+              screen: 'SalesAdminScreen',
+              id: 2,
+            },
+          ],
+          buttonsSubHeader: [
+            {name: translate('ADMIN')},
+            {name: translate('Setup')},
+            {name: translate('INBOX')},
+          ],
           buttonsSubHeader: [
             {name: translate('ADMIN')},
             {name: translate('Setup')},
@@ -806,7 +829,7 @@ class OrderingSec extends Component {
     } = this.state;
 
     return (
-      <View style={{flex: 1, backgroundColor: '#fff'}}>
+      <View style={styles.container}>
         <Header
           logout={firstName}
           logoutFun={this.myProfile}
@@ -815,12 +838,50 @@ class OrderingSec extends Component {
         {recipeLoader ? (
           <ActivityIndicator size="small" color="#94C036" />
         ) : (
-          <SubHeader {...this.props} buttons={buttonsSubHeader} />
+          <SubHeader {...this.props} buttons={buttonsSubHeader} index={0} />
         )}
         <ScrollView
           style={{marginBottom: hp('5%')}}
           showsVerticalScrollIndicator={false}>
-          <View
+          <View style={styles.subContainer}>
+            <View style={styles.firstContainer}>
+              <View style={{flex: 1}}>
+                <Text style={styles.adminTextStyle}>
+                  {translate('New Order')}
+                </Text>
+              </View>
+              <TouchableOpacity
+                onPress={() => this.props.navigation.goBack()}
+                style={styles.goBackContainer}>
+                <Text style={styles.goBackTextStyle}>Go Back</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+          <TouchableOpacity
+            onPress={() => alert('Clone Previous')}
+            style={{
+              flexDirection: 'row',
+              height: hp('7%'),
+              width: wp('80%'),
+              backgroundColor: '#94C036',
+              justifyContent: 'center',
+              alignItems: 'center',
+              marginVertical: hp('4%'),
+              alignSelf: 'center',
+              borderRadius: 100,
+            }}>
+            <View style={{}}>
+              <Text
+                style={{
+                  color: 'white',
+                  fontFamily: 'Inter-SemiBold',
+                  fontSize: 15,
+                }}>
+                {translate('Clone previous')}
+              </Text>
+            </View>
+          </TouchableOpacity>
+          {/* <View
             style={{
               backgroundColor: '#412916',
               alignItems: 'center',
@@ -863,37 +924,29 @@ class OrderingSec extends Component {
                 </View>
               );
             })}
-          </View>
+          </View> */}
 
           {pageLoading ? (
             <ActivityIndicator color="#94C036" size="large" />
           ) : (
-            <View style={{marginTop: hp('3%'), marginHorizontal: wp('5%')}}>
+            <View style={{marginHorizontal: wp('5%')}}>
               <View>
                 <View
                   style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
                     marginTop: hp('3%'),
                   }}>
                   <View
                     style={{
-                      width: wp('30%'),
-                    }}>
-                    <Text>Supplier: </Text>
-                  </View>
-                  <View
-                    style={{
                       flexDirection: 'row',
-                      width: wp('50%'),
+                      width: wp('90%'),
                       backgroundColor: '#fff',
-                      marginLeft: 10,
-                      paddingVertical: 11,
-                      borderWidth: 1,
+                      paddingVertical: 15,
+                      borderRadius: 5,
+                      justifyContent: 'space-between',
                     }}>
                     <View
                       style={{
-                        width: wp('42%'),
+                        width: wp('80%'),
                         alignSelf: 'center',
                         justifyContent: 'center',
                       }}>
@@ -901,8 +954,9 @@ class OrderingSec extends Component {
                         placeholder={{
                           label: 'Select supplier*',
                           value: null,
-                          color: 'grey',
+                          color: 'black',
                         }}
+                        placeholderTextColor="red"
                         onValueChange={value => {
                           this.setState({
                             supplierValue: value,
@@ -912,14 +966,14 @@ class OrderingSec extends Component {
                           inputIOS: {
                             fontSize: 14,
                             paddingHorizontal: '3%',
-                            color: 'grey',
+                            color: '#161C27',
                             width: '100%',
                             alignSelf: 'center',
                           },
                           inputAndroid: {
                             fontSize: 14,
                             paddingHorizontal: '3%',
-                            color: 'grey',
+                            color: '#161C27',
                             width: '100%',
                             alignSelf: 'center',
                           },
@@ -932,36 +986,29 @@ class OrderingSec extends Component {
                         useNativeAndroidPickerStyle={false}
                       />
                     </View>
-                    <View style={{}}>
+                    <View style={{marginRight: wp('5%')}}>
                       <Image
                         source={img.arrowDownIcon}
                         resizeMode="contain"
-                        style={{height: 20, width: 20}}
+                        style={{height: 18, width: 18, resizeMode: 'contain'}}
                       />
                     </View>
                   </View>
                 </View>
                 <View
                   style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
                     marginTop: hp('3%'),
                   }}>
-                  <View
-                    style={{
-                      width: wp('30%'),
-                    }}>
-                    <Text>Order Date: </Text>
-                  </View>
-                  <View style={{marginLeft: wp('3%')}}>
+                  <View style={{}}>
                     <TouchableOpacity
                       onPress={() => this.showDatePickerOrderDate()}
                       style={{
-                        width: wp('50%'),
-                        borderWidth: 1,
-                        padding: 12,
+                        width: wp('90%'),
+                        padding: 15,
                         flexDirection: 'row',
                         justifyContent: 'space-between',
+                        backgroundColor: '#fff',
+                        borderRadius: 5,
                       }}>
                       <TextInput
                         placeholder="dd-mm-yy"
@@ -987,25 +1034,18 @@ class OrderingSec extends Component {
                 </View>
                 <View
                   style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
                     marginTop: hp('3%'),
                   }}>
-                  <View
-                    style={{
-                      width: wp('30%'),
-                    }}>
-                    <Text>Delivery date: </Text>
-                  </View>
-                  <View style={{marginLeft: wp('3%')}}>
+                  <View style={{}}>
                     <TouchableOpacity
                       onPress={() => this.showDatePickerDeliveryDate()}
                       style={{
-                        width: wp('50%'),
-                        borderWidth: 1,
-                        padding: 12,
+                        width: wp('90%'),
+                        padding: 15,
                         flexDirection: 'row',
                         justifyContent: 'space-between',
+                        backgroundColor: '#fff',
+                        borderRadius: 5,
                       }}>
                       <TextInput
                         placeholder="dd-mm-yy"
@@ -1033,28 +1073,20 @@ class OrderingSec extends Component {
               <View>
                 <View
                   style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
                     marginTop: hp('3%'),
                   }}>
                   <View
                     style={{
-                      width: wp('30%'),
-                    }}>
-                    <Text>Placed by: </Text>
-                  </View>
-                  <View
-                    style={{
                       flexDirection: 'row',
-                      width: wp('50%'),
+                      width: wp('90%'),
                       backgroundColor: '#fff',
-                      marginLeft: 10,
-                      paddingVertical: 11,
-                      borderWidth: 1,
+                      paddingVertical: 15,
+                      borderRadius: 5,
+                      justifyContent: 'space-between',
                     }}>
                     <View
                       style={{
-                        width: wp('42%'),
+                        width: wp('80%'),
                         alignSelf: 'center',
                         justifyContent: 'center',
                       }}>
@@ -1073,14 +1105,14 @@ class OrderingSec extends Component {
                           inputIOS: {
                             fontSize: 14,
                             paddingHorizontal: '3%',
-                            color: 'grey',
+                            color: '#161C27',
                             width: '100%',
                             alignSelf: 'center',
                           },
                           inputAndroid: {
                             fontSize: 14,
                             paddingHorizontal: '3%',
-                            color: 'grey',
+                            color: '#161C27',
                             width: '100%',
                             alignSelf: 'center',
                           },
@@ -1093,7 +1125,7 @@ class OrderingSec extends Component {
                         useNativeAndroidPickerStyle={false}
                       />
                     </View>
-                    <View style={{}}>
+                    <View style={{marginRight: wp('5%')}}>
                       <Image
                         source={img.arrowDownIcon}
                         resizeMode="contain"
@@ -1104,25 +1136,20 @@ class OrderingSec extends Component {
                 </View>
                 <View
                   style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
                     marginTop: hp('3%'),
                   }}>
-                  <View
-                    style={{
-                      width: wp('30%'),
-                    }}>
-                    <Text>Sent? </Text>
-                  </View>
-                  <View style={{marginLeft: wp('3%')}}>
+                  <View style={{}}>
                     <TextInput
                       editable={false}
                       value={sentValue}
                       placeholder="Sent"
                       style={{
-                        borderWidth: 1,
-                        padding: 10,
-                        width: wp('50%'),
+                        width: wp('90%'),
+                        padding: 15,
+                        flexDirection: 'row',
+                        justifyContent: 'space-between',
+                        backgroundColor: '#fff',
+                        borderRadius: 5,
                       }}
                     />
                   </View>
@@ -1130,16 +1157,37 @@ class OrderingSec extends Component {
               </View>
               <View>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                  <View>
+                  {/* <View>
                     <View style={{flexDirection: 'row', marginTop: hp('3%')}}>
                       <View style={{width: wp('40%')}}>
-                        <Text>Inventory item</Text>
+                        <Text
+                          style={{
+                            color: '#492813',
+                            fontFamily: 'Inter-Regular',
+                            fontSize: 14,
+                          }}>
+                          Inventory item
+                        </Text>
                       </View>
                       <View style={{width: wp('40%')}}>
-                        <Text>Quantity</Text>
+                        <Text
+                          style={{
+                            color: '#492813',
+                            fontFamily: 'Inter-Regular',
+                            fontSize: 14,
+                          }}>
+                          Quantity
+                        </Text>
                       </View>
                       <View style={{width: wp('40%')}}>
-                        <Text>$HTVA</Text>
+                        <Text
+                          style={{
+                            color: '#492813',
+                            fontFamily: 'Inter-Regular',
+                            fontSize: 14,
+                          }}>
+                          $HTVA
+                        </Text>
                       </View>
                     </View>
                     <View>
@@ -1150,31 +1198,31 @@ class OrderingSec extends Component {
                           marginTop: hp('3%'),
                         }}>
                         <View style={{width: wp('40%')}}>
-                          <Text>Total HTVA: </Text>
-                        </View>
-                        {/* <View
-                          style={{
-                            flexDirection: 'row',
-                            alignItems: 'center',
-                            width: wp('40%'),
-                          }}>
-                          <TextInput
+                          <Text
                             style={{
-                              borderWidth: 1,
-                              padding: 10,
-                              width: wp('20%'),
-                            }}
-                          />
-                          <Text style={{marginLeft: 5}}>%</Text>
-                        </View> */}
+                              color: '#492813',
+                              fontFamily: 'Inter-Bold',
+                              fontSize: 14,
+                            }}>
+                            Total HTVA:{' '}
+                          </Text>
+                        </View>
                       </View>
                     </View>
-                  </View>
+                  </View> */}
                 </ScrollView>
                 <View style={{alignSelf: 'center', marginVertical: hp('3%')}}>
-                  <Text>Order from :</Text>
+                  <Text
+                    style={{
+                      color: '#492813',
+                      fontFamily: 'Inter-Regular',
+                      fontSize: 18,
+                    }}>
+                    Order From
+                  </Text>
                 </View>
-                <View style={{alignSelf: 'center'}}>
+
+                {/* <View style={{alignSelf: 'center'}}>
                   <TouchableOpacity
                     onPress={() => this.inventoryListFun()}
                     disabled={supplierValue === null ? true : false}
@@ -1193,8 +1241,8 @@ class OrderingSec extends Component {
                       </Text>
                     </View>
                   </TouchableOpacity>
-                </View>
-                <View style={{alignSelf: 'center'}}>
+                </View> */}
+                {/* <View style={{alignSelf: 'center'}}>
                   <TouchableOpacity
                     onPress={() => this.supplierFun()}
                     disabled={supplierValue === null ? true : false}
@@ -1213,8 +1261,8 @@ class OrderingSec extends Component {
                       </Text>
                     </View>
                   </TouchableOpacity>
-                </View>
-                <View style={{alignSelf: 'center'}}>
+                </View> */}
+                {/* <View style={{alignSelf: 'center'}}>
                   <TouchableOpacity
                     onPress={() => alert('Save draft')}
                     disabled={supplierValue === null ? true : false}
@@ -1233,8 +1281,8 @@ class OrderingSec extends Component {
                       </Text>
                     </View>
                   </TouchableOpacity>
-                </View>
-                <View style={{alignSelf: 'center'}}>
+                </View> */}
+                {/* <View style={{alignSelf: 'center'}}>
                   <TouchableOpacity
                     onPress={() => alert('Send')}
                     disabled={supplierValue === null ? true : false}
@@ -1251,8 +1299,8 @@ class OrderingSec extends Component {
                       <Text style={{color: 'white', marginLeft: 5}}>Send</Text>
                     </View>
                   </TouchableOpacity>
-                </View>
-                <View style={{alignSelf: 'center'}}>
+                </View> */}
+                {/* <View style={{alignSelf: 'center'}}>
                   <TouchableOpacity
                     onPress={() => alert('View')}
                     disabled={supplierValue === null ? true : false}
@@ -1269,7 +1317,7 @@ class OrderingSec extends Component {
                       <Text style={{color: 'white', marginLeft: 5}}>View</Text>
                     </View>
                   </TouchableOpacity>
-                </View>
+                </View> */}
               </View>
             </View>
           )}
@@ -1694,6 +1742,106 @@ class OrderingSec extends Component {
               </ScrollView>
             </View>
           </Modal>
+          <FlatList
+            data={buttons}
+            renderItem={({item}) => (
+              <View style={styles.itemContainer}>
+                <TouchableOpacity
+                  // onPress={() => this.onPressFun(item)}
+                  onPress={() => alert('WIP')}
+                  style={{
+                    backgroundColor: '#fff',
+                    flex: 1,
+                    margin: 10,
+                    borderRadius: 8,
+                    padding: 10,
+                  }}>
+                  <View
+                    style={{
+                      flex: 1,
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                    }}>
+                    <Image
+                      source={item.icon}
+                      style={{
+                        height: 40,
+                        width: 40,
+                        resizeMode: 'contain',
+                      }}
+                    />
+                  </View>
+                  <View
+                    style={{
+                      flex: 1,
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                    }}>
+                    <Text
+                      style={{
+                        fontSize: 13,
+                        textAlign: 'center',
+                        fontFamily: 'Inter-Regular',
+                      }}
+                      numberOfLines={1}>
+                      {' '}
+                      {item.name}
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              </View>
+            )}
+            keyExtractor={item => item.id}
+            numColumns={3}
+          />
+          <TouchableOpacity
+            onPress={() => alert('Save draft')}
+            style={{
+              flexDirection: 'row',
+              height: hp('7%'),
+              width: wp('80%'),
+              justifyContent: 'center',
+              alignItems: 'center',
+              marginVertical: hp('4%'),
+              alignSelf: 'center',
+              borderRadius: 100,
+              borderWidth: 1,
+              borderColor: '#482813',
+            }}>
+            <View style={{}}>
+              <Text
+                style={{
+                  color: '#492813',
+                  fontFamily: 'Inter-Regular',
+                  fontSize: 15,
+                }}>
+                {translate('Save draft')}
+              </Text>
+            </View>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => alert('Send')}
+            style={{
+              flexDirection: 'row',
+              height: hp('7%'),
+              width: wp('80%'),
+              backgroundColor: '#94C036',
+              justifyContent: 'center',
+              alignItems: 'center',
+              alignSelf: 'center',
+              borderRadius: 100,
+            }}>
+            <View style={{}}>
+              <Text
+                style={{
+                  color: 'white',
+                  fontFamily: 'Inter-SemiBold',
+                  fontSize: 15,
+                }}>
+                {translate('Send')}
+              </Text>
+            </View>
+          </TouchableOpacity>
         </ScrollView>
       </View>
     );

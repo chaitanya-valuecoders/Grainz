@@ -34,4 +34,9 @@ export default {
   locationIcon: require('../assests/Images/locationIcon.png'),
   pricePlanIcon: require('../assests/Images/pricePlanIcon.png'),
   userIcon: require('../assests/Images/userIcon.png'),
+  addIconNew: require('../assests/Images/addIcon.png'),
+  draftIcon: require('../assests/Images/draftIcon.png'),
+  historyIcon: require('../assests/Images/historyIcon.png'),
+  pendingIcon: require('../assests/Images/pendingIcon.png'),
+  reviewIcon: require('../assests/Images/reviewIcon.png'),
 };

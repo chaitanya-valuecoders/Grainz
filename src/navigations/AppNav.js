@@ -21,9 +21,11 @@ import AccountAdminScreen from '../screens/Home/Admin/Account/Account';
 import EventsAdminScreen from '../screens/Home/Admin/Events/Events';
 import EventsSecAdminScreen from '../screens/Home/Admin/Events/EventsSec';
 import InventoryAdminScreen from '../screens/Home/Admin/Inventory/Inventory';
-import OrderingAdminScreen from '../screens/Home/Admin/Ordering/Ordering';
-import OrderingSecAdminScreen from '../screens/Home/Admin/Ordering/OrderingSec';
+import OrderingAdminScreen from '../screens/Home/Admin/Ordering';
+import NewOrderScreen from '../screens/Home/Admin/Ordering/NewOrder';
 import OrderingThreeAdminScreen from '../screens/Home/Admin/Ordering/OrderingThree';
+import DraftOrderAdminScreen from '../screens/Home/Admin/Ordering/DraftOrder';
+import PendingDeliveryAdminScreen from '../screens/Home/Admin/Ordering/PendingDelivery';
 import ReportsAdminScreen from '../screens/Home/Admin/Reports/Reports';
 import GrossMarginAdminScreen from '../screens/Home/Admin/Reports/GrossMargin';
 import MenuAnalysisAdminScreen from '../screens/Home/Admin/Reports/MenuAnalysis';
@@ -73,10 +75,7 @@ export default function AppNavFun() {
         component={OrderingAdminScreen}
       />
       <AppNav.Screen name="ReportsAdminScreen" component={ReportsAdminScreen} />
-      <AppNav.Screen
-        name="OrderingSecAdminScreen"
-        component={OrderingSecAdminScreen}
-      />
+      <AppNav.Screen name="NewOrderScreen" component={NewOrderScreen} />
       <AppNav.Screen
         name="OrderingThreeAdminScreen"
         component={OrderingThreeAdminScreen}
@@ -103,6 +102,14 @@ export default function AppNavFun() {
       <AppNav.Screen name="MenuAnalysisSec" component={MenuAnalysisSec} />
       <AppNav.Screen name="SalesAdminSec" component={SalesAdminSec} />
       <AppNav.Screen name="InventoryAdminSec" component={InventoryAdminSec} />
+      <AppNav.Screen
+        name="DraftOrderAdminScreen"
+        component={DraftOrderAdminScreen}
+      />
+      <AppNav.Screen
+        name="PendingDeliveryAdminScreen"
+        component={PendingDeliveryAdminScreen}
+      />
     </AppNav.Navigator>
   );
 }
