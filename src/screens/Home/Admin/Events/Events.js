@@ -370,7 +370,7 @@ class Events extends Component {
               alignItems: 'center',
               borderWidth: 1,
               borderColor: '#E2E8F0',
-              height: hp('7%'),
+              height: hp('6%'),
               width: wp('90%'),
               borderRadius: 100,
               backgroundColor: '#fff',
@@ -402,7 +402,7 @@ class Events extends Component {
                 this.props.navigation.navigate('EventsSecAdminScreen')
               }
               style={{
-                height: hp('7%'),
+                height: hp('6%'),
                 width: wp('80%'),
                 backgroundColor: '#94C036',
                 justifyContent: 'center',
@@ -424,7 +424,14 @@ class Events extends Component {
                     resizeMode: 'contain',
                   }}
                 />
-                <Text style={{color: 'white', marginLeft: 10}}>Add New</Text>
+                <Text
+                  style={{
+                    color: 'white',
+                    marginLeft: 10,
+                    fontFamily: 'Inter-SemiBold',
+                  }}>
+                  Add New
+                </Text>
               </View>
             </TouchableOpacity>
           </View>

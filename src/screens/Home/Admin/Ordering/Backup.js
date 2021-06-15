@@ -408,7 +408,7 @@ class Ordering extends Component {
               <View
                 style={{
                   backgroundColor: '#412916',
-                  height: hp('7%'),
+                  height: hp('6%'),
                   flexDirection: 'row',
                 }}>
                 <View

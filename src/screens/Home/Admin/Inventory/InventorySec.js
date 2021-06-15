@@ -130,7 +130,7 @@ class InventorySec extends Component {
           <SubHeader {...this.props} buttons={buttonsSubHeader} index={0} />
         )}
         <ScrollView
-          style={{marginBottom: hp('5%')}}
+          style={{marginBottom: hp('2%')}}
           showsVerticalScrollIndicator={false}>
           <View style={styles.subContainer}>
             <View style={styles.firstContainer}>
@@ -155,7 +155,7 @@ class InventorySec extends Component {
                 ) : (
                   <View
                     style={{
-                      padding: hp('3%'),
+                      padding: hp('2%'),
                     }}>
                     <ScrollView
                       horizontal
@@ -253,35 +253,41 @@ class InventorySec extends Component {
                                           width: wp('30%'),
                                           alignItems: 'center',
                                         }}>
-                                        <Text>{item.currentInventory}</Text>
+                                        <Text>
+                                          {item.currentInventory.toFixed(2)}
+                                        </Text>
                                       </View>
                                       <View
                                         style={{
                                           width: wp('30%'),
                                           alignItems: 'center',
                                         }}>
-                                        <Text>{item.onOrder}</Text>
+                                        <Text>{item.onOrder.toFixed(2)}</Text>
                                       </View>
                                       <View
                                         style={{
                                           width: wp('30%'),
                                           alignItems: 'center',
                                         }}>
-                                        <Text>{item.eventsOnOrder}</Text>
+                                        <Text>
+                                          {item.eventsOnOrder.toFixed(2)}
+                                        </Text>
                                       </View>
                                       <View
                                         style={{
                                           width: wp('30%'),
                                           alignItems: 'center',
                                         }}>
-                                        <Text>{item.targetInventory}</Text>
+                                        <Text>
+                                          {item.targetInventory.toFixed(2)}
+                                        </Text>
                                       </View>
                                       <View
                                         style={{
                                           width: wp('30%'),
                                           alignItems: 'center',
                                         }}>
-                                        <Text>{item.delta}</Text>
+                                        <Text>{item.delta.toFixed(2)}</Text>
                                       </View>
                                       <TouchableOpacity
                                         onPress={() => alert('ORDER NOW')}

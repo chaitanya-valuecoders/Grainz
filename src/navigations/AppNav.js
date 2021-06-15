@@ -29,7 +29,7 @@ import PendingDeliveryAdminScreen from '../screens/Home/Admin/Ordering/PendingDe
 import ReportsAdminScreen from '../screens/Home/Admin/Reports/Reports';
 import GrossMarginAdminScreen from '../screens/Home/Admin/Reports/GrossMargin';
 import MenuAnalysisAdminScreen from '../screens/Home/Admin/Reports/MenuAnalysis';
-import InventorySetupScreen from '../screens/Home/Setup/Inventory/InventorySetup';
+import InventorySetupScreen from '../screens/Home/Setup/Inventory';
 import MenuItemScreen from '../screens/Home/Setup/MenuItem/MenuItem';
 import MenusScreen from '../screens/Home/Setup/Menus/Menus';
 import RecipeSetupScreen from '../screens/Home/Setup/Recipe/Recipe';

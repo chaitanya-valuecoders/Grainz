@@ -104,7 +104,7 @@ class MenuAnalysisSec extends Component {
           <View style={styles.subContainer}>
             <View style={styles.firstContainer}>
               <View style={{flex: 1}}>
-                <Text style={styles.adminTextStyle}>
+                <Text style={{...styles.adminTextStyle, textAlign: 'center'}}>
                   {this.state.sectionName}
                 </Text>
               </View>
@@ -122,7 +122,7 @@ class MenuAnalysisSec extends Component {
             <View style={{}}>
               <View
                 style={{
-                  padding: hp('3%'),
+                  padding: hp('2%'),
                 }}>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                   <View>
@@ -218,42 +218,9 @@ class MenuAnalysisSec extends Component {
                                   }}>
                                   <Text>
                                     €{' '}
-                                    {item.guidePrice ? item.guidePrice : '0.00'}
-                                  </Text>
-                                </View>
-                                <View
-                                  style={{
-                                    width: wp('30%'),
-                                    alignItems: 'center',
-                                  }}>
-                                  <Text>
-                                    € {item.price ? item.price : '0.00'}
-                                  </Text>
-                                </View>
-                                <View
-                                  style={{
-                                    width: wp('30%'),
-                                    alignItems: 'center',
-                                  }}>
-                                  <Text>€ {item.vat ? item.vat : '0.00'}</Text>
-                                </View>
-                                <View
-                                  style={{
-                                    width: wp('30%'),
-                                    alignItems: 'center',
-                                  }}>
-                                  <Text>
-                                    €{' '}
-                                    {item.netRevenue ? item.netRevenue : '0.00'}
-                                  </Text>
-                                </View>
-                                <View
-                                  style={{
-                                    width: wp('30%'),
-                                    alignItems: 'center',
-                                  }}>
-                                  <Text>
-                                    € {item.foodCost ? item.foodCost : '0.00'}
+                                    {item.guidePrice
+                                      ? item.guidePrice.toFixed(2)
+                                      : '0.00'}
                                   </Text>
                                 </View>
                                 <View
@@ -263,7 +230,54 @@ class MenuAnalysisSec extends Component {
                                   }}>
                                   <Text>
                                     €{' '}
-                                    {item.grosMargin ? item.grosMargin : '0.00'}
+                                    {item.price
+                                      ? item.price.toFixed(2)
+                                      : '0.00'}
+                                  </Text>
+                                </View>
+                                <View
+                                  style={{
+                                    width: wp('30%'),
+                                    alignItems: 'center',
+                                  }}>
+                                  <Text>
+                                    € {item.vat ? item.vat.toFixed(2) : '0.00'}
+                                  </Text>
+                                </View>
+                                <View
+                                  style={{
+                                    width: wp('30%'),
+                                    alignItems: 'center',
+                                  }}>
+                                  <Text>
+                                    €{' '}
+                                    {item.netRevenue
+                                      ? item.netRevenue.toFixed(2)
+                                      : '0.00'}
+                                  </Text>
+                                </View>
+                                <View
+                                  style={{
+                                    width: wp('30%'),
+                                    alignItems: 'center',
+                                  }}>
+                                  <Text>
+                                    €{' '}
+                                    {item.foodCost
+                                      ? item.foodCost.toFixed(2)
+                                      : '0.00'}
+                                  </Text>
+                                </View>
+                                <View
+                                  style={{
+                                    width: wp('30%'),
+                                    alignItems: 'center',
+                                  }}>
+                                  <Text>
+                                    €{' '}
+                                    {item.grosMargin
+                                      ? item.grosMargin.toFixed(2)
+                                      : '0.00'}
                                   </Text>
                                 </View>
                                 <View

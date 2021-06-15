@@ -28,7 +28,7 @@ class SubHeader extends Component {
     return (
       <View
         style={{
-          height: hp('12%'),
+          height: hp('11%'),
           flexDirection: 'row',
           borderBottomWidth: 0.5,
           borderBottomColor: 'grey',
@@ -43,7 +43,7 @@ class SubHeader extends Component {
               <TouchableOpacity
                 onPress={() => this.subHeaderFun(item, index)}
                 style={{
-                  height: '55%',
+                  height: '47%',
                   width: '85%',
                   backgroundColor: '#9AC33F',
                   justifyContent: 'center',

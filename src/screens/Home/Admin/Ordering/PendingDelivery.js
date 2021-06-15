@@ -234,7 +234,7 @@ class PendingDelivery extends Component {
                 ) : (
                   <View
                     style={{
-                      padding: hp('3%'),
+                      padding: hp('2%'),
                     }}>
                     <ScrollView
                       horizontal
@@ -346,7 +346,9 @@ class PendingDelivery extends Component {
                                         width: wp('30%'),
                                         alignItems: 'center',
                                       }}>
-                                      <Text>{item && item.htva}</Text>
+                                      <Text>
+                                        {item && Number(item.htva).toFixed(2)}
+                                      </Text>
                                     </View>
                                   </View>
                                 );

@@ -963,7 +963,7 @@ class Sales extends Component {
               onPress={() => this.findReportFun()}
               style={{
                 flexDirection: 'row',
-                height: hp('7%'),
+                height: hp('6%'),
                 width: wp('80%'),
                 backgroundColor: '#94C036',
                 justifyContent: 'center',
@@ -1011,7 +1011,7 @@ class Sales extends Component {
             />
           </View>
 
-          <View style={{marginTop: hp('3%'), marginHorizontal: wp('5%')}}>
+          <View style={{marginTop: hp('2%'), marginHorizontal: wp('5%')}}>
             <Accordion
               // expandMultiple
               underlayColor="#fff"
@@ -1027,7 +1027,7 @@ class Sales extends Component {
               <TouchableOpacity
                 onPress={() => this.addLineFun()}
                 style={{
-                  height: hp('7%'),
+                  height: hp('6%'),
                   width: wp('80%'),
                   backgroundColor: '#94C036',
                   justifyContent: 'center',
@@ -1063,14 +1063,21 @@ class Sales extends Component {
           ) : null}
           <View
             style={{
-              marginTop: hp('2%'),
-              marginLeft: wp('5%'),
+              marginTop: hp('3%'),
             }}>
             {dataStatus ? (
-              <Text style={{fontSize: 25, color: '#646464'}}>TOTALS</Text>
+              <Text
+                style={{
+                  fontSize: 18,
+                  color: '#492813',
+                  fontFamily: 'Inter-Regular',
+                  alignSelf: 'center',
+                }}>
+                Totals
+              </Text>
             ) : null}
           </View>
-          <View style={{marginTop: hp('3%'), marginHorizontal: wp('5%')}}>
+          <View style={{marginTop: hp('2%'), marginHorizontal: wp('5%')}}>
             <Accordion
               // expandMultiple
               underlayColor="#fff"
@@ -1081,7 +1088,7 @@ class Sales extends Component {
               onChange={this._updateSectionsDepartment}
             />
           </View>
-          <View style={{marginTop: hp('3%'), marginHorizontal: wp('5%')}}>
+          <View style={{marginTop: hp('2%'), marginHorizontal: wp('5%')}}>
             <Accordion
               // expandMultiple
               underlayColor="#fff"
@@ -1103,7 +1110,7 @@ class Sales extends Component {
               <View
                 style={{
                   backgroundColor: '#412916',
-                  height: hp('7%'),
+                  height: hp('6%'),
                   flexDirection: 'row',
                 }}>
                 <View

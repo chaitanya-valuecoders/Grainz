@@ -841,7 +841,7 @@ class OrderingSec extends Component {
           <SubHeader {...this.props} buttons={buttonsSubHeader} index={0} />
         )}
         <ScrollView
-          style={{marginBottom: hp('5%')}}
+          style={{marginBottom: hp('2%')}}
           showsVerticalScrollIndicator={false}>
           <View style={styles.subContainer}>
             <View style={styles.firstContainer}>
@@ -861,12 +861,12 @@ class OrderingSec extends Component {
             onPress={() => alert('Clone Previous')}
             style={{
               flexDirection: 'row',
-              height: hp('7%'),
+              height: hp('6%'),
               width: wp('80%'),
               backgroundColor: '#94C036',
               justifyContent: 'center',
               alignItems: 'center',
-              marginVertical: hp('4%'),
+              marginVertical: hp('2%'),
               alignSelf: 'center',
               borderRadius: 100,
             }}>
@@ -929,11 +929,11 @@ class OrderingSec extends Component {
           {pageLoading ? (
             <ActivityIndicator color="#94C036" size="large" />
           ) : (
-            <View style={{marginHorizontal: wp('5%')}}>
+            <View style={{marginHorizontal: wp('3%')}}>
               <View>
                 <View
                   style={{
-                    marginTop: hp('3%'),
+                    marginTop: hp('2%'),
                   }}>
                   <View
                     style={{
@@ -1332,7 +1332,7 @@ class OrderingSec extends Component {
               <View
                 style={{
                   backgroundColor: '#412916',
-                  height: hp('7%'),
+                  height: hp('6%'),
                   flexDirection: 'row',
                 }}>
                 <View
@@ -1431,7 +1431,7 @@ class OrderingSec extends Component {
               <View
                 style={{
                   backgroundColor: '#412916',
-                  height: hp('7%'),
+                  height: hp('6%'),
                   flexDirection: 'row',
                 }}>
                 <View
@@ -1554,7 +1554,7 @@ class OrderingSec extends Component {
               <View
                 style={{
                   backgroundColor: '#412916',
-                  height: hp('7%'),
+                  height: hp('6%'),
                   flexDirection: 'row',
                 }}>
                 <View
@@ -1653,7 +1653,7 @@ class OrderingSec extends Component {
               <View
                 style={{
                   backgroundColor: '#412916',
-                  height: hp('7%'),
+                  height: hp('6%'),
                   flexDirection: 'row',
                 }}>
                 <View
@@ -1798,7 +1798,7 @@ class OrderingSec extends Component {
             onPress={() => alert('Save draft')}
             style={{
               flexDirection: 'row',
-              height: hp('7%'),
+              height: hp('6%'),
               width: wp('80%'),
               justifyContent: 'center',
               alignItems: 'center',
@@ -1823,7 +1823,7 @@ class OrderingSec extends Component {
             onPress={() => alert('Send')}
             style={{
               flexDirection: 'row',
-              height: hp('7%'),
+              height: hp('6%'),
               width: wp('80%'),
               backgroundColor: '#94C036',
               justifyContent: 'center',

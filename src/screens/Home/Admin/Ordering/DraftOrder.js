@@ -5,6 +5,8 @@ import {
   TouchableOpacity,
   ScrollView,
   ActivityIndicator,
+  TextInput,
+  Image,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {connect} from 'react-redux';
@@ -33,6 +35,7 @@ class DraftOrder extends Component {
       modalLoaderDrafts: true,
       draftsOrderData: [],
       draftsOrderDataBackup: [],
+      searchItem: '',
     };
   }
 
@@ -100,9 +103,41 @@ class DraftOrder extends Component {
     this.props.navigation.goBack();
   };
 
+  searchFun = txt => {
+    this.setState(
+      {
+        searchItem: txt,
+      },
+      () => this.filterData(txt),
+    );
+  };
+
+  filterData = text => {
+    //passing the inserted text in textinput
+    const newData = this.state.draftsOrderDataBackup.filter(function (item) {
+      //applying filter for the inserted text in search bar
+      const itemData = item.supplierName
+        ? item.supplierName.toUpperCase()
+        : ''.toUpperCase();
+      const textData = text.toUpperCase();
+      return itemData.indexOf(textData) > -1;
+    });
+    this.setState({
+      //setting the filtered newData on datasource
+      //After setting the data it will automatically re-render the view
+      draftsOrderData: newData,
+      searchItem: text,
+    });
+  };
+
   render() {
-    const {buttonsSubHeader, recipeLoader, modalLoaderDrafts, draftsOrderData} =
-      this.state;
+    const {
+      buttonsSubHeader,
+      recipeLoader,
+      modalLoaderDrafts,
+      draftsOrderData,
+      searchItem,
+    } = this.state;
 
     return (
       <View style={styles.container}>
@@ -134,17 +169,50 @@ class DraftOrder extends Component {
             </View>
           </View>
 
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              borderWidth: 1,
+              borderColor: '#E2E8F0',
+              height: hp('6%'),
+              width: wp('90%'),
+              borderRadius: 100,
+              backgroundColor: '#fff',
+              alignSelf: 'center',
+              justifyContent: 'space-between',
+            }}>
+            <TextInput
+              placeholder="Search"
+              value={searchItem}
+              style={{
+                padding: 15,
+                width: wp('75%'),
+              }}
+              onChangeText={value => this.searchFun(value)}
+            />
+            <Image
+              style={{
+                height: 18,
+                width: 18,
+                resizeMode: 'contain',
+                marginRight: wp('5%'),
+              }}
+              source={img.searchIcon}
+            />
+          </View>
+
           {recipeLoader ? (
             <ActivityIndicator size="small" color="#94C036" />
           ) : (
-            <View style={{marginTop: hp('4%')}}>
+            <View style={{marginTop: hp('3%')}}>
               <ScrollView showsVerticalScrollIndicator={false}>
                 {modalLoaderDrafts ? (
                   <ActivityIndicator size="large" color="grey" />
                 ) : (
                   <View
                     style={{
-                      marginHorizontal: wp('5%'),
+                      marginHorizontal: wp('4%'),
                     }}>
                     <View
                       style={{

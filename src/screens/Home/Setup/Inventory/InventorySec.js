@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import {View, Text} from 'react-native';
 
-class InventorySetup extends Component {
+class InventorySec extends Component {
   constructor(props) {
     super(props);
     this.state = {};
@@ -10,10 +10,10 @@ class InventorySetup extends Component {
   render() {
     return (
       <View>
-        <Text> InventorySetup </Text>
+        <Text> InventorySec </Text>
       </View>
     );
   }
 }
 
-export default InventorySetup;
+export default InventorySec;

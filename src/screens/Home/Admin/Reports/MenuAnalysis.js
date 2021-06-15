@@ -368,7 +368,7 @@ class MenuAnalysis extends Component {
           {recipeLoader ? (
             <ActivityIndicator color="#94C036" size="large" />
           ) : (
-            <View style={{marginTop: hp('3%'), marginHorizontal: wp('5%')}}>
+            <View style={{marginHorizontal: wp('5%')}}>
               <Accordion
                 expandMultiple
                 underlayColor="#fff"

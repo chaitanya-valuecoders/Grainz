@@ -1331,7 +1331,7 @@ class Account extends Component {
               <TouchableOpacity
                 onPress={() => this.props.navigation.goBack()}
                 style={{
-                  height: hp('7%'),
+                  height: hp('5%'),
                   width: wp('30%'),
                   justifyContent: 'center',
                   alignItems: 'center',
@@ -1352,7 +1352,7 @@ class Account extends Component {
               {updateLoader ? (
                 <View
                   style={{
-                    height: hp('7%'),
+                    height: hp('6%'),
                     width: wp('30%'),
                     justifyContent: 'center',
                     alignItems: 'center',
@@ -1366,7 +1366,7 @@ class Account extends Component {
                 <TouchableOpacity
                   onPress={() => this.updateFun()}
                   style={{
-                    height: hp('7%'),
+                    height: hp('5%'),
                     width: wp('30%'),
                     backgroundColor: '#94C036',
                     justifyContent: 'center',

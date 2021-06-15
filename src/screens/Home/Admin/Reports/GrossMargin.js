@@ -199,7 +199,7 @@ class MenuAnalysis extends Component {
             </View>
           </View>
 
-          <View style={{marginHorizontal: wp('8%')}}>
+          <View style={{marginHorizontal: wp('5%')}}>
             <View style={{alignSelf: 'center', marginVertical: hp('2%')}}>
               <Text
                 style={{
@@ -263,7 +263,7 @@ class MenuAnalysis extends Component {
                 onPress={() => alert('Print')}
                 style={{
                   flexDirection: 'row',
-                  height: hp('7%'),
+                  height: hp('6%'),
                   width: wp('80%'),
                   backgroundColor: '#94C036',
                   justifyContent: 'center',
@@ -277,7 +277,7 @@ class MenuAnalysis extends Component {
                     style={{
                       color: 'white',
                       fontFamily: 'Inter-SemiBold',
-                      fontSize: 15,
+                      fontSize: 14,
                     }}>
                     {translate('Print')}
                   </Text>
@@ -305,7 +305,7 @@ class MenuAnalysis extends Component {
                           justifyContent: 'center',
                           backgroundColor: '#EFFBCF',
                         }}>
-                        <Text style={{fontSize: 15, fontWeight: 'bold'}}>
+                        <Text style={{fontSize: 14, fontWeight: 'bold'}}>
                           $
                         </Text>
                       </View>
@@ -316,7 +316,7 @@ class MenuAnalysis extends Component {
                           justifyContent: 'center',
                           backgroundColor: '#FFFFFF',
                         }}>
-                        <Text style={{fontSize: 15, fontWeight: 'bold'}}>
+                        <Text style={{fontSize: 14, fontWeight: 'bold'}}>
                           Sales HTVA
                         </Text>
                       </View>
@@ -327,7 +327,7 @@ class MenuAnalysis extends Component {
                           justifyContent: 'center',
                           backgroundColor: '#F7F8F5',
                         }}>
-                        <Text style={{fontSize: 15, fontWeight: 'bold'}}>
+                        <Text style={{fontSize: 14, fontWeight: 'bold'}}>
                           Cost of sales (29%)
                         </Text>
                       </View>
@@ -338,7 +338,7 @@ class MenuAnalysis extends Component {
                           justifyContent: 'center',
                           backgroundColor: '#FFFFFF',
                         }}>
-                        <Text style={{fontSize: 15, fontWeight: 'bold'}}>
+                        <Text style={{fontSize: 14, fontWeight: 'bold'}}>
                           Waste (1%)
                         </Text>
                       </View>
@@ -349,7 +349,7 @@ class MenuAnalysis extends Component {
                           justifyContent: 'center',
                           backgroundColor: '#F7F8F5',
                         }}>
-                        <Text style={{fontSize: 15, fontWeight: 'bold'}}>
+                        <Text style={{fontSize: 14, fontWeight: 'bold'}}>
                           Staff (1%)
                         </Text>
                       </View>
@@ -360,7 +360,7 @@ class MenuAnalysis extends Component {
                           justifyContent: 'center',
                           backgroundColor: '#FFFFFF',
                         }}>
-                        <Text style={{fontSize: 15, fontWeight: 'bold'}}>
+                        <Text style={{fontSize: 14, fontWeight: 'bold'}}>
                           R & D (1%)
                         </Text>
                       </View>
@@ -371,7 +371,7 @@ class MenuAnalysis extends Component {
                           justifyContent: 'center',
                           backgroundColor: '#F7F8F5',
                         }}>
-                        <Text style={{fontSize: 15, fontWeight: 'bold'}}>
+                        <Text style={{fontSize: 14, fontWeight: 'bold'}}>
                           Other (1%)
                         </Text>
                       </View>
@@ -382,7 +382,7 @@ class MenuAnalysis extends Component {
                           justifyContent: 'center',
                           backgroundColor: '#FFFFFF',
                         }}>
-                        <Text style={{fontSize: 15, fontWeight: 'bold'}}>
+                        <Text style={{fontSize: 14, fontWeight: 'bold'}}>
                           Grainz correction (1%)
                         </Text>
                       </View>
@@ -393,7 +393,7 @@ class MenuAnalysis extends Component {
                           justifyContent: 'center',
                           backgroundColor: '#F7F8F5',
                         }}>
-                        <Text style={{fontSize: 15, fontWeight: 'bold'}}>
+                        <Text style={{fontSize: 14, fontWeight: 'bold'}}>
                           Total costs(1%)
                         </Text>
                       </View>
@@ -404,7 +404,7 @@ class MenuAnalysis extends Component {
                           justifyContent: 'center',
                           backgroundColor: '#FFFFFF',
                         }}>
-                        <Text style={{fontSize: 15, fontWeight: 'bold'}}>
+                        <Text style={{fontSize: 14, fontWeight: 'bold'}}>
                           Gross Margin (1%)
                         </Text>
                       </View>
@@ -421,7 +421,7 @@ class MenuAnalysis extends Component {
                               alignItems: 'center',
                               backgroundColor: '#EFFBCF',
                             }}>
-                            <Text style={{fontSize: 15, fontWeight: 'bold'}}>
+                            <Text style={{fontSize: 14, fontWeight: 'bold'}}>
                               {item.title}
                             </Text>
                           </View>
@@ -432,7 +432,7 @@ class MenuAnalysis extends Component {
                               justifyContent: 'center',
                               backgroundColor: '#FFFFFF',
                             }}>
-                            <Text style={{fontSize: 15, fontWeight: 'bold'}}>
+                            <Text style={{fontSize: 14, fontWeight: 'bold'}}>
                               {data.salesHTVA}
                             </Text>
                           </TouchableOpacity>
@@ -443,7 +443,7 @@ class MenuAnalysis extends Component {
                               justifyContent: 'center',
                               backgroundColor: '#F7F8F5',
                             }}>
-                            <Text style={{fontSize: 15, fontWeight: 'bold'}}>
+                            <Text style={{fontSize: 14, fontWeight: 'bold'}}>
                               {data.costOfSales} {data.percentageCostOfSales}
                             </Text>
                           </TouchableOpacity>
@@ -454,7 +454,7 @@ class MenuAnalysis extends Component {
                               justifyContent: 'center',
                               backgroundColor: '#FFFFFF',
                             }}>
-                            <Text style={{fontSize: 15, fontWeight: 'bold'}}>
+                            <Text style={{fontSize: 14, fontWeight: 'bold'}}>
                               {data.waste} {data.percentageWaste}
                             </Text>
                           </TouchableOpacity>
@@ -465,7 +465,7 @@ class MenuAnalysis extends Component {
                               justifyContent: 'center',
                               backgroundColor: '#F7F8F5',
                             }}>
-                            <Text style={{fontSize: 15, fontWeight: 'bold'}}>
+                            <Text style={{fontSize: 14, fontWeight: 'bold'}}>
                               {data.stafFood} {data.percentageStaffFood}
                             </Text>
                           </TouchableOpacity>
@@ -476,7 +476,7 @@ class MenuAnalysis extends Component {
                               justifyContent: 'center',
                               backgroundColor: '#FFFFFF',
                             }}>
-                            <Text style={{fontSize: 15, fontWeight: 'bold'}}>
+                            <Text style={{fontSize: 14, fontWeight: 'bold'}}>
                               {data.rAndD} {data.percentageRAndD}
                             </Text>
                           </TouchableOpacity>
@@ -487,7 +487,7 @@ class MenuAnalysis extends Component {
                               justifyContent: 'center',
                               backgroundColor: '#F7F8F5',
                             }}>
-                            <Text style={{fontSize: 15, fontWeight: 'bold'}}>
+                            <Text style={{fontSize: 14, fontWeight: 'bold'}}>
                               {data.other} {data.percentageOther}
                             </Text>
                           </TouchableOpacity>
@@ -498,7 +498,7 @@ class MenuAnalysis extends Component {
                               justifyContent: 'center',
                               backgroundColor: '#FFFFFF',
                             }}>
-                            <Text style={{fontSize: 15, fontWeight: 'bold'}}>
+                            <Text style={{fontSize: 14, fontWeight: 'bold'}}>
                               {data.grainZError} {data.percentageGrainzError}
                             </Text>
                           </TouchableOpacity>
@@ -509,7 +509,7 @@ class MenuAnalysis extends Component {
                               justifyContent: 'center',
                               backgroundColor: '#F7F8F5',
                             }}>
-                            <Text style={{fontSize: 15, fontWeight: 'bold'}}>
+                            <Text style={{fontSize: 14, fontWeight: 'bold'}}>
                               {data.totalCost} {data.percentageTotalCost}
                             </Text>
                           </TouchableOpacity>
@@ -520,7 +520,7 @@ class MenuAnalysis extends Component {
                               justifyContent: 'center',
                               backgroundColor: '#FFFFFF',
                             }}>
-                            <Text style={{fontSize: 15, fontWeight: 'bold'}}>
+                            <Text style={{fontSize: 14, fontWeight: 'bold'}}>
                               {data.grossMargin} {data.percentageGrossMargin}
                             </Text>
                           </TouchableOpacity>
