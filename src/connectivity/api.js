@@ -590,3 +590,69 @@ export const lookupInsideCategoriesApi = async catId => {
     },
   );
 };
+
+export const inventoryListSetupCatApi = async catId => {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.get(
+    baseURL + `/Inventory/inventory list by category?CategoryId=${catId}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  );
+};
+
+export const deleteInventoryListProductApi = async (payload, id) => {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.post(baseURL + `/Inventory/Delete Inventory?Id=${id}`, payload, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+export const getRecipeNamesApi = async catId => {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.get(baseURL + `/Recipe/recipe names`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+export const getRecipeDetailsApi = async id => {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.get(baseURL + `/Recipe/recipe advance details?id=${id}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+export const getSupplierListSetupApi = async () => {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.get(baseURL + `/Supplier/Supplier list`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+export const getMenuItemsSetupApi = async () => {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.get(baseURL + `/menu/menu item list`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+export const viewMenuItemsSetupApi = async id => {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.get(baseURL + `/Menu/menu item by id?id=${id}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};

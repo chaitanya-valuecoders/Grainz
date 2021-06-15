@@ -6,6 +6,7 @@ import {
   Image,
   ScrollView,
   ActivityIndicator,
+  TextInput,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {connect} from 'react-redux';
@@ -55,6 +56,7 @@ class index extends Component {
       modalLoader: false,
       sectionName: '',
       categoryLoader: false,
+      searchItem: '',
     };
   }
 
@@ -176,8 +178,7 @@ class index extends Component {
   };
 
   openListFun = (item, index, section) => {
-    console.log('item', item);
-    this.props.navigation.navigate('InventoryAdminSec', {
+    this.props.navigation.navigate('InventorySetupSecScreen', {
       item,
       section,
     });
@@ -209,72 +210,15 @@ class index extends Component {
                         borderRadius: 6,
                         borderColor: '#00000099',
                       }}>
-                      <View
-                        style={
-                          {
-                            // width: wp('25%'),
-                            // alignItems: 'center',
-                          }
-                        }>
+                      <View>
                         <Text
                           style={{textAlign: 'center', color: '#161C27'}}
                           numberOfLines={1}>
                           {item.name}{' '}
                         </Text>
                       </View>
-                      <View
-                        style={
-                          {
-                            // width: wp('25%'),
-                            // alignItems: 'center',
-                          }
-                        }>
-                        <Text style={{textAlign: 'center', color: '#161C27'}}>
-                          Current inventory
-                        </Text>
-                      </View>
-                      <View
-                        style={
-                          {
-                            // width: wp('25%'),
-                            // alignItems: 'center',
-                          }
-                        }>
-                        <Text style={{textAlign: 'center', color: '#161C27'}}>
-                          On Order
-                        </Text>
-                      </View>
-                      {/* <View
-                          style={{
-                            width: wp('30%'),
-                            alignItems: 'center',
-                          }}>
-                          <Text>Events(+7d)</Text>
-                        </View>
-                        <View
-                          style={{
-                            width: wp('30%'),
-                            alignItems: 'center',
-                          }}>
-                          <Text>Target</Text>
-                        </View>
-                        <View
-                          style={{
-                            width: wp('30%'),
-                            alignItems: 'center',
-                          }}>
-                          <Text>Delta</Text>
-                        </View>
-                        <View
-                          style={{
-                            width: wp('30%'),
-                            alignItems: 'center',
-                          }}>
-                          <Text>Order Now</Text>
-                        </View> */}
                     </TouchableOpacity>
                   </View>
-                  // </ScrollView>
                 );
               })}
           </View>
@@ -321,9 +265,41 @@ class index extends Component {
     });
   };
 
+  searchFun = txt => {
+    this.setState(
+      {
+        searchItem: txt,
+      },
+      () => this.filterData(txt),
+    );
+  };
+
+  filterData = text => {
+    //passing the inserted text in textinput
+    const newData = this.state.SECTIONS_SEC.filter(function (item) {
+      //applying filter for the inserted text in search bar
+      const itemData = item.supplierName
+        ? item.supplierName.toUpperCase()
+        : ''.toUpperCase();
+      const textData = text.toUpperCase();
+      return itemData.indexOf(textData) > -1;
+    });
+    this.setState({
+      //setting the filtered newData on datasource
+      //After setting the data it will automatically re-render the view
+      SECTIONS: newData,
+      searchItem: text,
+    });
+  };
+
   render() {
-    const {recipeLoader, SECTIONS, activeSections, buttonsSubHeader} =
-      this.state;
+    const {
+      recipeLoader,
+      SECTIONS,
+      activeSections,
+      buttonsSubHeader,
+      searchItem,
+    } = this.state;
 
     return (
       <View style={styles.container}>
@@ -337,7 +313,7 @@ class index extends Component {
           <SubHeader {...this.props} buttons={buttonsSubHeader} index={1} />
         )}
         <ScrollView
-          style={{marginBottom: hp('5%')}}
+          style={{marginBottom: hp('2%')}}
           showsVerticalScrollIndicator={false}>
           <View style={styles.subContainer}>
             <View style={styles.firstContainer}>
@@ -353,10 +329,78 @@ class index extends Component {
               </TouchableOpacity>
             </View>
           </View>
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              borderWidth: 1,
+              borderColor: '#E2E8F0',
+              height: hp('6%'),
+              width: wp('90%'),
+              borderRadius: 100,
+              backgroundColor: '#fff',
+              alignSelf: 'center',
+              justifyContent: 'space-between',
+            }}>
+            <TextInput
+              placeholder="Search"
+              value={searchItem}
+              style={{
+                padding: 15,
+                width: wp('75%'),
+              }}
+              onChangeText={value => this.searchFun(value)}
+            />
+            <Image
+              style={{
+                height: 18,
+                width: 18,
+                resizeMode: 'contain',
+                marginRight: wp('5%'),
+              }}
+              source={img.searchIcon}
+            />
+          </View>
+          <TouchableOpacity
+            onPress={() => alert('add')}
+            style={{
+              height: hp('6%'),
+              width: wp('80%'),
+              backgroundColor: '#94C036',
+              justifyContent: 'center',
+              alignItems: 'center',
+              marginVertical: hp('3%'),
+              borderRadius: 100,
+              alignSelf: 'center',
+            }}>
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+              }}>
+              <Image
+                source={img.addIcon}
+                style={{
+                  width: 20,
+                  height: 20,
+                  tintColor: '#fff',
+                  resizeMode: 'contain',
+                }}
+              />
+              <Text
+                style={{
+                  color: 'white',
+                  marginLeft: 10,
+                  fontFamily: 'Inter-SemiBold',
+                }}>
+                Add New
+              </Text>
+            </View>
+          </TouchableOpacity>
           {recipeLoader ? (
             <ActivityIndicator color="#94C036" size="large" />
           ) : (
-            <View style={{marginTop: hp('2%'), marginHorizontal: wp('5%')}}>
+            <View style={{marginHorizontal: wp('4%')}}>
               <Accordion
                 underlayColor="#fff"
                 sections={SECTIONS}

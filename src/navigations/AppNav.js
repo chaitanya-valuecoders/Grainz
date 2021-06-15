@@ -30,13 +30,18 @@ import ReportsAdminScreen from '../screens/Home/Admin/Reports/Reports';
 import GrossMarginAdminScreen from '../screens/Home/Admin/Reports/GrossMargin';
 import MenuAnalysisAdminScreen from '../screens/Home/Admin/Reports/MenuAnalysis';
 import InventorySetupScreen from '../screens/Home/Setup/Inventory';
-import MenuItemScreen from '../screens/Home/Setup/MenuItem/MenuItem';
+import MenuItemScreen from '../screens/Home/Setup/MenuItem';
 import MenusScreen from '../screens/Home/Setup/Menus/Menus';
-import RecipeSetupScreen from '../screens/Home/Setup/Recipe/Recipe';
-import SupplierScreen from '../screens/Home/Setup/Supplier/Supplier';
+import RecipeSetupScreen from '../screens/Home/Setup/Recipe';
+import SupplierScreen from '../screens/Home/Setup/Supplier';
 import MenuAnalysisSec from '../screens/Home/Admin/Reports/MenuAnalysisSec';
 import SalesAdminSec from '../screens/Home/Admin/Sales/SalesSec';
 import InventoryAdminSec from '../screens/Home/Admin/Inventory/InventorySec';
+import InventorySetupSecScreen from '../screens/Home/Setup/Inventory/InventorySetupSec';
+import EditInventorySetupScreen from '../screens/Home/Setup/Inventory/EditInventorySetup';
+import ViewRecipeScreen from '../screens/Home/Setup/Recipe/ViewRecipe';
+import ViewSupplierScreen from '../screens/Home/Setup/Supplier/ViewSupplier';
+import ViewMenuItemsScreen from '../screens/Home/Setup/MenuItem/ViewMenuItems';
 
 const AppNav = createStackNavigator();
 
@@ -109,6 +114,20 @@ export default function AppNavFun() {
       <AppNav.Screen
         name="PendingDeliveryAdminScreen"
         component={PendingDeliveryAdminScreen}
+      />
+      <AppNav.Screen
+        name="InventorySetupSecScreen"
+        component={InventorySetupSecScreen}
+      />
+      <AppNav.Screen
+        name="EditInventorySetupScreen"
+        component={EditInventorySetupScreen}
+      />
+      <AppNav.Screen name="ViewRecipeScreen" component={ViewRecipeScreen} />
+      <AppNav.Screen name="ViewSupplierScreen" component={ViewSupplierScreen} />
+      <AppNav.Screen
+        name="ViewMenuItemsScreen"
+        component={ViewMenuItemsScreen}
       />
     </AppNav.Navigator>
   );

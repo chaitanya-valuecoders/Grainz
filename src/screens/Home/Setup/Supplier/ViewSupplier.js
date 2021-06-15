@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import {View, Text} from 'react-native';
 
-class MenuItem extends Component {
+class ViewSupplier extends Component {
   constructor(props) {
     super(props);
     this.state = {};
@@ -10,10 +10,10 @@ class MenuItem extends Component {
   render() {
     return (
       <View>
-        <Text> MenuItem </Text>
+        <Text> ViewSupplier </Text>
       </View>
     );
   }
 }
 
-export default MenuItem;
+export default ViewSupplier;

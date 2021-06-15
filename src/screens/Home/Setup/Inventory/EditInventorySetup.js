@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import {View, Text} from 'react-native';
 
-class Recipe extends Component {
+class EditInventorySetup extends Component {
   constructor(props) {
     super(props);
     this.state = {};
@@ -10,10 +10,10 @@ class Recipe extends Component {
   render() {
     return (
       <View>
-        <Text> Recipe </Text>
+        <Text> EditInventorySetup </Text>
       </View>
     );
   }
 }
 
-export default Recipe;
+export default EditInventorySetup;

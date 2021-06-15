@@ -39,4 +39,7 @@ export default {
   historyIcon: require('../assests/Images/historyIcon.png'),
   pendingIcon: require('../assests/Images/pendingIcon.png'),
   reviewIcon: require('../assests/Images/reviewIcon.png'),
+  threeDotsIcon: require('../assests/Images/threeDotsIcon.png'),
+  editIconNew: require('../assests/Images/editIconNew.png'),
+  deleteIconNew: require('../assests/Images/deleteIconNew.png'),
 };
