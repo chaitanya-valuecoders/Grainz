@@ -56,7 +56,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter-Regular',
   },
   signInStyling: {
-    height: hp('8%'),
+    height: hp('7%'),
     backgroundColor: '#99C13E',
     justifyContent: 'center',
     alignItems: 'center',

@@ -350,7 +350,7 @@ class Events extends Component {
           <SubHeader {...this.props} buttons={buttonsSubHeader} index={0} />
         )}
         <ScrollView
-          style={{marginBottom: hp('5%')}}
+          style={{marginBottom: hp('2%')}}
           showsVerticalScrollIndicator={false}>
           <View style={styles.subContainer}>
             <View style={styles.firstContainer}>

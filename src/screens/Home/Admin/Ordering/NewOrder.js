@@ -10,6 +10,7 @@ import {
   TextInput,
   Alert,
   FlatList,
+  Platform,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {connect} from 'react-redux';
@@ -940,7 +941,7 @@ class OrderingSec extends Component {
                       flexDirection: 'row',
                       width: wp('90%'),
                       backgroundColor: '#fff',
-                      paddingVertical: 15,
+                      paddingVertical: Platform.OS === 'ios' ? 15 : 5,
                       borderRadius: 5,
                       justifyContent: 'space-between',
                     }}>
@@ -990,7 +991,12 @@ class OrderingSec extends Component {
                       <Image
                         source={img.arrowDownIcon}
                         resizeMode="contain"
-                        style={{height: 18, width: 18, resizeMode: 'contain'}}
+                        style={{
+                          height: 18,
+                          width: 18,
+                          resizeMode: 'contain',
+                          marginTop: Platform.OS === 'ios' ? 0 : 15,
+                        }}
                       />
                     </View>
                   </View>
@@ -1004,7 +1010,7 @@ class OrderingSec extends Component {
                       onPress={() => this.showDatePickerOrderDate()}
                       style={{
                         width: wp('90%'),
-                        padding: 15,
+                        padding: Platform.OS === 'ios' ? 15 : 5,
                         flexDirection: 'row',
                         justifyContent: 'space-between',
                         backgroundColor: '#fff',
@@ -1021,6 +1027,8 @@ class OrderingSec extends Component {
                           width: 20,
                           height: 20,
                           resizeMode: 'contain',
+                          marginTop: Platform.OS === 'android' ? 15 : 0,
+                          marginRight: Platform.OS === 'android' ? 15 : 0,
                         }}
                       />
                     </TouchableOpacity>
@@ -1041,7 +1049,7 @@ class OrderingSec extends Component {
                       onPress={() => this.showDatePickerDeliveryDate()}
                       style={{
                         width: wp('90%'),
-                        padding: 15,
+                        padding: Platform.OS === 'ios' ? 15 : 5,
                         flexDirection: 'row',
                         justifyContent: 'space-between',
                         backgroundColor: '#fff',
@@ -1058,6 +1066,8 @@ class OrderingSec extends Component {
                           width: 20,
                           height: 20,
                           resizeMode: 'contain',
+                          marginTop: Platform.OS === 'android' ? 15 : 0,
+                          marginRight: Platform.OS === 'android' ? 15 : 0,
                         }}
                       />
                     </TouchableOpacity>
@@ -1080,7 +1090,7 @@ class OrderingSec extends Component {
                       flexDirection: 'row',
                       width: wp('90%'),
                       backgroundColor: '#fff',
-                      paddingVertical: 15,
+                      paddingVertical: Platform.OS === 'ios' ? 15 : 5,
                       borderRadius: 5,
                       justifyContent: 'space-between',
                     }}>
@@ -1129,7 +1139,11 @@ class OrderingSec extends Component {
                       <Image
                         source={img.arrowDownIcon}
                         resizeMode="contain"
-                        style={{height: 20, width: 20}}
+                        style={{
+                          height: 20,
+                          width: 20,
+                          marginTop: Platform.OS === 'ios' ? 0 : 15,
+                        }}
                       />
                     </View>
                   </View>

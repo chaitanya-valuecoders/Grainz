@@ -21,7 +21,6 @@ import {
   getMyProfileApi,
   getRecipeDetailsApi,
 } from '../../../../connectivity/api';
-import DropDownPicker from 'react-native-dropdown-picker';
 
 import styles from './style';
 

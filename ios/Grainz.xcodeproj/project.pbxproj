@@ -11,16 +11,17 @@
 		13B07FBC1A68108700A75B9A /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.m */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
+		412CCC7F180A49E6865914D0 /* Inter-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 30B5BAB0B5874AB092E7C46A /* Inter-SemiBold.ttf */; };
+		5C2DD26AB87D431CAC66A7CC /* Inter-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 41B79C0966944C3795A8C039 /* Inter-Bold.ttf */; };
+		643967B640244B4C87C8BF8D /* Inter-Black.ttf in Resources */ = {isa = PBXBuildFile; fileRef = B2DBA9D2B4BD4933863EEA71 /* Inter-Black.ttf */; };
+		7A098D43583D4234A6B9B812 /* Inter-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2EB330A5C3034C61A9FDA5E9 /* Inter-Regular.ttf */; };
+		7B8BDD8B6CDA4CC9BA02DFE9 /* RNModalPicker.app in Frameworks */ = {isa = PBXBuildFile; fileRef = B59E54A9808B471183CEFEEA /* RNModalPicker.app */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
+		A22CE5D8BC8948E699D74224 /* Inter-ExtraLight.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 104D19E4DA814A3F88A90B96 /* Inter-ExtraLight.ttf */; };
+		B1648FC7E25647C3AE6C2905 /* Inter-ExtraBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = BBE10C2212B14C90A798D79B /* Inter-ExtraBold.ttf */; };
+		B3573D677C8344C8811A30C6 /* Inter-Thin.ttf in Resources */ = {isa = PBXBuildFile; fileRef = FEA54C80F608470D984DF4AE /* Inter-Thin.ttf */; };
 		CC463D45FDCD21339BC4B63E /* libPods-Grainz.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A4FF71235E30516795D36C3A /* libPods-Grainz.a */; };
 		D42A49FC5DDDBD8915DE49D9 /* libPods-Grainz-GrainzTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 524C86964BEA117C2DD3D40D /* libPods-Grainz-GrainzTests.a */; };
-		643967B640244B4C87C8BF8D /* Inter-Black.ttf in Resources */ = {isa = PBXBuildFile; fileRef = B2DBA9D2B4BD4933863EEA71 /* Inter-Black.ttf */; };
-		5C2DD26AB87D431CAC66A7CC /* Inter-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 41B79C0966944C3795A8C039 /* Inter-Bold.ttf */; };
-		B1648FC7E25647C3AE6C2905 /* Inter-ExtraBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = BBE10C2212B14C90A798D79B /* Inter-ExtraBold.ttf */; };
-		A22CE5D8BC8948E699D74224 /* Inter-ExtraLight.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 104D19E4DA814A3F88A90B96 /* Inter-ExtraLight.ttf */; };
-		7A098D43583D4234A6B9B812 /* Inter-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2EB330A5C3034C61A9FDA5E9 /* Inter-Regular.ttf */; };
-		412CCC7F180A49E6865914D0 /* Inter-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 30B5BAB0B5874AB092E7C46A /* Inter-SemiBold.ttf */; };
-		B3573D677C8344C8811A30C6 /* Inter-Thin.ttf in Resources */ = {isa = PBXBuildFile; fileRef = FEA54C80F608470D984DF4AE /* Inter-Thin.ttf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -31,22 +32,33 @@
 			remoteGlobalIDString = 13B07F861A680F5B00A75B9A;
 			remoteInfo = Grainz;
 		};
+		7ED8DC3C2679CF0100C3EF98 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = DB07C2BFEF6E455E9EB3A998 /* RNModalPicker.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 13B07F961A680F5B00A75B9A;
+			remoteInfo = RNModalPicker;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		00E356EE1AD99517003FC87E /* GrainzTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = GrainzTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		00E356F11AD99517003FC87E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		00E356F21AD99517003FC87E /* GrainzTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GrainzTests.m; sourceTree = "<group>"; };
+		104D19E4DA814A3F88A90B96 /* Inter-ExtraLight.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Inter-ExtraLight.ttf"; path = "../assets/fonts/Inter-ExtraLight.ttf"; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* Grainz.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Grainz.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FAF1A68108700A75B9A /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = Grainz/AppDelegate.h; sourceTree = "<group>"; };
 		13B07FB01A68108700A75B9A /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AppDelegate.m; path = Grainz/AppDelegate.m; sourceTree = "<group>"; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = Grainz/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = Grainz/Info.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = Grainz/main.m; sourceTree = "<group>"; };
+		2EB330A5C3034C61A9FDA5E9 /* Inter-Regular.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Inter-Regular.ttf"; path = "../assets/fonts/Inter-Regular.ttf"; sourceTree = "<group>"; };
+		30B5BAB0B5874AB092E7C46A /* Inter-SemiBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Inter-SemiBold.ttf"; path = "../assets/fonts/Inter-SemiBold.ttf"; sourceTree = "<group>"; };
 		3667A58979734A29881B31C7 /* Entypo.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Entypo.ttf; path = "../node_modules/react-native-vector-icons/Fonts/Entypo.ttf"; sourceTree = "<group>"; };
 		3B204908918445108E04A1CF /* FontAwesome5_Brands.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = FontAwesome5_Brands.ttf; path = "../node_modules/react-native-vector-icons/Fonts/FontAwesome5_Brands.ttf"; sourceTree = "<group>"; };
 		3D43E3E6AE973B9E12CD7EA2 /* Pods-Grainz.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Grainz.release.xcconfig"; path = "Target Support Files/Pods-Grainz/Pods-Grainz.release.xcconfig"; sourceTree = "<group>"; };
 		404DEF1C5FD647C98C870697 /* Zocial.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Zocial.ttf; path = "../node_modules/react-native-vector-icons/Fonts/Zocial.ttf"; sourceTree = "<group>"; };
+		41B79C0966944C3795A8C039 /* Inter-Bold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Inter-Bold.ttf"; path = "../assets/fonts/Inter-Bold.ttf"; sourceTree = "<group>"; };
 		4E27974CBE0242F9ADCEAE8B /* Fontisto.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Fontisto.ttf; path = "../node_modules/react-native-vector-icons/Fonts/Fontisto.ttf"; sourceTree = "<group>"; };
 		524C86964BEA117C2DD3D40D /* libPods-Grainz-GrainzTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Grainz-GrainzTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		68F0D192CC9E4B2E94F1697C /* MaterialCommunityIcons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = MaterialCommunityIcons.ttf; path = "../node_modules/react-native-vector-icons/Fonts/MaterialCommunityIcons.ttf"; sourceTree = "<group>"; };
@@ -58,22 +70,20 @@
 		9DC6B6F375208FB0E475B198 /* Pods-Grainz.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Grainz.debug.xcconfig"; path = "Target Support Files/Pods-Grainz/Pods-Grainz.debug.xcconfig"; sourceTree = "<group>"; };
 		A4FF71235E30516795D36C3A /* libPods-Grainz.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Grainz.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		B269A0001EBE978FAB09DA95 /* Pods-Grainz-GrainzTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Grainz-GrainzTests.release.xcconfig"; path = "Target Support Files/Pods-Grainz-GrainzTests/Pods-Grainz-GrainzTests.release.xcconfig"; sourceTree = "<group>"; };
+		B2DBA9D2B4BD4933863EEA71 /* Inter-Black.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Inter-Black.ttf"; path = "../assets/fonts/Inter-Black.ttf"; sourceTree = "<group>"; };
+		B59E54A9808B471183CEFEEA /* RNModalPicker.app */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = wrapper.application; path = RNModalPicker.app; sourceTree = "<group>"; };
 		BAFD09E443E84A9998AC8A79 /* Feather.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Feather.ttf; path = "../node_modules/react-native-vector-icons/Fonts/Feather.ttf"; sourceTree = "<group>"; };
+		BBE10C2212B14C90A798D79B /* Inter-ExtraBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Inter-ExtraBold.ttf"; path = "../assets/fonts/Inter-ExtraBold.ttf"; sourceTree = "<group>"; };
 		C6DEA6B1E08E430FA9D31A0C /* FontAwesome5_Solid.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = FontAwesome5_Solid.ttf; path = "../node_modules/react-native-vector-icons/Fonts/FontAwesome5_Solid.ttf"; sourceTree = "<group>"; };
 		CF08EFF410B24DC8825DCAB1 /* Foundation.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Foundation.ttf; path = "../node_modules/react-native-vector-icons/Fonts/Foundation.ttf"; sourceTree = "<group>"; };
 		DAA1B9DBDBB4401D991FC231 /* MaterialIcons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = MaterialIcons.ttf; path = "../node_modules/react-native-vector-icons/Fonts/MaterialIcons.ttf"; sourceTree = "<group>"; };
+		DB07C2BFEF6E455E9EB3A998 /* RNModalPicker.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = RNModalPicker.xcodeproj; path = "../node_modules/rn-modal-picker/ios/RNModalPicker.xcodeproj"; sourceTree = "<group>"; };
 		E5C8FCD508014357A2764FD5 /* FontAwesome.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = FontAwesome.ttf; path = "../node_modules/react-native-vector-icons/Fonts/FontAwesome.ttf"; sourceTree = "<group>"; };
 		EAE18F8588D64625B41B6EB0 /* Ionicons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Ionicons.ttf; path = "../node_modules/react-native-vector-icons/Fonts/Ionicons.ttf"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		F41C1E68C08D4A69B494DF82 /* Octicons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Octicons.ttf; path = "../node_modules/react-native-vector-icons/Fonts/Octicons.ttf"; sourceTree = "<group>"; };
 		FCBDCA92108640108FC7365E /* AntDesign.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = AntDesign.ttf; path = "../node_modules/react-native-vector-icons/Fonts/AntDesign.ttf"; sourceTree = "<group>"; };
-		B2DBA9D2B4BD4933863EEA71 /* Inter-Black.ttf */ = {isa = PBXFileReference; name = "Inter-Black.ttf"; path = "../assets/fonts/Inter-Black.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
-		41B79C0966944C3795A8C039 /* Inter-Bold.ttf */ = {isa = PBXFileReference; name = "Inter-Bold.ttf"; path = "../assets/fonts/Inter-Bold.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
-		BBE10C2212B14C90A798D79B /* Inter-ExtraBold.ttf */ = {isa = PBXFileReference; name = "Inter-ExtraBold.ttf"; path = "../assets/fonts/Inter-ExtraBold.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
-		104D19E4DA814A3F88A90B96 /* Inter-ExtraLight.ttf */ = {isa = PBXFileReference; name = "Inter-ExtraLight.ttf"; path = "../assets/fonts/Inter-ExtraLight.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
-		2EB330A5C3034C61A9FDA5E9 /* Inter-Regular.ttf */ = {isa = PBXFileReference; name = "Inter-Regular.ttf"; path = "../assets/fonts/Inter-Regular.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
-		30B5BAB0B5874AB092E7C46A /* Inter-SemiBold.ttf */ = {isa = PBXFileReference; name = "Inter-SemiBold.ttf"; path = "../assets/fonts/Inter-SemiBold.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
-		FEA54C80F608470D984DF4AE /* Inter-Thin.ttf */ = {isa = PBXFileReference; name = "Inter-Thin.ttf"; path = "../assets/fonts/Inter-Thin.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		FEA54C80F608470D984DF4AE /* Inter-Thin.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Inter-Thin.ttf"; path = "../assets/fonts/Inter-Thin.ttf"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -90,6 +100,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				CC463D45FDCD21339BC4B63E /* libPods-Grainz.a in Frameworks */,
+				7B8BDD8B6CDA4CC9BA02DFE9 /* RNModalPicker.app in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -147,9 +158,26 @@
 			path = Pods;
 			sourceTree = "<group>";
 		};
+		7ED8DC2C2679CF0000C3EF98 /* Recovered References */ = {
+			isa = PBXGroup;
+			children = (
+				B59E54A9808B471183CEFEEA /* RNModalPicker.app */,
+			);
+			name = "Recovered References";
+			sourceTree = "<group>";
+		};
+		7ED8DC392679CF0100C3EF98 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				7ED8DC3D2679CF0100C3EF98 /* RNModalPicker.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		832341AE1AAA6A7D00B99B32 /* Libraries */ = {
 			isa = PBXGroup;
 			children = (
+				DB07C2BFEF6E455E9EB3A998 /* RNModalPicker.xcodeproj */,
 			);
 			name = Libraries;
 			sourceTree = "<group>";
@@ -164,6 +192,7 @@
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
 				4CC2AF900841F9EDEDD70189 /* Pods */,
 				8806C26CA1294414A7069D43 /* Resources */,
+				7ED8DC2C2679CF0000C3EF98 /* Recovered References */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -281,6 +310,12 @@
 			mainGroup = 83CBB9F61A601CBA00E9B192;
 			productRefGroup = 83CBBA001A601CBA00E9B192 /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 7ED8DC392679CF0100C3EF98 /* Products */;
+					ProjectRef = DB07C2BFEF6E455E9EB3A998 /* RNModalPicker.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				13B07F861A680F5B00A75B9A /* Grainz */,
@@ -288,6 +323,16 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		7ED8DC3D2679CF0100C3EF98 /* RNModalPicker.app */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.application;
+			path = RNModalPicker.app;
+			remoteRef = 7ED8DC3C2679CF0100C3EF98 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		00E356EC1AD99517003FC87E /* Resources */ = {
@@ -467,12 +512,20 @@
 					"DEBUG=1",
 					"$(inherited)",
 				);
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/../node_modules/rn-modal-picker/ios/RNModalPicker/**",
+				);
 				INFOPLIST_FILE = GrainzTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 				);
 				OTHER_LDFLAGS = (
 					"-ObjC",
@@ -491,12 +544,20 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				COPY_PHASE_STRIP = NO;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/../node_modules/rn-modal-picker/ios/RNModalPicker/**",
+				);
 				INFOPLIST_FILE = GrainzTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 				);
 				OTHER_LDFLAGS = (
 					"-ObjC",
@@ -518,6 +579,10 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 59YWJ86CA9;
 				ENABLE_BITCODE = NO;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/../node_modules/rn-modal-picker/ios/RNModalPicker/**",
+				);
 				INFOPLIST_FILE = Grainz/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -544,6 +609,10 @@
 				CLANG_ENABLE_MODULES = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 59YWJ86CA9;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/../node_modules/rn-modal-picker/ios/RNModalPicker/**",
+				);
 				INFOPLIST_FILE = Grainz/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",

@@ -9,6 +9,7 @@ import {
   Switch,
   TextInput,
   Alert,
+  Platform,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {connect} from 'react-redux';
@@ -890,7 +891,7 @@ class Sales extends Component {
               onPress={() => this.showDatePickerFunStart()}
               style={{
                 width: wp('90%'),
-                padding: 15,
+                padding: Platform.OS === 'ios' ? 15 : 5,
                 flexDirection: 'row',
                 justifyContent: 'space-between',
                 borderRadius: 5,
@@ -906,6 +907,8 @@ class Sales extends Component {
                 style={{
                   width: 20,
                   height: 20,
+                  marginTop: Platform.OS === 'android' ? 12 : 0,
+                  marginRight: Platform.OS === 'android' ? 12 : 0,
                   resizeMode: 'contain',
                 }}
               />
@@ -929,7 +932,7 @@ class Sales extends Component {
               onPress={() => this.showDatePickerFunEnd()}
               style={{
                 width: wp('90%'),
-                padding: 15,
+                padding: Platform.OS === 'ios' ? 15 : 5,
                 flexDirection: 'row',
                 justifyContent: 'space-between',
                 borderRadius: 5,
@@ -945,6 +948,8 @@ class Sales extends Component {
                 style={{
                   width: 20,
                   height: 20,
+                  marginTop: Platform.OS === 'android' ? 12 : 0,
+                  marginRight: Platform.OS === 'android' ? 12 : 0,
                   resizeMode: 'contain',
                 }}
               />

@@ -19,7 +19,7 @@ import {
 } from 'react-native-responsive-screen';
 import {UserTokenAction} from '../../../../redux/actions/UserTokenAction';
 import {getMyProfileApi, getRecipeNamesApi} from '../../../../connectivity/api';
-import DropDownPicker from 'react-native-dropdown-picker';
+import RNPicker from 'rn-modal-picker';
 import styles from './style';
 import {translate} from '../../../../utils/translations';
 import CheckBox from '@react-native-community/checkbox';
@@ -33,6 +33,7 @@ class index extends Component {
       recipeId: '',
       buttonsSubHeader: [],
       recipeArr: [],
+      placeHolderText: 'Select Recipe',
     };
   }
 
@@ -84,8 +85,8 @@ class index extends Component {
         const finalArr = [];
         res.data.map(item => {
           finalArr.push({
-            label: item.name,
-            value: item.id,
+            name: item.name,
+            id: item.id,
           });
         });
         this.setState({
@@ -104,17 +105,19 @@ class index extends Component {
   selectRecipeFun = item => {
     this.setState(
       {
-        recipeId: item.value,
+        recipeId: item.id,
+        selectedText: item.name,
       },
       () =>
         this.props.navigation.navigate('ViewRecipeScreen', {
-          id: item.value,
+          id: item.id,
         }),
     );
   };
 
   render() {
-    const {recipeLoader, buttonsSubHeader, recipeArr} = this.state;
+    const {recipeLoader, buttonsSubHeader, recipeArr, placeHolderText} =
+      this.state;
 
     return (
       <View style={styles.container}>
@@ -147,7 +150,32 @@ class index extends Component {
 
           <View style={{marginHorizontal: wp('5%')}}>
             <View>
-              <DropDownPicker
+              <View>
+                <RNPicker
+                  dataSource={recipeArr}
+                  dummyDataSource={recipeArr}
+                  defaultValue={false}
+                  pickerTitle={'Select Recipe'}
+                  showSearchBar={true}
+                  disablePicker={false}
+                  changeAnimation={'none'}
+                  searchBarPlaceHolder={'Search.....'}
+                  showPickerTitle={true}
+                  searchBarContainerStyle={styles.searchBarContainerStyle}
+                  pickerStyle={styles.pickerStyle}
+                  itemSeparatorStyle={styles.itemSeparatorStyle}
+                  pickerItemTextStyle={styles.listTextViewStyle}
+                  selectedLabel={this.state.selectedText}
+                  placeHolderLabel={placeHolderText}
+                  selectLabelTextStyle={styles.selectLabelTextStyle}
+                  placeHolderTextStyle={styles.placeHolderTextStyle}
+                  dropDownImageStyle={styles.dropDownImageStyle}
+                  dropDownImage={img.arrowDownIcon}
+                  selectedValue={(index, item) => this.selectRecipeFun(item)}
+                />
+              </View>
+
+              {/* <DropDownPicker
                 placeholder="Select Recipe"
                 items={recipeArr}
                 zIndex={3000}
@@ -164,7 +192,7 @@ class index extends Component {
                 }}
                 dropDownStyle={{backgroundColor: '#fff'}}
                 onChangeItem={item => this.selectRecipeFun(item)}
-              />
+              /> */}
               <TouchableOpacity
                 onPress={() =>
                   this.props.navigation.navigate('EventsSecAdminScreen')

@@ -22,7 +22,7 @@ import {
   getMyProfileApi,
   getMenuItemsSetupApi,
 } from '../../../../connectivity/api';
-import DropDownPicker from 'react-native-dropdown-picker';
+import RNPicker from 'rn-modal-picker';
 import styles from './style';
 import {translate} from '../../../../utils/translations';
 import CheckBox from '@react-native-community/checkbox';
@@ -36,6 +36,7 @@ class MenuItem extends Component {
       recipeId: '',
       buttonsSubHeader: [],
       menuItemArr: [],
+      placeHolderText: 'Select Menu Item',
     };
   }
 
@@ -87,8 +88,8 @@ class MenuItem extends Component {
         const finalArr = [];
         res.data.map(item => {
           finalArr.push({
-            label: item.name,
-            value: item.id,
+            name: item.name,
+            id: item.id,
           });
         });
         this.setState({
@@ -107,17 +108,19 @@ class MenuItem extends Component {
   selectRecipeFun = item => {
     this.setState(
       {
-        recipeId: item.value,
+        recipeId: item.id,
+        selectedText: item.name,
       },
       () =>
         this.props.navigation.navigate('ViewMenuItemsScreen', {
-          id: item.value,
+          id: item.id,
         }),
     );
   };
 
   render() {
-    const {recipeLoader, buttonsSubHeader, menuItemArr} = this.state;
+    const {recipeLoader, buttonsSubHeader, menuItemArr, placeHolderText} =
+      this.state;
 
     return (
       <View style={styles.container}>
@@ -150,24 +153,31 @@ class MenuItem extends Component {
 
           <View style={{marginHorizontal: wp('5%')}}>
             <View>
-              <DropDownPicker
-                placeholder="Select Menu item"
-                items={menuItemArr}
-                zIndex={3000}
-                containerStyle={{
-                  height: 50,
-                  marginBottom: hp('3%'),
-                  borderColor: 'red',
-                }}
-                style={{
-                  backgroundColor: '#fff',
-                }}
-                itemStyle={{
-                  justifyContent: 'flex-start',
-                }}
-                dropDownStyle={{backgroundColor: '#fff'}}
-                onChangeItem={item => this.selectRecipeFun(item)}
-              />
+              <View>
+                <RNPicker
+                  dataSource={menuItemArr}
+                  dummyDataSource={menuItemArr}
+                  defaultValue={false}
+                  pickerTitle={'Select Menu item'}
+                  showSearchBar={true}
+                  disablePicker={false}
+                  changeAnimation={'none'}
+                  searchBarPlaceHolder={'Search.....'}
+                  showPickerTitle={true}
+                  searchBarContainerStyle={styles.searchBarContainerStyle}
+                  pickerStyle={styles.pickerStyle}
+                  itemSeparatorStyle={styles.itemSeparatorStyle}
+                  pickerItemTextStyle={styles.listTextViewStyle}
+                  selectedLabel={this.state.selectedText}
+                  placeHolderLabel={placeHolderText}
+                  selectLabelTextStyle={styles.selectLabelTextStyle}
+                  placeHolderTextStyle={styles.placeHolderTextStyle}
+                  dropDownImageStyle={styles.dropDownImageStyle}
+                  dropDownImage={img.arrowDownIcon}
+                  selectedValue={(index, item) => this.selectRecipeFun(item)}
+                />
+              </View>
+
               <TouchableOpacity
                 onPress={() => alert('Add')}
                 style={{

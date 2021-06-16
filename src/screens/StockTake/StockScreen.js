@@ -9,6 +9,7 @@ import {
   Pressable,
   ActivityIndicator,
   Alert,
+  Platform,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {connect} from 'react-redux';
@@ -32,7 +33,6 @@ import {translate} from '../../utils/translations';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import moment from 'moment';
 import Modal from 'react-native-modal';
-import DropDownPicker from 'react-native-dropdown-picker';
 import CheckBox from '@react-native-community/checkbox';
 import {Calendar, CalendarList, Agenda} from 'react-native-calendars';
 
@@ -1106,7 +1106,7 @@ class index extends Component {
             <View>
               <Text
                 style={{
-                  margin: 10,
+                  margin: 12,
                   fontWeight: 'bold',
                   fontSize: 30,
                   color: '#656565',
@@ -1118,10 +1118,10 @@ class index extends Component {
               <TouchableOpacity
                 onPress={() => this.showDatePickerFun()}
                 style={{
-                  margin: 10,
+                  margin: 12,
                   width: wp('60%'),
                   borderWidth: 1,
-                  padding: 12,
+                  padding: Platform.OS === 'ios' ? 12 : 2,
                   marginBottom: hp('3%'),
                   flexDirection: 'row',
                   justifyContent: 'space-between',
@@ -1136,6 +1136,8 @@ class index extends Component {
                   style={{
                     width: 20,
                     height: 20,
+                    marginTop: Platform.OS === 'android' ? 13 : 0,
+                    marginRight: Platform.OS === 'android' ? 10 : 0,
                     resizeMode: 'contain',
                   }}
                 />
