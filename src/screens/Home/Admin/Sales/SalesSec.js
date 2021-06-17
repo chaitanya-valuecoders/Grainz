@@ -221,6 +221,7 @@ class SalesSec extends Component {
                             ? modalData.content.map((item, index) => {
                                 return (
                                   <View
+                                    key={index}
                                     style={{
                                       paddingVertical: 10,
                                       paddingHorizontal: 5,

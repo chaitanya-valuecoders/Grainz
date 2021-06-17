@@ -6,7 +6,6 @@ import {
   Image,
   ScrollView,
   ActivityIndicator,
-  Switch,
   TextInput,
   Alert,
   Platform,
@@ -24,6 +23,8 @@ import {UserTokenAction} from '../../../../redux/actions/UserTokenAction';
 import {
   getMyProfileApi,
   salesReportAdminApi,
+  lookupDepartmentsApi,
+  addManualEntrySalesApi,
 } from '../../../../connectivity/api';
 import Modal from 'react-native-modal';
 import Accordion from 'react-native-collapsible/Accordion';
@@ -32,13 +33,13 @@ import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import styles from './style';
 
 import {translate} from '../../../../utils/translations';
+import ModalPicker from '../../../../components/ModalPicker';
 
 class Sales extends Component {
   constructor(props) {
     super(props);
     this.state = {
       token: '',
-      firstName: '',
       recipeLoader: false,
       buttonsSubHeader: [],
       isDatePickerVisibleStart: false,
@@ -46,13 +47,8 @@ class Sales extends Component {
       isDatePickerVisibleEnd: false,
       finalDateEnd: '',
       activeSections: [],
-      modalData: [],
       SECTIONS: [],
       SECTIONS_SEC: [],
-      finalName: '',
-      modalVisibleSetup: false,
-      modalLoader: false,
-      sectionName: '',
       reportTitle: '',
       dataStatus: false,
       SECTIONS_INVOICES: [],
@@ -61,6 +57,15 @@ class Sales extends Component {
       SECTIONS_VAT: [],
       activeSectionsDepartment: [],
       activeSectionsVat: [],
+      modalVisibleAdd: false,
+      placeHolderTextDept: 'Select Department',
+      selectedTextDept: '',
+      amountValue: '',
+      vatValue: '',
+      descriptionValue: '',
+      noteValue: '',
+      departmentArrPicker: [],
+      departmentId: '',
     };
   }
 
@@ -85,7 +90,6 @@ class Sales extends Component {
     getMyProfileApi()
       .then(res => {
         this.setState({
-          firstName: res.data.firstName,
           recipeLoader: false,
           buttonsSubHeader: [
             {name: translate('ADMIN')},
@@ -168,8 +172,6 @@ class Sales extends Component {
     if (finalDateEnd && finalDateStart) {
       salesReportAdminApi(finalDateStart, finalDateEnd)
         .then(res => {
-          console.log('RES', res);
-
           const {sales, title, departments, saleInvoices, vats} = res.data;
 
           let finalSaleInvoices = saleInvoices.map((item, index) => {
@@ -250,7 +252,6 @@ class Sales extends Component {
           }
 
           let final = extract();
-          console.log('FINAL', final);
 
           let finalArray = Object.keys(final).map((item, index) => {
             let groupedCategory = groupByKey(final[item], 'menuItemCategory');
@@ -272,7 +273,6 @@ class Sales extends Component {
               content: catArray,
             };
           });
-          console.log('finalArray', finalArray);
 
           const result = finalArray;
 
@@ -456,48 +456,13 @@ class Sales extends Component {
     });
   };
 
-  // createDataFun = (index, section, sta, subItem) => {
-  //   console.log('section', section);
-  //   console.log('inde', index);
-  //   console.log('status', sta);
-  //   const {SECTIONS, showSubList, finalName} = this.state;
-  //   console.log('finalName', finalName);
-  //   console.log('SECTIONS', SECTIONS);
-
-  //   const status = true;
-  //   // const status = !showSubList;
-  //   console.log('status', status);
-
-  //   let newArr = section.content.map((item, i) =>
-  //     finalName === item.title
-  //       ? {
-  //           ...item,
-  //           [sta]: status,
-  //         }
-  //       : {
-  //           ...item,
-  //           [sta]: false,
-  //         },
-  //   );
-  //   console.log('new', newArr);
-
-  //   setTimeout(() => {
-  //     this.setState({
-  //       showSubList: status,
-  //       modalData: newArr,
-  //       modalLoader: false,
-  //     });
-  //   }, 300);
-  // };
-
   _renderContent = section => {
-    // console.log('sec', section);
     return (
       <View>
         {section.content.map((item, index) => {
           return (
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              <View>
+              <View key={index}>
                 <TouchableOpacity
                   onPress={() => this.openListFun(index, section, item)}
                   style={{
@@ -737,7 +702,6 @@ class Sales extends Component {
             </View>
           </View>
           {section.content.map((item, index) => {
-            console.log('item', item);
             return (
               <TouchableOpacity
                 onPress={() =>
@@ -782,12 +746,9 @@ class Sales extends Component {
   };
 
   _updateSections = activeSections => {
-    this.setState(
-      {
-        activeSections,
-      },
-      () => this.updateSubFun(),
-    );
+    this.setState({
+      activeSections,
+    });
   };
 
   _updateSectionsInvoices = activeSections => {
@@ -808,28 +769,97 @@ class Sales extends Component {
     });
   };
 
-  updateSubFun = () => {
-    this.setState({
-      modalData: [],
-    });
-  };
-
-  setAdminModalVisible = visible => {
+  setModalVisibleAdd = visible => {
     this.setState(
       {
-        modalVisibleSetup: visible,
+        modalVisibleAdd: visible,
+        dataListLoader: true,
       },
-      () => this.updateSubFun(),
+      () => this.getDepartmentsData(),
     );
   };
 
-  addLineFun = () => {
-    alert('add line');
+  getDepartmentsData = () => {
+    lookupDepartmentsApi()
+      .then(res => {
+        const finalArr = [];
+        res.data.map(item => {
+          finalArr.push({
+            name: item.name,
+            id: item.id,
+          });
+        });
+        this.setState({
+          departmentArrPicker: [...finalArr],
+          dataListLoader: false,
+        });
+      })
+      .catch(err => {
+        console.warn('ERr', err);
+      });
+  };
+
+  showDatePickerFun = () => {
+    this.setState({
+      isDatePickerVisible: true,
+    });
+  };
+
+  handleConfirm = date => {
+    let newdate = moment(date).format('L');
+    this.setState({
+      finalDate: newdate,
+    });
+
+    this.hideDatePicker();
+  };
+
+  hideDatePicker = () => {
+    this.setState({
+      isDatePickerVisible: false,
+    });
+  };
+
+  selectDepartementNameFun = item => {
+    this.setState({
+      selectedTextDept: item.name,
+      departmentId: item.id,
+    });
+  };
+
+  saveFun = () => {
+    const {
+      departmentId,
+      amountValue,
+      descriptionValue,
+      noteValue,
+      vatValue,
+      finalDate,
+    } = this.state;
+    let payload = {
+      amount: amountValue,
+      departmentId: departmentId,
+      name: descriptionValue,
+      notes: noteValue,
+      saleDate: finalDate,
+      vat: vatValue,
+    };
+    addManualEntrySalesApi(payload)
+      .then(res => {
+        this.setState(
+          {
+            modalVisibleAdd: false,
+          },
+          () => this.findReportFun(),
+        );
+      })
+      .catch(err => {
+        console.warn('err', err);
+      });
   };
 
   render() {
     const {
-      firstName,
       buttonsSubHeader,
       recipeLoader,
       isDatePickerVisibleStart,
@@ -838,12 +868,7 @@ class Sales extends Component {
       finalDateEnd,
       buttonLoader,
       activeSections,
-      modalData,
       SECTIONS,
-      finalName,
-      modalVisibleSetup,
-      modalLoader,
-      sectionName,
       reportTitle,
       dataStatus,
       SECTIONS_INVOICES,
@@ -852,6 +877,17 @@ class Sales extends Component {
       activeSectionsDepartment,
       SECTIONS_VAT,
       activeSectionsVat,
+      modalVisibleAdd,
+      isDatePickerVisible,
+      finalDate,
+      placeHolderTextDept,
+      selectedTextDept,
+      amountValue,
+      vatValue,
+      descriptionValue,
+      noteValue,
+      departmentArrPicker,
+      dataListLoader,
     } = this.state;
 
     return (
@@ -1046,7 +1082,7 @@ class Sales extends Component {
           {dataStatus ? (
             <View style={{justifyContent: 'center', alignItems: 'center'}}>
               <TouchableOpacity
-                onPress={() => this.addLineFun()}
+                onPress={() => this.setModalVisibleAdd(true)}
                 style={{
                   height: hp('6%'),
                   width: wp('80%'),
@@ -1120,19 +1156,22 @@ class Sales extends Component {
               onChange={this._updateSectionsVat}
             />
           </View>
-          <Modal isVisible={modalVisibleSetup} backdropOpacity={0.35}>
+          <Modal isVisible={modalVisibleAdd} backdropOpacity={0.35}>
             <View
               style={{
                 width: wp('80%'),
-                height: hp('80%'),
-                backgroundColor: '#fff',
+                height: hp('70%'),
+                backgroundColor: '#F0F4FE',
                 alignSelf: 'center',
+                borderRadius: 6,
               }}>
               <View
                 style={{
-                  backgroundColor: '#412916',
+                  backgroundColor: '#8BB332',
                   height: hp('6%'),
                   flexDirection: 'row',
+                  borderTopLeftRadius: 6,
+                  borderTopRightRadius: 6,
                 }}>
                 <View
                   style={{
@@ -1140,8 +1179,13 @@ class Sales extends Component {
                     alignItems: 'center',
                     justifyContent: 'center',
                   }}>
-                  <Text style={{fontSize: 16, color: '#fff'}}>
-                    {sectionName}
+                  <Text
+                    style={{
+                      fontSize: 16,
+                      color: '#fff',
+                      fontFamily: 'Inter-SemiBold',
+                    }}>
+                    {translate('Revenue')} - {translate('Manual Entry')}
                   </Text>
                 </View>
                 <View
@@ -1151,7 +1195,7 @@ class Sales extends Component {
                     justifyContent: 'center',
                   }}>
                   <TouchableOpacity
-                    onPress={() => this.setAdminModalVisible(false)}>
+                    onPress={() => this.setModalVisibleAdd(false)}>
                     <Image
                       source={img.cancelIcon}
                       style={{
@@ -1165,166 +1209,224 @@ class Sales extends Component {
                 </View>
               </View>
               <ScrollView>
-                {modalLoader ? (
-                  <ActivityIndicator size="large" color="grey" />
-                ) : (
-                  <View
-                    style={{
-                      padding: hp('3%'),
-                    }}>
-                    <ScrollView
-                      horizontal
-                      showsHorizontalScrollIndicator={false}>
+                <View style={{padding: hp('3%')}}>
+                  <View style={{}}>
+                    <TouchableOpacity
+                      onPress={() => this.showDatePickerFun()}
+                      style={{
+                        padding: 12,
+                        marginBottom: hp('3%'),
+                        flexDirection: 'row',
+                        justifyContent: 'space-between',
+                        backgroundColor: '#fff',
+                        elevation: 3,
+                        shadowOpacity: 2.0,
+                        shadowColor: 'rgba(0, 0, 0, 0.05)',
+                        shadowOffset: {
+                          width: 2,
+                          height: 2,
+                        },
+                        shadowRadius: 10,
+                        borderRadius: 5,
+                      }}>
+                      <TextInput
+                        placeholder="dd-mm-yy"
+                        value={finalDate}
+                        editable={false}
+                      />
+                      <Image
+                        source={img.calenderIcon}
+                        style={{
+                          width: 20,
+                          height: 20,
+                          resizeMode: 'contain',
+                        }}
+                      />
+                    </TouchableOpacity>
+
+                    <View style={{marginBottom: hp('3%')}}>
                       <View>
-                        <View
-                          style={{
-                            paddingVertical: 15,
-                            paddingHorizontal: 5,
-                            marginTop: 10,
-                            flexDirection: 'row',
-                            justifyContent: 'space-between',
-                            borderWidth: 1,
-                          }}>
-                          <View
-                            style={{
-                              width: wp('30%'),
-                              alignItems: 'center',
-                            }}>
-                            <Text style={{textAlign: 'center'}}>
-                              {finalName}
-                            </Text>
-                          </View>
-                          <View
-                            style={{
-                              width: wp('30%'),
-                              alignItems: 'center',
-                            }}>
-                            <Text>Menu Items</Text>
-                          </View>
-                          <View
-                            style={{
-                              width: wp('30%'),
-                              alignItems: 'center',
-                            }}>
-                            <Text>TVA % </Text>
-                          </View>
-                          <View
-                            style={{
-                              width: wp('30%'),
-                              alignItems: 'center',
-                            }}>
-                            <Text>#Sold</Text>
-                          </View>
-                          <View
-                            style={{
-                              width: wp('30%'),
-                              alignItems: 'center',
-                            }}>
-                            <Text>$TVAC</Text>
-                          </View>
-                          <View
-                            style={{
-                              width: wp('30%'),
-                              alignItems: 'center',
-                            }}>
-                            <Text>$TVA</Text>
-                          </View>
-                          <View
-                            style={{
-                              width: wp('30%'),
-                              alignItems: 'center',
-                            }}>
-                            <Text>$HTVA</Text>
-                          </View>
-                        </View>
-                        <View>
-                          {modalData && modalData.length > 0
-                            ? modalData.map((item, index) => {
-                                if (item.status === true) {
-                                  return item.content.map(
-                                    (subItem, subIndex) => {
-                                      console.log('sub-->', subItem);
-                                      return (
-                                        <View
-                                          style={{
-                                            paddingVertical: 10,
-                                            paddingHorizontal: 5,
-                                            flexDirection: 'row',
-                                          }}>
-                                          <View
-                                            style={{
-                                              width: wp('30%'),
-                                              alignItems: 'center',
-                                            }}>
-                                            <Text style={{textAlign: 'center'}}>
-                                              {subItem.name}
-                                            </Text>
-                                          </View>
-                                          <View
-                                            style={{
-                                              width: wp('30%'),
-                                              alignItems: 'center',
-                                            }}>
-                                            <Text>{subItem.menuItemName}</Text>
-                                          </View>
-                                          <View
-                                            style={{
-                                              width: wp('30%'),
-                                              alignItems: 'center',
-                                            }}>
-                                            <Text>
-                                              {subItem.vatPercentage}%
-                                            </Text>
-                                          </View>
-                                          <View
-                                            style={{
-                                              width: wp('30%'),
-                                              alignItems: 'center',
-                                            }}>
-                                            <Text>{subItem.quantity}</Text>
-                                          </View>
-                                          <View
-                                            style={{
-                                              width: wp('30%'),
-                                              alignItems: 'center',
-                                            }}>
-                                            <Text>
-                                              {subItem.totalPriceFormatted}
-                                            </Text>
-                                          </View>
-                                          <View
-                                            style={{
-                                              width: wp('30%'),
-                                              alignItems: 'center',
-                                            }}>
-                                            <Text>
-                                              {subItem.vatAmountFormatted}
-                                            </Text>
-                                          </View>
-                                          <TouchableOpacity
-                                            onPress={() => alert('ORDER NOW')}
-                                            style={{
-                                              width: wp('30%'),
-                                              alignItems: 'center',
-                                            }}>
-                                            <Text>
-                                              {
-                                                subItem.priceExcludingVATFormatted
-                                              }
-                                            </Text>
-                                          </TouchableOpacity>
-                                        </View>
-                                      );
-                                    },
-                                  );
-                                }
-                              })
-                            : null}
-                        </View>
+                        <ModalPicker
+                          dataListLoader={dataListLoader}
+                          placeHolderLabel={placeHolderTextDept}
+                          placeHolderLabelColor="grey"
+                          dataSource={departmentArrPicker}
+                          selectedLabel={selectedTextDept}
+                          onSelectFun={item =>
+                            this.selectDepartementNameFun(item)
+                          }
+                        />
                       </View>
-                    </ScrollView>
+                    </View>
+                    <View style={{marginBottom: hp('3%')}}>
+                      <TextInput
+                        placeholder="Amount (TVAC)"
+                        value={amountValue}
+                        style={{
+                          padding: 14,
+                          justifyContent: 'space-between',
+                          elevation: 3,
+                          shadowOpacity: 2.0,
+                          shadowColor: 'rgba(0, 0, 0, 0.05)',
+                          shadowOffset: {
+                            width: 2,
+                            height: 2,
+                          },
+                          shadowRadius: 10,
+                          borderRadius: 5,
+                          backgroundColor: '#fff',
+                        }}
+                        keyboardType="number-pad"
+                        onChangeText={value => {
+                          this.setState({
+                            amountValue: value,
+                          });
+                        }}
+                      />
+                    </View>
+                    <View style={{marginBottom: hp('3%')}}>
+                      <TextInput
+                        placeholder="VAT%"
+                        value={vatValue}
+                        style={{
+                          padding: 14,
+                          justifyContent: 'space-between',
+                          elevation: 3,
+                          shadowOpacity: 2.0,
+                          shadowColor: 'rgba(0, 0, 0, 0.05)',
+                          shadowOffset: {
+                            width: 2,
+                            height: 2,
+                          },
+                          shadowRadius: 10,
+                          borderRadius: 5,
+                          backgroundColor: '#fff',
+                        }}
+                        keyboardType="number-pad"
+                        onChangeText={value => {
+                          this.setState({
+                            vatValue: value,
+                          });
+                        }}
+                      />
+                    </View>
+                    <View style={{marginBottom: hp('3%')}}>
+                      <TextInput
+                        placeholder="Description"
+                        value={descriptionValue}
+                        style={{
+                          padding: 14,
+                          justifyContent: 'space-between',
+                          elevation: 3,
+                          shadowOpacity: 2.0,
+                          shadowColor: 'rgba(0, 0, 0, 0.05)',
+                          shadowOffset: {
+                            width: 2,
+                            height: 2,
+                          },
+                          shadowRadius: 10,
+                          borderRadius: 5,
+                          backgroundColor: '#fff',
+                        }}
+                        keyboardType="default"
+                        onChangeText={value => {
+                          this.setState({
+                            descriptionValue: value,
+                          });
+                        }}
+                      />
+                    </View>
+                    <View style={{marginBottom: hp('3%')}}>
+                      <TextInput
+                        placeholder="Note"
+                        value={noteValue}
+                        style={{
+                          padding: 14,
+                          justifyContent: 'space-between',
+                          elevation: 3,
+                          shadowOpacity: 2.0,
+                          shadowColor: 'rgba(0, 0, 0, 0.05)',
+                          shadowOffset: {
+                            width: 2,
+                            height: 2,
+                          },
+                          shadowRadius: 10,
+                          borderRadius: 5,
+                          backgroundColor: '#fff',
+                        }}
+                        keyboardType="default"
+                        onChangeText={value => {
+                          this.setState({
+                            noteValue: value,
+                          });
+                        }}
+                      />
+                    </View>
+
+                    <View>
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          marginTop: hp('2%'),
+                        }}>
+                        <TouchableOpacity
+                          onPress={() => this.saveFun()}
+                          style={{
+                            width: wp('30%'),
+                            height: hp('5%'),
+                            alignSelf: 'flex-end',
+                            backgroundColor: '#94C036',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            borderRadius: 100,
+                          }}>
+                          <Text
+                            style={{
+                              color: '#fff',
+                              fontSize: 15,
+                              fontWeight: 'bold',
+                            }}>
+                            {translate('Save')}
+                          </Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                          onPress={() => this.setModalVisibleAdd(false)}
+                          style={{
+                            width: wp('30%'),
+                            height: hp('5%'),
+                            alignSelf: 'flex-end',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            marginLeft: wp('2%'),
+                            borderRadius: 100,
+                            borderWidth: 1,
+                            borderColor: '#482813',
+                          }}>
+                          <Text
+                            style={{
+                              color: '#482813',
+                              fontSize: 15,
+                              fontWeight: 'bold',
+                            }}>
+                            {translate('Close')}
+                          </Text>
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+
+                    <DateTimePickerModal
+                      // is24Hour={true}
+                      isVisible={isDatePickerVisible}
+                      mode={'date'}
+                      onConfirm={this.handleConfirm}
+                      onCancel={this.hideDatePicker}
+                      // maximumDate={minTime}
+                      // minimumDate={new Date()}
+                    />
                   </View>
-                )}
+                </View>
               </ScrollView>
             </View>
           </Modal>

@@ -656,3 +656,12 @@ export const viewMenuItemsSetupApi = async id => {
     },
   });
 };
+
+export const addManualEntrySalesApi = async payload => {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.post(baseURL + `/SaleInvoice/add manual entry`, payload, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
