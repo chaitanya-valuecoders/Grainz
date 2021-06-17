@@ -665,3 +665,21 @@ export const addManualEntrySalesApi = async payload => {
     },
   });
 };
+
+export const deleteEventAdminApi = async (payload, id) => {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.post(baseURL + `/Event/delete event?Id=${id}`, payload, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+export const getUserNameEventsApi = async () => {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.get(baseURL + `/User/get all location users`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};

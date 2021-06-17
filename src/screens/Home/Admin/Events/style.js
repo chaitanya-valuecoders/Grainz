@@ -35,5 +35,16 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
     borderRadius: 15,
   },
+  itemContainer: {
+    width: Dimensions.get('window').width / numColumns,
+    height: Dimensions.get('window').width / numColumns,
+    borderRadius: 50,
+  },
+  item: {
+    flex: 1,
+    margin: 5,
+    backgroundColor: 'lightblue',
+    borderRadius: 50,
+  },
 });
 export default styles;
