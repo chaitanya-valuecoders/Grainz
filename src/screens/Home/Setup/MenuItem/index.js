@@ -22,7 +22,7 @@ import {
   getMyProfileApi,
   getMenuItemsSetupApi,
 } from '../../../../connectivity/api';
-import RNPicker from 'rn-modal-picker';
+import ModalPicker from '../../../../components/ModalPicker';
 import styles from './style';
 import {translate} from '../../../../utils/translations';
 import CheckBox from '@react-native-community/checkbox';
@@ -79,7 +79,12 @@ class MenuItem extends Component {
 
   componentDidMount() {
     this.getData();
-    this.getRecipeData();
+    this.setState(
+      {
+        dataListLoader: true,
+      },
+      () => this.getRecipeData(),
+    );
   }
 
   getRecipeData = () => {
@@ -94,6 +99,7 @@ class MenuItem extends Component {
         });
         this.setState({
           menuItemArr: [...finalArr],
+          dataListLoader: false,
         });
       })
       .catch(err => {
@@ -119,8 +125,14 @@ class MenuItem extends Component {
   };
 
   render() {
-    const {recipeLoader, buttonsSubHeader, menuItemArr, placeHolderText} =
-      this.state;
+    const {
+      recipeLoader,
+      buttonsSubHeader,
+      menuItemArr,
+      placeHolderText,
+      selectedText,
+      dataListLoader,
+    } = this.state;
 
     return (
       <View style={styles.container}>
@@ -154,27 +166,12 @@ class MenuItem extends Component {
           <View style={{marginHorizontal: wp('5%')}}>
             <View>
               <View>
-                <RNPicker
-                  dataSource={menuItemArr}
-                  dummyDataSource={menuItemArr}
-                  defaultValue={false}
-                  pickerTitle={'Select Menu item'}
-                  showSearchBar={true}
-                  disablePicker={false}
-                  changeAnimation={'none'}
-                  searchBarPlaceHolder={'Search.....'}
-                  showPickerTitle={true}
-                  searchBarContainerStyle={styles.searchBarContainerStyle}
-                  pickerStyle={styles.pickerStyle}
-                  itemSeparatorStyle={styles.itemSeparatorStyle}
-                  pickerItemTextStyle={styles.listTextViewStyle}
-                  selectedLabel={this.state.selectedText}
+                <ModalPicker
+                  dataListLoader={dataListLoader}
                   placeHolderLabel={placeHolderText}
-                  selectLabelTextStyle={styles.selectLabelTextStyle}
-                  placeHolderTextStyle={styles.placeHolderTextStyle}
-                  dropDownImageStyle={styles.dropDownImageStyle}
-                  dropDownImage={img.arrowDownIcon}
-                  selectedValue={(index, item) => this.selectRecipeFun(item)}
+                  dataSource={menuItemArr}
+                  selectedLabel={selectedText}
+                  onSelectFun={item => this.selectRecipeFun(item)}
                 />
               </View>
 
@@ -186,7 +183,7 @@ class MenuItem extends Component {
                   backgroundColor: '#94C036',
                   justifyContent: 'center',
                   alignItems: 'center',
-                  marginTop: hp('1.5%'),
+                  marginTop: hp('3%'),
                   borderRadius: 100,
                   alignSelf: 'center',
                 }}>

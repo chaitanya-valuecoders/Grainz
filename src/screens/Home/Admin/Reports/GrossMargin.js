@@ -22,9 +22,9 @@ import {
   getDepartmentsReportsAdminApi,
   getDepartmentsAdminApi,
 } from '../../../../connectivity/api';
-import RNPicker from 'rn-modal-picker';
 import styles from './style';
 import {translate} from '../../../../utils/translations';
+import ModalPicker from '../../../../components/ModalPicker';
 
 class MenuAnalysis extends Component {
   constructor(props) {
@@ -34,7 +34,6 @@ class MenuAnalysis extends Component {
       recipeLoader: false,
       departmentId: '',
       buttonsSubHeader: [],
-      periodName: 'Select Period',
       departmentArr: [],
       gmReportsArrStatus: false,
       placeHolderTextDept: 'Select Department*',
@@ -82,7 +81,12 @@ class MenuAnalysis extends Component {
 
   componentDidMount() {
     this.getData();
-    this.getDepartmentsData();
+    this.setState(
+      {
+        dataListLoader: true,
+      },
+      () => this.getDepartmentsData(),
+    );
   }
 
   getDepartmentsData = () => {
@@ -97,6 +101,7 @@ class MenuAnalysis extends Component {
         });
         this.setState({
           departmentArr: [...finalArr],
+          dataListLoader: false,
         });
       })
       .catch(err => {
@@ -113,7 +118,6 @@ class MenuAnalysis extends Component {
       {
         departmentId: item.id,
         gmReportsArrStatus: true,
-        periodName: 'Monthly',
         selectedTextDept: item.name,
         placeHolderTextPeriod: 'Monthly',
       },
@@ -141,7 +145,6 @@ class MenuAnalysis extends Component {
     if (departmentId) {
       this.setState(
         {
-          periodName: item.id,
           gmReportsArrStatus: true,
           selectedTextPeriod: item.name,
         },
@@ -175,8 +178,12 @@ class MenuAnalysis extends Component {
       gmReportsArr,
       placeHolderTextPeriod,
       placeHolderTextDept,
-      periodName,
+      selectedTextPeriod,
+      selectedTextDept,
+      dataListLoader,
     } = this.state;
+
+    console.log('departmentArr', departmentArr);
 
     return (
       <View style={styles.container}>
@@ -220,34 +227,19 @@ class MenuAnalysis extends Component {
             </View>
             <View>
               <View>
-                <RNPicker
-                  dataSource={departmentArr}
-                  dummyDataSource={departmentArr}
-                  defaultValue={false}
-                  pickerTitle={'Select Department'}
-                  showSearchBar={true}
-                  disablePicker={false}
-                  changeAnimation={'none'}
-                  searchBarPlaceHolder={'Search.....'}
-                  showPickerTitle={true}
-                  searchBarContainerStyle={styles.searchBarContainerStyle}
-                  pickerStyle={styles.pickerStyle}
-                  itemSeparatorStyle={styles.itemSeparatorStyle}
-                  pickerItemTextStyle={styles.listTextViewStyle}
-                  selectedLabel={this.state.selectedTextDept}
+                <ModalPicker
+                  dataListLoader={dataListLoader}
                   placeHolderLabel={placeHolderTextDept}
-                  selectLabelTextStyle={styles.selectLabelTextStyle}
-                  placeHolderTextStyle={styles.placeHolderTextStyle}
-                  dropDownImageStyle={styles.dropDownImageStyle}
-                  dropDownImage={img.arrowDownIcon}
-                  selectedValue={(index, item) =>
-                    this.selectDepartementNameFun(item)
-                  }
+                  dataSource={departmentArr}
+                  selectedLabel={selectedTextDept}
+                  onSelectFun={item => this.selectDepartementNameFun(item)}
                 />
               </View>
 
               <View style={{marginVertical: hp('3%')}}>
-                <RNPicker
+                <ModalPicker
+                  placeHolderLabel={placeHolderTextPeriod}
+                  selectedLabel={selectedTextPeriod}
                   dataSource={[
                     {
                       id: 'Weekly',
@@ -262,77 +254,10 @@ class MenuAnalysis extends Component {
                       name: 'Annual',
                     },
                   ]}
-                  defaultValue={false}
-                  pickerTitle={'Select Period'}
-                  showSearchBar={true}
-                  disablePicker={false}
-                  changeAnimation={'none'}
-                  searchBarPlaceHolder={'Search.....'}
-                  showPickerTitle={true}
-                  searchBarContainerStyle={styles.searchBarContainerStyle}
-                  pickerStyle={styles.pickerStyle}
-                  itemSeparatorStyle={styles.itemSeparatorStyle}
-                  pickerItemTextStyle={styles.listTextViewStyle}
-                  selectedLabel={this.state.selectedTextPeriod}
-                  placeHolderLabel={placeHolderTextPeriod}
-                  selectLabelTextStyle={styles.selectLabelTextStyle}
-                  placeHolderTextStyle={styles.placeHolderTextStyle}
-                  dropDownImageStyle={styles.dropDownImageStyle}
-                  dropDownImage={img.arrowDownIcon}
-                  selectedValue={(index, item) =>
-                    this.selectPeriodtNameFun(item)
-                  }
+                  onSelectFun={item => this.selectPeriodtNameFun(item)}
                 />
               </View>
 
-              {/* <DropDownPicker
-                placeholder="Select Department"
-                items={departmentArr}
-                zIndex={3000}
-                containerStyle={{
-                  height: 50,
-                  marginBottom: hp('3%'),
-                  borderColor: 'red',
-                }}
-                style={{
-                  backgroundColor: '#fff',
-                }}
-                itemStyle={{
-                  justifyContent: 'flex-start',
-                }}
-                dropDownStyle={{backgroundColor: '#fff'}}
-                onChangeItem={item => this.selectDepartementNameFun(item)}
-              />
-              <DropDownPicker
-                placeholder={periodName}
-                items={[
-                  {
-                    label: 'Weekly',
-                    value: 'Weekly',
-                  },
-                  {
-                    label: 'Monthly',
-                    value: 'Monthly',
-                  },
-                  {
-                    label: 'Annual',
-                    value: 'Annual',
-                  },
-                ]}
-                containerStyle={{
-                  height: 50,
-                  marginBottom: hp('3%'),
-                }}
-                style={{
-                  backgroundColor: '#fff',
-                }}
-                itemStyle={{
-                  justifyContent: 'flex-start',
-                }}
-                zIndex={2000}
-                dropDownStyle={{backgroundColor: '#fff'}}
-                onChangeItem={item => this.selectPeriodtNameFun(item)}
-              /> */}
               <TouchableOpacity
                 onPress={() => alert('Print')}
                 style={{

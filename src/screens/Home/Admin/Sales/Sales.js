@@ -896,6 +896,14 @@ class Sales extends Component {
                 justifyContent: 'space-between',
                 borderRadius: 5,
                 backgroundColor: '#fff',
+                elevation: 3,
+                shadowOpacity: 2.0,
+                shadowColor: 'rgba(0, 0, 0, 0.05)',
+                shadowOffset: {
+                  width: 2,
+                  height: 2,
+                },
+                shadowRadius: 10,
               }}>
               <TextInput
                 placeholder="Select start date"
@@ -937,6 +945,14 @@ class Sales extends Component {
                 justifyContent: 'space-between',
                 borderRadius: 5,
                 backgroundColor: '#fff',
+                elevation: 3,
+                shadowOpacity: 2.0,
+                shadowColor: 'rgba(0, 0, 0, 0.05)',
+                shadowOffset: {
+                  width: 2,
+                  height: 2,
+                },
+                shadowRadius: 10,
               }}>
               <TextInput
                 placeholder="Select end date"
