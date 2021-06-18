@@ -562,10 +562,8 @@ class Sales extends Component {
           </View>
           {section.content.map((item, index) => {
             return (
-              <TouchableOpacity
-                onPress={() =>
-                  this.props.navigation.navigate('EventsSecAdminScreen')
-                }
+              <View
+                key={index}
                 style={{
                   flexDirection: 'row',
                   borderTopWidth: 0.5,
@@ -603,7 +601,7 @@ class Sales extends Component {
                 {/* <TouchableOpacity style={{width: wp('30%')}}>
                   <Text style={{fontSize: 15, fontWeight: 'bold'}}>EDIT</Text>
                 </TouchableOpacity> */}
-              </TouchableOpacity>
+              </View>
             );
           })}
         </View>
@@ -636,10 +634,8 @@ class Sales extends Component {
           </View>
           {section.content.map((item, index) => {
             return (
-              <TouchableOpacity
-                onPress={() =>
-                  this.props.navigation.navigate('EventsSecAdminScreen')
-                }
+              <View
+                key={index}
                 style={{
                   flexDirection: 'row',
                   borderTopWidth: 0.5,
@@ -670,7 +666,7 @@ class Sales extends Component {
                     ${item && item.content.priceExcludingVATFormatted}
                   </Text>
                 </View>
-              </TouchableOpacity>
+              </View>
             );
           })}
         </View>
@@ -703,10 +699,8 @@ class Sales extends Component {
           </View>
           {section.content.map((item, index) => {
             return (
-              <TouchableOpacity
-                onPress={() =>
-                  this.props.navigation.navigate('EventsSecAdminScreen')
-                }
+              <View
+                key={index}
                 style={{
                   flexDirection: 'row',
                   borderTopWidth: 0.5,
@@ -737,7 +731,7 @@ class Sales extends Component {
                     ${item && item.content.priceExcludingVATFormatted}
                   </Text>
                 </View>
-              </TouchableOpacity>
+              </View>
             );
           })}
         </View>
@@ -1214,7 +1208,7 @@ class Sales extends Component {
                     <TouchableOpacity
                       onPress={() => this.showDatePickerFun()}
                       style={{
-                        padding: 12,
+                        padding: Platform.OS === 'ios' ? 15 : 5,
                         marginBottom: hp('3%'),
                         flexDirection: 'row',
                         justifyContent: 'space-between',
@@ -1240,6 +1234,8 @@ class Sales extends Component {
                           width: 20,
                           height: 20,
                           resizeMode: 'contain',
+                          marginTop: Platform.OS === 'android' ? 12 : 0,
+                          marginRight: Platform.OS === 'android' ? 12 : 0,
                         }}
                       />
                     </TouchableOpacity>

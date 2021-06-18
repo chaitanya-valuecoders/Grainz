@@ -12,6 +12,7 @@ const styles = StyleSheet.create({
   labelStyling: {
     fontFamily: 'Inter-Regular',
     fontSize: 15,
+    color: 'black',
   },
   pickerStyle: {
     elevation: 3,
