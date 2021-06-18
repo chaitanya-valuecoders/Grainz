@@ -19,7 +19,7 @@ import InboxScreen from '../screens/Home/Inbox';
 import SalesAdminScreen from '../screens/Home/Admin/Sales/Sales';
 import AccountAdminScreen from '../screens/Home/Admin/Account/Account';
 import EventsAdminScreen from '../screens/Home/Admin/Events/Events';
-import EventsSecAdminScreen from '../screens/Home/Admin/Events/EventsSec';
+import AddNewEventAdminScreen from '../screens/Home/Admin/Events/AddNewEvent';
 import InventoryAdminScreen from '../screens/Home/Admin/Inventory/Inventory';
 import OrderingAdminScreen from '../screens/Home/Admin/Ordering';
 import NewOrderScreen from '../screens/Home/Admin/Ordering/NewOrder';
@@ -42,6 +42,8 @@ import EditInventorySetupScreen from '../screens/Home/Setup/Inventory/EditInvent
 import ViewRecipeScreen from '../screens/Home/Setup/Recipe/ViewRecipe';
 import ViewSupplierScreen from '../screens/Home/Setup/Supplier/ViewSupplier';
 import ViewMenuItemsScreen from '../screens/Home/Setup/MenuItem/ViewMenuItems';
+import ViewEventAdminScreen from '../screens/Home/Admin/Events/ViewEvent';
+import EditEventAdminScreen from '../screens/Home/Admin/Events/EditEvent';
 
 const AppNav = createStackNavigator();
 
@@ -68,8 +70,16 @@ export default function AppNavFun() {
       <AppNav.Screen name="AccountAdminScreen" component={AccountAdminScreen} />
       <AppNav.Screen name="EventsAdminScreen" component={EventsAdminScreen} />
       <AppNav.Screen
-        name="EventsSecAdminScreen"
-        component={EventsSecAdminScreen}
+        name="AddNewEventAdminScreen"
+        component={AddNewEventAdminScreen}
+      />
+      <AppNav.Screen
+        name="ViewEventAdminScreen"
+        component={ViewEventAdminScreen}
+      />
+      <AppNav.Screen
+        name="EditEventAdminScreen"
+        component={EditEventAdminScreen}
       />
       <AppNav.Screen
         name="InventoryAdminScreen"

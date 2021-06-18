@@ -153,14 +153,6 @@ class MenuAnalysis extends Component {
     this.props.navigation.navigate('MyProfile');
   };
 
-  onPressFun = item => {
-    if (item.id === 0) {
-      this.props.navigation.navigate('EventsSecAdminScreen');
-    } else if (item.id === 1) {
-      this.props.navigation.goBack();
-    }
-  };
-
   _renderHeader = (section, index, isActive) => {
     return (
       <View

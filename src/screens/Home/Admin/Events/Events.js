@@ -147,20 +147,14 @@ class Events extends Component {
   };
 
   componentDidMount() {
-    this.getData();
-    this.getManualLogsData();
+    this.props.navigation.addListener('focus', () => {
+      this.getData();
+      this.getManualLogsData();
+    });
   }
 
   myProfile = () => {
     this.props.navigation.navigate('MyProfile');
-  };
-
-  onPressFun = item => {
-    if (item.id === 0) {
-      this.props.navigation.navigate('EventsSecAdminScreen');
-    } else if (item.id === 1) {
-      this.props.navigation.goBack();
-    }
   };
 
   _renderHeader = (section, index, isActive) => {
@@ -268,6 +262,7 @@ class Events extends Component {
           {section.content.map((item, index) => {
             return (
               <View
+                key={index}
                 style={{
                   flexDirection: 'row',
                   borderTopWidth: 1,
@@ -275,37 +270,49 @@ class Events extends Component {
                   marginHorizontal: wp('3%'),
                   borderTopColor: '#0000001A',
                 }}>
-                <View style={{width: wp('30%')}}>
-                  <Text
-                    style={{
-                      fontSize: 14,
-                      color: '#161C27',
-                      fontFamily: 'Inter-Regular',
-                    }}>
-                    {item.eventTime}
-                  </Text>
-                </View>
-                <View style={{width: wp('40%')}}>
-                  <Text
-                    style={{
-                      fontSize: 14,
-                      color: '#161C27',
-                      fontFamily: 'Inter-Regular',
-                    }}
-                    numberOfLines={1}>
-                    {item.clientName}
-                  </Text>
-                </View>
-                <View style={{width: wp('30%')}}>
-                  <Text
-                    style={{
-                      fontSize: 14,
-                      color: '#161C27',
-                      fontFamily: 'Inter-Regular',
-                    }}>
-                    {item.pax}
-                  </Text>
-                </View>
+                <TouchableOpacity
+                  onPress={() =>
+                    this.props.navigation.navigate('ViewEventAdminScreen', {
+                      detailsId: item.id,
+                      eventManagerId: item.eventManager,
+                      offerArray: item.eventOfferList,
+                    })
+                  }
+                  style={{
+                    flexDirection: 'row',
+                  }}>
+                  <View style={{width: wp('30%')}}>
+                    <Text
+                      style={{
+                        fontSize: 14,
+                        color: '#161C27',
+                        fontFamily: 'Inter-Regular',
+                      }}>
+                      {item.eventTime}
+                    </Text>
+                  </View>
+                  <View style={{width: wp('40%')}}>
+                    <Text
+                      style={{
+                        fontSize: 14,
+                        color: '#161C27',
+                        fontFamily: 'Inter-Regular',
+                      }}
+                      numberOfLines={1}>
+                      {item.clientName}
+                    </Text>
+                  </View>
+                  <View style={{width: wp('30%')}}>
+                    <Text
+                      style={{
+                        fontSize: 14,
+                        color: '#161C27',
+                        fontFamily: 'Inter-Regular',
+                      }}>
+                      {item.pax}
+                    </Text>
+                  </View>
+                </TouchableOpacity>
                 <TouchableOpacity
                   onPress={() => this.actionFun(item)}
                   style={{
@@ -406,7 +413,16 @@ class Events extends Component {
   };
 
   editFun = () => {
-    alert('edit');
+    const {eventId} = this.state;
+    this.setState(
+      {
+        actionModalStatus: false,
+      },
+      () =>
+        this.props.navigation.navigate('EditEventAdminScreen', {
+          detailsId: eventId,
+        }),
+    );
   };
 
   render() {
@@ -482,7 +498,7 @@ class Events extends Component {
           <View style={{justifyContent: 'center', alignItems: 'center'}}>
             <TouchableOpacity
               onPress={() =>
-                this.props.navigation.navigate('EventsSecAdminScreen')
+                this.props.navigation.navigate('AddNewEventAdminScreen')
               }
               style={{
                 height: hp('6%'),

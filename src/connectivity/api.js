@@ -683,3 +683,21 @@ export const getUserNameEventsApi = async () => {
     },
   });
 };
+
+export const addEventAdminApi = async payload => {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.post(baseURL + `/Event/add event`, payload, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+export const getEventDetailsAdminApi = async id => {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.get(baseURL + `/Event/Event details?Id=${id}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};

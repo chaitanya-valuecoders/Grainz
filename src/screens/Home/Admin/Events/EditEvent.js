@@ -22,6 +22,7 @@ import {UserTokenAction} from '../../../../redux/actions/UserTokenAction';
 import {
   getMyProfileApi,
   getUserNameEventsApi,
+  getEventDetailsAdminApi,
 } from '../../../../connectivity/api';
 import styles from './style';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
@@ -30,7 +31,7 @@ import ModalPicker from '../../../../components/ModalPicker';
 import moment from 'moment';
 import CheckBox from '@react-native-community/checkbox';
 
-class EventsSec extends Component {
+class EditEvent extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -54,6 +55,10 @@ class EventsSec extends Component {
       externalNotesValue: '',
       internalNotesValue: '',
       kitchenNotesValue: '',
+      productionDate: '',
+      isConfirmedVaue: false,
+      isPaidValue: false,
+      pageData: '',
     };
   }
 
@@ -125,7 +130,34 @@ class EventsSec extends Component {
   componentDidMount() {
     this.getData();
     this.getUserData();
+    const {detailsId} = this.props.route && this.props.route.params;
+    this.getPageData(detailsId);
   }
+
+  getPageData = detailsId => {
+    getEventDetailsAdminApi(detailsId)
+      .then(res => {
+        console.log('Re', res);
+        this.setState({
+          pageData: res.data,
+          timeValue: res.data && res.data.eventTime,
+          clientValue: res.data && res.data.clientName,
+          peopleValue: String(res.data && res.data.pax),
+          placeHolderTextDept: 'Select User',
+          selectedTextUser: '',
+          contactValue: res.data && res.data.clientDetails,
+          externalNotesValue: res.data && res.data.externalNotes,
+          internalNotesValue: res.data && res.data.internalNotes,
+          kitchenNotesValue: res.data && res.data.kitchenNotes,
+          isConfirmedVaue: res.data && res.data.isConfirmed,
+          isPaidValue: res.data && res.data.isPaid,
+          finalDate: moment(res.data && res.data.eventDate).format('L'),
+        });
+      })
+      .catch(err => {
+        console.warn('ERr', err);
+      });
+  };
 
   getUserData = () => {
     getUserNameEventsApi()
@@ -163,8 +195,10 @@ class EventsSec extends Component {
 
   handleConfirm = date => {
     let newdate = moment(date).format('L');
+    let productionDate = moment(date).format();
     this.setState({
       finalDate: newdate,
+      productionDate,
     });
 
     this.hideDatePicker();
@@ -194,8 +228,49 @@ class EventsSec extends Component {
     });
   };
 
-  saveFun = () => {
-    alert('SaveFun');
+  updateFun = () => {
+    const {
+      productionDate,
+      clientValue,
+      peopleValue,
+      contactValue,
+      userId,
+      isConfirmedVaue,
+      isPaidValue,
+      externalNotesValue,
+      internalNotesValue,
+      kitchenNotesValue,
+      timeValue,
+    } = this.state;
+    let payload = {
+      clientDetails: contactValue,
+      clientName: clientValue,
+      eventDate: productionDate,
+      eventItemList: [],
+      eventManager: userId,
+      eventOfferList: [],
+      eventTime: timeValue,
+      externalNotes: externalNotesValue,
+      internalNotes: internalNotesValue,
+      isConfirmed: isConfirmedVaue,
+      isPaid: isPaidValue,
+      kitchenNotes: kitchenNotesValue,
+      pax: peopleValue,
+    };
+    console.log('Payload', payload);
+
+    // addEventAdminApi(payload)
+    //   .then(res => {
+    //     Alert.alert('Grainz', 'Event added successfully', [
+    //       {
+    //         text: 'Okay',
+    //         onPress: () => this.props.navigation.goBack(),
+    //       },
+    //     ]);
+    //   })
+    //   .catch(err => {
+    //     console.log('err', err);
+    //   });
   };
 
   render() {
@@ -219,6 +294,8 @@ class EventsSec extends Component {
       externalNotesValue,
       internalNotesValue,
       kitchenNotesValue,
+      isConfirmedVaue,
+      isPaidValue,
     } = this.state;
 
     return (
@@ -236,7 +313,9 @@ class EventsSec extends Component {
         <View style={{...styles.subContainer, flex: 1}}>
           <View style={styles.firstContainer}>
             <View style={{flex: 1}}>
-              <Text style={styles.adminTextStyle}>{translate('Events')}</Text>
+              <Text style={styles.adminTextStyle}>
+                {translate('Events')} EDITTTT
+              </Text>
             </View>
             <TouchableOpacity
               onPress={() => this.props.navigation.goBack()}
@@ -587,10 +666,10 @@ class EventsSec extends Component {
                           marginRight: 15,
                         }}>
                         <CheckBox
-                          // value={section.inUse}
-                          // onValueChange={() =>
-                          //   this.setState({htvaIsSelected: !htvaIsSelected})
-                          // }
+                          value={isConfirmedVaue}
+                          onValueChange={() =>
+                            this.setState({isConfirmedVaue: !isConfirmedVaue})
+                          }
                           style={{
                             margin: 5,
                             height: 20,
@@ -632,10 +711,10 @@ class EventsSec extends Component {
                           marginRight: 15,
                         }}>
                         <CheckBox
-                          // value={section.inUse}
-                          // onValueChange={() =>
-                          //   this.setState({htvaIsSelected: !htvaIsSelected})
-                          // }
+                          value={isPaidValue}
+                          onValueChange={() =>
+                            this.setState({isPaidValue: !isPaidValue})
+                          }
                           style={{
                             margin: 5,
                             height: 20,
@@ -983,7 +1062,7 @@ class EventsSec extends Component {
                       marginTop: hp('2%'),
                     }}>
                     <TouchableOpacity
-                      onPress={() => this.saveFun()}
+                      onPress={() => this.updateFun()}
                       style={{
                         width: wp('30%'),
                         height: hp('5%'),
@@ -999,7 +1078,7 @@ class EventsSec extends Component {
                           fontSize: 15,
                           fontWeight: 'bold',
                         }}>
-                        {translate('Save')}
+                        {translate('Update')}
                       </Text>
                     </TouchableOpacity>
                     <TouchableOpacity
@@ -1042,4 +1121,4 @@ const mapStateToProps = state => {
   };
 };
 
-export default connect(mapStateToProps, {UserTokenAction})(EventsSec);
+export default connect(mapStateToProps, {UserTokenAction})(EditEvent);

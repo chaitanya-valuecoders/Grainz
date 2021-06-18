@@ -174,9 +174,7 @@ class index extends Component {
               </View>
 
               <TouchableOpacity
-                onPress={() =>
-                  this.props.navigation.navigate('EventsSecAdminScreen')
-                }
+                onPress={() => alert('Add')}
                 style={{
                   height: hp('6%'),
                   width: wp('80%'),
