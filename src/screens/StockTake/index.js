@@ -3,8 +3,10 @@ import {
   View,
   Text,
   TouchableOpacity,
-  ScrollView,
+  Image,
   ActivityIndicator,
+  Alert,
+  FlatList,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {connect} from 'react-redux';
@@ -17,14 +19,9 @@ import {
 } from 'react-native-responsive-screen';
 import {UserTokenAction} from '../../redux/actions/UserTokenAction';
 import {getMyProfileApi, getDepartmentsApi} from '../../connectivity/api';
-import {translate} from '../../utils/translations';
+import styles from './style';
 
-var minTime = new Date();
-minTime.setHours(0);
-minTime.setMinutes(0);
-minTime.setMilliseconds(0);
-const tomorrow = new Date(minTime);
-tomorrow.setDate(tomorrow.getDate() + 1);
+import {translate} from '../../utils/translations';
 
 class index extends Component {
   constructor(props) {
@@ -32,12 +29,12 @@ class index extends Component {
     this.state = {
       buttons: [],
       token: '',
-      firstName: '',
-      pageLoader: false,
+      buttonsSubHeader: [],
+      loader: true,
     };
   }
 
-  getProfileDataFun = async () => {
+  getData = async () => {
     try {
       const value = await AsyncStorage.getItem('@appToken');
       if (value !== null) {
@@ -57,13 +54,34 @@ class index extends Component {
     getMyProfileApi()
       .then(res => {
         this.setState({
-          firstName: res.data.firstName,
+          loader: false,
+          buttonsSubHeader: [
+            {name: translate('ADMIN')},
+            {name: translate('Setup')},
+            {name: translate('INBOX')},
+          ],
         });
       })
       .catch(err => {
-        console.warn('ERr', err);
+        console.warn('ERr', err.response);
+        this.setState({
+          loader: false,
+        });
+        Alert.alert('Grainz', 'Session Timeout', [
+          {text: 'OK', onPress: () => this.removeToken()},
+        ]);
       });
   };
+
+  removeToken = async () => {
+    await AsyncStorage.removeItem('@appToken');
+    this.props.UserTokenAction(null);
+  };
+
+  componentDidMount() {
+    this.getData();
+    this.getDepartmentsFun();
+  }
 
   getDepartmentsFun() {
     this.setState(
@@ -82,12 +100,7 @@ class index extends Component {
     );
   }
 
-  componentDidMount() {
-    this.getProfileDataFun();
-    this.getDepartmentsFun();
-  }
-
-  myProfileFun = () => {
+  myProfile = () => {
     this.props.navigation.navigate('MyProfile');
   };
 
@@ -98,61 +111,113 @@ class index extends Component {
   };
 
   render() {
-    const {firstName, buttons, pageLoader} = this.state;
+    const {buttons, buttonsSubHeader, loader} = this.state;
 
     return (
-      <View style={{flex: 1, backgroundColor: '#fff'}}>
+      <View style={styles.container}>
         <Header
-          logout={firstName}
-          logoutFun={this.myProfileFun}
+          logoutFun={this.myProfile}
           logoFun={() => this.props.navigation.navigate('HomeScreen')}
         />
-        {/* <SubHeader /> */}
-        <ScrollView style={{marginBottom: hp('5%')}}>
-          {pageLoader ? (
-            <ActivityIndicator color="grey" size="large" />
-          ) : (
-            <View
-              style={{
-                alignItems: 'center',
-                paddingVertical: hp('3%'),
-                borderTopWidth: 0.2,
-                borderTopColor: '#E9E9E9',
-              }}>
-              <Text style={{color: '#656565', fontSize: 18}}>
+        {loader ? (
+          <ActivityIndicator size="small" color="#94C036" />
+        ) : (
+          <SubHeader {...this.props} buttons={buttonsSubHeader} />
+        )}
+
+        <View style={styles.subContainer}>
+          <View style={styles.firstContainer}>
+            <View style={{flex: 1}}>
+              <Text style={styles.adminTextStyle}>
+                {translate('Stock Take')}
+              </Text>
+            </View>
+            <TouchableOpacity
+              onPress={() => this.props.navigation.goBack()}
+              style={styles.goBackContainer}>
+              <Text style={styles.goBackTextStyle}>Go Back</Text>
+            </TouchableOpacity>
+          </View>
+          <View
+            style={{
+              alignItems: 'center',
+              marginHorizontal: wp('5%'),
+              marginVertical: hp('2%'),
+            }}>
+            <View style={{}}>
+              <Text
+                style={{
+                  fontSize: 18,
+                  fontFamily: 'Inter-Regular',
+                  color: '#523622',
+                  textAlign: 'center',
+                }}>
                 {translate('Select which department you wish to stock take')}
               </Text>
-              {buttons.map((item, index) => {
-                return (
-                  <View style={{}} key={index}>
-                    <TouchableOpacity
-                      onPress={() => this.onPressFun(item)}
-                      style={{
-                        height: hp('6%'),
-                        width: wp('70%'),
-                        backgroundColor: '#94C036',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        marginTop: 18,
-                        borderRadius: 5,
-                      }}>
-                      <View style={{}}>
-                        <Text
-                          style={{
-                            fontWeight: 'bold',
-                            color: 'white',
-                            marginLeft: 5,
-                          }}>
-                          {item.name}
-                        </Text>
-                      </View>
-                    </TouchableOpacity>
-                  </View>
-                );
-              })}
             </View>
-          )}
-        </ScrollView>
+          </View>
+          <FlatList
+            data={buttons}
+            renderItem={({item}) => (
+              <View style={styles.itemContainer}>
+                <TouchableOpacity
+                  onPress={() => this.onPressFun(item)}
+                  style={{
+                    backgroundColor: '#fff',
+                    flex: 1,
+                    margin: 10,
+                    borderRadius: 8,
+                    padding: 10,
+                  }}>
+                  <View
+                    style={{
+                      flex: 1,
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                    }}>
+                    <Image
+                      source={
+                        item.name === 'Bar'
+                          ? img.barIcon
+                          : item.name === 'Other'
+                          ? img.otherIcon
+                          : item.name === 'Restaurant'
+                          ? img.restaurantIcon
+                          : item.name === 'Retail'
+                          ? img.retailIcon
+                          : null
+                      }
+                      style={{
+                        height: 40,
+                        width: 40,
+                        resizeMode: 'contain',
+                      }}
+                    />
+                  </View>
+                  <View
+                    style={{
+                      flex: 1,
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                    }}>
+                    <Text
+                      style={{
+                        fontSize: 13,
+                        textAlign: 'center',
+                        fontFamily: 'Inter-Regular',
+                      }}
+                      numberOfLines={1}>
+                      {' '}
+                      {item.name}
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              </View>
+            )}
+            keyExtractor={item => item.id}
+            numColumns={3}
+          />
+        </View>
       </View>
     );
   }

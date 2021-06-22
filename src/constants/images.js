@@ -45,4 +45,8 @@ export default {
   dashIcon: require('../assests/Images/dashIcon.png'),
   plusIcon: require('../assests/Images/plusIcon.png'),
   marginIcon: require('../assests/Images/marginIcon.png'),
+  barIcon: require('../assests/Images/barIcon.png'),
+  restaurantIcon: require('../assests/Images/restaurantIcon.png'),
+  retailIcon: require('../assests/Images/retailIcon.png'),
+  otherIcon: require('../assests/Images/otherIcon.png'),
 };

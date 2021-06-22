@@ -308,6 +308,18 @@ export async function getNewStockTakeApi(id, date) {
   });
 }
 
+export async function lookupInventoryApi(depatId) {
+  let url =
+    baseURL +
+    `/Lookup/Inventory categories by department?DepartmentId=${depatId}`;
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.get(url, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+}
+
 export async function getNewTopStockTakeApi(id, date, count) {
   let url =
     baseURL +
@@ -571,6 +583,19 @@ export const lookupCategoriesApi = async deptId => {
   return axios.get(
     baseURL +
       `/Lookup/Inventory categories by department?DepartmentId=${deptId}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  );
+};
+
+export const getStockDataApi = async (deptId, catId) => {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.get(
+    baseURL +
+      `/StockTake/new stock by category?DepartmentId=${catId}&CategoryId=${deptId}&StockTakeDate=2021-06-22T06:30:00.000Z`,
     {
       headers: {
         Authorization: `Bearer ${token}`,

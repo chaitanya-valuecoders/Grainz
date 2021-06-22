@@ -44,6 +44,7 @@ import ViewSupplierScreen from '../screens/Home/Setup/Supplier/ViewSupplier';
 import ViewMenuItemsScreen from '../screens/Home/Setup/MenuItem/ViewMenuItems';
 import ViewEventAdminScreen from '../screens/Home/Admin/Events/ViewEvent';
 import EditEventAdminScreen from '../screens/Home/Admin/Events/EditEvent';
+import EditStockScreen from '../screens/StockTake/EditStock';
 
 const AppNav = createStackNavigator();
 
@@ -60,6 +61,7 @@ export default function AppNavFun() {
         name="CasualPurchaseScreen"
         component={CasualPurchaseScreen}
       />
+      <AppNav.Screen name="EditStockScreen" component={EditStockScreen} />
       <AppNav.Screen name="RecipeScreen" component={RecipeScreen} />
       <AppNav.Screen name="MenuItemsScreen" component={MenuItemsScreen} />
       <AppNav.Screen name="DeliveriesScreen" component={DeliveriesScreen} />
