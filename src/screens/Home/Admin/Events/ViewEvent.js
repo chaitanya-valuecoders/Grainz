@@ -783,9 +783,8 @@ class ViewEvent extends Component {
                                     value={item.isExTill}
                                     disabled={true}
                                     style={{
-                                      margin: 8,
-                                      height: 20,
-                                      width: 20,
+                                      height: 17,
+                                      width: 17,
                                     }}
                                   />
                                 </View>
@@ -954,9 +953,8 @@ class ViewEvent extends Component {
                                         value={item.isExTill}
                                         disabled={true}
                                         style={{
-                                          margin: 8,
-                                          height: 20,
-                                          width: 20,
+                                          height: 17,
+                                          width: 17,
                                         }}
                                       />
                                     </View>

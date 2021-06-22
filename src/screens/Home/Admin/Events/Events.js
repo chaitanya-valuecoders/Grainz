@@ -57,6 +57,7 @@ class Events extends Component {
       searchItem: '',
       actionModalStatus: false,
       eventId: '',
+      eventManagerId: '',
     };
   }
 
@@ -205,6 +206,7 @@ class Events extends Component {
     this.setState({
       actionModalStatus: true,
       eventId: data.id,
+      eventManagerId: data.eventManager,
     });
   };
 
@@ -413,7 +415,7 @@ class Events extends Component {
   };
 
   editFun = () => {
-    const {eventId} = this.state;
+    const {eventId, eventManagerId} = this.state;
     this.setState(
       {
         actionModalStatus: false,
@@ -421,6 +423,7 @@ class Events extends Component {
       () =>
         this.props.navigation.navigate('EditEventAdminScreen', {
           detailsId: eventId,
+          eventManagerId: eventManagerId,
         }),
     );
   };

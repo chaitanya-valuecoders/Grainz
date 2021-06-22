@@ -2,24 +2,11 @@ import axios from 'axios';
 import url from './Environment.json';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-let baseURL = url['DEV'].BaseURL;
-
-export const loginApi = payload => {
-  return axios.post(
-    'https://grainzwebapid.azurewebsites.net/connect/token',
-    payload,
-    {
-      headers: {
-        Accept: '*/*',
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-    },
-  );
-};
+let baseURL = url['STAGING'].BaseURL;
 
 // export const loginApi = payload => {
 //   return axios.post(
-//     'https://grainzwebapiq.azurewebsites.net/connect/token',
+//     'https://grainzwebapid.azurewebsites.net/connect/token',
 //     payload,
 //     {
 //       headers: {
@@ -29,6 +16,19 @@ export const loginApi = payload => {
 //     },
 //   );
 // };
+
+export const loginApi = payload => {
+  return axios.post(
+    'https://grainzwebapiq.azurewebsites.net/connect/token',
+    payload,
+    {
+      headers: {
+        Accept: '*/*',
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+    },
+  );
+};
 
 export async function getMyProfileApi() {
   const token = await AsyncStorage.getItem('@appToken');
@@ -696,6 +696,42 @@ export const addEventAdminApi = async payload => {
 export const getEventDetailsAdminApi = async id => {
   const token = await AsyncStorage.getItem('@appToken');
   return axios.get(baseURL + `/Event/Event details?Id=${id}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+export const updateEventAdminApi = async payload => {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.post(baseURL + `/Event/update event`, payload, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+export const getMenuItemsAdminApi = async () => {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.get(baseURL + `/Menu/menus`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+export const deleteOfferEventAdminApi = async (payload, id) => {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.post(baseURL + `/Event/delete event offer?Id=${id}`, payload, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+export const deleteEventItemAdminApi = async (payload, id) => {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.post(baseURL + `/Event/delete event Item?Id=${id}`, payload, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
