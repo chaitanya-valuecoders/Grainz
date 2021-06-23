@@ -45,6 +45,9 @@ import ViewMenuItemsScreen from '../screens/Home/Setup/MenuItem/ViewMenuItems';
 import ViewEventAdminScreen from '../screens/Home/Admin/Events/ViewEvent';
 import EditEventAdminScreen from '../screens/Home/Admin/Events/EditEvent';
 import EditStockScreen from '../screens/StockTake/EditStock';
+import AddBuilderMepScreen from '../screens/Mep/AddBuilder';
+import EditRecipeMepScreen from '../screens/Mep/EditRecipe';
+import ViewRecipeMepScreen from '../screens/Mep/ViewRecipe';
 
 const AppNav = createStackNavigator();
 
@@ -60,6 +63,18 @@ export default function AppNavFun() {
       <AppNav.Screen
         name="CasualPurchaseScreen"
         component={CasualPurchaseScreen}
+      />
+      <AppNav.Screen
+        name="AddBuilderMepScreen"
+        component={AddBuilderMepScreen}
+      />
+      <AppNav.Screen
+        name="EditRecipeMepScreen"
+        component={EditRecipeMepScreen}
+      />
+      <AppNav.Screen
+        name="ViewRecipeMepScreen"
+        component={ViewRecipeMepScreen}
       />
       <AppNav.Screen name="EditStockScreen" component={EditStockScreen} />
       <AppNav.Screen name="RecipeScreen" component={RecipeScreen} />

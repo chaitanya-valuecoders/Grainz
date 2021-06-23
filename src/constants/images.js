@@ -49,4 +49,5 @@ export default {
   restaurantIcon: require('../assests/Images/restaurantIcon.png'),
   retailIcon: require('../assests/Images/retailIcon.png'),
   otherIcon: require('../assests/Images/otherIcon.png'),
+  beakerIcon: require('../assests/Images/beakerIcon.png'),
 };

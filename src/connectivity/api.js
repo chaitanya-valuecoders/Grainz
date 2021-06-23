@@ -3,6 +3,7 @@ import url from './Environment.json';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 let baseURL = url['STAGING'].BaseURL;
+// let baseURL = url['DEV'].BaseURL;
 
 // export const loginApi = payload => {
 //   return axios.post(
