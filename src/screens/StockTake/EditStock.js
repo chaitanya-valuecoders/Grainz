@@ -37,6 +37,10 @@ class EditStock extends Component {
       modalLoader: true,
       unitData: [],
       editableStatus: false,
+      inventoryId: '',
+      pageDate: '',
+      pageData: '',
+      departmentData: '',
     };
   }
 
@@ -79,8 +83,10 @@ class EditStock extends Component {
 
   componentDidMount() {
     this.getData();
-    const {item} = this.props.route && this.props.route.params;
-    console.log('item', item);
+    const {item, pageDate, inventoryId, departmentData} =
+      this.props.route && this.props.route.params;
+    console.log('pageDate', pageDate);
+    console.log('inventoryId', inventoryId);
 
     let finalUnitData = item.units.map((item, index) => {
       return {
@@ -95,14 +101,16 @@ class EditStock extends Component {
         modalData: [],
         modalLoader: false,
         unitData: [...finalUnitData],
+        pageDate,
+        inventoryId,
+        departmentData,
       });
     } else {
       let finalModalData =
         item.updateStockTakeItems &&
         item.updateStockTakeItems.map((item, index) => {
           return {
-            action: 'New',
-            convertor: 1,
+            action: 'Update',
             id: null,
             inventoryId: item.inventoryId,
             isDefault: item.isDefault,
@@ -122,6 +130,10 @@ class EditStock extends Component {
         modalData: [...finalModalData],
         modalLoader: false,
         unitData: [...finalUnitData],
+        pageDate,
+        inventoryId,
+        pageData: item,
+        departmentData,
       });
     }
   }
@@ -134,7 +146,7 @@ class EditStock extends Component {
     this.props.navigation.goBack();
   };
 
-  actionFun = data => {
+  actionFun = (data, index) => {
     console.log('data', data);
 
     Alert.alert('Grainz', 'Choose your option?', [
@@ -147,12 +159,12 @@ class EditStock extends Component {
       },
       {
         text: 'Delete',
-        onPress: () => this.deleteQuantityFun(data),
+        onPress: () => this.deleteQuantityFun(data, index),
       },
     ]);
   };
 
-  deleteQuantityFun = item => {
+  deleteQuantityFun = (item, index) => {
     Alert.alert('Are you sure?', "You won't be able to revert this!", [
       {
         text: 'Cancel',
@@ -160,12 +172,12 @@ class EditStock extends Component {
       },
       {
         text: 'OK',
-        onPress: () => this.deleteFun(item),
+        onPress: () => this.deleteFun(item, index),
       },
     ]);
   };
 
-  deleteFun = item => {
+  deleteFun = (item, index) => {
     console.log('ITEM', item);
 
     const {pageDate} = this.state;
@@ -189,25 +201,36 @@ class EditStock extends Component {
 
     console.log('PAYLOAD', payload);
 
-    addStockTakeApi(payload)
-      .then(res => {
-        this.setState({
-          isModalVisible: false,
+    if (item.action === 'Update') {
+      addStockTakeApi(payload)
+        .then(res => {
+          this.setState({
+            isModalVisible: false,
+          });
+          Alert.alert('Grainz', 'Stock trade deleted successfully', [
+            {
+              text: 'Okay',
+              onPress: () => this.removeFromList(index),
+            },
+          ]);
+        })
+        .catch(error => {
+          console.warn('DELETEerror', error.response);
         });
-        Alert.alert('Grainz', 'Stock trade deleted successfully', [
-          {
-            text: 'Okay',
-            onPress: () => console.warn('DONEEE'),
-          },
-        ]);
-      })
-      .catch(error => {
-        console.warn('DELETEerror', error.response);
-      });
+    } else {
+      this.removeFromList(index);
+    }
+  };
+
+  removeFromList = index => {
+    let temp = this.state.modalData;
+    temp.splice(index, 1);
+    this.setState({modalData: temp});
   };
 
   editOfferItemsFun = (index, type, value) => {
-    const {modalData} = this.state;
+    const {modalData, unitData} = this.state;
+    console.log('unitDa', unitData);
 
     let newArr = modalData.map((item, i) =>
       index === i
@@ -228,16 +251,16 @@ class EditStock extends Component {
   addDataInArrFun = () => {
     let objSec = {};
     let newlist = [];
-    const {modalData} = this.state;
+    const {modalData, pageDate, inventoryId} = this.state;
     objSec = {
       action: 'New',
       convertor: 1,
       id: null,
-      inventoryId: '',
+      inventoryId: inventoryId,
       isDefault: true,
       quantity: '',
       recipeId: null,
-      stockTakeDate: '',
+      stockTakeDate: pageDate,
       unit: '',
       unitId: '',
       createdBy: '',
@@ -250,6 +273,32 @@ class EditStock extends Component {
     });
   };
 
+  saveFun = () => {
+    const {modalData} = this.state;
+
+    console.log('modalData', modalData);
+
+    let payload = modalData;
+
+    console.log('PAYLOAD', payload);
+
+    addStockTakeApi(payload)
+      .then(res => {
+        Alert.alert('Grainz', 'Stock trade added successfully', [
+          {
+            text: 'Okay',
+            onPress: () =>
+              this.setState({
+                editableStatus: false,
+              }),
+          },
+        ]);
+      })
+      .catch(error => {
+        console.warn('Adderror', error.response);
+      });
+  };
+
   render() {
     const {
       buttonsSubHeader,
@@ -260,6 +309,9 @@ class EditStock extends Component {
       sectionName,
       unitData,
       editableStatus,
+      pageData,
+      pageDate,
+      departmentData,
     } = this.state;
 
     console.log('modalData', modalData);
@@ -537,7 +589,9 @@ class EditStock extends Component {
                                         <Text>{item.createdBy}</Text>
                                       </View>
                                       <TouchableOpacity
-                                        onPress={() => this.actionFun(item)}
+                                        onPress={() =>
+                                          this.actionFun(item, index)
+                                        }
                                         style={{
                                           width: wp('30%'),
                                           alignItems: 'center',
@@ -572,6 +626,60 @@ class EditStock extends Component {
               </ScrollView>
             </View>
           )}
+          {editableStatus ? (
+            <View>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  marginTop: hp('2%'),
+                }}>
+                <TouchableOpacity
+                  onPress={() => this.saveFun()}
+                  style={{
+                    width: wp('30%'),
+                    height: hp('5%'),
+                    alignSelf: 'flex-end',
+                    backgroundColor: '#94C036',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    borderRadius: 100,
+                  }}>
+                  <Text
+                    style={{
+                      color: '#fff',
+                      fontSize: 15,
+                      fontWeight: 'bold',
+                    }}>
+                    {translate('Save')}
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => this.props.navigation.goBack()}
+                  style={{
+                    width: wp('30%'),
+                    height: hp('5%'),
+                    alignSelf: 'flex-end',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    marginLeft: wp('2%'),
+                    borderRadius: 100,
+                    borderWidth: 1,
+                    borderColor: '#482813',
+                  }}>
+                  <Text
+                    style={{
+                      color: '#482813',
+                      fontSize: 15,
+                      fontWeight: 'bold',
+                    }}>
+                    {translate('Cancel')}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          ) : null}
         </ScrollView>
       </View>
     );

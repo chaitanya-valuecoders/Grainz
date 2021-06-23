@@ -591,11 +591,11 @@ export const lookupCategoriesApi = async deptId => {
   );
 };
 
-export const getStockDataApi = async (deptId, catId) => {
+export const getStockDataApi = async (deptId, catId, date) => {
   const token = await AsyncStorage.getItem('@appToken');
   return axios.get(
     baseURL +
-      `/StockTake/new stock by category?DepartmentId=${catId}&CategoryId=${deptId}&StockTakeDate=2021-06-22T06:30:00.000Z`,
+      `/StockTake/new stock by category?DepartmentId=${catId}&CategoryId=${deptId}&StockTakeDate=${date}`,
     {
       headers: {
         Authorization: `Bearer ${token}`,

@@ -49,6 +49,7 @@ class StockScreen extends Component {
       departmentData: '',
       finalDate: '',
       isDatePickerVisible: false,
+      pageDate: '',
     };
   }
 
@@ -97,8 +98,10 @@ class StockScreen extends Component {
 
   createFirstData = () => {
     const {departmentData} = this.state;
+    console.log('de', departmentData);
     lookupInventoryApi(departmentData.id)
       .then(res => {
+        console.log('res', res);
         let finalArray = res.data.map((item, index) => {
           return {
             title: item.name,
@@ -125,8 +128,9 @@ class StockScreen extends Component {
   };
 
   componentDidMount() {
-    this.getData();
     const {departmentData} = this.props.route && this.props.route.params;
+    this.getData();
+
     this.setState({
       departmentData,
     });
@@ -176,16 +180,28 @@ class StockScreen extends Component {
   };
 
   editUnitsFun = item => {
-    this.props.navigation.navigate('EditStockScreen', {
-      item,
-    });
+    const {pageDate, departmentData} = this.state;
+    this.setState(
+      {
+        activeSections: [],
+        catArray: [],
+        categoryLoader: false,
+      },
+      () =>
+        this.props.navigation.navigate('EditStockScreen', {
+          item,
+          pageDate,
+          inventoryId: item.inventoryId,
+          departmentData,
+        }),
+    );
   };
 
   _renderContent = section => {
     const {categoryLoader, catArray} = this.state;
     return (
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-        <View style={{backgroundColor: '#fff', height: hp('20%')}}>
+        <View style={{backgroundColor: '#fff', height: hp('30%')}}>
           <View
             style={{
               flexDirection: 'row',
@@ -325,11 +341,11 @@ class StockScreen extends Component {
   };
 
   updateSubFun = () => {
-    const {SECTIONS, activeSections} = this.state;
+    const {SECTIONS, activeSections, pageDate} = this.state;
     if (activeSections.length > 0) {
       const deptId = SECTIONS[activeSections].content;
       const catId = SECTIONS[activeSections].departmentId;
-      getStockDataApi(deptId, catId)
+      getStockDataApi(deptId, catId, pageDate)
         .then(res => {
           this.setState({
             catArray: res.data,
@@ -343,6 +359,7 @@ class StockScreen extends Component {
       this.setState({
         activeSections: [],
         categoryLoader: false,
+        catArray: [],
       });
     }
   };
