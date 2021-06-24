@@ -26,70 +26,42 @@ import {
   deleteMepApi,
   getMepsHistoryApi,
   getMepsOldHistoryApi,
-  getMepRecipesApi,
-  newMepListApi,
   getMepRecipeByIdsApi,
   updateMepListApi,
-  getAdvanceRecipeByIdsApi,
 } from '../../connectivity/api';
 import Modal from 'react-native-modal';
 import Accordion from 'react-native-collapsible/Accordion';
 import moment from 'moment';
-import DateTimePickerModal from 'react-native-modal-datetime-picker';
-import {MultipleSelectPicker} from 'react-native-multi-select-picker';
 import {translate} from '../../utils/translations';
 import styles from './style';
-
-var minTime = new Date();
-minTime.setHours(0);
-minTime.setMinutes(0);
-minTime.setMilliseconds(0);
 
 class index extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      buttons: [
-        {name: translate('History'), icon: img.historyIcon, id: 0},
-        {name: translate('Add new'), icon: img.addIcon, id: 1},
-        {name: translate('Back'), id: 2},
-      ],
       token: '',
       modalVisible: false,
       firstName: '',
-      modalVisibleAdd: false,
       activeSections: [],
       SECTIONS: [],
       recipeLoader: false,
       modalVisibleRecipeDetails: false,
       sectionData: {},
-      isMakeMeStatus: true,
       SECTIONS_HISTORY: [],
       activeSectionsHistory: [],
       recipeLoaderHistory: true,
-      isDatePickerVisible: false,
-      finalDate: '',
-      selectectedItems: [],
-      isShownPicker: false,
-      items: [],
       productionDate: '',
-      applyStatus: false,
       detailsLoader: false,
       quantity: '',
       notes: '',
-      advanceDetailsLoader: false,
-      sectionAdvanceData: {},
       recipeID: '',
       buttonsSubHeader: [],
+      allDoneStatus: false,
     };
   }
 
   setModalVisible = visible => {
     this.setState({modalVisible: visible});
-  };
-
-  setModalVisibleAdd = visible => {
-    this.setState({modalVisibleAdd: visible});
   };
 
   setModalVisibleRecipeDetails = (visible, data) => {
@@ -120,37 +92,6 @@ class index extends Component {
   setModalVisibleRecipeDetailsClose = visible => {
     this.setState({
       modalVisibleRecipeDetails: visible,
-    });
-  };
-
-  setModalAdvanceRecipeDetails = (visible, data) => {
-    this.setState(
-      {
-        modalAdvanceRecipeDetails: visible,
-        advanceDetailsLoader: true,
-      },
-      () =>
-        getAdvanceRecipeByIdsApi(data.recipeId)
-          .then(res => {
-            this.setState({
-              modalAdvanceRecipeDetails: visible,
-              sectionAdvanceData: res.data,
-              advanceDetailsLoader: false,
-              recipeID: data.recipeId,
-            });
-          })
-          .catch(err => {
-            this.setState({
-              advanceDetailsLoader: false,
-            });
-            console.warn('ERR', err);
-          }),
-    );
-  };
-
-  setModalAdvanceRecipeDetailsClose = visible => {
-    this.setState({
-      modalAdvanceRecipeDetails: visible,
     });
   };
 
@@ -241,8 +182,7 @@ class index extends Component {
     this.props.navigation.addListener('focus', () => {
       this.getPendingMepsData();
     });
-
-    // this.getHistoryMepData();
+    this.getHistoryMepData();
   }
 
   getHistoryMepData = () => {
@@ -296,25 +236,6 @@ class index extends Component {
     this.props.navigation.navigate('MyProfile');
   };
 
-  onPressFun = item => {
-    if (item.id === 0) {
-      this.setModalVisible(true);
-      this.getHistoryMepData();
-    } else if (item.id === 1) {
-      this.setModalVisibleAdd(true);
-      this.setState({
-        selectectedItems: [],
-        preparedDate: '',
-        finalDate: '',
-        items: [],
-        isShownPicker: false,
-        applyStatus: false,
-      });
-    } else if (item.id === 2) {
-      this.props.navigation.goBack();
-    }
-  };
-
   onPressCollapseFun = () => {
     this.setState({
       activeSections: [],
@@ -327,11 +248,111 @@ class index extends Component {
     });
   };
 
+  allDoneFun = (section, todayFinal, finalData, index, value) => {
+    if (todayFinal === finalData) {
+      const {allDoneStatus} = this.state;
+
+      const value = !allDoneStatus;
+
+      console.log('value', value);
+
+      let newArr = section.content.map((item, i) =>
+        index === i
+          ? {
+              ...item,
+              ['isPrepared']: value,
+            }
+          : {
+              ...item,
+              ['isPrepared']: value,
+            },
+      );
+      this.setState({
+        allDoneStatus: value,
+      });
+
+      console.log('newArr', newArr);
+
+      this.updateAllFun(newArr);
+    }
+  };
+
   _renderHeader = (section, index, isActive) => {
     var todayFinal = moment(new Date()).format('dddd, MMM DD YYYY');
 
     const finalData = moment(section.title).format('dddd, MMM DD YYYY');
 
+    return (
+      <View
+        style={{
+          backgroundColor: '#FFFFFF',
+          flexDirection: 'row',
+          borderTopWidth: 1,
+          borderLeftWidth: 1,
+          borderTopColor: '#F0F0F0',
+          borderLeftColor: '#F0F0F0',
+          borderRightWidth: 1,
+          borderRightColor: '#F0F0F0',
+          height: 60,
+          marginTop: hp('2%'),
+          alignItems: 'center',
+          borderRadius: 6,
+          justifyContent: 'space-between',
+        }}>
+        <View style={{flexDirection: 'row', alignItems: 'center'}}>
+          <Image
+            style={{
+              height: 17,
+              width: 17,
+              resizeMode: 'contain',
+              marginLeft: wp('2%'),
+            }}
+            source={isActive ? img.upArrowIcon : img.arrowRightIcon}
+          />
+          <Text
+            style={{
+              color: '#492813',
+              fontSize: 15,
+              marginLeft: wp('2%'),
+              fontFamily: 'Inter-Regular',
+            }}>
+            {todayFinal === finalData ? 'Today' : finalData}
+          </Text>
+        </View>
+        {todayFinal === finalData ? (
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+            }}>
+            <Switch
+              style={{marginLeft: 5}}
+              trackColor={{
+                false: '#767577',
+                true: '#94C036',
+              }}
+              value={!this.state.allDoneStatus}
+              onValueChange={() =>
+                this.allDoneFun(section, todayFinal, finalData, index)
+              }
+              thumbColor="#fff"
+            />
+            <Text
+              style={{
+                color: '#482813',
+                fontFamily: 'Inter-SemiBold',
+                marginLeft: 10,
+                marginRight: 10,
+              }}>
+              All done
+            </Text>
+          </View>
+        ) : null}
+      </View>
+    );
+  };
+  _renderHeaderHistory = (section, index, isActive) => {
+    const finalData = moment(section.title).format('dddd, MMM DD YYYY');
     return (
       <View
         style={{
@@ -359,49 +380,28 @@ class index extends Component {
         />
         <Text
           style={{
-            color: '#98989B',
+            color: '#492813',
             fontSize: 15,
-            fontWeight: 'bold',
             marginLeft: wp('2%'),
-          }}>
-          {todayFinal === finalData ? 'Today' : finalData}
-        </Text>
-      </View>
-    );
-  };
-  _renderHeaderHistory = (section, index, isActive) => {
-    const finalData = moment(section.title).format('dddd, MMM DD YYYY');
-    return (
-      <View
-        style={{
-          backgroundColor: '#EAEAF1',
-          flexDirection: 'row',
-          borderWidth: 1,
-          borderColor: '#D1D1D6',
-          height: 60,
-          marginTop: hp('2%'),
-          alignItems: 'center',
-        }}>
-        <Image
-          style={{
-            height: 18,
-            width: 18,
-            resizeMode: 'contain',
-            marginLeft: wp('2%'),
-          }}
-          source={isActive ? img.upArrowIcon : img.arrowRightIcon}
-        />
-        <Text
-          style={{
-            color: '#98989B',
-            fontSize: 15,
-            fontWeight: 'bold',
-            marginLeft: wp('2%'),
+            fontFamily: 'Inter-Regular',
           }}>
           {finalData}
         </Text>
       </View>
     );
+  };
+
+  updateAllFun = newArr => {
+    let payload = newArr;
+    console.log('payload', payload);
+    updateMepListApi(payload)
+      .then(res => {
+        console.log('res', res);
+        this.getPendingMepsData();
+      })
+      .catch(err => {
+        console.warn('ERRDeleteMep', err.response);
+      });
   };
 
   updatePreparedStatusFun = section => {
@@ -460,22 +460,23 @@ class index extends Component {
                 />
                 <View style={{flex: 2}}>
                   <TouchableOpacity
-                    // onPress={() =>
-                    //   this.setModalVisibleRecipeDetails(true, item)
-                    // }
                     onPress={() =>
-                      this.props.navigation.navigate('EditRecipeMepScreen')
+                      this.setModalVisibleRecipeDetails(true, item)
                     }>
                     <Text
                       style={{
                         fontSize: 14,
-                        textAlign: 'center',
-                        marginLeft: wp('2%'),
+                        marginLeft: wp('5%'),
                         fontFamily: 'Inter-Regular',
                         color: '#151B26',
                       }}>
                       {item.name}
                     </Text>
+                    <View>
+                      <Text style={{fontSize: 12, marginLeft: wp('5%')}}>
+                        {item.notes}
+                      </Text>
+                    </View>
                   </TouchableOpacity>
                 </View>
                 <View style={{flex: 1, alignItems: 'center'}}>
@@ -490,11 +491,10 @@ class index extends Component {
                 </View>
                 <View style={{flex: 1, alignItems: 'center'}}>
                   <TouchableOpacity
-                    // onPress={() =>
-                    //   this.setModalAdvanceRecipeDetails(true, item)
-                    // }
                     onPress={() =>
-                      this.props.navigation.navigate('ViewRecipeMepScreen')
+                      this.props.navigation.navigate('ViewRecipeMepScreen', {
+                        data: item,
+                      })
                     }
                     style={{
                       backgroundColor: '#94C036',
@@ -509,11 +509,6 @@ class index extends Component {
                   </TouchableOpacity>
                 </View>
               </View>
-              <View>
-                <Text style={{fontSize: 12, marginLeft: wp('20%')}}>
-                  {item.notes}
-                </Text>
-              </View>
             </View>
           );
         })}
@@ -523,7 +518,12 @@ class index extends Component {
 
   _renderContentHistory = section => {
     return (
-      <View style={{marginTop: hp('2%')}}>
+      <View
+        style={{
+          backgroundColor: '#fff',
+          paddingVertical: 10,
+          paddingHorizontal: 10,
+        }}>
         {section.content.map((item, index) => {
           return (
             <View>
@@ -545,9 +545,9 @@ class index extends Component {
                       numberOfLines={1}
                       style={{
                         fontSize: 14,
-                        fontWeight: 'bold',
                         textAlign: 'left',
                         paddingVertical: 8,
+                        fontFamily: 'Inter-Regular',
                       }}>
                       {item.name}
                     </Text>
@@ -557,7 +557,6 @@ class index extends Component {
                   <Text>{item.quantity} g</Text>
                 </View>
               </View>
-              <View style={{borderBottomWidth: 1}}></View>
             </View>
           );
         })}
@@ -718,165 +717,21 @@ class index extends Component {
     );
   };
 
-  onPressApplyFun = () => {
-    const {selectectedItems, productionDate, applyStatus} = this.state;
-    if (productionDate === '' || selectectedItems.length === 0) {
-      alert('Please select date and recipe');
-    } else if (applyStatus === false) {
-      this.setState(
-        {
-          isShownPicker: false,
-          applyStatus: true,
-        },
-        () => this.createpayloadFun(),
-      );
-    }
-  };
-
-  createpayloadFun = () => {
-    let newData = [];
-    const {selectectedItems, productionDate} = this.state;
-    selectectedItems.map(item => {
-      const obj = {};
-      obj.isSelected = true;
-      obj.notes = '';
-      obj.productionDate = productionDate;
-      obj.quantity = item.quantity;
-      obj.recipeId = item.value;
-      obj.name = item.label;
-      newData = [...newData, obj];
-    });
-    this.setState({
-      selectectedItems: newData,
-    });
-  };
-
-  hideDatePicker = () => {
-    this.setState({
-      isDatePickerVisible: false,
-    });
-  };
-
-  getRecipesData = () => {
-    const {finalDate} = this.state;
-    getMepRecipesApi(finalDate)
-      .then(res => {
-        const {data} = res;
-        let newData = [];
-        data.map(item => {
-          const obj = {};
-          obj.label = item.name;
-          obj.value = item.id;
-          obj.quantity = item.batchQuantity;
-          newData = [...newData, obj];
-        });
-        this.setState({
-          items: newData,
-        });
-      })
-      .catch(err => {
-        console.warn('Err', err);
-      });
-  };
-
-  handleConfirm = date => {
-    let newdate = moment(date).format('L');
-    this.setState(
-      {
-        finalDate: newdate,
-        productionDate: date,
-      },
-      () => this.getRecipesData(),
-    );
-
-    this.hideDatePicker();
-  };
-
-  showDatePickerFun = () => {
-    this.setState({
-      isDatePickerVisible: true,
-    });
-  };
-
-  addMepListFun = () => {
-    const {selectectedItems, productionDate} = this.state;
-
-    if (productionDate === '' || selectectedItems.length === 0) {
-      alert('Please select date and recipe');
-    } else {
-      newMepListApi(selectectedItems)
-        .then(res => {
-          this.setState(
-            {
-              modalVisibleAdd: false,
-              selectectedItems: [],
-            },
-            () => this.getPendingMepsData(),
-          );
-        })
-        .catch(err => {
-          console.warn('ERRDeleteMep', err.response);
-        });
-    }
-  };
-
-  openRecipeDropDown = () => {
-    const {applyStatus, finalDate} = this.state;
-    if (finalDate) {
-      if (applyStatus) {
-        this.setState({
-          isShownPicker: false,
-        });
-      } else {
-        this.setState({
-          isShownPicker: true,
-        });
-      }
-    } else {
-      alert('Please select date first.');
-    }
-  };
-
-  showAdvanceView = () => {
-    const {recipeID} = this.state;
-    this.setState(
-      {
-        modalAdvanceRecipeDetails: false,
-      },
-      () =>
-        this.props.navigation.navigate('MepAdvanceScreen', {
-          recipeID: recipeID,
-        }),
-    );
-  };
-
   render() {
     const {
       modalVisible,
-      modalVisibleAdd,
       recipeLoader,
       SECTIONS,
       activeSections,
       firstName,
-      buttons,
       modalVisibleRecipeDetails,
       sectionData,
-      isMakeMeStatus,
       SECTIONS_HISTORY,
       activeSectionsHistory,
       recipeLoaderHistory,
-      isDatePickerVisible,
-      finalDate,
-      isShownPicker,
-      selectectedItems,
-      items,
-      applyStatus,
       detailsLoader,
       quantity,
       notes,
-      advanceDetailsLoader,
-      modalAdvanceRecipeDetails,
-      sectionAdvanceData,
       buttonsSubHeader,
     } = this.state;
     const finalDateData = moment(sectionData.productionDate).format(
@@ -918,14 +773,17 @@ class index extends Component {
                     style={{
                       width: wp('80%'),
                       height: hp('80%'),
-                      backgroundColor: '#fff',
+                      backgroundColor: '#F0F4FE',
                       alignSelf: 'center',
+                      borderRadius: 6,
                     }}>
                     <View
                       style={{
-                        backgroundColor: '#412916',
+                        backgroundColor: '#87AF30',
                         height: hp('6%'),
                         flexDirection: 'row',
+                        borderTopRightRadius: 6,
+                        borderTopLeftRadius: 6,
                       }}>
                       <View
                         style={{
@@ -957,7 +815,9 @@ class index extends Component {
                         </TouchableOpacity>
                       </View>
                     </View>
-                    <ScrollView style={{marginBottom: hp('2%')}}>
+                    <ScrollView
+                      style={{marginBottom: hp('2%')}}
+                      showsVerticalScrollIndicator={false}>
                       <View
                         style={{
                           padding: hp('3%'),
@@ -970,9 +830,10 @@ class index extends Component {
                               width: wp('50%'),
                               backgroundColor: '#94C036',
                               alignSelf: 'center',
-                              marginTop: hp('5%'),
+                              marginTop: hp('3%'),
                               alignItems: 'center',
                               justifyContent: 'center',
+                              borderRadius: 100,
                             }}>
                             <Text style={{color: '#fff', fontSize: 16}}>
                               {translate('Collapse All')}
@@ -997,16 +858,22 @@ class index extends Component {
                               <TouchableOpacity
                                 onPress={() => this.getOldMepHistoryData()}
                                 style={{
-                                  height: hp('8%'),
-                                  width: wp('60%'),
-                                  backgroundColor: '#F5F5F5',
+                                  height: hp('5%'),
+                                  width: wp('50%'),
+                                  backgroundColor: '#CECBD0',
                                   alignSelf: 'center',
                                   marginTop: hp('5%'),
                                   alignItems: 'center',
                                   justifyContent: 'center',
+                                  borderRadius: 100,
                                 }}>
-                                <Text style={{color: '#717171', fontSize: 16}}>
-                                  {translate('view more (7 more days)')}
+                                <Text
+                                  style={{
+                                    color: '#492813',
+                                    fontSize: 16,
+                                    fontFamily: 'Inter-Regular',
+                                  }}>
+                                  View More
                                 </Text>
                               </TouchableOpacity>
                               <View style={{marginVertical: hp('3%')}}>
@@ -1019,12 +886,13 @@ class index extends Component {
                                     backgroundColor: '#E7943B',
                                     justifyContent: 'center',
                                     alignItems: 'center',
+                                    borderRadius: 100,
                                   }}>
                                   <Text
                                     style={{
                                       color: '#fff',
                                       fontSize: 15,
-                                      fontWeight: 'bold',
+                                      fontFamily: 'Inter-Regular',
                                     }}>
                                     {translate('Close')}
                                   </Text>
@@ -1037,536 +905,6 @@ class index extends Component {
                     </ScrollView>
                   </View>
                 </Modal>
-                {/* // Add Recipe Modal */}
-                <Modal isVisible={modalVisibleAdd} backdropOpacity={0.35}>
-                  <View
-                    style={{
-                      width: wp('80%'),
-                      height: isShownPicker ? hp('90%') : hp('60%'),
-                      backgroundColor: '#fff',
-                      alignSelf: 'center',
-                    }}>
-                    <View
-                      style={{
-                        backgroundColor: '#412916',
-                        height: hp('6%'),
-                        flexDirection: 'row',
-                      }}>
-                      <View
-                        style={{
-                          flex: 3,
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                        }}>
-                        <Text style={{fontSize: 16, color: '#fff'}}>
-                          {translate('MISE-EN-PLACE BUILDER')}
-                        </Text>
-                      </View>
-                      <View
-                        style={{
-                          flex: 1,
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                        }}>
-                        <TouchableOpacity
-                          onPress={() => this.setModalVisibleAdd(false)}>
-                          <Image
-                            source={img.cancelIcon}
-                            style={{
-                              height: 22,
-                              width: 22,
-                              tintColor: 'white',
-                              resizeMode: 'contain',
-                            }}
-                          />
-                        </TouchableOpacity>
-                      </View>
-                    </View>
-                    <ScrollView>
-                      <View style={{padding: hp('3%')}}>
-                        <View style={{}}>
-                          <View style={{marginBottom: 10}}>
-                            <Text>{translate('Production Date')}</Text>
-                          </View>
-                          <TouchableOpacity
-                            onPress={() => this.showDatePickerFun()}
-                            style={{
-                              borderWidth: 1,
-                              padding: 10,
-                              marginBottom: hp('4%'),
-                              flexDirection: 'row',
-                              justifyContent: 'space-between',
-                            }}>
-                            <TextInput
-                              placeholder="dd-mm-yy"
-                              value={finalDate}
-                              editable={false}
-                            />
-                            <Image
-                              source={img.calenderIcon}
-                              style={{
-                                width: 20,
-                                height: 20,
-                                resizeMode: 'contain',
-                              }}
-                            />
-                          </TouchableOpacity>
-                          <TouchableOpacity
-                            onPress={() => {
-                              this.openRecipeDropDown();
-                            }}
-                            style={{
-                              borderWidth: 1,
-                              padding: 10,
-                              flexDirection: 'row',
-                              justifyContent: 'space-between',
-                            }}>
-                            {selectectedItems.length > 0 ? (
-                              <View>
-                                {applyStatus ? (
-                                  <View>
-                                    {selectectedItems.map(item => {
-                                      return (
-                                        <View style={{marginTop: hp('1%')}}>
-                                          <Text>{item.name}</Text>
-                                        </View>
-                                      );
-                                    })}
-                                  </View>
-                                ) : selectectedItems.length > 0 ? (
-                                  <View>
-                                    {selectectedItems.map(item => {
-                                      return (
-                                        <View style={{marginTop: hp('1%')}}>
-                                          <Text>{item.label}</Text>
-                                        </View>
-                                      );
-                                    })}
-                                  </View>
-                                ) : null}
-                              </View>
-                            ) : (
-                              <Text>Select recipe</Text>
-                            )}
-                            <Image
-                              source={img.arrowDownIcon}
-                              style={{
-                                width: 15,
-                                height: 15,
-                                resizeMode: 'contain',
-                              }}
-                            />
-                          </TouchableOpacity>
-                          {isShownPicker ? (
-                            <MultipleSelectPicker
-                              items={items}
-                              onSelectionsChange={ele => {
-                                this.setState({selectectedItems: ele});
-                              }}
-                              selectedItems={selectectedItems}
-                              buttonStyle={{
-                                height: 100,
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                              }}
-                              buttonText="hello"
-                              checkboxStyle={{height: 20, width: 20}}
-                            />
-                          ) : null}
-
-                          <TouchableOpacity
-                            onPress={() => this.onPressApplyFun()}
-                            style={{
-                              height: hp('5%'),
-                              width: wp('60%'),
-                              backgroundColor: '#94C036',
-                              alignSelf: 'center',
-                              marginTop: hp('5%'),
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                            }}>
-                            <Text style={{color: '#fff', fontSize: 16}}>
-                              {translate('Apply')}
-                            </Text>
-                          </TouchableOpacity>
-                          <View
-                            style={{
-                              flexDirection: 'row',
-                              alignItems: 'center',
-                              justifyContent: 'flex-end',
-                              marginTop: hp('5%'),
-                            }}>
-                            <TouchableOpacity
-                              onPress={() => this.addMepListFun()}
-                              style={{
-                                height: hp('5%'),
-                                alignSelf: 'flex-end',
-                                backgroundColor: '#94C036',
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                                paddingHorizontal: wp('2%'),
-                              }}>
-                              <Text
-                                style={{
-                                  color: '#fff',
-                                  fontSize: 15,
-                                  fontWeight: 'bold',
-                                }}>
-                                {translate('Save')}
-                              </Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                              onPress={() => this.setModalVisibleAdd(false)}
-                              style={{
-                                width: wp('15%'),
-                                height: hp('5%'),
-                                alignSelf: 'flex-end',
-                                backgroundColor: '#E7943B',
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                                marginLeft: wp('2%'),
-                              }}>
-                              <Text
-                                style={{
-                                  color: '#fff',
-                                  fontSize: 15,
-                                  fontWeight: 'bold',
-                                }}>
-                                {translate('Close')}
-                              </Text>
-                            </TouchableOpacity>
-                          </View>
-                          <DateTimePickerModal
-                            // is24Hour={true}
-                            isVisible={isDatePickerVisible}
-                            mode={'date'}
-                            onConfirm={this.handleConfirm}
-                            onCancel={this.hideDatePicker}
-                            minimumDate={minTime}
-
-                            // maximumDate={maxTime}
-                            // minimumDate={new Date()}
-                          />
-                        </View>
-                      </View>
-                    </ScrollView>
-                  </View>
-                </Modal>
-                {/* // Advance Recipe Details Modal */}
-                <Modal
-                  isVisible={modalAdvanceRecipeDetails}
-                  backdropOpacity={0.35}>
-                  <View
-                    style={{
-                      width: wp('80%'),
-                      height: hp('90%'),
-                      backgroundColor: '#fff',
-                      alignSelf: 'center',
-                    }}>
-                    <View
-                      style={{
-                        backgroundColor: '#412916',
-                        height: hp('6%'),
-                        flexDirection: 'row',
-                      }}>
-                      <View
-                        style={{
-                          flex: 3,
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                        }}>
-                        <Text style={{fontSize: 14, color: '#fff'}}>
-                          Recipe Details - {sectionAdvanceData.name}
-                        </Text>
-                      </View>
-                      <View
-                        style={{
-                          flex: 1,
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                        }}>
-                        <TouchableOpacity
-                          onPress={() =>
-                            this.setModalAdvanceRecipeDetailsClose(false)
-                          }>
-                          <Image
-                            source={img.cancelIcon}
-                            style={{
-                              height: 22,
-                              width: 22,
-                              tintColor: 'white',
-                              resizeMode: 'contain',
-                            }}
-                          />
-                        </TouchableOpacity>
-                      </View>
-                    </View>
-                    {advanceDetailsLoader ? (
-                      <ActivityIndicator color="#94C036" size="large" />
-                    ) : (
-                      <ScrollView>
-                        <View style={{padding: hp('3%')}}>
-                          <View style={{}}>
-                            <ScrollView
-                              horizontal
-                              showsHorizontalScrollIndicator={false}>
-                              <View
-                                style={{
-                                  flexDirection: 'row',
-                                  alignItems: 'center',
-                                  paddingVertical: 8,
-                                }}>
-                                <View
-                                  style={{
-                                    flex: 1,
-                                    alignItems: 'center',
-                                    marginLeft: wp('5%'),
-                                  }}>
-                                  <Text
-                                    style={{
-                                      color: '#4C4B4B',
-                                      fontWeight: 'bold',
-                                    }}>
-                                    {translate('Recipe Name')}
-                                  </Text>
-                                </View>
-                                <View
-                                  style={{
-                                    flex: 1,
-                                    alignItems: 'center',
-                                    marginLeft: wp('5%'),
-                                  }}>
-                                  <Text style={{color: '#212529'}}>
-                                    {sectionAdvanceData.name}
-                                  </Text>
-                                </View>
-                              </View>
-                            </ScrollView>
-                            <ScrollView
-                              horizontal
-                              showsHorizontalScrollIndicator={false}>
-                              <View
-                                style={{
-                                  flexDirection: 'row',
-                                  alignItems: 'center',
-                                  paddingVertical: 8,
-                                }}>
-                                <View
-                                  style={{
-                                    flex: 1,
-                                    alignItems: 'center',
-                                    marginLeft: wp('5%'),
-                                  }}>
-                                  <Text
-                                    style={{
-                                      color: '#4C4B4B',
-                                      fontWeight: 'bold',
-                                    }}>
-                                    {translate('Version name')}
-                                  </Text>
-                                </View>
-                                <View
-                                  style={{
-                                    flex: 1,
-                                    alignItems: 'center',
-                                    marginLeft: wp('5%'),
-                                  }}>
-                                  <Text style={{color: '#212529'}}>
-                                    {sectionAdvanceData.name}
-                                  </Text>
-                                </View>
-                              </View>
-                            </ScrollView>
-
-                            <View
-                              style={{
-                                borderTopWidth: 1,
-                                borderTopColor: '#E5E5E5',
-                                marginVertical: hp('2%'),
-                              }}></View>
-                            <View
-                              style={{
-                                flexDirection: 'row',
-                                alignItems: 'center',
-                                paddingVertical: 10,
-                              }}>
-                              <View style={{flex: 1, alignItems: 'center'}}>
-                                <Text
-                                  style={{
-                                    color: '#4C4B4B',
-                                    fontWeight: 'bold',
-                                  }}>
-                                  {translate('Ingredient')}
-                                </Text>
-                              </View>
-                              <View style={{flex: 1, alignItems: 'center'}}>
-                                <Text style={{color: '#212529'}}>
-                                  {translate('Quantity')}
-                                </Text>
-                              </View>
-                            </View>
-                            <View
-                              style={{
-                                borderTopWidth: 1,
-                                borderTopColor: '#E5E5E5',
-                                marginVertical: hp('1%'),
-                              }}></View>
-                            {Object.keys(sectionAdvanceData).length !== 0
-                              ? sectionAdvanceData.recipeVersions[0].ingredients.map(
-                                  item => {
-                                    return (
-                                      <View
-                                        style={{
-                                          flexDirection: 'row',
-                                          alignItems: 'center',
-                                          paddingVertical: 10,
-                                        }}>
-                                        <View
-                                          style={{
-                                            flex: 1,
-                                            alignItems: 'center',
-                                          }}>
-                                          <Text
-                                            style={{
-                                              color: '#4C4B4B',
-                                              fontWeight: 'bold',
-                                              textAlign: 'center',
-                                            }}>
-                                            {item.name}
-                                          </Text>
-                                        </View>
-                                        <View
-                                          style={{
-                                            flex: 1,
-                                            alignItems: 'center',
-                                          }}>
-                                          <Text style={{color: '#212529'}}>
-                                            {item.quantity} g
-                                          </Text>
-                                        </View>
-                                      </View>
-                                    );
-                                  },
-                                )
-                              : null}
-
-                            <View
-                              style={{
-                                borderTopWidth: 1,
-                                borderTopColor: '#E5E5E5',
-                                marginVertical: hp('1%'),
-                              }}></View>
-                            <View
-                              style={{
-                                flexDirection: 'row',
-                                alignItems: 'center',
-                                paddingVertical: 10,
-                              }}>
-                              <View style={{flex: 1, alignItems: 'center'}}>
-                                <Text
-                                  style={{
-                                    color: '#4C4B4B',
-                                    fontWeight: 'bold',
-                                  }}>
-                                  {translate('Total')}
-                                </Text>
-                              </View>
-                              <View style={{flex: 1, alignItems: 'center'}}>
-                                <Text style={{color: '#212529'}}>50 g</Text>
-                              </View>
-                            </View>
-                            <View
-                              style={{
-                                borderWidth: 1,
-                                padding: 10,
-                                marginTop: hp('2%'),
-                                height: hp('20%'),
-                                borderColor: '#C9CCD7',
-                              }}>
-                              <TextInput
-                                placeholder="No instructions yet..."
-                                editable={false}
-                                value={
-                                  Object.keys(sectionAdvanceData).length !== 0
-                                    ? sectionAdvanceData.recipeVersions[0]
-                                        .instructions
-                                    : 'No instructions yet...'
-                                }
-                              />
-                            </View>
-                          </View>
-                          <TouchableOpacity
-                            onPress={() => alert('Print Done')}
-                            style={{
-                              width: wp('50%'),
-                              height: hp('5%'),
-                              backgroundColor: '#E2E6EA',
-                              justifyContent: 'center',
-                              alignItems: 'center',
-                              alignSelf: 'center',
-                              marginTop: hp('2%'),
-                            }}>
-                            <Text
-                              style={{
-                                color: '#64686C',
-                                fontSize: 15,
-                                fontWeight: 'bold',
-                              }}>
-                              Print fiche technique
-                            </Text>
-                          </TouchableOpacity>
-
-                          <View
-                            style={{
-                              marginTop: hp('3%'),
-                              justifyContent: 'center',
-                              alignItems: 'center',
-                            }}>
-                            <TouchableOpacity
-                              onPress={() => this.showAdvanceView()}
-                              style={{
-                                width: wp('40%'),
-                                height: hp('5%'),
-                                backgroundColor: '#94C036',
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                              }}>
-                              <Text
-                                style={{
-                                  color: '#fff',
-                                  fontSize: 15,
-                                  fontWeight: 'bold',
-                                }}>
-                                {translate('Advance view')}
-                              </Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                              onPress={() =>
-                                this.setModalAdvanceRecipeDetailsClose(false)
-                              }
-                              style={{
-                                width: wp('40%'),
-                                height: hp('5%'),
-                                backgroundColor: '#E7943B',
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                                marginTop: hp('3%'),
-                              }}>
-                              <Text
-                                style={{
-                                  color: '#fff',
-                                  fontSize: 15,
-                                  fontWeight: 'bold',
-                                }}>
-                                {translate('Close')}
-                              </Text>
-                            </TouchableOpacity>
-                          </View>
-                        </View>
-                      </ScrollView>
-                    )}
-                  </View>
-                </Modal>
                 {/* // Recipe Details Modal */}
                 <Modal
                   isVisible={modalVisibleRecipeDetails}
@@ -1575,14 +913,17 @@ class index extends Component {
                     style={{
                       width: wp('85%'),
                       height: hp('90%'),
-                      backgroundColor: '#fff',
+                      backgroundColor: '#F0F4FE',
                       alignSelf: 'center',
+                      borderRadius: 6,
                     }}>
                     <View
                       style={{
-                        backgroundColor: '#412916',
+                        backgroundColor: '#84AC2F',
                         height: hp('6%'),
                         flexDirection: 'row',
+                        borderTopLeftRadius: 6,
+                        borderTopRightRadius: 6,
                       }}>
                       <View
                         style={{
@@ -1590,7 +931,12 @@ class index extends Component {
                           alignItems: 'center',
                           justifyContent: 'center',
                         }}>
-                        <Text style={{fontSize: 16, color: '#fff'}}>
+                        <Text
+                          style={{
+                            fontSize: 16,
+                            color: '#fff',
+                            fontFamily: 'Inter-Regular',
+                          }}>
                           MISE-EN-PLACE DETAILS
                         </Text>
                       </View>
@@ -1619,7 +965,7 @@ class index extends Component {
                     {detailsLoader ? (
                       <ActivityIndicator color="#94C036" size="large" />
                     ) : (
-                      <ScrollView>
+                      <ScrollView showsVerticalScrollIndicator={false}>
                         <View style={{padding: hp('5%')}}>
                           <View style={{}}>
                             <View style={{}}>
@@ -1629,6 +975,7 @@ class index extends Component {
                                   fontSize: 16,
                                   fontWeight: 'bold',
                                   marginBottom: 5,
+                                  fontFamily: 'Inter-Regular',
                                 }}>
                                 {sectionData.name}
                               </Text>
@@ -1671,6 +1018,7 @@ class index extends Component {
                                 alignItems: 'center',
                                 justifyContent: 'center',
                                 flexDirection: 'row',
+                                borderRadius: 100,
                               }}
                               onPress={() => this.deleteMepFun()}>
                               <Image
@@ -1688,6 +1036,7 @@ class index extends Component {
                                   fontSize: 16,
                                   fontWeight: 'bold',
                                   marginLeft: 10,
+                                  fontFamily: 'Inter-Regular',
                                 }}>
                                 Delete
                               </Text>
@@ -1696,7 +1045,13 @@ class index extends Component {
                               style={{
                                 marginTop: hp('3%'),
                               }}>
-                              <Text>Requested By</Text>
+                              <Text
+                                style={{
+                                  fontFamily: 'Inter-Regular',
+                                  color: '#151B26',
+                                }}>
+                                Requested By
+                              </Text>
                             </View>
                             <View
                               style={{
@@ -1705,6 +1060,7 @@ class index extends Component {
                                 marginTop: hp('2%'),
                                 borderColor: '#C9CCD7',
                                 backgroundColor: '#EEEEEE',
+                                borderRadius: 6,
                               }}>
                               <TextInput
                                 value={sectionData.requestedBy}
@@ -1718,6 +1074,7 @@ class index extends Component {
                                 marginTop: hp('2%'),
                                 borderColor: '#C9CCD7',
                                 backgroundColor: '#EEEEEE',
+                                borderRadius: 6,
                               }}>
                               <TextInput
                                 editable={false}
@@ -1728,7 +1085,13 @@ class index extends Component {
                               style={{
                                 marginTop: hp('3%'),
                               }}>
-                              <Text>Made By</Text>
+                              <Text
+                                style={{
+                                  fontFamily: 'Inter-Regular',
+                                  color: '#151B26',
+                                }}>
+                                Made By
+                              </Text>
                             </View>
                             <View
                               style={{
@@ -1737,6 +1100,7 @@ class index extends Component {
                                 marginTop: hp('2%'),
                                 borderColor: '#C9CCD7',
                                 backgroundColor: '#EEEEEE',
+                                borderRadius: 6,
                               }}>
                               <TextInput
                                 value={sectionData.madeBy}
@@ -1750,6 +1114,7 @@ class index extends Component {
                                 marginTop: hp('2%'),
                                 borderColor: '#C9CCD7',
                                 backgroundColor: '#EEEEEE',
+                                borderRadius: 6,
                               }}>
                               <TextInput
                                 value={sectionData.madeBy}
@@ -1760,7 +1125,13 @@ class index extends Component {
                               style={{
                                 marginTop: hp('3%'),
                               }}>
-                              <Text>Quantity</Text>
+                              <Text
+                                style={{
+                                  fontFamily: 'Inter-Regular',
+                                  color: '#151B26',
+                                }}>
+                                Quantity
+                              </Text>
                             </View>
                             <View
                               style={{
@@ -1768,6 +1139,7 @@ class index extends Component {
                                 padding: 10,
                                 marginTop: hp('2%'),
                                 borderColor: '#C9CCD7',
+                                borderRadius: 6,
                               }}>
                               <TextInput
                                 placeholder="Quantity"
@@ -1786,6 +1158,7 @@ class index extends Component {
                                 marginTop: hp('2%'),
                                 borderColor: '#C9CCD7',
                                 backgroundColor: '#EEEEEE',
+                                borderRadius: 6,
                               }}>
                               <TextInput
                                 value={sectionData.unit}
@@ -1796,16 +1169,22 @@ class index extends Component {
                               style={{
                                 marginTop: hp('3%'),
                               }}>
-                              <Text>Note</Text>
+                              <Text
+                                style={{
+                                  fontFamily: 'Inter-Regular',
+                                  color: '#151B26',
+                                }}>
+                                Note
+                              </Text>
                             </View>
                             <View
-                              onPress={() => this.showDatePickerFun()}
                               style={{
                                 borderWidth: 1,
                                 padding: 10,
                                 marginTop: hp('2%'),
                                 height: hp('20%'),
                                 borderColor: '#C9CCD7',
+                                borderRadius: 6,
                               }}>
                               <TextInput
                                 placeholder="Note"
@@ -1833,6 +1212,7 @@ class index extends Component {
                                 backgroundColor: '#94C036',
                                 justifyContent: 'center',
                                 alignItems: 'center',
+                                borderRadius: 100,
                               }}>
                               <Text
                                 style={{
@@ -1850,13 +1230,15 @@ class index extends Component {
                               style={{
                                 width: wp('30%'),
                                 height: hp('5%'),
-                                backgroundColor: '#E7943B',
                                 justifyContent: 'center',
                                 alignItems: 'center',
+                                borderRadius: 100,
+                                borderWidth: 1,
+                                borderColor: '#482813',
                               }}>
                               <Text
                                 style={{
-                                  color: '#fff',
+                                  color: '#482813',
                                   fontSize: 15,
                                   fontWeight: 'bold',
                                 }}>
@@ -1872,6 +1254,7 @@ class index extends Component {
               </View>
             </View>
           </View>
+
           <TouchableOpacity
             onPress={() =>
               this.props.navigation.navigate('AddBuilderMepScreen')
@@ -1910,6 +1293,30 @@ class index extends Component {
               </Text>
             </View>
           </TouchableOpacity>
+          <View style={styles.subContainer}>
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                marginHorizontal: wp('5%'),
+                marginTop: hp('2%'),
+              }}>
+              <TouchableOpacity
+                style={{flex: 1}}
+                onPress={() => this.onPressCollapseFun()}>
+                <Text style={styles.adminTextStyle}>
+                  {translate('Collapse All')}
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => this.setModalVisible(true)}
+                style={styles.goBackContainer}>
+                <Text style={styles.goBackTextStyle}>
+                  {translate('History')}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
           {recipeLoader ? (
             <ActivityIndicator color="#94C036" size="large" />
           ) : (

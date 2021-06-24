@@ -119,7 +119,6 @@ export const newMepListApi = async payload => {
 };
 
 export const updateMepListApi = async payload => {
-  console.warn('PAY', payload);
   const token = await AsyncStorage.getItem('@appToken');
   return axios.post(baseURL + '/Recipe/update mep list', payload, {
     headers: {
