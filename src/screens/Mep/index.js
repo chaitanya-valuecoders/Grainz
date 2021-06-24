@@ -9,6 +9,7 @@ import {
   Switch,
   TextInput,
   Alert,
+  Platform,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {connect} from 'react-redux';
@@ -1056,7 +1057,7 @@ class index extends Component {
                             <View
                               style={{
                                 borderWidth: 1,
-                                padding: 10,
+                                padding: Platform.OS === 'ios' ? 10 : 3,
                                 marginTop: hp('2%'),
                                 borderColor: '#C9CCD7',
                                 backgroundColor: '#EEEEEE',
@@ -1070,7 +1071,7 @@ class index extends Component {
                             <View
                               style={{
                                 borderWidth: 1,
-                                padding: 10,
+                                padding: Platform.OS === 'ios' ? 10 : 3,
                                 marginTop: hp('2%'),
                                 borderColor: '#C9CCD7',
                                 backgroundColor: '#EEEEEE',
@@ -1110,7 +1111,7 @@ class index extends Component {
                             <View
                               style={{
                                 borderWidth: 1,
-                                padding: 10,
+                                padding: Platform.OS === 'ios' ? 10 : 3,
                                 marginTop: hp('2%'),
                                 borderColor: '#C9CCD7',
                                 backgroundColor: '#EEEEEE',
@@ -1136,7 +1137,7 @@ class index extends Component {
                             <View
                               style={{
                                 borderWidth: 1,
-                                padding: 10,
+                                padding: Platform.OS === 'ios' ? 10 : 3,
                                 marginTop: hp('2%'),
                                 borderColor: '#C9CCD7',
                                 borderRadius: 6,
@@ -1154,7 +1155,7 @@ class index extends Component {
                             <View
                               style={{
                                 borderWidth: 1,
-                                padding: 10,
+                                padding: Platform.OS === 'ios' ? 10 : 3,
                                 marginTop: hp('2%'),
                                 borderColor: '#C9CCD7',
                                 backgroundColor: '#EEEEEE',
@@ -1180,7 +1181,7 @@ class index extends Component {
                             <View
                               style={{
                                 borderWidth: 1,
-                                padding: 10,
+                                padding: Platform.OS === 'ios' ? 10 : 3,
                                 marginTop: hp('2%'),
                                 height: hp('20%'),
                                 borderColor: '#C9CCD7',

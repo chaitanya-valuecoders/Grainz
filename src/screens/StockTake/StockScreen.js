@@ -252,7 +252,7 @@ class StockScreen extends Component {
           {categoryLoader ? (
             <ActivityIndicator size="large" color="#94C036" />
           ) : (
-            <ScrollView>
+            <ScrollView nestedScrollEnabled>
               {catArray && catArray.length > 0 ? (
                 catArray.map((item, index) => {
                   return (
