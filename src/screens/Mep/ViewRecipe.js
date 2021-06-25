@@ -35,11 +35,11 @@ class ViewRecipe extends Component {
       recipeLoader: false,
       buttonsSubHeader: [],
       finalName: '',
-      sectionName: '',
       pageData: '',
       modalLoader: true,
       batchQuantity: '',
       recipeInstructions: '',
+      recipeId: '',
     };
   }
 
@@ -88,6 +88,7 @@ class ViewRecipe extends Component {
       {
         finalName: data.name,
         pageData: data,
+        recipeId: data.recipeId,
       },
       () => this.getAdvanceRecipeData(data.recipeId),
     );
@@ -96,7 +97,6 @@ class ViewRecipe extends Component {
   getAdvanceRecipeData = catId => {
     getAdvanceRecipeByIdsApi(catId)
       .then(res => {
-        console.log('res', res);
         this.setState({
           modalData: res.data && res.data.recipeVersions[0].ingredients,
           modalLoader: false,
@@ -118,6 +118,19 @@ class ViewRecipe extends Component {
     this.props.navigation.goBack();
   };
 
+  showAdvanceView = () => {
+    const {recipeId} = this.state;
+    this.props.navigation.navigate('MepAdvanceScreen', {
+      recipeID: recipeId,
+    });
+  };
+
+  viewInventoryFun = (item, index) => {
+    this.props.navigation.navigate('ViewInventoryMepScreen', {
+      pageData: item,
+    });
+  };
+
   render() {
     const {
       buttonsSubHeader,
@@ -125,7 +138,6 @@ class ViewRecipe extends Component {
       modalData,
       finalName,
       modalLoader,
-      sectionName,
       batchQuantity,
       recipeInstructions,
     } = this.state;
@@ -139,7 +151,7 @@ class ViewRecipe extends Component {
         {recipeLoader ? (
           <ActivityIndicator size="small" color="#94C036" />
         ) : (
-          <SubHeader {...this.props} buttons={buttonsSubHeader} index={0} />
+          <SubHeader {...this.props} buttons={buttonsSubHeader} />
         )}
         <ScrollView
           style={{marginBottom: hp('2%')}}
@@ -262,7 +274,6 @@ class ViewRecipe extends Component {
                           <View>
                             {modalData && modalData.length > 0 ? (
                               modalData.map((item, index) => {
-                                console.log('item', item);
                                 return (
                                   <View
                                     style={{
@@ -301,7 +312,9 @@ class ViewRecipe extends Component {
                                       />
                                     </View>
                                     <TouchableOpacity
-                                      onPress={() => alert('ORDER NOW')}
+                                      onPress={() =>
+                                        this.viewInventoryFun(item, index)
+                                      }
                                       style={{
                                         width: wp('15%'),
                                         alignItems: 'center',
@@ -438,7 +451,7 @@ class ViewRecipe extends Component {
                     marginTop: hp('2%'),
                   }}>
                   <TouchableOpacity
-                    onPress={() => alert('Advance view')}
+                    onPress={() => this.showAdvanceView()}
                     style={{
                       height: hp('5%'),
                       alignSelf: 'center',

@@ -50,4 +50,6 @@ export default {
   retailIcon: require('../assests/Images/retailIcon.png'),
   otherIcon: require('../assests/Images/otherIcon.png'),
   beakerIcon: require('../assests/Images/beakerIcon.png'),
+  editIconGreen: require('../assests/Images/editIconGreen.png'),
+  viewInventoryIcon: require('../assests/Images/viewInventoryIcon.png'),
 };

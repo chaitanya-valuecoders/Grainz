@@ -255,8 +255,6 @@ class index extends Component {
 
       const value = !allDoneStatus;
 
-      console.log('value', value);
-
       let newArr = section.content.map((item, i) =>
         index === i
           ? {
@@ -271,8 +269,6 @@ class index extends Component {
       this.setState({
         allDoneStatus: value,
       });
-
-      console.log('newArr', newArr);
 
       this.updateAllFun(newArr);
     }
@@ -394,10 +390,8 @@ class index extends Component {
 
   updateAllFun = newArr => {
     let payload = newArr;
-    console.log('payload', payload);
     updateMepListApi(payload)
       .then(res => {
-        console.log('res', res);
         this.getPendingMepsData();
       })
       .catch(err => {
