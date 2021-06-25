@@ -52,4 +52,5 @@ export default {
   beakerIcon: require('../assests/Images/beakerIcon.png'),
   editIconGreen: require('../assests/Images/editIconGreen.png'),
   viewInventoryIcon: require('../assests/Images/viewInventoryIcon.png'),
+  doubleArrowIconNew: require('../assests/Images/doubleArrowIcon.png'),
 };

@@ -36,6 +36,7 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import {translate} from '../../utils/translations';
 import ImagePicker from 'react-native-image-crop-picker';
 import Modal from 'react-native-modal';
+import styles from './style';
 
 var minTime = new Date();
 minTime.setHours(0);
@@ -90,6 +91,8 @@ class index extends Component {
       imageName: '',
       imageData: '',
       imageShow: false,
+      recipeLoader: true,
+      buttonsSubHeader: [],
     };
   }
 
@@ -114,6 +117,12 @@ class index extends Component {
       .then(res => {
         this.setState({
           firstName: res.data.firstName,
+          recipeLoader: false,
+          buttonsSubHeader: [
+            {name: translate('ADMIN')},
+            {name: translate('Setup')},
+            {name: translate('INBOX')},
+          ],
         });
       })
       .catch(err => {
@@ -511,49 +520,79 @@ class index extends Component {
       imageName,
       imageData,
       imageShow,
+      buttonsSubHeader,
+      recipeLoader,
     } = this.state;
     console.log('IMAGE', imageData);
     return (
-      <View style={{flex: 1, backgroundColor: '#fff'}}>
+      <View style={styles.container}>
         <Header
           logout={firstName}
           logoutFun={this.myProfileFun}
           logoFun={() => this.props.navigation.navigate('HomeScreen')}
         />
-        {/* <SubHeader /> */}
+        {recipeLoader ? (
+          <ActivityIndicator size="small" color="#94C036" />
+        ) : (
+          <SubHeader {...this.props} buttons={buttonsSubHeader} />
+        )}
         <ScrollView
-          style={{marginBottom: hp('3%')}}
+          style={{marginBottom: hp('2%')}}
           ref={ref => {
             this.scrollListReftop = ref;
           }}>
-          <View
-            style={{
-              backgroundColor: '#412916',
-              alignItems: 'center',
-              paddingVertical: hp('3%'),
-            }}>
-            <Text style={{fontSize: 22, color: 'white'}}>CASUAL PURCHASE</Text>
-            <View style={{}} key={index}>
+          <View>
+            <View style={styles.subContainer}>
+              <View style={styles.firstContainer}>
+                <View style={{flex: 1}}>
+                  <Text style={styles.adminTextStyle}>
+                    {translate('Casual purchase')}
+                  </Text>
+                </View>
+                <TouchableOpacity
+                  onPress={() => this.props.navigation.goBack()}
+                  style={styles.goBackContainer}>
+                  <Text style={styles.goBackTextStyle}>Go Back</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+            <View style={{}}>
               {showPurchaseList ? (
                 <View>
                   <TouchableOpacity
                     onPress={() => this.newCasualPurchase()}
                     style={{
-                      paddingVertical: '3%',
-                      width: wp('70%'),
+                      height: hp('6%'),
+                      width: wp('80%'),
                       backgroundColor: '#94C036',
                       justifyContent: 'center',
                       alignItems: 'center',
-                      marginTop: 20,
+                      borderRadius: 100,
+                      alignSelf: 'center',
+                      marginBottom: hp('4%'),
+                      marginTop: hp('2%'),
                     }}>
-                    <View style={{}}>
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                      }}>
+                      <Image
+                        source={img.addIcon}
+                        style={{
+                          width: 20,
+                          height: 20,
+                          tintColor: '#fff',
+                          resizeMode: 'contain',
+                        }}
+                      />
                       <Text
                         style={{
                           color: 'white',
-                          marginLeft: 5,
-                          fontWeight: 'bold',
+                          marginLeft: 10,
+                          fontFamily: 'Inter-SemiBold',
                         }}>
-                        {translate('New')}
+                        Add New
                       </Text>
                     </View>
                   </TouchableOpacity>
@@ -591,34 +630,35 @@ class index extends Component {
                 style={{
                   flexDirection: 'row',
                   borderBottomColor: '#EAEAF0',
-                  borderBottomWidth: 2,
+                  marginHorizontal: wp('3%'),
+                  backgroundColor: '#EFFBCF',
+                  paddingHorizontal: 10,
+                  paddingVertical: 15,
                 }}>
                 <View
                   style={{
                     flexDirection: 'row',
-                    padding: 10,
-                    marginLeft: 20,
                     flex: 1,
+                    alignItems: 'center',
                   }}>
                   <Text style={{fontWeight: 'bold'}}>{translate('Date')}</Text>
                   <Pressable>
                     <Image
                       style={{
-                        width: 15,
-                        height: 15,
+                        width: 10,
+                        height: 10,
                         resizeMode: 'contain',
-                        marginLeft: 10,
+                        marginLeft: 5,
                       }}
-                      source={img.doubleArrowIcon}
+                      source={img.doubleArrowIconNew}
                     />
                   </Pressable>
                 </View>
                 <View
                   style={{
                     flexDirection: 'row',
-                    padding: 10,
-                    marginLeft: 15,
                     flex: 1,
+                    alignItems: 'center',
                   }}>
                   <Text style={{fontWeight: 'bold'}}>
                     {translate('Supplier')}
@@ -626,20 +666,20 @@ class index extends Component {
                   <Pressable>
                     <Image
                       style={{
-                        width: 15,
-                        height: 15,
+                        width: 10,
+                        height: 10,
                         resizeMode: 'contain',
-                        marginLeft: 10,
+                        marginLeft: 5,
                       }}
-                      source={img.doubleArrowIcon}
+                      source={img.doubleArrowIconNew}
                     />
                   </Pressable>
                 </View>
                 <View
                   style={{
                     flexDirection: 'row',
-                    padding: 10,
                     flex: 1,
+                    alignItems: 'center',
                   }}>
                   <Text style={{fontWeight: 'bold'}}>
                     $ {translate('Total')} HTVA
@@ -647,12 +687,12 @@ class index extends Component {
                   <Pressable>
                     <Image
                       style={{
-                        width: 15,
-                        height: 15,
+                        width: 10,
+                        height: 10,
                         resizeMode: 'contain',
-                        marginLeft: 10,
+                        marginLeft: 5,
                       }}
-                      source={img.doubleArrowIcon}
+                      source={img.doubleArrowIconNew}
                     />
                   </Pressable>
                 </View>
@@ -660,15 +700,17 @@ class index extends Component {
               {casualListLoader ? (
                 <ActivityIndicator color="grey" size="large" />
               ) : (
-                casualPurchases.map(item => {
+                casualPurchases.map((item, index) => {
                   const date = moment(item.orderDate).format('MM/DD/YYYY');
                   const price = Math.round(item.htva);
                   return (
                     <View
                       style={{
                         borderBottomColor: '#EAEAF0',
-                        borderBottomWidth: 1,
-                        marginBottom: hp('2%'),
+                        marginHorizontal: wp('3%'),
+                        backgroundColor:
+                          index % 2 === 0 ? '#FFFFFF' : '#F7F8F5',
+                        paddingVertical: 10,
                       }}>
                       <TouchableOpacity
                         style={{
