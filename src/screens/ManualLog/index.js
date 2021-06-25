@@ -38,6 +38,7 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import SectionedMultiSelect from 'react-native-sectioned-multi-select';
 import DropDownPicker from 'react-native-dropdown-picker';
 import {translate} from '../../utils/translations';
+import styles from './style';
 
 var minTime = new Date();
 minTime.setHours(0);
@@ -48,10 +49,6 @@ class index extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      buttons: [
-        {name: translate('Add new'), icon: img.addIcon, id: 0},
-        {name: translate('Back'), id: 1},
-      ],
       token: '',
       modalVisible: false,
       firstName: '',
@@ -77,6 +74,7 @@ class index extends Component {
       loading: false,
       selectedItemObjects: '',
       viewStatus: false,
+      buttonsSubHeader: [],
     };
   }
 
@@ -149,6 +147,11 @@ class index extends Component {
       .then(res => {
         this.setState({
           firstName: res.data.firstName,
+          buttonsSubHeader: [
+            {name: translate('ADMIN')},
+            {name: translate('Setup')},
+            {name: translate('INBOX')},
+          ],
         });
       })
       .catch(err => {
@@ -220,17 +223,13 @@ class index extends Component {
     this.props.navigation.navigate('MyProfile');
   };
 
-  onPressFun = item => {
-    if (item.id === 0) {
-      this.setModalVisibleAdd(true);
-      this.setState({
-        preparedDate: '',
-        finalDate: '',
-        itemsTypesArr: [],
-      });
-    } else if (item.id === 1) {
-      this.props.navigation.goBack();
-    }
+  addNewFun = item => {
+    this.setModalVisibleAdd(true);
+    this.setState({
+      preparedDate: '',
+      finalDate: '',
+      itemsTypesArr: [],
+    });
   };
 
   onPressCollapseFun = () => {
@@ -247,13 +246,18 @@ class index extends Component {
     return (
       <View
         style={{
-          backgroundColor: '#EAEAF1',
+          backgroundColor: '#FFFFFF',
           flexDirection: 'row',
-          borderWidth: 1,
-          borderColor: '#D1D1D6',
+          borderTopWidth: 1,
+          borderLeftWidth: 1,
+          borderTopColor: '#F0F0F0',
+          borderLeftColor: '#F0F0F0',
+          borderRightWidth: 1,
+          borderRightColor: '#F0F0F0',
           height: 60,
           marginTop: hp('2%'),
           alignItems: 'center',
+          borderRadius: 6,
         }}>
         <Image
           style={{
@@ -266,10 +270,10 @@ class index extends Component {
         />
         <Text
           style={{
-            color: '#98989B',
+            color: '#492813',
             fontSize: 15,
-            fontWeight: 'bold',
             marginLeft: wp('2%'),
+            fontFamily: 'Inter-Regular',
           }}>
           {todayFinal === finalData ? 'Today' : finalData}
         </Text>
@@ -329,14 +333,11 @@ class index extends Component {
 
   _renderContent = section => {
     return (
-      <View style={{marginTop: hp('2%')}}>
-        {section.content.map((item, index) => {
-          return (
-            <ScrollView
-              horizontal
-              style={{marginRight: wp('10%')}}
-              showsHorizontalScrollIndicator={false}>
-              <View>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+        <View style={{backgroundColor: '#fff'}}>
+          {section.content.map((item, index) => {
+            return (
+              <View style={{paddingHorizontal: 10}}>
                 <View style={{flexDirection: 'row', alignItems: 'center'}}>
                   <Switch
                     style={{}}
@@ -363,7 +364,7 @@ class index extends Component {
                       </Text>
                     </TouchableOpacity>
                   </View>
-                  <View style={{alignItems: 'center', marginLeft: wp('4%')}}>
+                  <View style={{alignItems: 'center', width: wp('20%')}}>
                     <Text
                       style={{
                         fontSize: 14,
@@ -371,7 +372,7 @@ class index extends Component {
                       {item.itemTypeName}
                     </Text>
                   </View>
-                  <View style={{alignItems: 'center', marginLeft: wp('4%')}}>
+                  <View style={{alignItems: 'center', width: wp('20%')}}>
                     <Text
                       style={{
                         fontSize: 14,
@@ -380,7 +381,7 @@ class index extends Component {
                       {/* {section.units.length > 0 && section.units[0].name} */}
                     </Text>
                   </View>
-                  <View style={{alignItems: 'center', marginLeft: wp('4%')}}>
+                  <View style={{alignItems: 'center', width: wp('20%')}}>
                     <Text
                       style={{
                         fontSize: 14,
@@ -388,7 +389,7 @@ class index extends Component {
                       {item.typeName}
                     </Text>
                   </View>
-                  <View style={{alignItems: 'center', marginLeft: wp('4%')}}>
+                  <View style={{alignItems: 'center', width: wp('20%')}}>
                     <Text
                       style={{
                         fontSize: 14,
@@ -396,7 +397,12 @@ class index extends Component {
                       {item.userFullName}
                     </Text>
                   </View>
-                  <View style={{alignItems: 'center', marginLeft: wp('4%')}}>
+                  <View
+                    style={{
+                      alignItems: 'center',
+                      width: wp('20%'),
+                      marginLeft: wp('2%'),
+                    }}>
                     <TouchableOpacity
                       onPress={() => this.deleteMepFun(item)}
                       style={{
@@ -438,10 +444,10 @@ class index extends Component {
                   </Text>
                 </View>
               </View>
-            </ScrollView>
-          );
-        })}
-      </View>
+            );
+          })}
+        </View>
+      </ScrollView>
     );
   };
 
@@ -743,7 +749,6 @@ class index extends Component {
       SECTIONS,
       activeSections,
       firstName,
-      buttons,
       modalVisibleRecipeDetails,
       sectionData,
       isDatePickerVisible,
@@ -754,187 +759,472 @@ class index extends Component {
       notes,
       items,
       viewStatus,
+      buttonsSubHeader,
     } = this.state;
     const finalDateData = moment(sectionData.loggedDate).format(
       'dddd, MMM DD YYYY',
     );
     return (
-      <View style={{flex: 1, backgroundColor: '#fff'}}>
+      <View style={styles.container}>
         <Header
           logout={firstName}
           logoutFun={this.myProfile}
           logoFun={() => this.props.navigation.navigate('HomeScreen')}
         />
-        {/* <SubHeader /> */}
-        <ScrollView style={{marginBottom: hp('5%')}}>
-          <View
-            style={{
-              backgroundColor: '#412916',
-              alignItems: 'center',
-              paddingVertical: hp('3%'),
-            }}>
-            <Text style={{fontSize: 22, color: 'white'}}>
-              {translate('Manual Log')}
-            </Text>
-            {buttons.map((item, index) => {
-              return (
-                <View style={{}} key={index}>
-                  <TouchableOpacity
-                    onPress={() => this.onPressFun(item)}
+        {recipeLoader ? (
+          <ActivityIndicator size="small" color="#94C036" />
+        ) : (
+          <SubHeader {...this.props} buttons={buttonsSubHeader} />
+        )}
+        <ScrollView
+          style={{marginBottom: hp('2%')}}
+          showsVerticalScrollIndicator={false}>
+          <View>
+            <View style={styles.subContainer}>
+              <View style={styles.firstContainer}>
+                <View style={{flex: 1}}>
+                  <Text style={styles.adminTextStyle}>
+                    {translate('Manual Log small')}
+                  </Text>
+                </View>
+                <TouchableOpacity
+                  onPress={() => this.props.navigation.goBack()}
+                  style={styles.goBackContainer}>
+                  <Text style={styles.goBackTextStyle}>Go Back</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            <View style={{}}>
+              <View>
+                {/* // Add Manual Modal */}
+                <Modal isVisible={modalVisibleAdd} backdropOpacity={0.35}>
+                  <View
                     style={{
-                      flexDirection: 'row',
-                      height: hp('6%'),
-                      width: wp('70%'),
-                      backgroundColor: '#94C036',
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                      marginTop: 20,
+                      width: wp('80%'),
+                      height: hp('70%'),
+                      backgroundColor: '#F0F4FF',
+                      alignSelf: 'center',
+                      borderRadius: 6,
                     }}>
-                    <View style={{}}>
-                      <Image
-                        source={item.icon}
-                        style={{
-                          height: 22,
-                          width: 22,
-                          tintColor: 'white',
-                          resizeMode: 'contain',
-                        }}
-                      />
-                    </View>
-                    <View style={{}}>
-                      <Text style={{color: 'white', marginLeft: 5}}>
-                        {item.name}
-                      </Text>
-                    </View>
-                  </TouchableOpacity>
-                  <View>
-                    {/* // Add Manual Modal */}
-                    <Modal isVisible={modalVisibleAdd} backdropOpacity={0.35}>
+                    <View
+                      style={{
+                        backgroundColor: '#7EA52D',
+                        height: hp('6%'),
+                        flexDirection: 'row',
+                        borderTopLeftRadius: 6,
+                        borderTopRightRadius: 6,
+                      }}>
                       <View
                         style={{
-                          width: wp('80%'),
-                          height: hp('80%'),
-                          backgroundColor: '#fff',
-                          alignSelf: 'center',
+                          flex: 3,
+                          alignItems: 'center',
+                          justifyContent: 'center',
                         }}>
-                        <View
+                        <Text
                           style={{
-                            backgroundColor: '#412916',
-                            height: hp('6%'),
-                            flexDirection: 'row',
+                            fontSize: 16,
+                            color: '#fff',
+                            fontFamily: 'Inter-Regular',
                           }}>
-                          <View
+                          {translate('Manual Log small')} -{' '}
+                          {translate('Add new item')}
+                        </Text>
+                      </View>
+                      <View
+                        style={{
+                          flex: 1,
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                        }}>
+                        <TouchableOpacity
+                          onPress={() => this.setModalVisibleAdd(false)}>
+                          <Image
+                            source={img.cancelIcon}
                             style={{
-                              flex: 3,
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                            }}>
-                            <Text style={{fontSize: 16, color: '#fff'}}>
-                              {translate('Manual Log small')} -{' '}
-                              {translate('Add new item')}
-                            </Text>
-                          </View>
-                          <View
+                              height: 22,
+                              width: 22,
+                              tintColor: 'white',
+                              resizeMode: 'contain',
+                            }}
+                          />
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+                    <ScrollView showsVerticalScrollIndicator={false}>
+                      <View style={{padding: hp('3%')}}>
+                        <View style={{}}>
+                          <TouchableOpacity
+                            onPress={() => this.showDatePickerFun()}
                             style={{
-                              flex: 1,
-                              alignItems: 'center',
-                              justifyContent: 'center',
+                              padding: 12,
+                              marginBottom: hp('3%'),
+                              flexDirection: 'row',
+                              justifyContent: 'space-between',
+                              borderRadius: 6,
+                              backgroundColor: '#fff',
                             }}>
-                            <TouchableOpacity
-                              onPress={() => this.setModalVisibleAdd(false)}>
-                              <Image
-                                source={img.cancelIcon}
+                            <TextInput
+                              placeholder="dd-mm-yy"
+                              value={finalDate}
+                              editable={false}
+                            />
+                            <Image
+                              source={img.calenderIcon}
+                              style={{
+                                width: 20,
+                                height: 20,
+                                resizeMode: 'contain',
+                              }}
+                            />
+                          </TouchableOpacity>
+
+                          <TextInput
+                            placeholder="quantity"
+                            value={quantity}
+                            style={{
+                              padding: 12,
+                              marginBottom: hp('3%'),
+                              justifyContent: 'space-between',
+                              borderRadius: 6,
+                              backgroundColor: '#fff',
+                            }}
+                            keyboardType="number-pad"
+                            onChangeText={value => {
+                              this.setState({
+                                quantity: value,
+                              });
+                            }}
+                          />
+
+                          <View>
+                            <DropDownPicker
+                              items={[
+                                {
+                                  label: 'Bar',
+                                  value: 'Bar',
+                                },
+                                {
+                                  label: 'Restaurant',
+                                  value: 'Restaurant',
+                                },
+                                {
+                                  label: 'Retail',
+                                  value: 'Retail',
+                                },
+                                {
+                                  label: 'Other',
+                                  value: 'Other',
+                                },
+                              ]}
+                              zIndex={1000000}
+                              containerStyle={{
+                                height: 50,
+                                marginBottom: hp('3%'),
+                              }}
+                              style={{
+                                backgroundColor: '#fff',
+                                borderColor: '#fff',
+                              }}
+                              itemStyle={{
+                                justifyContent: 'flex-start',
+                              }}
+                              dropDownStyle={{backgroundColor: '#fff'}}
+                              onChangeItem={item =>
+                                this.selectDepartementNameFun(item)
+                              }
+                            />
+                            <SectionedMultiSelect
+                              styles={{
+                                container: {
+                                  paddingTop: hp('2%'),
+                                  marginTop: hp('7%'),
+                                },
+                                selectToggle: {
+                                  paddingVertical: 10,
+                                  paddingHorizontal: 10,
+                                  backgroundColor: '#fff',
+                                  borderRadius: 6,
+                                },
+                              }}
+                              loadingComponent={
+                                <View
+                                  style={{
+                                    flex: 1,
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                  }}>
+                                  <ActivityIndicator
+                                    size="large"
+                                    color="#94C036"
+                                  />
+                                </View>
+                              }
+                              loading={this.state.loading}
+                              // hideSearch={true}
+                              single={true}
+                              items={items}
+                              IconRenderer={Icon}
+                              uniqueKey="id"
+                              subKey="children"
+                              selectText="Select"
+                              showDropDowns={true}
+                              readOnlyHeadings={true}
+                              onSelectedItemObjectsChange={
+                                this.onSelectedItemObjectsChange
+                              }
+                              onSelectedItemsChange={this.onSelectedItemsChange}
+                              selectedItems={this.state.selectedItems}
+                            />
+                            <DropDownPicker
+                              items={itemsTypesArr}
+                              containerStyle={{
+                                height: 50,
+                                marginTop: hp('3%'),
+                              }}
+                              style={{
+                                backgroundColor: '#fff',
+                                borderColor: '#fff',
+                              }}
+                              itemStyle={{
+                                justifyContent: 'flex-start',
+                              }}
+                              dropDownStyle={{backgroundColor: '#fff'}}
+                              onChangeItem={item =>
+                                this.setState({
+                                  itemTypes: item,
+                                })
+                              }
+                            />
+
+                            <View
+                              style={{
+                                padding: 15,
+                                marginTop: hp('3%'),
+                                backgroundColor: '#fff',
+                                borderRadius: 6,
+                              }}>
+                              <TextInput
+                                placeholder={translate('Note')}
+                                onChangeText={value =>
+                                  this.setState({
+                                    notes: value,
+                                  })
+                                }
+                                value={notes}
+                              />
+                            </View>
+                            <View
+                              style={{
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                marginTop: hp('5%'),
+                              }}>
+                              <TouchableOpacity
+                                onPress={() => this.addManualLogFun()}
                                 style={{
-                                  height: 22,
-                                  width: 22,
-                                  tintColor: 'white',
+                                  width: wp('30%'),
+                                  height: hp('5%'),
+                                  alignSelf: 'flex-end',
+                                  backgroundColor: '#94C036',
+                                  justifyContent: 'center',
+                                  alignItems: 'center',
+                                  borderRadius: 100,
+                                }}>
+                                <Text
+                                  style={{
+                                    color: '#fff',
+                                    fontSize: 15,
+                                    fontWeight: 'bold',
+                                  }}>
+                                  {translate('Save')}
+                                </Text>
+                              </TouchableOpacity>
+                              <TouchableOpacity
+                                onPress={() => this.setModalVisibleAdd(false)}
+                                style={{
+                                  width: wp('30%'),
+                                  height: hp('5%'),
+                                  alignSelf: 'flex-end',
+                                  justifyContent: 'center',
+                                  alignItems: 'center',
+                                  marginLeft: wp('2%'),
+                                  borderRadius: 100,
+                                  borderColor: '#482813',
+                                  borderWidth: 1,
+                                }}>
+                                <Text
+                                  style={{
+                                    color: '#482813',
+                                    fontSize: 15,
+                                    fontWeight: 'bold',
+                                  }}>
+                                  {translate('Cancel')}
+                                </Text>
+                              </TouchableOpacity>
+                            </View>
+                          </View>
+
+                          <DateTimePickerModal
+                            // is24Hour={true}
+                            isVisible={isDatePickerVisible}
+                            mode={'date'}
+                            onConfirm={this.handleConfirm}
+                            onCancel={this.hideDatePicker}
+                            maximumDate={minTime}
+                            // minimumDate={new Date()}
+                          />
+                        </View>
+                      </View>
+                    </ScrollView>
+                  </View>
+                </Modal>
+
+                <Modal
+                  isVisible={modalVisibleRecipeDetails}
+                  backdropOpacity={0.35}>
+                  <View
+                    style={{
+                      width: wp('80%'),
+                      height: hp('70%'),
+                      backgroundColor: '#F0F4FF',
+                      alignSelf: 'center',
+                      borderRadius: 6,
+                    }}>
+                    <View
+                      style={{
+                        backgroundColor: '#7EA52D',
+                        height: hp('6%'),
+                        flexDirection: 'row',
+                        borderTopLeftRadius: 6,
+                        borderTopRightRadius: 6,
+                      }}>
+                      <View
+                        style={{
+                          flex: 3,
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                        }}>
+                        <Text
+                          style={{
+                            fontSize: 16,
+                            color: '#fff',
+                            fontFamily: 'Inter-Regular',
+                          }}>
+                          Manual log - {sectionData.name}
+                        </Text>
+                      </View>
+                      <View
+                        style={{
+                          flex: 1,
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                        }}>
+                        <TouchableOpacity
+                          onPress={() =>
+                            this.setModalVisibleRecipeDetailsClose(false)
+                          }>
+                          <Image
+                            source={img.cancelIcon}
+                            style={{
+                              height: 22,
+                              width: 22,
+                              tintColor: 'white',
+                              resizeMode: 'contain',
+                            }}
+                          />
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+                    {detailsLoader ? (
+                      <ActivityIndicator color="#94C036" size="large" />
+                    ) : (
+                      <ScrollView showsVerticalScrollIndicator={false}>
+                        <View style={{padding: hp('3%')}}>
+                          <View style={{}}>
+                            <TouchableOpacity
+                              onPress={() => this.showDatePickerFun()}
+                              style={{
+                                padding: 12,
+                                marginBottom: hp('3%'),
+                                flexDirection: 'row',
+                                justifyContent: 'space-between',
+                                borderRadius: 6,
+                                backgroundColor: '#fff',
+                              }}>
+                              <TextInput
+                                placeholder="dd-mm-yy"
+                                value={finalDateData}
+                                editable={false}
+                              />
+                              <Image
+                                source={img.calenderIcon}
+                                style={{
+                                  width: 20,
+                                  height: 20,
                                   resizeMode: 'contain',
                                 }}
                               />
                             </TouchableOpacity>
-                          </View>
-                        </View>
-                        <ScrollView>
-                          <View style={{padding: hp('3%')}}>
-                            <View style={{}}>
-                              <TouchableOpacity
-                                onPress={() => this.showDatePickerFun()}
-                                style={{
-                                  borderWidth: 1,
-                                  padding: 12,
-                                  marginBottom: hp('3%'),
-                                  flexDirection: 'row',
-                                  justifyContent: 'space-between',
-                                }}>
-                                <TextInput
-                                  placeholder="dd-mm-yy"
-                                  value={finalDate}
-                                  editable={false}
-                                />
-                                <Image
-                                  source={img.calenderIcon}
-                                  style={{
-                                    width: 20,
-                                    height: 20,
-                                    resizeMode: 'contain',
-                                  }}
-                                />
-                              </TouchableOpacity>
 
-                              <TextInput
-                                placeholder="quantity"
-                                value={quantity}
-                                style={{
-                                  borderWidth: 1,
-                                  padding: 12,
+                            <TextInput
+                              placeholder="quantity"
+                              value={quantity}
+                              style={{
+                                padding: 12,
+                                marginBottom: hp('3%'),
+                                justifyContent: 'space-between',
+                                borderRadius: 6,
+                                backgroundColor: '#fff',
+                              }}
+                              keyboardType="number-pad"
+                              onChangeText={value => {
+                                this.setState({
+                                  quantity: value,
+                                });
+                              }}
+                            />
+
+                            <View>
+                              <DropDownPicker
+                                items={[
+                                  {
+                                    label: 'Bar',
+                                    value: 'Bar',
+                                  },
+                                  {
+                                    label: 'Restaurant',
+                                    value: 'Restaurant',
+                                  },
+                                  {
+                                    label: 'Retail',
+                                    value: 'Retail',
+                                  },
+                                  {
+                                    label: 'Other',
+                                    value: 'Other',
+                                  },
+                                ]}
+                                zIndex={1000000}
+                                containerStyle={{
+                                  height: 50,
                                   marginBottom: hp('3%'),
-                                  justifyContent: 'space-between',
                                 }}
-                                keyboardType="number-pad"
-                                onChangeText={value => {
-                                  this.setState({
-                                    quantity: value,
-                                  });
+                                style={{
+                                  backgroundColor: '#fff',
+                                  borderColor: '#fff',
                                 }}
+                                itemStyle={{
+                                  justifyContent: 'flex-start',
+                                }}
+                                dropDownStyle={{backgroundColor: '#fff'}}
+                                onChangeItem={item =>
+                                  this.selectDepartementNameFun(item)
+                                }
                               />
 
-                              <View>
-                                <DropDownPicker
-                                  items={[
-                                    {
-                                      label: 'Bar',
-                                      value: 'Bar',
-                                    },
-                                    {
-                                      label: 'Restaurant',
-                                      value: 'Restaurant',
-                                    },
-                                    {
-                                      label: 'Retail',
-                                      value: 'Retail',
-                                    },
-                                    {
-                                      label: 'Other',
-                                      value: 'Other',
-                                    },
-                                  ]}
-                                  zIndex={1000000}
-                                  containerStyle={{
-                                    height: 50,
-                                    marginBottom: hp('3%'),
-                                  }}
-                                  style={{
-                                    backgroundColor: '#fff',
-                                    borderColor: 'black',
-                                  }}
-                                  itemStyle={{
-                                    justifyContent: 'flex-start',
-                                  }}
-                                  dropDownStyle={{backgroundColor: '#fff'}}
-                                  onChangeItem={item =>
-                                    this.selectDepartementNameFun(item)
-                                  }
-                                />
+                              {viewStatus ? (
                                 <SectionedMultiSelect
                                   styles={{
                                     container: {
@@ -942,9 +1232,10 @@ class index extends Component {
                                       marginTop: hp('7%'),
                                     },
                                     selectToggle: {
-                                      borderWidth: 1,
                                       paddingVertical: 10,
-                                      paddingHorizontal: 5,
+                                      paddingHorizontal: 10,
+                                      backgroundColor: '#fff',
+                                      borderRadius: 6,
                                     },
                                   }}
                                   loadingComponent={
@@ -978,15 +1269,30 @@ class index extends Component {
                                   }
                                   selectedItems={this.state.selectedItems}
                                 />
+                              ) : (
+                                <View>
+                                  <Text
+                                    style={{
+                                      padding: 12,
+                                      marginBottom: hp('3%'),
+                                      justifyContent: 'space-between',
+                                      backgroundColor: '#fff',
+                                    }}>
+                                    {sectionData.name}
+                                  </Text>
+                                </View>
+                              )}
+                              {viewStatus ? (
                                 <DropDownPicker
                                   items={itemsTypesArr}
                                   containerStyle={{
                                     height: 50,
                                     marginTop: hp('3%'),
                                   }}
+                                  defaultValue={this.state.itemTypes}
                                   style={{
                                     backgroundColor: '#fff',
-                                    borderColor: 'black',
+                                    borderColor: '#fff',
                                   }}
                                   itemStyle={{
                                     justifyContent: 'flex-start',
@@ -998,482 +1304,199 @@ class index extends Component {
                                     })
                                   }
                                 />
-                                <View
-                                  style={{
-                                    marginTop: hp('3%'),
-                                  }}>
-                                  <Text>{translate('Note')}</Text>
+                              ) : (
+                                <View>
+                                  <Text
+                                    style={{
+                                      padding: 12,
+                                      marginBottom: hp('3%'),
+                                      justifyContent: 'space-between',
+                                      backgroundColor: '#fff',
+                                    }}>
+                                    {sectionData.typeName}
+                                  </Text>
                                 </View>
-                                <View
-                                  onPress={() => this.showDatePickerFun()}
+                              )}
+                              <View
+                                style={{
+                                  padding: 15,
+                                  backgroundColor: '#fff',
+                                  borderRadius: 6,
+                                  marginTop: viewStatus ? hp('3%') : null,
+                                }}>
+                                <TextInput
+                                  placeholder="Note"
+                                  onChangeText={value =>
+                                    this.setState({
+                                      notes: value,
+                                    })
+                                  }
+                                  value={notes}
+                                />
+                              </View>
+                              <View
+                                style={{
+                                  alignItems: 'center',
+                                  marginTop: hp('4%'),
+                                }}>
+                                <TouchableOpacity
+                                  onPress={() => this.deleteMepFun(sectionData)}
                                   style={{
-                                    borderWidth: 1,
-                                    padding: 10,
-                                    marginTop: hp('2%'),
-                                    height: hp('20%'),
-                                    borderColor: '#C9CCD7',
-                                  }}>
-                                  <TextInput
-                                    placeholder={translate('Note')}
-                                    onChangeText={value =>
-                                      this.setState({
-                                        notes: value,
-                                      })
-                                    }
-                                    value={notes}
-                                  />
-                                </View>
-                                <View
-                                  style={{
+                                    backgroundColor: 'red',
                                     flexDirection: 'row',
                                     alignItems: 'center',
+                                    width: wp('30%'),
+                                    height: hp('5%'),
                                     justifyContent: 'center',
-                                    marginTop: hp('8%'),
+                                    borderRadius: 100,
                                   }}>
-                                  <TouchableOpacity
-                                    onPress={() => this.addManualLogFun()}
-                                    style={{
-                                      width: wp('30%'),
-                                      height: hp('5%'),
-                                      alignSelf: 'flex-end',
-                                      backgroundColor: '#94C036',
-                                      justifyContent: 'center',
-                                      alignItems: 'center',
-                                    }}>
-                                    <Text
-                                      style={{
-                                        color: '#fff',
-                                        fontSize: 15,
-                                        fontWeight: 'bold',
-                                      }}>
-                                      {translate('Save')}
-                                    </Text>
-                                  </TouchableOpacity>
-                                  <TouchableOpacity
-                                    onPress={() =>
-                                      this.setModalVisibleAdd(false)
-                                    }
-                                    style={{
-                                      width: wp('30%'),
-                                      height: hp('5%'),
-                                      alignSelf: 'flex-end',
-                                      backgroundColor: '#E7943B',
-                                      justifyContent: 'center',
-                                      alignItems: 'center',
-                                      marginLeft: wp('2%'),
-                                    }}>
-                                    <Text
-                                      style={{
-                                        color: '#fff',
-                                        fontSize: 15,
-                                        fontWeight: 'bold',
-                                      }}>
-                                      {translate('Close')}
-                                    </Text>
-                                  </TouchableOpacity>
-                                </View>
-                              </View>
-
-                              <DateTimePickerModal
-                                // is24Hour={true}
-                                isVisible={isDatePickerVisible}
-                                mode={'date'}
-                                onConfirm={this.handleConfirm}
-                                onCancel={this.hideDatePicker}
-                                maximumDate={minTime}
-                                // minimumDate={new Date()}
-                              />
-                            </View>
-                          </View>
-                        </ScrollView>
-                      </View>
-                    </Modal>
-
-                    <Modal
-                      isVisible={modalVisibleRecipeDetails}
-                      backdropOpacity={0.35}>
-                      <View
-                        style={{
-                          width: wp('85%'),
-                          height: hp('80%'),
-                          backgroundColor: '#fff',
-                          alignSelf: 'center',
-                        }}>
-                        <View
-                          style={{
-                            backgroundColor: '#412916',
-                            height: hp('7%'),
-                            flexDirection: 'row',
-                          }}>
-                          <View
-                            style={{
-                              flex: 3,
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                            }}>
-                            <Text style={{fontSize: 16, color: '#fff'}}>
-                              Manual log - {sectionData.name}
-                            </Text>
-                          </View>
-                          <View
-                            style={{
-                              flex: 1,
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                            }}>
-                            <TouchableOpacity
-                              onPress={() =>
-                                this.setModalVisibleRecipeDetailsClose(false)
-                              }>
-                              <Image
-                                source={img.cancelIcon}
-                                style={{
-                                  height: 22,
-                                  width: 22,
-                                  tintColor: 'white',
-                                  resizeMode: 'contain',
-                                }}
-                              />
-                            </TouchableOpacity>
-                          </View>
-                        </View>
-                        {detailsLoader ? (
-                          <ActivityIndicator color="#94C036" size="large" />
-                        ) : (
-                          <ScrollView>
-                            <View style={{padding: hp('3%')}}>
-                              <View style={{}}>
-                                <TouchableOpacity
-                                  onPress={() => this.showDatePickerFun()}
-                                  style={{
-                                    borderWidth: 1,
-                                    padding: 12,
-                                    marginBottom: hp('3%'),
-                                    flexDirection: 'row',
-                                    justifyContent: 'space-between',
-                                  }}>
-                                  <TextInput
-                                    placeholder="dd-mm-yy"
-                                    value={finalDateData}
-                                    editable={false}
-                                  />
                                   <Image
-                                    source={img.calenderIcon}
+                                    source={img.cancelIcon}
                                     style={{
-                                      width: 20,
-                                      height: 20,
+                                      height: 15,
+                                      width: 15,
+                                      tintColor: 'white',
                                       resizeMode: 'contain',
                                     }}
                                   />
+                                  <Text
+                                    style={{
+                                      fontSize: 14,
+                                      color: '#fff',
+                                      textAlign: 'center',
+                                    }}>
+                                    {translate('Delete')}
+                                  </Text>
                                 </TouchableOpacity>
-
-                                <TextInput
-                                  placeholder="quantity"
-                                  value={quantity}
+                              </View>
+                              <View
+                                style={{
+                                  flexDirection: 'row',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  marginTop: hp('4%'),
+                                }}>
+                                <TouchableOpacity
+                                  onPress={() => this.updateRecipeDetailsFun()}
                                   style={{
+                                    width: wp('30%'),
+                                    height: hp('5%'),
+                                    alignSelf: 'flex-end',
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                    borderRadius: 100,
+                                    borderColor: '#482813',
+                                    backgroundColor: '#97C03D',
+                                  }}>
+                                  <Text
+                                    style={{
+                                      color: '#fff',
+                                      fontSize: 15,
+                                      fontFamily: 'Inter-Regular',
+                                    }}>
+                                    {translate('Save')}
+                                  </Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity
+                                  onPress={() =>
+                                    this.setModalVisibleRecipeDetailsClose(
+                                      false,
+                                    )
+                                  }
+                                  style={{
+                                    width: wp('30%'),
+                                    height: hp('5%'),
+                                    alignSelf: 'flex-end',
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                    marginLeft: wp('2%'),
+                                    borderColor: '#482813',
                                     borderWidth: 1,
-                                    padding: 12,
-                                    marginBottom: hp('3%'),
-                                    justifyContent: 'space-between',
-                                  }}
-                                  keyboardType="number-pad"
-                                  onChangeText={value => {
-                                    this.setState({
-                                      quantity: value,
-                                    });
-                                  }}
-                                />
-
-                                <View>
-                                  <DropDownPicker
-                                    items={[
-                                      {
-                                        label: 'Bar',
-                                        value: 'Bar',
-                                      },
-                                      {
-                                        label: 'Restaurant',
-                                        value: 'Restaurant',
-                                      },
-                                      {
-                                        label: 'Retail',
-                                        value: 'Retail',
-                                      },
-                                      {
-                                        label: 'Other',
-                                        value: 'Other',
-                                      },
-                                    ]}
-                                    zIndex={1000000}
-                                    containerStyle={{
-                                      height: 50,
-                                      marginBottom: hp('3%'),
-                                    }}
+                                    borderRadius: 100,
+                                  }}>
+                                  <Text
                                     style={{
-                                      backgroundColor: '#fff',
-                                      borderColor: 'black',
-                                    }}
-                                    itemStyle={{
-                                      justifyContent: 'flex-start',
-                                    }}
-                                    dropDownStyle={{backgroundColor: '#fff'}}
-                                    onChangeItem={item =>
-                                      this.selectDepartementNameFun(item)
-                                    }
-                                  />
-
-                                  {viewStatus ? (
-                                    <SectionedMultiSelect
-                                      styles={{
-                                        container: {
-                                          paddingTop: hp('2%'),
-                                          marginTop: hp('7%'),
-                                        },
-                                        selectToggle: {
-                                          borderWidth: 1,
-                                          paddingVertical: 10,
-                                          paddingHorizontal: 5,
-                                        },
-                                      }}
-                                      loadingComponent={
-                                        <View
-                                          style={{
-                                            flex: 1,
-                                            justifyContent: 'center',
-                                            alignItems: 'center',
-                                          }}>
-                                          <ActivityIndicator
-                                            size="large"
-                                            color="#94C036"
-                                          />
-                                        </View>
-                                      }
-                                      loading={this.state.loading}
-                                      // hideSearch={true}
-                                      single={true}
-                                      items={items}
-                                      IconRenderer={Icon}
-                                      uniqueKey="id"
-                                      subKey="children"
-                                      selectText="Select"
-                                      showDropDowns={true}
-                                      readOnlyHeadings={true}
-                                      onSelectedItemObjectsChange={
-                                        this.onSelectedItemObjectsChange
-                                      }
-                                      onSelectedItemsChange={
-                                        this.onSelectedItemsChange
-                                      }
-                                      selectedItems={this.state.selectedItems}
-                                    />
-                                  ) : (
-                                    <View>
-                                      <Text
-                                        style={{
-                                          borderWidth: 1,
-                                          padding: 12,
-                                          marginBottom: hp('3%'),
-                                          justifyContent: 'space-between',
-                                        }}>
-                                        {sectionData.name}
-                                      </Text>
-                                    </View>
-                                  )}
-                                  {viewStatus ? (
-                                    <DropDownPicker
-                                      items={itemsTypesArr}
-                                      containerStyle={{
-                                        height: 50,
-                                        marginTop: hp('3%'),
-                                      }}
-                                      defaultValue={this.state.itemTypes}
-                                      style={{
-                                        backgroundColor: '#fff',
-                                        borderColor: 'black',
-                                      }}
-                                      itemStyle={{
-                                        justifyContent: 'flex-start',
-                                      }}
-                                      dropDownStyle={{backgroundColor: '#fff'}}
-                                      onChangeItem={item =>
-                                        this.setState({
-                                          itemTypes: item,
-                                        })
-                                      }
-                                    />
-                                  ) : (
-                                    <View>
-                                      <Text
-                                        style={{
-                                          borderWidth: 1,
-                                          padding: 12,
-                                          marginBottom: hp('3%'),
-                                          justifyContent: 'space-between',
-                                        }}>
-                                        {sectionData.typeName}
-                                      </Text>
-                                    </View>
-                                  )}
-                                  <View
-                                    style={{
-                                      marginTop: hp('3%'),
+                                      color: '#482813',
+                                      fontSize: 15,
+                                      fontWeight: 'bold',
                                     }}>
-                                    <Text>Note</Text>
-                                  </View>
-                                  <View
-                                    onPress={() => this.showDatePickerFun()}
-                                    style={{
-                                      borderWidth: 1,
-                                      padding: 10,
-                                      marginTop: hp('2%'),
-                                      height: hp('20%'),
-                                      borderColor: '#C9CCD7',
-                                    }}>
-                                    <TextInput
-                                      placeholder="Note"
-                                      onChangeText={value =>
-                                        this.setState({
-                                          notes: value,
-                                        })
-                                      }
-                                      value={notes}
-                                    />
-                                  </View>
-                                  <View
-                                    style={{
-                                      alignItems: 'center',
-                                      marginTop: hp('4%'),
-                                    }}>
-                                    <TouchableOpacity
-                                      onPress={() =>
-                                        this.deleteMepFun(sectionData)
-                                      }
-                                      style={{
-                                        backgroundColor: 'red',
-                                        flexDirection: 'row',
-                                        alignItems: 'center',
-                                        width: wp('30%'),
-                                        height: hp('5%'),
-                                        justifyContent: 'center',
-                                      }}>
-                                      <Image
-                                        source={img.cancelIcon}
-                                        style={{
-                                          height: 15,
-                                          width: 15,
-                                          tintColor: 'white',
-                                          resizeMode: 'contain',
-                                        }}
-                                      />
-                                      <Text
-                                        style={{
-                                          fontSize: 14,
-                                          color: '#fff',
-                                          textAlign: 'center',
-                                        }}>
-                                        {translate('Delete')}
-                                      </Text>
-                                    </TouchableOpacity>
-                                  </View>
-                                  <View
-                                    style={{
-                                      flexDirection: 'row',
-                                      alignItems: 'center',
-                                      justifyContent: 'center',
-                                      marginTop: hp('4%'),
-                                    }}>
-                                    <TouchableOpacity
-                                      onPress={() =>
-                                        this.updateRecipeDetailsFun()
-                                      }
-                                      style={{
-                                        width: wp('30%'),
-                                        height: hp('5%'),
-                                        alignSelf: 'flex-end',
-                                        backgroundColor: '#94C036',
-                                        justifyContent: 'center',
-                                        alignItems: 'center',
-                                      }}>
-                                      <Text
-                                        style={{
-                                          color: '#fff',
-                                          fontSize: 15,
-                                          fontWeight: 'bold',
-                                        }}>
-                                        {translate('Save')}
-                                      </Text>
-                                    </TouchableOpacity>
-                                    <TouchableOpacity
-                                      onPress={() =>
-                                        this.setModalVisibleRecipeDetailsClose(
-                                          false,
-                                        )
-                                      }
-                                      style={{
-                                        width: wp('30%'),
-                                        height: hp('5%'),
-                                        alignSelf: 'flex-end',
-                                        backgroundColor: '#E7943B',
-                                        justifyContent: 'center',
-                                        alignItems: 'center',
-                                        marginLeft: wp('2%'),
-                                      }}>
-                                      <Text
-                                        style={{
-                                          color: '#fff',
-                                          fontSize: 15,
-                                          fontWeight: 'bold',
-                                        }}>
-                                        {translate('Close')}
-                                      </Text>
-                                    </TouchableOpacity>
-                                  </View>
-                                </View>
-
-                                <DateTimePickerModal
-                                  // is24Hour={true}
-                                  isVisible={isDatePickerVisible}
-                                  mode={'date'}
-                                  onConfirm={this.handleConfirm}
-                                  onCancel={this.hideDatePicker}
-                                  minimumDate={minTime}
-
-                                  // maximumDate={maxTime}
-                                  // minimumDate={new Date()}
-                                />
+                                    {translate('Close')}
+                                  </Text>
+                                </TouchableOpacity>
                               </View>
                             </View>
-                          </ScrollView>
-                        )}
-                      </View>
-                    </Modal>
+
+                            <DateTimePickerModal
+                              // is24Hour={true}
+                              isVisible={isDatePickerVisible}
+                              mode={'date'}
+                              onConfirm={this.handleConfirm}
+                              onCancel={this.hideDatePicker}
+                              minimumDate={minTime}
+
+                              // maximumDate={maxTime}
+                              // minimumDate={new Date()}
+                            />
+                          </View>
+                        </View>
+                      </ScrollView>
+                    )}
                   </View>
-                </View>
-              );
-            })}
+                </Modal>
+              </View>
+            </View>
           </View>
           <TouchableOpacity
-            onPress={() => this.onPressCollapseFun()}
+            onPress={() => this.addNewFun()}
             style={{
-              flexDirection: 'row',
               height: hp('6%'),
-              width: wp('70%'),
+              width: wp('80%'),
               backgroundColor: '#94C036',
               justifyContent: 'center',
               alignItems: 'center',
-              marginTop: 20,
+              marginTop: hp('2%'),
+              borderRadius: 100,
               alignSelf: 'center',
             }}>
-            <View style={{}}>
-              <Text style={{color: 'white', marginLeft: 5}}>
-                {translate('Collapse All')}
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+              }}>
+              <Image
+                source={img.addIcon}
+                style={{
+                  width: 20,
+                  height: 20,
+                  tintColor: '#fff',
+                  resizeMode: 'contain',
+                }}
+              />
+              <Text
+                style={{
+                  color: 'white',
+                  marginLeft: 10,
+                  fontFamily: 'Inter-SemiBold',
+                }}>
+                Add New
               </Text>
             </View>
           </TouchableOpacity>
+          <View style={styles.subContainer}>
+            <View style={styles.firstContainer}>
+              <TouchableOpacity
+                style={{flex: 1}}
+                onPress={() => this.onPressCollapseFun()}>
+                <Text style={styles.adminTextStyle}>
+                  {translate('Collapse All')}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
           {recipeLoader ? (
             <ActivityIndicator color="#94C036" size="large" />
           ) : (
-            <View style={{marginTop: hp('3%'), marginHorizontal: wp('5%')}}>
+            <View style={{marginHorizontal: wp('5%')}}>
               <Accordion
                 expandMultiple
                 underlayColor="#fff"
