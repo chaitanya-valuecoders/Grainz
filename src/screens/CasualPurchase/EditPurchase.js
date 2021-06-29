@@ -40,6 +40,7 @@ import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import {translate} from '../../utils/translations';
 import ImagePicker from 'react-native-image-crop-picker';
+import styles from './style';
 
 var minTime = new Date();
 minTime.setHours(0);
@@ -101,6 +102,8 @@ class EditPurchase extends Component {
       imageName: '',
       imageDesc: '',
       imageDataEdit: '',
+      buttonsSubHeader: [],
+      recipeLoader: true,
     };
   }
 
@@ -125,6 +128,12 @@ class EditPurchase extends Component {
       .then(res => {
         this.setState({
           firstName: res.data.firstName,
+          recipeLoader: false,
+          buttonsSubHeader: [
+            {name: translate('ADMIN')},
+            {name: translate('Setup')},
+            {name: translate('INBOX')},
+          ],
         });
       })
       .catch(err => {
@@ -272,7 +281,7 @@ class EditPurchase extends Component {
         list.push(obj);
         this.setState({
           orderTotal: total,
-          yourOrderItems: list.reverse(),
+          yourOrderItems: list,
           editDataLoader: false,
         });
       })
@@ -282,7 +291,7 @@ class EditPurchase extends Component {
   showCasualPurchases() {
     this.setState({
       editDisabled: true,
-      editColor: '#E9ECEF',
+      editColor: '#FFFFFF',
       swapButton: false,
     });
   }
@@ -307,6 +316,7 @@ class EditPurchase extends Component {
       imageDesc,
       imageData,
       imageDataEdit,
+      yourOrderItems,
     } = this.state;
     let payload = {
       id: orderId,
@@ -345,27 +355,31 @@ class EditPurchase extends Component {
 
     console.log('PAYLOAD', payload);
 
-    this.setState(
-      {
-        updateLoader: true,
-      },
-      () =>
-        updateOrderApi(payload)
-          .then(res => {
-            this.setState({
-              updateLoader: false,
-            });
-            Alert.alert('Grainz', 'Order updated successfully', [
-              {text: 'OK', onPress: () => this.goBackFun()},
-            ]);
-          })
-          .catch(error => {
-            this.setState({
-              updateLoader: false,
-            });
-            console.warn('updateFailed', error.response);
-          }),
-    );
+    if (yourOrderItems.length > 0) {
+      this.setState(
+        {
+          updateLoader: true,
+        },
+        () =>
+          updateOrderApi(payload)
+            .then(res => {
+              this.setState({
+                updateLoader: false,
+              });
+              Alert.alert('Grainz', 'Order updated successfully', [
+                {text: 'OK', onPress: () => this.goBackFun()},
+              ]);
+            })
+            .catch(error => {
+              this.setState({
+                updateLoader: false,
+              });
+              console.warn('updateFailed', error.response);
+            }),
+      );
+    } else {
+      alert('Please add atleast one item');
+    }
   }
 
   deleteCasualPurchase(param) {
@@ -447,37 +461,52 @@ class EditPurchase extends Component {
   };
 
   addPurchaseLine() {
-    let obj = {
-      name: null,
-      departmentName: null,
-      action: null,
-      id: null,
-      inventoryId: null,
-      inventoryProductMappingId: null,
-      isCorrect: null,
-      notes: null,
-      position: null,
-      quantityOrdered: null,
-      tdcVolume: null,
-      unitId: null,
-      unitPrice: null,
+    const {yourOrderItems} = this.state;
+    let obj = {};
+    let newlist = [];
+    obj = {
+      action: 'New',
+      id: '',
+      inventoryId: '',
+      inventoryProductMappingId: '',
+      isCorrect: false,
+      notes: '',
+      position: '',
+      quantityOrdered: '',
+      tdcVolume: 0,
+      unitId: '',
+      unitPrice: '',
+      name: '',
     };
-    let temp = this.state.purchaseLines;
-    let temp2 = [];
-    temp.push(temp[temp.length - 1] + 1);
-    this.setState({purchaseLines: temp});
 
-    // for (i = 0; i < temp.length; i++) {
-    //   temp2.push(obj);
-    // }
+    newlist.push(obj);
 
-    this.setState({yourOrderItems: temp2});
+    this.setState({yourOrderItems: [...yourOrderItems, ...newlist]});
   }
 
-  deletePurchaseLine() {
-    let temp = this.state.purchaseLines;
-    temp.pop();
-    this.setState({purchaseLines: temp});
+  deletePurchaseLine(index, type) {
+    let temp = this.state.yourOrderItems;
+    temp.splice(index, 1);
+    this.setState({yourOrderItems: temp});
+
+    console.log(index, type);
+    const {orderItemsFinal} = this.state;
+
+    let newArr = orderItemsFinal.map((item, i) =>
+      index === i
+        ? {
+            ...item,
+            [type]: 'Delete',
+          }
+        : item,
+    );
+    this.setState({
+      orderItemsFinal: [...newArr],
+    });
+
+    // let temp = this.state.purchaseLines;
+    // temp.pop();
+    // this.setState({purchaseLines: temp});
   }
 
   showSupplierList() {
@@ -695,141 +724,124 @@ class EditPurchase extends Component {
       imageDesc,
       imageName,
       imageDataEdit,
+      buttonsSubHeader,
+      recipeLoader,
+      orderItemsFinal,
     } = this.state;
-    // console.log('imageData', imageData);
-    // console.log('imageDataEdit', imageDataEdit);
+    console.log('orderItemsFinal', orderItemsFinal);
+    console.log('yourOrderItems', yourOrderItems.length);
 
     return (
-      <View style={{flex: 1, backgroundColor: '#fff'}}>
+      <View style={styles.container}>
         <Header
           logout={firstName}
           logoutFun={this.myProfileFun}
           logoFun={() => this.props.navigation.navigate('HomeScreen')}
         />
-        {/* <SubHeader /> */}
-        <ScrollView style={{marginBottom: hp('2%')}}>
-          <View
-            style={{
-              backgroundColor: '#412916',
-              alignItems: 'center',
-              paddingVertical: hp('3%'),
-            }}>
-            <Text style={{fontSize: 22, color: 'white'}}>
-              CASUAL PURCHASE TITLE
-            </Text>
-
-            <View>
-              {swapButton ? (
-                <View>
-                  <TouchableOpacity
-                    onPress={() => this.deleteCasualPurchase(yourOrder.id)}
-                    style={{
-                      paddingVertical: '3%',
-                      width: wp('70%'),
-                      backgroundColor: '#FF2121',
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                      marginTop: 10,
-                    }}>
-                    <View style={{flexDirection: 'row'}}>
-                      <Image
-                        source={img.cancelIcon}
-                        style={{}}
-                        style={{
-                          width: 20,
-                          height: 20,
-                          resizeMode: 'contain',
-                          tintColor: 'white',
-                        }}
-                      />
-                      <Text style={{color: 'white', marginLeft: 5}}>
-                        {deleteLoader ? (
-                          <ActivityIndicator color="#fff" size="small" />
-                        ) : (
-                          translate('Delete')
-                        )}
-                      </Text>
-                    </View>
-                  </TouchableOpacity>
-                </View>
-              ) : (
-                <View>
-                  <TouchableOpacity
-                    onPress={() => this.editCasualPurchase()}
-                    style={{
-                      paddingVertical: '3%',
-                      width: wp('70%'),
-                      backgroundColor: '#94C036',
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                      marginTop: 10,
-                    }}>
-                    <View style={{flexDirection: 'row'}}>
-                      <Image
-                        source={img.editIcon}
-                        style={{}}
-                        style={{
-                          width: 15,
-                          height: 15,
-                          resizeMode: 'contain',
-                          tintColor: 'white',
-                          marginRight: 5,
-                        }}
-                      />
-                      <Text
-                        style={{
-                          color: 'white',
-                          fontWeight: 'bold',
-                        }}>
-                        Edit
-                      </Text>
-                    </View>
-                  </TouchableOpacity>
-                </View>
-              )}
-              <View>
-                <TouchableOpacity
-                  onPress={() => this.goBackFun()}
-                  style={{
-                    paddingVertical: '3%',
-                    width: wp('70%'),
-                    backgroundColor: '#E7943B',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    marginTop: 20,
-                  }}>
-                  <View style={{}}>
-                    <Text
-                      style={{
-                        color: 'white',
-                        fontWeight: 'bold',
-                      }}>
-                      {translate('Back')}
-                    </Text>
-                  </View>
-                </TouchableOpacity>
+        {recipeLoader ? (
+          <ActivityIndicator size="small" color="#94C036" />
+        ) : (
+          <SubHeader {...this.props} buttons={buttonsSubHeader} />
+        )}
+        <ScrollView
+          style={{marginBottom: hp('2%')}}
+          showsVerticalScrollIndicator={false}>
+          <View style={styles.subContainer}>
+            <View style={styles.firstContainer}>
+              <View style={{flex: 1}}>
+                <Text style={styles.adminTextStyle}>
+                  {translate('Casual purchase')}
+                </Text>
               </View>
+              <TouchableOpacity
+                onPress={() => this.props.navigation.goBack()}
+                style={styles.goBackContainer}>
+                <Text style={styles.goBackTextStyle}>Go Back</Text>
+              </TouchableOpacity>
             </View>
           </View>
+          <View style={{}}>
+            <View style={styles.firstContainer}>
+              <View style={{flex: 1}}>
+                <Text style={styles.adminTextStyle}>
+                  {translate('Casual purchase')} Details
+                </Text>
+              </View>
+              {swapButton ? (
+                <TouchableOpacity
+                  onPress={() => this.deleteCasualPurchase(yourOrder.id)}
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    // flex: 1,
+                    justifyContent: 'flex-end',
+                  }}>
+                  <Image
+                    source={img.deleteIconNew}
+                    style={{
+                      width: 18,
+                      height: 18,
+                      marginRight: 10,
+                      resizeMode: 'contain',
+                      tintColor: '#FF0303',
+                    }}
+                  />
+                  <Text
+                    style={{
+                      fontSize: 18,
+                      fontFamily: 'Inter-Regular',
+                      color: '#FF0303',
+                    }}>
+                    {translate('Delete')}
+                  </Text>
+                </TouchableOpacity>
+              ) : (
+                <TouchableOpacity
+                  onPress={() => this.editCasualPurchase()}
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    // flex: 1,
+                    justifyContent: 'flex-end',
+                  }}>
+                  <Image
+                    source={img.editIconGreen}
+                    style={{
+                      width: 20,
+                      height: 20,
+                      marginRight: 10,
+                      resizeMode: 'contain',
+                    }}
+                  />
+                  <Text
+                    style={{
+                      fontSize: 18,
+                      fontFamily: 'Inter-Regular',
+                      color: '#94C01F',
+                    }}>
+                    {translate('Edit')}
+                  </Text>
+                </TouchableOpacity>
+              )}
+            </View>
+          </View>
+
           {editDataLoader ? (
             <ActivityIndicator color="grey" size="large" />
           ) : (
-            <View style={{marginHorizontal: wp('6%'), marginTop: hp('5%')}}>
-              <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                <View style={{flex: 3}}>
-                  <Text>{translate('Date')}:</Text>
-                </View>
-                <View style={{flex: 4}}>
+            <View style={{marginHorizontal: wp('6%'), marginTop: hp('2%')}}>
+              <View style={{}}>
+                <View style={{}}>
                   <TouchableOpacity
                     disabled={editDisabled}
                     onPress={() => this.showDatePickerFun()}
                     style={{
-                      backgroundColor: editColor,
-                      borderWidth: 1,
-                      padding: 10,
-                      marginBottom: hp('2%'),
+                      padding: 15,
+                      marginBottom: hp('3%'),
                       flexDirection: 'row',
                       justifyContent: 'space-between',
+                      backgroundColor: '#fff',
+                      borderRadius: 6,
                     }}>
                     <TextInput
                       placeholder={moment(yourOrder.orderDate).format(
@@ -857,26 +869,20 @@ class EditPurchase extends Component {
                 onConfirm={this.handleConfirm}
                 onCancel={this.hideDatePicker}
                 minimumDate={minTime}
-
-                // maximumDate={maxTime}
-                // minimumDate={new Date()}
               />
 
-              <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                <View style={{flex: 3}}>
-                  <Text>{translate('Supplier')}:</Text>
-                </View>
-                <View style={{flex: 4}}>
+              <View style={{}}>
+                <View style={{}}>
                   <TouchableOpacity
                     disabled={editDisabled}
                     onPress={() => this.showSupplierList()}
                     style={{
-                      backgroundColor: editColor,
-                      borderWidth: 1,
-                      padding: 10,
-                      marginBottom: hp('2%'),
+                      padding: 15,
+                      marginBottom: hp('3%'),
                       flexDirection: 'row',
                       justifyContent: 'space-between',
+                      backgroundColor: '#fff',
+                      borderRadius: 6,
                     }}>
                     <Text>{supplier}</Text>
                     <Image
@@ -922,22 +928,30 @@ class EditPurchase extends Component {
               <View>
                 {yourOrderItems.map((ele, index) => {
                   return (
-                    <View style={{marginBottom: hp('6%')}}>
+                    <View style={{marginBottom: hp('3%')}}>
                       <View>
-                        <View style={{marginLeft: -11}}>
-                          <Pressable
-                            disabled={editDisabled}
-                            onPress={() => this.deletePurchaseLine()}>
-                            <Image
-                              source={img.cancelIcon}
-                              style={{
-                                width: 20,
-                                height: 20,
-                                resizeMode: 'contain',
-                              }}
-                            />
-                          </Pressable>
-                        </View>
+                        {!editDisabled ? (
+                          <View
+                            style={{
+                              marginLeft: -11,
+                              zIndex: 10,
+                            }}>
+                            <TouchableOpacity
+                              disabled={editDisabled}
+                              onPress={() =>
+                                this.deletePurchaseLine(index, 'action')
+                              }>
+                              <Image
+                                source={img.cancelIcon}
+                                style={{
+                                  width: 25,
+                                  height: 25,
+                                  resizeMode: 'contain',
+                                }}
+                              />
+                            </TouchableOpacity>
+                          </View>
+                        ) : null}
                         <View style={{marginTop: -7}}>
                           <View>
                             <DropDownPicker
@@ -964,11 +978,13 @@ class EditPurchase extends Component {
                               zIndex={1000000}
                               containerStyle={{
                                 height: 50,
-                                marginBottom: hp('1%'),
+                                marginBottom: hp('2%'),
                               }}
                               style={{
-                                backgroundColor: editColor,
-                                borderColor: 'black',
+                                // backgroundColor: editColor,
+                                backgroundColor: '#fff',
+                                borderColor: '#fff',
+                                borderRadius: 6,
                               }}
                               itemStyle={{
                                 justifyContent: 'flex-start',
@@ -990,10 +1006,12 @@ class EditPurchase extends Component {
                                   marginTop: hp('7%'),
                                 },
                                 selectToggle: {
-                                  backgroundColor: editColor,
-                                  borderWidth: 1,
-                                  paddingVertical: 10,
+                                  // backgroundColor: editColor,
+                                  backgroundColor: '#fff',
+                                  // borderWidth: 1,
+                                  paddingVertical: 15,
                                   paddingHorizontal: 5,
+                                  borderRadius: 6,
                                 },
                               }}
                               loadingComponent={
@@ -1032,44 +1050,64 @@ class EditPurchase extends Component {
                               // selectedItems={this.state.selectedItems}
                             />
 
-                            <View>
-                              <TextInput
-                                editable={!editDisabled}
-                                placeholder="Quantity"
-                                // placeholder={ele.quantityOrdered}
+                            <View
+                              style={{
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                                marginTop: hp('2%'),
+                              }}>
+                              <View
                                 style={{
-                                  backgroundColor: editColor,
-                                  borderWidth: 1,
-                                  padding: 10,
-                                  marginBottom: hp('1%'),
-                                  marginTop: hp('1%'),
-                                }}
-                                onChangeText={value => {
-                                  this.editQuantityPriceFun(
-                                    index,
-                                    'quantityOrdered',
-                                    value,
-                                  );
-                                }}
-                                value={ele.quantityOrdered}
-                              />
-                            </View>
-                            <View style={{flexDirection: 'row'}}>
-                              <View style={{flex: 1}}>
-                                <Text>$</Text>
+                                  flex: 2,
+                                  backgroundColor: 'red',
+                                  flexDirection: 'row',
+                                  alignItems: 'center',
+                                  backgroundColor: '#fff',
+                                  borderRadius: 6,
+                                }}>
+                                <TextInput
+                                  editable={!editDisabled}
+                                  placeholder="Quantity"
+                                  style={{
+                                    padding: 15,
+                                    width: wp('40%'),
+                                  }}
+                                  onChangeText={value => {
+                                    this.editQuantityPriceFun(
+                                      index,
+                                      'quantityOrdered',
+                                      value,
+                                    );
+                                  }}
+                                  value={ele.quantityOrdered}
+                                />
+                                <Text
+                                  style={{
+                                    textAlign: 'center',
+                                    backgroundColor: '#F7F8F5',
+                                  }}>
+                                  Unit
+                                </Text>
                               </View>
-                              <View style={{flex: 15}}>
+                              <View
+                                style={{
+                                  flex: 1,
+                                  flexDirection: 'row',
+                                  alignItems: 'center',
+                                  marginLeft: wp('5%'),
+                                }}>
+                                <Text style={{}}>$</Text>
                                 <TextInput
                                   editable={!editDisabled}
                                   placeholder="Price"
-                                  // placeholder={ele.unitPrice}
+                                  // placeholder={ele.quantityOrdered}
                                   style={{
-                                    backgroundColor: editColor,
-                                    borderWidth: 1,
-                                    padding: 10,
-                                    marginBottom: hp('1%'),
+                                    padding: 15,
+                                    marginLeft: wp('5%'),
+                                    width: wp('20%'),
+                                    backgroundColor: '#fff',
+                                    borderRadius: 6,
                                   }}
-                                  value={ele.unitPrice}
                                   onChangeText={value => {
                                     this.editQuantityPriceFun(
                                       index,
@@ -1077,6 +1115,7 @@ class EditPurchase extends Component {
                                       value,
                                     );
                                   }}
+                                  value={ele.unitPrice}
                                 />
                               </View>
                             </View>
@@ -1087,26 +1126,34 @@ class EditPurchase extends Component {
                   );
                 })}
               </View>
-              {/* <View>
+              <View>
                 {editDisabled ? null : (
                   <View>
                     <TouchableOpacity
-                      disabled={editDisabled}
                       onPress={() => this.addPurchaseLine()}
                       style={{
-                        paddingVertical: 10,
-                        width: wp('50%'),
-                        backgroundColor: '#94C01F',
-                        justifyContent: 'center',
+                        marginBottom: 20,
+                        flexDirection: 'row',
                         alignItems: 'center',
-                        marginTop: 20,
                       }}>
+                      <View style={{}}>
+                        <Image
+                          source={img.addIconNew}
+                          style={{
+                            width: 20,
+                            height: 20,
+                            resizeMode: 'contain',
+                            tintColor: '#94C01F',
+                          }}
+                        />
+                      </View>
                       <View style={{}}>
                         <Text
                           style={{
-                            color: 'white',
-                            fontWeight: 'bold',
-                            marginLeft: 5,
+                            color: '#94C01F',
+                            fontSize: 18,
+                            fontFamily: 'Inter-Regular',
+                            marginLeft: 10,
                           }}>
                           {translate('Add line')}
                         </Text>
@@ -1114,16 +1161,51 @@ class EditPurchase extends Component {
                     </TouchableOpacity>
                   </View>
                 )}
-              </View> */}
-              <View style={{alignItems: 'space-between', margin: 20}}>
-                <View>
-                  <Text>{translate('Total')}</Text>
+              </View>
+              <View style={{}}>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    marginBottom: hp('2%'),
+                  }}>
+                  <View>
+                    <Text
+                      style={{
+                        fontFamily: 'Inter-Regular',
+                        fontSize: 16,
+                        color: '#151B26',
+                      }}>
+                      {translate('Total')}
+                    </Text>
+                  </View>
+                  <View>
+                    <Text
+                      style={{
+                        fontFamily: 'Inter-Regular',
+                        fontSize: 16,
+                        color: '#151B26',
+                      }}>
+                      $ {orderTotal}
+                    </Text>
+                  </View>
                 </View>
-                <View>
-                  <Text>$ {orderTotal}</Text>
-                </View>
-                <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                  <Text>{translate('HTVA')}?</Text>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    marginBottom: hp('2%'),
+                    justifyContent: 'space-between',
+                  }}>
+                  <Text
+                    style={{
+                      fontFamily: 'Inter-Regular',
+                      fontSize: 15,
+                      color: '#151B26',
+                    }}>
+                    {translate('HTVA')}?
+                  </Text>
                   <CheckBox
                     disabled={editDisabled}
                     value={htvaIsSelected}
@@ -1132,14 +1214,26 @@ class EditPurchase extends Component {
                     }
                     style={{
                       backgroundColor: editColor,
-                      margin: 5,
                       height: 20,
                       width: 20,
                     }}
                   />
                 </View>
-                <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                  <Text>{translate('Audit Complete')}</Text>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    marginBottom: hp('2%'),
+                  }}>
+                  <Text
+                    style={{
+                      fontFamily: 'Inter-Regular',
+                      fontSize: 15,
+                      color: '#151B26',
+                    }}>
+                    {translate('Audit Complete')}
+                  </Text>
                   <CheckBox
                     disabled={editDisabled}
                     value={auditIsSelected}
@@ -1148,19 +1242,18 @@ class EditPurchase extends Component {
                     }
                     style={{
                       backgroundColor: editColor,
-                      margin: 5,
                       height: 20,
                       width: 20,
                     }}
                   />
                 </View>
               </View>
-              {editDisabled && imageData ? (
+              {imageData && !imageShow ? (
                 <View style={{marginTop: 15}}>
                   <Image
                     style={{
-                      width: wp('60%'),
-                      height: 100,
+                      width: wp('50%'),
+                      height: 150,
                       resizeMode: 'cover',
                     }}
                     source={{uri: imageData && imageData.imageText}}
@@ -1185,7 +1278,7 @@ class EditPurchase extends Component {
                   />
                 </TouchableOpacity>
               ) : null}
-              {editDisabled ? null : (
+              {/* {editDisabled ? null : (
                 <View>
                   <TouchableOpacity
                     onPress={() => this.handleChoosePhoto()}
@@ -1196,6 +1289,7 @@ class EditPurchase extends Component {
                       justifyContent: 'center',
                       alignItems: 'center',
                       marginTop: 20,
+                      borderRadius: 100,
                     }}>
                     <View style={{}}>
                       <Text
@@ -1204,12 +1298,12 @@ class EditPurchase extends Component {
                           fontWeight: 'bold',
                           marginLeft: 5,
                         }}>
-                        {translate('Add image')}
+                        Update image
                       </Text>
                     </View>
                   </TouchableOpacity>
                 </View>
-              )}
+              )} */}
 
               {/* {imageData && imageShow === false ? (
                 <View style={{marginTop: 15}}>
@@ -1224,20 +1318,17 @@ class EditPurchase extends Component {
                 </View>
               ) : null} */}
 
-              <View style={{margin: 15, flexDirection: 'row'}}>
-                <View style={{flex: 1}}>
-                  <Text style={{}}>{translate('Note')} </Text>
-                </View>
+              <View style={{}}>
                 <View
                   style={{
-                    flex: 6,
-                    borderWidth: 1,
-                    borderColor: '#A2A2A2',
+                    backgroundColor: '#fff',
+                    borderRadius: 6,
+                    marginTop: hp('3%'),
                   }}>
                   <TextInput
+                    placeholder="Notes"
                     editable={!editDisabled}
                     style={{
-                      backgroundColor: editColor,
                       paddingVertical: '40%',
                       paddingLeft: 10,
                       paddingTop: 10,
@@ -1249,73 +1340,31 @@ class EditPurchase extends Component {
                   />
                 </View>
               </View>
-              <View>
-                <TouchableOpacity
-                  onPress={() => this.goBackFun()}
-                  style={{
-                    paddingVertical: '2%',
-                    width: wp('90%'),
-                    backgroundColor: '#E7943B',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    marginTop: 20,
-                    flexDirection: 'row',
-                  }}>
-                  {editDisabled ? null : (
-                    <View>
-                      <Image
-                        source={img.cancelIcon}
-                        style={{
-                          width: 20,
-                          height: 20,
-                          resizeMode: 'contain',
-                          tintColor: 'white',
-                        }}
-                      />
-                    </View>
-                  )}
-                  <View style={{}}>
-                    <Text
-                      style={{
-                        color: 'white',
-                        fontWeight: 'bold',
-                        marginLeft: 5,
-                      }}>
-                      {editDisabled ? translate('Back') : translate('Cancel')}
-                    </Text>
-                  </View>
-                </TouchableOpacity>
-              </View>
               {editDisabled ? null : (
                 <View>
-                  <TouchableOpacity
-                    onPress={() => this.updateCasualPurchase()}
+                  <View
                     style={{
-                      paddingVertical: '2%',
-                      width: wp('90%'),
-                      backgroundColor: '#94C01F',
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                      marginTop: 10,
                       flexDirection: 'row',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      marginTop: hp('3%'),
                     }}>
-                    <View>
-                      <Image
-                        source={img.checkIcon}
-                        style={{
-                          width: 20,
-                          height: 20,
-                          resizeMode: 'contain',
-                          tintColor: 'white',
-                        }}
-                      />
-                    </View>
-                    <View style={{}}>
+                    <TouchableOpacity
+                      onPress={() => this.updateCasualPurchase()}
+                      style={{
+                        width: wp('30%'),
+                        height: hp('5%'),
+                        alignSelf: 'flex-end',
+                        backgroundColor: '#94C036',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        borderRadius: 100,
+                      }}>
                       <Text
                         style={{
-                          color: 'white',
+                          color: '#fff',
+                          fontSize: 15,
                           fontWeight: 'bold',
-                          marginLeft: 5,
                         }}>
                         {updateLoader ? (
                           <ActivityIndicator size="small" color="#fff" />
@@ -1323,8 +1372,30 @@ class EditPurchase extends Component {
                           translate('Save')
                         )}
                       </Text>
-                    </View>
-                  </TouchableOpacity>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      onPress={() => this.props.navigation.goBack()}
+                      style={{
+                        width: wp('30%'),
+                        height: hp('5%'),
+                        alignSelf: 'flex-end',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        marginLeft: wp('2%'),
+                        borderRadius: 100,
+                        borderWidth: 1,
+                        borderColor: '#482813',
+                      }}>
+                      <Text
+                        style={{
+                          color: '#482813',
+                          fontSize: 15,
+                          fontWeight: 'bold',
+                        }}>
+                        {translate('Cancel')}
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
                 </View>
               )}
             </View>
