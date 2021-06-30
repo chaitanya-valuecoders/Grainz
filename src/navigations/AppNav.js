@@ -37,6 +37,7 @@ import SupplierScreen from '../screens/Home/Setup/Supplier';
 import MenuAnalysisSec from '../screens/Home/Admin/Reports/MenuAnalysisSec';
 import SalesAdminSec from '../screens/Home/Admin/Sales/SalesSec';
 import InventoryAdminSec from '../screens/Home/Admin/Inventory/InventorySec';
+import OrderNowInventoryAdminScreen from '../screens/Home/Admin/Inventory/OrderNow';
 import InventorySetupSecScreen from '../screens/Home/Setup/Inventory/InventorySetupSec';
 import EditInventorySetupScreen from '../screens/Home/Setup/Inventory/EditInventorySetup';
 import ViewRecipeScreen from '../screens/Home/Setup/Recipe/ViewRecipe';
@@ -64,6 +65,10 @@ export default function AppNavFun() {
       <AppNav.Screen
         name="CasualPurchaseScreen"
         component={CasualPurchaseScreen}
+      />
+      <AppNav.Screen
+        name="OrderNowInventoryAdminScreen"
+        component={OrderNowInventoryAdminScreen}
       />
       <AppNav.Screen name="AddPurchaseScreen" component={AddPurchaseScreen} />
       <AppNav.Screen

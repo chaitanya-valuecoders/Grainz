@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   ScrollView,
   ActivityIndicator,
+  TextInput,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {connect} from 'react-redux';
@@ -18,8 +19,10 @@ import {
 import {UserTokenAction} from '../../../../redux/actions/UserTokenAction';
 import {
   getMyProfileApi,
+  getMappedProductsInventoryAdminApi,
   lookupInsideCategoriesApi,
 } from '../../../../connectivity/api';
+import CheckBox from '@react-native-community/checkbox';
 
 import styles from './style';
 
@@ -33,7 +36,6 @@ class InventorySec extends Component {
       recipeLoader: false,
       buttonsSubHeader: [],
       finalName: '',
-      sectionName: '',
       modalLoader: true,
     };
   }
@@ -77,19 +79,20 @@ class InventorySec extends Component {
 
   componentDidMount() {
     this.getData();
-    const {item, section} = this.props.route && this.props.route.params;
+    const {item} = this.props.route && this.props.route.params;
+    console.log('Ite', item);
     this.setState(
       {
-        sectionName: section.title,
         finalName: item.name,
       },
-      () => this.getInsideCatFun(item.id),
+      () => this.getMappedProductsFun(item.id),
     );
   }
 
-  getInsideCatFun = catId => {
-    lookupInsideCategoriesApi(catId)
+  getMappedProductsFun = id => {
+    getMappedProductsInventoryAdminApi(id)
       .then(res => {
+        console.log('res', res);
         this.setState({
           modalData: res.data,
           modalLoader: false,
@@ -109,19 +112,17 @@ class InventorySec extends Component {
   };
 
   orderNowFun = item => {
-    this.props.navigation.navigate('OrderNowInventoryAdminScreen', {
-      item,
-    });
+    this.props.navigation.navigate('OrderNowInventoryAdminScreen');
+    console.log('item', item);
+  };
+
+  addToBasketFun = item => {
+    alert('Add to basket');
+    console.log('item', item);
   };
   render() {
-    const {
-      buttonsSubHeader,
-      recipeLoader,
-      modalData,
-      finalName,
-      modalLoader,
-      sectionName,
-    } = this.state;
+    const {buttonsSubHeader, recipeLoader, modalData, finalName, modalLoader} =
+      this.state;
 
     return (
       <View style={styles.container}>
@@ -140,7 +141,10 @@ class InventorySec extends Component {
           <View style={styles.subContainer}>
             <View style={styles.firstContainer}>
               <View style={{flex: 1}}>
-                <Text style={styles.adminTextStyle}> {sectionName}</Text>
+                <Text style={styles.adminTextStyle}>
+                  {' '}
+                  Mapped Products - {finalName}
+                </Text>
               </View>
               <TouchableOpacity
                 onPress={() => this.props.navigation.goBack()}
@@ -183,51 +187,63 @@ class InventorySec extends Component {
                                   width: wp('30%'),
                                   alignItems: 'center',
                                 }}>
-                                <Text style={{textAlign: 'center'}}>
-                                  {finalName}
-                                </Text>
+                                <Text>In Stock?</Text>
                               </View>
                               <View
                                 style={{
                                   width: wp('30%'),
                                   alignItems: 'center',
                                 }}>
-                                <Text>Current inventory</Text>
+                                <Text>Supplier</Text>
                               </View>
                               <View
                                 style={{
                                   width: wp('30%'),
                                   alignItems: 'center',
                                 }}>
-                                <Text>On Order</Text>
+                                <Text>Code</Text>
                               </View>
                               <View
                                 style={{
                                   width: wp('30%'),
                                   alignItems: 'center',
                                 }}>
-                                <Text>Events(+7d)</Text>
+                                <Text>Name</Text>
                               </View>
                               <View
                                 style={{
                                   width: wp('30%'),
                                   alignItems: 'center',
                                 }}>
-                                <Text>Target</Text>
+                                <Text>Quantity</Text>
                               </View>
                               <View
                                 style={{
                                   width: wp('30%'),
                                   alignItems: 'center',
                                 }}>
-                                <Text>Delta</Text>
+                                <Text>Price</Text>
                               </View>
                               <View
                                 style={{
                                   width: wp('30%'),
                                   alignItems: 'center',
                                 }}>
-                                <Text>Order Now</Text>
+                                <Text>Preferred?</Text>
+                              </View>
+                              <View
+                                style={{
+                                  width: wp('30%'),
+                                  alignItems: 'center',
+                                }}>
+                                <Text>Quantity</Text>
+                              </View>
+                              <View
+                                style={{
+                                  width: wp('30%'),
+                                  alignItems: 'center',
+                                }}>
+                                <Text>Action</Text>
                               </View>
                             </View>
                             <View>
@@ -251,18 +267,49 @@ class InventorySec extends Component {
                                           alignItems: 'center',
                                           justifyContent: 'center',
                                         }}>
-                                        <Text style={{textAlign: 'center'}}>
-                                          {item.name}
-                                        </Text>
+                                        <CheckBox
+                                          value={item.isInStock}
+                                          // onValueChange={() =>
+                                          //   this.setState({htvaIsSelected: !htvaIsSelected})
+                                          // }
+                                          style={{
+                                            height: 20,
+                                            width: 20,
+                                          }}
+                                        />
                                       </View>
                                       <View
                                         style={{
                                           width: wp('30%'),
-                                          justifyContent: 'center',
                                           alignItems: 'center',
+                                          justifyContent: 'center',
+                                        }}>
+                                        <Text>{item.supplierName}</Text>
+                                      </View>
+                                      <View
+                                        style={{
+                                          width: wp('30%'),
+                                          alignItems: 'center',
+                                          justifyContent: 'center',
+                                        }}>
+                                        <Text>{item.productCode}</Text>
+                                      </View>
+                                      <View
+                                        style={{
+                                          width: wp('30%'),
+                                          alignItems: 'center',
+                                          justifyContent: 'center',
+                                        }}>
+                                        <Text>{item.productName}</Text>
+                                      </View>
+                                      <View
+                                        style={{
+                                          width: wp('30%'),
+                                          alignItems: 'center',
+                                          justifyContent: 'center',
                                         }}>
                                         <Text>
-                                          {item.currentInventory.toFixed(2)}
+                                          {item.volume} {item.unit}
                                         </Text>
                                       </View>
                                       <View
@@ -271,7 +318,7 @@ class InventorySec extends Component {
                                           alignItems: 'center',
                                           justifyContent: 'center',
                                         }}>
-                                        <Text>{item.onOrder.toFixed(2)}</Text>
+                                        <Text>$ {item.comparePrice}</Text>
                                       </View>
                                       <View
                                         style={{
@@ -279,9 +326,16 @@ class InventorySec extends Component {
                                           alignItems: 'center',
                                           justifyContent: 'center',
                                         }}>
-                                        <Text>
-                                          {item.eventsOnOrder.toFixed(2)}
-                                        </Text>
+                                        <CheckBox
+                                          value={item.isPreferred}
+                                          // onValueChange={() =>
+                                          //   this.setState({htvaIsSelected: !htvaIsSelected})
+                                          // }
+                                          style={{
+                                            height: 20,
+                                            width: 20,
+                                          }}
+                                        />
                                       </View>
                                       <View
                                         style={{
@@ -289,35 +343,35 @@ class InventorySec extends Component {
                                           alignItems: 'center',
                                           justifyContent: 'center',
                                         }}>
-                                        <Text>
-                                          {item.targetInventory.toFixed(2)}
-                                        </Text>
-                                      </View>
-                                      <View
-                                        style={{
-                                          width: wp('30%'),
-                                          alignItems: 'center',
-                                          justifyContent: 'center',
-                                        }}>
-                                        <Text>{item.delta.toFixed(2)}</Text>
+                                        <TextInput
+                                          placeholder="Quantity"
+                                          style={{
+                                            borderWidth: 1,
+                                            paddingLeft: 10,
+                                            width: wp('20%'),
+                                            height: hp('5%'),
+                                            borderRadius: 6,
+                                          }}
+                                        />
                                       </View>
                                       <TouchableOpacity
-                                        onPress={() => this.orderNowFun(item)}
+                                        onPress={() =>
+                                          this.addToBasketFun(item)
+                                        }
                                         style={{
                                           width: wp('30%'),
                                           alignItems: 'center',
                                           backgroundColor: '#94C036',
                                           justifyContent: 'center',
                                           borderRadius: 100,
-                                          height: hp('5%'),
                                         }}>
                                         <Text
                                           style={{
+                                            color: '#fff',
                                             fontSize: 14,
                                             fontFamily: 'Inter-Regular',
-                                            color: '#fff',
                                           }}>
-                                          Order Now
+                                          Add to basket
                                         </Text>
                                       </TouchableOpacity>
                                     </View>

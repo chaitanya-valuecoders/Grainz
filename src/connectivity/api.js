@@ -762,3 +762,16 @@ export const deleteEventItemAdminApi = async (payload, id) => {
     },
   });
 };
+
+export const getMappedProductsInventoryAdminApi = async id => {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.get(
+    baseURL +
+      `/InventoryProductMapping/Inventory product mappings by inventory id?inventoryId=${id}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  );
+};

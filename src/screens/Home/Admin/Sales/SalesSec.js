@@ -3,12 +3,8 @@ import {
   View,
   Text,
   TouchableOpacity,
-  Image,
   ScrollView,
   ActivityIndicator,
-  Switch,
-  TextInput,
-  Alert,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {connect} from 'react-redux';
@@ -20,14 +16,8 @@ import {
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
 import {UserTokenAction} from '../../../../redux/actions/UserTokenAction';
-import {
-  getMyProfileApi,
-  salesReportAdminApi,
-} from '../../../../connectivity/api';
-import Modal from 'react-native-modal';
-import Accordion from 'react-native-collapsible/Accordion';
-import moment from 'moment';
-import DateTimePickerModal from 'react-native-modal-datetime-picker';
+import {getMyProfileApi} from '../../../../connectivity/api';
+
 import styles from './style';
 
 import {translate} from '../../../../utils/translations';
@@ -121,15 +111,12 @@ class SalesSec extends Component {
           <SubHeader {...this.props} buttons={buttonsSubHeader} index={0} />
         )}
         <ScrollView
-          style={{marginBottom: hp('5%')}}
+          style={{marginBottom: hp('2%')}}
           showsVerticalScrollIndicator={false}>
           <View style={styles.subContainer}>
             <View style={styles.firstContainer}>
               <View style={{flex: 1}}>
-                <Text style={styles.adminTextStyle}>
-                  {' '}
-                  {this.state.sectionName}
-                </Text>
+                <Text style={styles.adminTextStyle}> {sectionName}</Text>
               </View>
               <TouchableOpacity
                 onPress={() => this.props.navigation.goBack()}
@@ -257,32 +244,44 @@ class SalesSec extends Component {
                                         width: wp('30%'),
                                         alignItems: 'center',
                                       }}>
-                                      <Text>{item.quantity}</Text>
+                                      <Text>{item.quantity.toFixed(2)}</Text>
                                     </View>
                                     <View
-                                      style={{
-                                        width: wp('30%'),
-                                        alignItems: 'center',
-                                      }}>
-                                      <Text>{item.totalPriceFormatted}</Text>
-                                    </View>
-                                    <View
-                                      style={{
-                                        width: wp('30%'),
-                                        alignItems: 'center',
-                                      }}>
-                                      <Text>{item.vatAmountFormatted}</Text>
-                                    </View>
-                                    <TouchableOpacity
-                                      onPress={() => alert('ORDER NOW')}
                                       style={{
                                         width: wp('30%'),
                                         alignItems: 'center',
                                       }}>
                                       <Text>
-                                        {item.priceExcludingVATFormatted}
+                                        ${' '}
+                                        {Number(
+                                          item.totalPriceFormatted,
+                                        ).toFixed(2)}
                                       </Text>
-                                    </TouchableOpacity>
+                                    </View>
+                                    <View
+                                      style={{
+                                        width: wp('30%'),
+                                        alignItems: 'center',
+                                      }}>
+                                      <Text>
+                                        ${' '}
+                                        {Number(
+                                          item.vatAmountFormatted,
+                                        ).toFixed(2)}
+                                      </Text>
+                                    </View>
+                                    <View
+                                      style={{
+                                        width: wp('30%'),
+                                        alignItems: 'center',
+                                      }}>
+                                      <Text>
+                                        ${' '}
+                                        {Number(
+                                          item.priceExcludingVATFormatted,
+                                        ).toFixed(2)}
+                                      </Text>
+                                    </View>
                                   </View>
                                 );
                               })
