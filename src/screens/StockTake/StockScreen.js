@@ -22,12 +22,16 @@ import {
   getMyProfileApi,
   lookupInventoryApi,
   getStockDataApi,
+  getNewTopStockTakeApi,
+  getNewStockTakeApi,
 } from '../../connectivity/api';
 import Accordion from 'react-native-collapsible/Accordion';
 import styles from './style';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import {translate} from '../../utils/translations';
 import moment from 'moment';
+import Modal from 'react-native-modal';
+import CheckBox from '@react-native-community/checkbox';
 
 class StockScreen extends Component {
   constructor(props) {
@@ -50,6 +54,10 @@ class StockScreen extends Component {
       finalDate: '',
       isDatePickerVisible: false,
       pageDate: '',
+      newModalIsVisible: false,
+      allSelected: true,
+      topSelected: false,
+      topCount: '',
     };
   }
 
@@ -398,6 +406,192 @@ class StockScreen extends Component {
     });
   };
 
+  openNewModalFun() {
+    this.setState({newModalIsVisible: true});
+  }
+
+  closeNewModalFun() {
+    this.setState({
+      newModalIsVisible: false,
+      topCount: '',
+      allSelected: true,
+      topSelected: false,
+    });
+  }
+
+  startFun = () => {
+    const {topCount} = this.state;
+    let newdate = moment(new Date()).format('MM/DD/YYYY');
+    const finalDate = new Date().toISOString();
+    if (topCount) {
+      this.setState(
+        {
+          recipeLoader: true,
+          finalDate: newdate,
+          newModalIsVisible: false,
+          buttonStatus: 'Start',
+          pageDate: finalDate,
+        },
+        () => this.getStockDataCountFun(),
+      );
+    } else {
+      this.setState(
+        {
+          recipeLoader: true,
+          finalDate: newdate,
+          newModalIsVisible: false,
+          buttonStatus: 'Start',
+          pageDate: finalDate,
+        },
+        () => this.getStockDataFun(),
+      );
+    }
+  };
+
+  endFun = () => {
+    const {topCount} = this.state;
+    var tomorrow = new Date();
+    tomorrow.setDate(new Date().getDate() + 1);
+    let newdate = moment(tomorrow).format('MM/DD/YYYY');
+    const finalDate = tomorrow.toISOString();
+    if (topCount) {
+      this.setState(
+        {
+          recipeLoader: true,
+          finalDate: newdate,
+          newModalIsVisible: false,
+          buttonStatus: 'End',
+          pageDate: finalDate,
+        },
+        () => this.getStockDataCountFun(),
+      );
+    } else {
+      this.setState(
+        {
+          recipeLoader: true,
+          finalDate: newdate,
+          newModalIsVisible: false,
+          buttonStatus: 'End',
+          pageDate: finalDate,
+        },
+        () => this.getStockDataFun(),
+      );
+    }
+  };
+
+  getStockDataFun = () => {
+    const {departmentData, finalDate} = this.state;
+    getNewStockTakeApi(departmentData.id, finalDate)
+      .then(res => {
+        this.setState({newStock: res.data});
+
+        function groupByKey(array, key) {
+          return array.reduce((hash, obj) => {
+            if (obj[key] === undefined) return hash;
+            return Object.assign(hash, {
+              [obj[key]]: (hash[obj[key]] || []).concat(obj),
+            });
+          }, {});
+        }
+
+        let groupedCategory = groupByKey(res.data, 'category');
+
+        let finalArray = Object.keys(groupedCategory).map((item, index) => {
+          return {
+            name: item,
+            id: item,
+            children: groupedCategory[item],
+          };
+        });
+
+        let childrenList = [];
+        let list = [...finalArray];
+        let newItems = [];
+        let pos = 0;
+        list.map(item => {
+          // console.warn('lll', item);
+          childrenList.push(item.children);
+          newItems.push({
+            name: item.name,
+            id: item.id,
+            position: pos,
+            children: [],
+            showChildren: false,
+            sortedAlpha: false,
+            sortedByDate: false,
+          });
+          pos = pos + 1;
+        });
+        this.setState({
+          items: newItems,
+          childrenList: childrenList,
+          recipeLoader: false,
+          itemsStatus: true,
+        });
+      })
+      .catch(err => {
+        console.warn('Err', err.response);
+      });
+  };
+
+  getStockDataCountFun = () => {
+    const {departmentData, finalDate, topCount} = this.state;
+    getNewTopStockTakeApi(departmentData.id, finalDate, topCount)
+      .then(res => {
+        console.log('res', res);
+        this.setState({newStock: res.data});
+
+        function groupByKey(array, key) {
+          return array.reduce((hash, obj) => {
+            if (obj[key] === undefined) return hash;
+            return Object.assign(hash, {
+              [obj[key]]: (hash[obj[key]] || []).concat(obj),
+            });
+          }, {});
+        }
+
+        let groupedCategory = groupByKey(res.data, 'category');
+
+        let finalArray = Object.keys(groupedCategory).map((item, index) => {
+          return {
+            name: item,
+            id: item,
+            children: groupedCategory[item],
+          };
+        });
+
+        let childrenList = [];
+        let list = [...finalArray];
+        let newItems = [];
+        let pos = 0;
+        list.map(item => {
+          // console.warn('lll', item);
+          childrenList.push(item.children);
+          newItems.push({
+            name: item.name,
+            id: item.id,
+            position: pos,
+            children: [],
+            showChildren: false,
+            sortedAlpha: false,
+            sortedByDate: false,
+          });
+          pos = pos + 1;
+        });
+        this.setState({
+          items: newItems,
+          childrenList: childrenList,
+          recipeLoader: false,
+          itemsStatus: true,
+        });
+      })
+      .catch(err => {
+        this.setState({
+          recipeLoader: false,
+        });
+        console.warn('Err', err.response);
+      });
+  };
   render() {
     const {
       recipeLoader,
@@ -408,6 +602,10 @@ class StockScreen extends Component {
       isDatePickerVisible,
       finalDate,
       subHeaderLoader,
+      newModalIsVisible,
+      allSelected,
+      topSelected,
+      topCount,
     } = this.state;
 
     return (
@@ -440,7 +638,9 @@ class StockScreen extends Component {
           </View>
           <View>
             <View style={styles.firstContainer}>
-              <TouchableOpacity style={{flex: 1}}>
+              <TouchableOpacity
+                style={{flex: 1}}
+                onPress={() => this.openNewModalFun()}>
                 <Text style={styles.adminTextStyle}>{translate('New')}</Text>
               </TouchableOpacity>
               <TouchableOpacity
@@ -502,6 +702,207 @@ class StockScreen extends Component {
               />
             </View>
           )}
+          <Modal isVisible={newModalIsVisible} backdropOpacity={0.35}>
+            <View
+              style={{
+                width: wp('80%'),
+                height: hp('50%'),
+                backgroundColor: '#F0F4FE',
+                alignSelf: 'center',
+                borderRadius: 6,
+              }}>
+              <View
+                style={{
+                  backgroundColor: '#99C23E',
+                  height: hp('6%'),
+                  flexDirection: 'row',
+                  borderTopLeftRadius: 6,
+                  borderTopRightRadius: 6,
+                }}>
+                <View
+                  style={{
+                    flex: 3,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}>
+                  <Text
+                    style={{
+                      fontSize: 16,
+                      color: '#fff',
+                      fontFamily: 'Inter-Regular',
+                    }}>
+                    {translate('Stock take quantity')}
+                  </Text>
+                </View>
+                <View
+                  style={{
+                    flex: 1,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}>
+                  <TouchableOpacity onPress={() => this.closeNewModalFun()}>
+                    <Image
+                      source={img.cancelIcon}
+                      style={{
+                        height: 22,
+                        width: 22,
+                        tintColor: 'white',
+                        resizeMode: 'contain',
+                      }}
+                    />
+                  </TouchableOpacity>
+                </View>
+              </View>
+              <ScrollView>
+                <View style={{padding: hp('3%')}}>
+                  <View style={{}}>
+                    <View style={{marginBottom: 10}}>
+                      <Text
+                        style={{
+                          fontFamily: 'Inter-Regular',
+                          fontSize: 15,
+                          color: '#000000',
+                        }}>
+                        {translate(
+                          'Stock take must be done at the start of the day or at the end of the day',
+                        )}
+                      </Text>
+                    </View>
+
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        marginTop: hp('2%'),
+                      }}>
+                      <Text
+                        style={{
+                          width: 50,
+                          fontFamily: 'Inter-SemiBold',
+                          fontSize: 15,
+                          color: '#000000',
+                        }}>
+                        All
+                      </Text>
+                      <CheckBox
+                        value={allSelected}
+                        onValueChange={() =>
+                          this.setState({
+                            allSelected: true,
+                            topSelected: false,
+                          })
+                        }
+                        style={{
+                          height: 20,
+                          width: 20,
+                        }}
+                      />
+                    </View>
+
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        marginTop: 20,
+                      }}>
+                      <Text
+                        style={{
+                          width: 50,
+                          fontFamily: 'Inter-SemiBold',
+                          fontSize: 15,
+                          color: '#000000',
+                        }}>
+                        Top
+                      </Text>
+                      <CheckBox
+                        value={topSelected}
+                        onValueChange={() =>
+                          this.setState({
+                            topSelected: true,
+                            allSelected: false,
+                          })
+                        }
+                        style={{
+                          height: 20,
+                          width: 20,
+                        }}
+                      />
+                    </View>
+
+                    {topSelected ? (
+                      <TextInput
+                        style={{
+                          paddingVertical: 10,
+                          borderColor: 'grey',
+                          borderWidth: 1,
+                          width: wp('20%'),
+                          paddingLeft: 10,
+                          marginTop: hp('2%'),
+                        }}
+                        multiline={true}
+                        numberOfLines={1}
+                        onChangeText={value => {
+                          this.setState({
+                            topCount: value,
+                          });
+                        }}
+                        value={topCount}
+                      />
+                    ) : null}
+
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        marginTop: hp('5%'),
+                        justifyContent: 'center',
+                      }}>
+                      <TouchableOpacity
+                        onPress={() => this.startFun()}
+                        style={{
+                          height: hp('5%'),
+                          backgroundColor: '#94C036',
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                          borderRadius: 100,
+                          width: wp('20%'),
+                        }}>
+                        <Text
+                          style={{
+                            color: '#fff',
+                            fontSize: 15,
+                            fontWeight: 'bold',
+                          }}>
+                          {translate('Start')}
+                        </Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        onPress={() => this.endFun()}
+                        style={{
+                          width: wp('15%'),
+                          height: hp('5%'),
+                          backgroundColor: '#E7943B',
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                          borderRadius: 100,
+                          width: wp('20%'),
+                          marginLeft: 15,
+                        }}>
+                        <Text
+                          style={{
+                            color: '#fff',
+                            fontSize: 15,
+                            fontWeight: 'bold',
+                          }}>
+                          {translate('End')}
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                </View>
+              </ScrollView>
+            </View>
+          </Modal>
         </ScrollView>
       </View>
     );

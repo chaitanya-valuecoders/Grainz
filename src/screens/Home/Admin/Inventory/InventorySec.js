@@ -230,6 +230,7 @@ class InventorySec extends Component {
                                 modalData.map((item, index) => {
                                   return (
                                     <View
+                                      key={index}
                                       style={{
                                         paddingVertical: 10,
                                         paddingHorizontal: 5,

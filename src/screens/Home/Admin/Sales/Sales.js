@@ -1202,7 +1202,7 @@ class Sales extends Component {
                   </TouchableOpacity>
                 </View>
               </View>
-              <ScrollView>
+              <ScrollView showsVerticalScrollIndicator={false}>
                 <View style={{padding: hp('3%')}}>
                   <View style={{}}>
                     <TouchableOpacity
