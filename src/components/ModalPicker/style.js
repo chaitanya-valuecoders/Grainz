@@ -12,6 +12,7 @@ const styles = StyleSheet.create({
   labelStyling: {
     fontFamily: 'Inter-Regular',
     fontSize: 15,
+    color: 'black',
   },
   pickerStyle: {
     elevation: 3,
@@ -22,13 +23,14 @@ const styles = StyleSheet.create({
     },
     shadowRadius: 10,
     backgroundColor: 'rgba(255,255,255,1)',
-    shadowColor: '#d3d3d3',
+    // shadowColor: '#d3d3d3',
     borderRadius: 5,
     flexDirection: 'row',
-    paddingVertical: 17,
+    paddingVertical: 15,
     paddingHorizontal: 10,
     justifyContent: 'space-between',
     alignItems: 'center',
+    shadowColor: 'rgba(0, 0, 0, 0.05)',
   },
 });
 export default styles;

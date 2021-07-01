@@ -189,8 +189,9 @@ class OrderingSec extends Component {
     this.props.navigation.navigate('MyProfile');
   };
 
-  onPressFun = item => {
-    if (item.id === 0) {
+  cloneFun = item => {
+    const {supplierValue} = this.state;
+    if (supplierValue) {
       this.setState(
         {
           clonePreviouseModalStatus: true,
@@ -198,12 +199,8 @@ class OrderingSec extends Component {
         },
         () => this.hitCloneApi(),
       );
-    } else if (item.id === 1) {
-      this.props.navigation.goBack();
-    } else if (item.id === 2) {
-      alert('Save');
     } else {
-      alert('Send');
+      alert('Please select supplier first');
     }
   };
 
@@ -859,7 +856,7 @@ class OrderingSec extends Component {
             </View>
           </View>
           <TouchableOpacity
-            onPress={() => alert('Clone Previous')}
+            onPress={() => this.cloneFun()}
             style={{
               flexDirection: 'row',
               height: hp('6%'),
@@ -882,50 +879,6 @@ class OrderingSec extends Component {
               </Text>
             </View>
           </TouchableOpacity>
-          {/* <View
-            style={{
-              backgroundColor: '#412916',
-              alignItems: 'center',
-              paddingVertical: hp('3%'),
-            }}>
-            <Text style={{fontSize: 22, color: 'white'}}>
-              {translate('New Order').toLocaleUpperCase()}
-            </Text>
-            {buttons.map((item, index) => {
-              return (
-                <View style={{}} key={index}>
-                  <TouchableOpacity
-                    disabled={
-                      item.id === 1
-                        ? false
-                        : supplierValue === null
-                        ? true
-                        : false
-                    }
-                    onPress={() => this.onPressFun(item)}
-                    style={{
-                      height: hp('6%'),
-                      width: wp('70%'),
-                      backgroundColor:
-                        item.id === 1
-                          ? '#94C036'
-                          : supplierValue === null
-                          ? '#778C26'
-                          : '#94C036',
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                      marginTop: 20,
-                    }}>
-                    <View style={{}}>
-                      <Text style={{color: 'white', marginLeft: 5}}>
-                        {item.name}
-                      </Text>
-                    </View>
-                  </TouchableOpacity>
-                </View>
-              );
-            })}
-          </View> */}
 
           {pageLoading ? (
             <ActivityIndicator color="#94C036" size="large" />
@@ -1017,7 +970,7 @@ class OrderingSec extends Component {
                         borderRadius: 5,
                       }}>
                       <TextInput
-                        placeholder="dd-mm-yy"
+                        placeholder="Order Date"
                         value={finalOrderDate}
                         editable={false}
                       />
@@ -1056,7 +1009,7 @@ class OrderingSec extends Component {
                         borderRadius: 5,
                       }}>
                       <TextInput
-                        placeholder="dd-mm-yy"
+                        placeholder="Delivery Date"
                         value={finalDeliveryDate}
                         editable={false}
                       />
@@ -1235,27 +1188,6 @@ class OrderingSec extends Component {
                     Order From
                   </Text>
                 </View>
-
-                {/* <View style={{alignSelf: 'center'}}>
-                  <TouchableOpacity
-                    onPress={() => this.inventoryListFun()}
-                    disabled={supplierValue === null ? true : false}
-                    style={{
-                      height: hp('6%'),
-                      width: wp('70%'),
-                      backgroundColor:
-                        supplierValue === null ? '#778C26' : '#94C036',
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                      marginTop: 20,
-                    }}>
-                    <View style={{}}>
-                      <Text style={{color: 'white', marginLeft: 5}}>
-                        Inventory List
-                      </Text>
-                    </View>
-                  </TouchableOpacity>
-                </View> */}
                 {/* <View style={{alignSelf: 'center'}}>
                   <TouchableOpacity
                     onPress={() => this.supplierFun()}
@@ -1276,62 +1208,6 @@ class OrderingSec extends Component {
                     </View>
                   </TouchableOpacity>
                 </View> */}
-                {/* <View style={{alignSelf: 'center'}}>
-                  <TouchableOpacity
-                    onPress={() => alert('Save draft')}
-                    disabled={supplierValue === null ? true : false}
-                    style={{
-                      height: hp('6%'),
-                      width: wp('70%'),
-                      backgroundColor:
-                        supplierValue === null ? '#778C26' : '#94C036',
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                      marginTop: 20,
-                    }}>
-                    <View style={{}}>
-                      <Text style={{color: 'white', marginLeft: 5}}>
-                        Save draft
-                      </Text>
-                    </View>
-                  </TouchableOpacity>
-                </View> */}
-                {/* <View style={{alignSelf: 'center'}}>
-                  <TouchableOpacity
-                    onPress={() => alert('Send')}
-                    disabled={supplierValue === null ? true : false}
-                    style={{
-                      height: hp('6%'),
-                      width: wp('70%'),
-                      backgroundColor:
-                        supplierValue === null ? '#778C26' : '#94C036',
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                      marginTop: 20,
-                    }}>
-                    <View style={{}}>
-                      <Text style={{color: 'white', marginLeft: 5}}>Send</Text>
-                    </View>
-                  </TouchableOpacity>
-                </View> */}
-                {/* <View style={{alignSelf: 'center'}}>
-                  <TouchableOpacity
-                    onPress={() => alert('View')}
-                    disabled={supplierValue === null ? true : false}
-                    style={{
-                      height: hp('6%'),
-                      width: wp('70%'),
-                      backgroundColor:
-                        supplierValue === null ? '#778C26' : '#94C036',
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                      marginTop: 20,
-                    }}>
-                    <View style={{}}>
-                      <Text style={{color: 'white', marginLeft: 5}}>View</Text>
-                    </View>
-                  </TouchableOpacity>
-                </View> */}
               </View>
             </View>
           )}
@@ -1339,15 +1215,18 @@ class OrderingSec extends Component {
             <View
               style={{
                 width: wp('80%'),
-                height: hp('85%'),
-                backgroundColor: '#fff',
+                height: hp('70%'),
+                backgroundColor: '#F0F4FE',
                 alignSelf: 'center',
+                borderRadius: 6,
               }}>
               <View
                 style={{
-                  backgroundColor: '#412916',
+                  backgroundColor: '#83AB2F',
                   height: hp('6%'),
                   flexDirection: 'row',
+                  borderTopRightRadius: 6,
+                  borderTopLeftRadius: 6,
                 }}>
                 <View
                   style={{
@@ -1355,7 +1234,12 @@ class OrderingSec extends Component {
                     alignItems: 'center',
                     justifyContent: 'center',
                   }}>
-                  <Text style={{fontSize: 16, color: '#fff'}}>
+                  <Text
+                    style={{
+                      fontSize: 16,
+                      color: '#fff',
+                      fontFamily: 'Inter-Regular',
+                    }}>
                     {translate('Previous order item')}
                   </Text>
                 </View>
@@ -1384,7 +1268,7 @@ class OrderingSec extends Component {
                 {cloneLoader ? (
                   <ActivityIndicator color="grey" size="large" />
                 ) : (
-                  <View>
+                  <View style={{marginTop: hp('2%')}}>
                     {cloneOrderData.length > 0 ? (
                       <View>
                         {cloneOrderData.map(item => {
@@ -1393,7 +1277,8 @@ class OrderingSec extends Component {
                               <Text
                                 style={{
                                   marginVertical: hp('2%'),
-                                  color: '#646464',
+                                  color: '#151B26',
+                                  fontFamily: 'Inter-Regular',
                                 }}>
                                 {moment(item.orderDate).format('LL')}
                               </Text>
@@ -1426,6 +1311,7 @@ class OrderingSec extends Component {
                     justifyContent: 'center',
                     alignItems: 'center',
                     marginBottom: 20,
+                    borderRadius: 100,
                   }}>
                   <View style={{}}>
                     <Text style={{color: 'white', marginLeft: 5}}>Close</Text>
@@ -1656,7 +1542,7 @@ class OrderingSec extends Component {
               </View>
             </View>
           </Modal>
-          <Modal isVisible={modalVisibleInventory} backdropOpacity={0.35}>
+          {/* <Modal isVisible={modalVisibleInventory} backdropOpacity={0.35}>
             <View
               style={{
                 width: wp('80%'),
@@ -1755,14 +1641,13 @@ class OrderingSec extends Component {
                 )}
               </ScrollView>
             </View>
-          </Modal>
+          </Modal> */}
           <FlatList
             data={buttons}
             renderItem={({item}) => (
               <View style={styles.itemContainer}>
                 <TouchableOpacity
-                  // onPress={() => this.onPressFun(item)}
-                  onPress={() => alert('WIP')}
+                  onPress={() => this.inventoryListFun()}
                   style={{
                     backgroundColor: '#fff',
                     flex: 1,

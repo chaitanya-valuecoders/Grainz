@@ -6,6 +6,7 @@ import {
   ScrollView,
   ActivityIndicator,
   TextInput,
+  Image,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {connect} from 'react-redux';
@@ -19,7 +20,7 @@ import {
 import {UserTokenAction} from '../../../../redux/actions/UserTokenAction';
 import {
   getMyProfileApi,
-  draftOrderingApi,
+  deliveryPendingApi,
   reviewOrderApi,
   historyOrderApi,
 } from '../../../../connectivity/api';
@@ -40,6 +41,7 @@ class PendingDelivery extends Component {
       deliveryPendingData: [],
       deliveryPendingDataBackup: [],
       listId: '',
+      type: '',
     };
   }
 
@@ -93,6 +95,7 @@ class PendingDelivery extends Component {
 
   getFinalData = () => {
     const {listId} = this.state;
+    console.log('listId', listId);
     if (listId === 2) {
       this.getDeliveryPendingData();
     } else if (listId === 3) {
@@ -103,12 +106,13 @@ class PendingDelivery extends Component {
   };
 
   getDeliveryPendingData = () => {
-    draftOrderingApi()
+    deliveryPendingApi()
       .then(res => {
         this.setState({
           deliveryPendingData: res.data,
           deliveryPendingDataBackup: res.data,
           modalLoaderDrafts: false,
+          type: 'Pending',
         });
       })
       .catch(err => {
@@ -123,6 +127,7 @@ class PendingDelivery extends Component {
           deliveryPendingData: res.data,
           deliveryPendingDataBackup: res.data,
           modalLoaderDrafts: false,
+          type: 'Review',
         });
       })
       .catch(err => {
@@ -137,6 +142,7 @@ class PendingDelivery extends Component {
           deliveryPendingData: res.data,
           deliveryPendingDataBackup: res.data,
           modalLoaderDrafts: false,
+          type: 'History',
         });
       })
       .catch(err => {
@@ -152,6 +158,37 @@ class PendingDelivery extends Component {
     this.props.navigation.goBack();
   };
 
+  searchFun = txt => {
+    this.setState(
+      {
+        searchItem: txt,
+      },
+      () => this.filterData(txt),
+    );
+  };
+
+  filterData = text => {
+    //passing the inserted text in textinput
+
+    const newData = this.state.deliveryPendingDataBackup.filter(function (
+      item,
+    ) {
+      console.log('item', item);
+      //applying filter for the inserted text in search bar
+      const itemData = item.supplierName
+        ? item.supplierName.toUpperCase()
+        : ''.toUpperCase();
+      const textData = text.toUpperCase();
+      return itemData.indexOf(textData) > -1;
+    });
+    this.setState({
+      //setting the filtered newData on datasource
+      //After setting the data it will automatically re-render the view
+      deliveryPendingData: newData,
+      searchItem: text,
+    });
+  };
+
   render() {
     const {
       buttonsSubHeader,
@@ -159,6 +196,8 @@ class PendingDelivery extends Component {
       modalLoaderDrafts,
       deliveryPendingData,
       listId,
+      searchItem,
+      type,
     } = this.state;
 
     return (
@@ -196,33 +235,39 @@ class PendingDelivery extends Component {
             </View>
           </View>
 
-          {/* <View
+          <View
             style={{
-              padding: hp('3%'),
+              flexDirection: 'row',
+              alignItems: 'center',
+              borderWidth: 1,
+              borderColor: '#E2E8F0',
+              height: hp('7%'),
+              width: wp('90%'),
+              borderRadius: 100,
+              backgroundColor: '#fff',
+              alignSelf: 'center',
+              justifyContent: 'space-between',
+              marginVertical: hp('1.5%'),
             }}>
-            <View style={{}}>
-              <View style={{}}>
-                <View style={{}}>
-                  <Text style={{color: 'grey'}}>{translate('Search')} : </Text>
-                </View>
-              </View>
-              <TextInput
-                placeholder="Search"
-                // value={searchItem}
-                style={{
-                  flexDirection: 'row',
-                  height: hp('5%'),
-                  width: wp('70%'),
-                  marginTop: 10,
-                  paddingLeft: 10,
-                  borderWidth: 1,
-                  alignSelf: 'center',
-                  borderColor: '#C9CCD7',
-                }}
-                // onChangeText={value => this.searchFun(value)}
-              />
-            </View>
-          </View> */}
+            <TextInput
+              placeholder="Search"
+              value={searchItem}
+              style={{
+                padding: 15,
+                width: wp('75%'),
+              }}
+              onChangeText={value => this.searchFun(value)}
+            />
+            <Image
+              style={{
+                height: 18,
+                width: 18,
+                resizeMode: 'contain',
+                marginRight: wp('5%'),
+              }}
+              source={img.searchIcon}
+            />
+          </View>
 
           {recipeLoader ? (
             <ActivityIndicator size="small" color="#94C036" />
@@ -307,6 +352,7 @@ class PendingDelivery extends Component {
                         <View>
                           {deliveryPendingData && deliveryPendingData.length > 0
                             ? deliveryPendingData.map((item, index) => {
+                                console.log('item', item);
                                 return (
                                   <View
                                     style={{
@@ -338,7 +384,15 @@ class PendingDelivery extends Component {
                                         alignItems: 'center',
                                       }}>
                                       <Text>
-                                        {moment(item.deliveryDate).format('L')}
+                                        {type === 'Pending'
+                                          ? moment(item.deliveryDate).format(
+                                              'L',
+                                            )
+                                          : type === 'Review'
+                                          ? moment(item.orderDate).format('L')
+                                          : type === 'History'
+                                          ? moment(item.orderDate).format('L')
+                                          : null}
                                       </Text>
                                     </View>
                                     <View
@@ -347,7 +401,7 @@ class PendingDelivery extends Component {
                                         alignItems: 'center',
                                       }}>
                                       <Text>
-                                        {item && Number(item.htva).toFixed(2)}
+                                        $ {item && Number(item.htva).toFixed(2)}
                                       </Text>
                                     </View>
                                   </View>

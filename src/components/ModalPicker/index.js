@@ -85,7 +85,11 @@ class index extends Component {
           {this.props.selectedLabel ? (
             <Text style={styles.labelStyling}>{this.props.selectedLabel}</Text>
           ) : (
-            <Text style={styles.labelStyling}>
+            <Text
+              style={{
+                ...styles.labelStyling,
+                color: this.props.placeHolderLabelColor,
+              }}>
               {this.props.placeHolderLabel}
             </Text>
           )}

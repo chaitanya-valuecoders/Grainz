@@ -19,7 +19,7 @@ import InboxScreen from '../screens/Home/Inbox';
 import SalesAdminScreen from '../screens/Home/Admin/Sales/Sales';
 import AccountAdminScreen from '../screens/Home/Admin/Account/Account';
 import EventsAdminScreen from '../screens/Home/Admin/Events/Events';
-import EventsSecAdminScreen from '../screens/Home/Admin/Events/EventsSec';
+import AddNewEventAdminScreen from '../screens/Home/Admin/Events/AddNewEvent';
 import InventoryAdminScreen from '../screens/Home/Admin/Inventory/Inventory';
 import OrderingAdminScreen from '../screens/Home/Admin/Ordering';
 import NewOrderScreen from '../screens/Home/Admin/Ordering/NewOrder';
@@ -37,11 +37,19 @@ import SupplierScreen from '../screens/Home/Setup/Supplier';
 import MenuAnalysisSec from '../screens/Home/Admin/Reports/MenuAnalysisSec';
 import SalesAdminSec from '../screens/Home/Admin/Sales/SalesSec';
 import InventoryAdminSec from '../screens/Home/Admin/Inventory/InventorySec';
+import OrderNowInventoryAdminScreen from '../screens/Home/Admin/Inventory/OrderNow';
 import InventorySetupSecScreen from '../screens/Home/Setup/Inventory/InventorySetupSec';
 import EditInventorySetupScreen from '../screens/Home/Setup/Inventory/EditInventorySetup';
 import ViewRecipeScreen from '../screens/Home/Setup/Recipe/ViewRecipe';
 import ViewSupplierScreen from '../screens/Home/Setup/Supplier/ViewSupplier';
 import ViewMenuItemsScreen from '../screens/Home/Setup/MenuItem/ViewMenuItems';
+import ViewEventAdminScreen from '../screens/Home/Admin/Events/ViewEvent';
+import EditEventAdminScreen from '../screens/Home/Admin/Events/EditEvent';
+import EditStockScreen from '../screens/StockTake/EditStock';
+import AddBuilderMepScreen from '../screens/Mep/AddBuilder';
+import ViewRecipeMepScreen from '../screens/Mep/ViewRecipe';
+import ViewInventoryMepScreen from '../screens/MepAdvance/ViewInventory';
+import AddPurchaseScreen from '../screens/CasualPurchase/AddPurchase';
 
 const AppNav = createStackNavigator();
 
@@ -58,6 +66,24 @@ export default function AppNavFun() {
         name="CasualPurchaseScreen"
         component={CasualPurchaseScreen}
       />
+      <AppNav.Screen
+        name="OrderNowInventoryAdminScreen"
+        component={OrderNowInventoryAdminScreen}
+      />
+      <AppNav.Screen name="AddPurchaseScreen" component={AddPurchaseScreen} />
+      <AppNav.Screen
+        name="AddBuilderMepScreen"
+        component={AddBuilderMepScreen}
+      />
+      <AppNav.Screen
+        name="ViewInventoryMepScreen"
+        component={ViewInventoryMepScreen}
+      />
+      <AppNav.Screen
+        name="ViewRecipeMepScreen"
+        component={ViewRecipeMepScreen}
+      />
+      <AppNav.Screen name="EditStockScreen" component={EditStockScreen} />
       <AppNav.Screen name="RecipeScreen" component={RecipeScreen} />
       <AppNav.Screen name="MenuItemsScreen" component={MenuItemsScreen} />
       <AppNav.Screen name="DeliveriesScreen" component={DeliveriesScreen} />
@@ -68,8 +94,16 @@ export default function AppNavFun() {
       <AppNav.Screen name="AccountAdminScreen" component={AccountAdminScreen} />
       <AppNav.Screen name="EventsAdminScreen" component={EventsAdminScreen} />
       <AppNav.Screen
-        name="EventsSecAdminScreen"
-        component={EventsSecAdminScreen}
+        name="AddNewEventAdminScreen"
+        component={AddNewEventAdminScreen}
+      />
+      <AppNav.Screen
+        name="ViewEventAdminScreen"
+        component={ViewEventAdminScreen}
+      />
+      <AppNav.Screen
+        name="EditEventAdminScreen"
+        component={EditEventAdminScreen}
       />
       <AppNav.Screen
         name="InventoryAdminScreen"

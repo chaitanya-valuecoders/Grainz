@@ -175,12 +175,13 @@ class DraftOrder extends Component {
               alignItems: 'center',
               borderWidth: 1,
               borderColor: '#E2E8F0',
-              height: hp('6%'),
+              height: hp('7%'),
               width: wp('90%'),
               borderRadius: 100,
               backgroundColor: '#fff',
               alignSelf: 'center',
               justifyContent: 'space-between',
+              marginVertical: hp('1.5%'),
             }}>
             <TextInput
               placeholder="Search"
@@ -265,7 +266,8 @@ class DraftOrder extends Component {
                               </View>
                               <View style={{}}>
                                 <Text>
-                                  {moment(item.orderDate).format('L')}
+                                  {item.orderDate &&
+                                    moment(item.orderDate).format('L')}
                                 </Text>
                               </View>
                             </View>

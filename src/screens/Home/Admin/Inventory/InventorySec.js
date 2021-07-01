@@ -108,6 +108,11 @@ class InventorySec extends Component {
     this.props.navigation.goBack();
   };
 
+  orderNowFun = item => {
+    this.props.navigation.navigate('OrderNowInventoryAdminScreen', {
+      item,
+    });
+  };
   render() {
     const {
       buttonsSubHeader,
@@ -230,6 +235,7 @@ class InventorySec extends Component {
                                 modalData.map((item, index) => {
                                   return (
                                     <View
+                                      key={index}
                                       style={{
                                         paddingVertical: 10,
                                         paddingHorizontal: 5,
@@ -243,14 +249,24 @@ class InventorySec extends Component {
                                         style={{
                                           width: wp('30%'),
                                           alignItems: 'center',
+                                          justifyContent: 'center',
                                         }}>
-                                        <Text style={{textAlign: 'center'}}>
+                                        <Text
+                                          style={{
+                                            textAlign: 'center',
+                                            color:
+                                              item.targetInventory >
+                                              item.currentInventory
+                                                ? 'red'
+                                                : 'grey',
+                                          }}>
                                           {item.name}
                                         </Text>
                                       </View>
                                       <View
                                         style={{
                                           width: wp('30%'),
+                                          justifyContent: 'center',
                                           alignItems: 'center',
                                         }}>
                                         <Text>
@@ -261,6 +277,7 @@ class InventorySec extends Component {
                                         style={{
                                           width: wp('30%'),
                                           alignItems: 'center',
+                                          justifyContent: 'center',
                                         }}>
                                         <Text>{item.onOrder.toFixed(2)}</Text>
                                       </View>
@@ -268,6 +285,7 @@ class InventorySec extends Component {
                                         style={{
                                           width: wp('30%'),
                                           alignItems: 'center',
+                                          justifyContent: 'center',
                                         }}>
                                         <Text>
                                           {item.eventsOnOrder.toFixed(2)}
@@ -277,6 +295,7 @@ class InventorySec extends Component {
                                         style={{
                                           width: wp('30%'),
                                           alignItems: 'center',
+                                          justifyContent: 'center',
                                         }}>
                                         <Text>
                                           {item.targetInventory.toFixed(2)}
@@ -286,16 +305,28 @@ class InventorySec extends Component {
                                         style={{
                                           width: wp('30%'),
                                           alignItems: 'center',
+                                          justifyContent: 'center',
                                         }}>
                                         <Text>{item.delta.toFixed(2)}</Text>
                                       </View>
                                       <TouchableOpacity
-                                        onPress={() => alert('ORDER NOW')}
+                                        onPress={() => this.orderNowFun(item)}
                                         style={{
                                           width: wp('30%'),
                                           alignItems: 'center',
+                                          backgroundColor: '#94C036',
+                                          justifyContent: 'center',
+                                          borderRadius: 100,
+                                          height: hp('5%'),
                                         }}>
-                                        <Text>ORDER NOW</Text>
+                                        <Text
+                                          style={{
+                                            fontSize: 14,
+                                            fontFamily: 'Inter-Regular',
+                                            color: '#fff',
+                                          }}>
+                                          Order Now
+                                        </Text>
                                       </TouchableOpacity>
                                     </View>
                                   );

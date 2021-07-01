@@ -23,29 +23,20 @@ import {
   getMyProfileApi,
   getAdvanceRecipeByIdsApi,
 } from '../../connectivity/api';
-import Modal from 'react-native-modal';
-import Accordion from 'react-native-collapsible/Accordion';
-import moment from 'moment';
-import DateTimePickerModal from 'react-native-modal-datetime-picker';
-import {MultipleSelectPicker} from 'react-native-multi-select-picker';
-
-var minTime = new Date();
-minTime.setHours(0);
-minTime.setMinutes(0);
-minTime.setMilliseconds(0);
+import {translate} from '../../utils/translations';
+import styles from './style';
 
 class index extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      buttons: [{name: 'Edit'}, {name: 'Back'}],
       token: '',
       modalVisible: false,
       firstName: '',
       modalVisibleAdd: false,
       activeSections: [],
       SECTIONS: [],
-      recipeLoader: false,
+      recipeLoader: true,
       modalVisibleRecipeDetails: false,
       sectionData: {},
       isMakeMeStatus: true,
@@ -65,6 +56,7 @@ class index extends Component {
       notes: '',
       advanceDetailsLoader: true,
       sectionAdvanceData: {},
+      buttonsSubHeader: [],
     };
   }
 
@@ -89,6 +81,12 @@ class index extends Component {
       .then(res => {
         this.setState({
           firstName: res.data.firstName,
+          buttonsSubHeader: [
+            {name: translate('ADMIN')},
+            {name: translate('Setup')},
+            {name: translate('INBOX')},
+          ],
+          recipeLoader: false,
         });
       })
       .catch(err => {
@@ -112,8 +110,7 @@ class index extends Component {
 
   onPressFun = item => {
     if (item.name === 'Edit') {
-      //   this.setModalVisible(true);
-      //   this.getHistoryMepData();
+      alert('Edit');
     } else if (item.name === 'Back') {
       this.props.navigation.goBack();
     }
@@ -145,129 +142,126 @@ class index extends Component {
   render() {
     const {
       firstName,
-      buttons,
       advanceDetailsLoader,
       sectionAdvanceData,
+      recipeLoader,
       notes,
+      buttonsSubHeader,
     } = this.state;
     return (
-      <View style={{flex: 1, backgroundColor: '#fff'}}>
+      <View style={styles.container}>
         <Header
           logout={firstName}
           logoutFun={this.myProfileFun}
           logoFun={() => this.props.navigation.navigate('HomeScreen')}
         />
-        {/* <SubHeader /> */}
-        <ScrollView style={{marginBottom: hp('5%')}}>
-          <View
-            style={{
-              backgroundColor: '#412916',
-              alignItems: 'center',
-              paddingVertical: hp('3%'),
-            }}>
-            <Text style={{fontSize: 22, color: 'white'}}>RECIPE DETAILS</Text>
-            {buttons.map((item, index) => {
-              return (
-                <View style={{}} key={index}>
-                  <TouchableOpacity
-                    onPress={() => this.onPressFun(item)}
-                    style={{
-                      height: hp('6%'),
-                      width: wp('70%'),
-                      backgroundColor: '#94C036',
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                      marginTop: 20,
-                    }}>
-                    <View style={{}}>
-                      <Text style={{color: 'white', marginLeft: 5}}>
-                        {item.name}
-                      </Text>
-                    </View>
-                  </TouchableOpacity>
-                </View>
-              );
-            })}
+        {recipeLoader ? (
+          <ActivityIndicator size="small" color="#94C036" />
+        ) : (
+          <SubHeader {...this.props} buttons={buttonsSubHeader} />
+        )}
+        <ScrollView
+          style={{marginBottom: hp('2%')}}
+          showsVerticalScrollIndicator={false}>
+          <View style={styles.subContainer}>
+            <View style={styles.firstContainer}>
+              <View style={{flex: 1}}>
+                <Text style={styles.adminTextStyle}>
+                  {translate('Recipe details')}
+                </Text>
+              </View>
+              <TouchableOpacity
+                onPress={() => this.props.navigation.goBack()}
+                style={styles.goBackContainer}>
+                <Text style={styles.goBackTextStyle}>Go Back</Text>
+              </TouchableOpacity>
+            </View>
           </View>
+          <View style={{}}>
+            <View style={styles.firstContainer}>
+              <View style={{flex: 1}}>
+                <Text style={styles.adminTextStyle}>
+                  {translate('Recipe name')}
+                </Text>
+              </View>
+              <View style={styles.goBackContainer}>
+                <Text
+                  style={{
+                    fontSize: 16,
+                    fontFamily: 'Inter-Regular',
+                    color: '#523622',
+                  }}>
+                  {sectionAdvanceData.name}
+                </Text>
+              </View>
+            </View>
+          </View>
+          <View style={{}}>
+            <View style={styles.firstContainer}>
+              <View style={{flex: 1}}>
+                <Text style={styles.adminTextStyle}>
+                  {translate('Version name')}
+                </Text>
+              </View>
+              <View style={styles.goBackContainer}>
+                <Text
+                  style={{
+                    fontSize: 16,
+                    fontFamily: 'Inter-Regular',
+                    color: '#523622',
+                  }}>
+                  {sectionAdvanceData.name}
+                </Text>
+              </View>
+            </View>
+          </View>
+
+          <View style={{}}>
+            <View style={styles.firstContainer}>
+              <TouchableOpacity
+                onPress={() => alert('edit')}
+                style={{
+                  height: 110,
+                  width: 110,
+                  borderRadius: 6,
+                  backgroundColor: '#fff',
+                }}>
+                <View
+                  style={{
+                    flex: 1,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                  }}>
+                  <Image
+                    source={img.editIconGreen}
+                    style={{width: 30, height: 30, resizeMode: 'contain'}}
+                  />
+                </View>
+                <View
+                  style={{
+                    flex: 1,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                  }}>
+                  <Text
+                    style={{
+                      fontSize: 16,
+                      fontFamily: 'Inter-Regular',
+                      color: '#000000',
+                    }}>
+                    {translate('Edit')}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            </View>
+          </View>
+
           {advanceDetailsLoader ? (
             <ActivityIndicator color="#94C036" size="large" />
           ) : (
             <ScrollView>
               <View style={{padding: hp('3%')}}>
-                <View style={{}}>
-                  <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                    <View
-                      style={{
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        paddingVertical: 8,
-                      }}>
-                      <View
-                        style={{
-                          flex: 1,
-                          alignItems: 'center',
-                          marginLeft: wp('5%'),
-                        }}>
-                        <Text
-                          style={{
-                            color: '#4C4B4B',
-                            fontWeight: 'bold',
-                          }}>
-                          Recipe Name
-                        </Text>
-                      </View>
-                      <View
-                        style={{
-                          flex: 1,
-                          alignItems: 'center',
-                          marginLeft: wp('5%'),
-                        }}>
-                        <Text style={{color: '#212529'}}>
-                          {sectionAdvanceData.name}
-                        </Text>
-                      </View>
-                    </View>
-                  </ScrollView>
-                  <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                    <View
-                      style={{
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        paddingVertical: 8,
-                      }}>
-                      <View
-                        style={{
-                          flex: 1,
-                          alignItems: 'center',
-                          marginLeft: wp('5%'),
-                        }}>
-                        <Text
-                          style={{
-                            color: '#4C4B4B',
-                            fontWeight: 'bold',
-                          }}>
-                          Version Name
-                        </Text>
-                      </View>
-                      <View
-                        style={{
-                          flex: 1,
-                          alignItems: 'center',
-                          marginLeft: wp('5%'),
-                        }}>
-                        <Text style={{color: '#212529'}}>
-                          {sectionAdvanceData.name}
-                        </Text>
-                      </View>
-                    </View>
-                  </ScrollView>
-
-                  <View
-                    style={{
-                      borderTopWidth: 1,
-                      borderTopColor: '#E5E5E5',
-                      marginVertical: hp('2%'),
-                    }}></View>
+                <View style={{marginTop: 10}}>
                   <View
                     style={{
                       flexDirection: 'row',
@@ -364,6 +358,7 @@ class index extends Component {
                       marginTop: hp('2%'),
                       height: hp('20%'),
                       borderColor: '#C9CCD7',
+                      borderRadius: 6,
                     }}>
                     <Text>
                       {Object.keys(sectionAdvanceData).length !== 0
@@ -382,6 +377,7 @@ class index extends Component {
                     alignItems: 'center',
                     alignSelf: 'center',
                     marginTop: hp('2%'),
+                    borderRadius: 100,
                   }}>
                   <Text
                     style={{
