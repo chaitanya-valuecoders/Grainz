@@ -14,14 +14,14 @@ import {
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {connect} from 'react-redux';
-import img from '../../../../constants/images';
-import SubHeader from '../../../../components/SubHeader';
-import Header from '../../../../components/Header';
+import img from '../../../../../constants/images';
+import SubHeader from '../../../../../components/SubHeader';
+import Header from '../../../../../components/Header';
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
-import {UserTokenAction} from '../../../../redux/actions/UserTokenAction';
+import {UserTokenAction} from '../../../../../redux/actions/UserTokenAction';
 import {
   getMyProfileApi,
   getSupplierListAdminApi,
@@ -30,18 +30,18 @@ import {
   inventoryListAdminApi,
   supplierAdminApi,
   unMapProductApi,
-} from '../../../../connectivity/api';
+} from '../../../../../connectivity/api';
 import CheckBox from '@react-native-community/checkbox';
 import Modal from 'react-native-modal';
 import Accordion from 'react-native-collapsible/Accordion';
 import moment from 'moment';
 import RNPickerSelect from 'react-native-picker-select';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
-import styles from './style';
+import styles from '../style';
 
-import {translate} from '../../../../utils/translations';
+import {translate} from '../../../../../utils/translations';
 
-class OrderingSec extends Component {
+class NewOrder extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -794,6 +794,17 @@ class OrderingSec extends Component {
     });
   };
 
+  addItemsFun = () => {
+    const {supplierValue} = this.state;
+    if (supplierValue) {
+      this.props.navigation.navigate('AddItemsOrderScreen', {
+        supplierValue,
+      });
+    } else {
+      alert('Please select supplier first');
+    }
+  };
+
   render() {
     const {
       recipeLoader,
@@ -1178,7 +1189,7 @@ class OrderingSec extends Component {
                     </View>
                   </View> */}
                 </ScrollView>
-                <View style={{alignSelf: 'center', marginVertical: hp('3%')}}>
+                {/* <View style={{alignSelf: 'center', marginVertical: hp('3%')}}>
                   <Text
                     style={{
                       color: '#492813',
@@ -1187,7 +1198,7 @@ class OrderingSec extends Component {
                     }}>
                     Order From
                   </Text>
-                </View>
+                </View> */}
                 {/* <View style={{alignSelf: 'center'}}>
                   <TouchableOpacity
                     onPress={() => this.supplierFun()}
@@ -1320,7 +1331,7 @@ class OrderingSec extends Component {
               </View>
             </View>
           </Modal>
-          <Modal isVisible={inventoryModalStatus} backdropOpacity={0.35}>
+          {/* <Modal isVisible={inventoryModalStatus} backdropOpacity={0.35}>
             <View
               style={{
                 width: wp('80%'),
@@ -1442,8 +1453,8 @@ class OrderingSec extends Component {
                 </TouchableOpacity>
               </View>
             </View>
-          </Modal>
-          <Modal isVisible={supplierModalStatus} backdropOpacity={0.35}>
+          </Modal> */}
+          {/* <Modal isVisible={supplierModalStatus} backdropOpacity={0.35}>
             <View
               style={{
                 width: wp('80%'),
@@ -1541,7 +1552,7 @@ class OrderingSec extends Component {
                 </TouchableOpacity>
               </View>
             </View>
-          </Modal>
+          </Modal> */}
           {/* <Modal isVisible={modalVisibleInventory} backdropOpacity={0.35}>
             <View
               style={{
@@ -1642,105 +1653,44 @@ class OrderingSec extends Component {
               </ScrollView>
             </View>
           </Modal> */}
-          <FlatList
-            data={buttons}
-            renderItem={({item}) => (
-              <View style={styles.itemContainer}>
-                <TouchableOpacity
-                  onPress={() => this.inventoryListFun()}
+          <View style={{justifyContent: 'center', alignItems: 'center'}}>
+            <TouchableOpacity
+              onPress={() => this.addItemsFun()}
+              style={{
+                height: hp('6%'),
+                width: wp('80%'),
+                backgroundColor: '#94C036',
+                justifyContent: 'center',
+                alignItems: 'center',
+                marginTop: hp('3%'),
+                borderRadius: 100,
+                marginBottom: hp('5%'),
+              }}>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                }}>
+                <Image
+                  source={img.addIcon}
                   style={{
-                    backgroundColor: '#fff',
-                    flex: 1,
-                    margin: 10,
-                    borderRadius: 8,
-                    padding: 10,
+                    width: 20,
+                    height: 20,
+                    tintColor: '#fff',
+                    resizeMode: 'contain',
+                  }}
+                />
+                <Text
+                  style={{
+                    color: 'white',
+                    marginLeft: 10,
+                    fontFamily: 'Inter-SemiBold',
                   }}>
-                  <View
-                    style={{
-                      flex: 1,
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                    }}>
-                    <Image
-                      source={item.icon}
-                      style={{
-                        height: 40,
-                        width: 40,
-                        resizeMode: 'contain',
-                      }}
-                    />
-                  </View>
-                  <View
-                    style={{
-                      flex: 1,
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                    }}>
-                    <Text
-                      style={{
-                        fontSize: 13,
-                        textAlign: 'center',
-                        fontFamily: 'Inter-Regular',
-                      }}
-                      numberOfLines={1}>
-                      {' '}
-                      {item.name}
-                    </Text>
-                  </View>
-                </TouchableOpacity>
+                  Add items
+                </Text>
               </View>
-            )}
-            keyExtractor={item => item.id}
-            numColumns={3}
-          />
-          <TouchableOpacity
-            onPress={() => alert('Save draft')}
-            style={{
-              flexDirection: 'row',
-              height: hp('6%'),
-              width: wp('80%'),
-              justifyContent: 'center',
-              alignItems: 'center',
-              marginVertical: hp('4%'),
-              alignSelf: 'center',
-              borderRadius: 100,
-              borderWidth: 1,
-              borderColor: '#482813',
-            }}>
-            <View style={{}}>
-              <Text
-                style={{
-                  color: '#492813',
-                  fontFamily: 'Inter-Regular',
-                  fontSize: 15,
-                }}>
-                {translate('Save draft')}
-              </Text>
-            </View>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => alert('Send')}
-            style={{
-              flexDirection: 'row',
-              height: hp('6%'),
-              width: wp('80%'),
-              backgroundColor: '#94C036',
-              justifyContent: 'center',
-              alignItems: 'center',
-              alignSelf: 'center',
-              borderRadius: 100,
-            }}>
-            <View style={{}}>
-              <Text
-                style={{
-                  color: 'white',
-                  fontFamily: 'Inter-SemiBold',
-                  fontSize: 15,
-                }}>
-                {translate('Send')}
-              </Text>
-            </View>
-          </TouchableOpacity>
+            </TouchableOpacity>
+          </View>
         </ScrollView>
       </View>
     );
@@ -1754,4 +1704,4 @@ const mapStateToProps = state => {
   };
 };
 
-export default connect(mapStateToProps, {UserTokenAction})(OrderingSec);
+export default connect(mapStateToProps, {UserTokenAction})(NewOrder);

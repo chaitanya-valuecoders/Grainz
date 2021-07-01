@@ -616,6 +616,19 @@ export const lookupInsideCategoriesApi = async catId => {
   );
 };
 
+export const getOrderCategoriesApi = async (catId, supId) => {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.get(
+    baseURL +
+      `/Inventory/inventory list by category and supplier?CategoryId=${catId}&SupplieId=${supId}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  );
+};
+
 export const inventoryListSetupCatApi = async catId => {
   const token = await AsyncStorage.getItem('@appToken');
   return axios.get(
@@ -792,4 +805,43 @@ export const addOrderItemAdminApi = async payload => {
       Authorization: `Bearer ${token}`,
     },
   });
+};
+
+export const getSupplierCatalogApi = async id => {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.get(
+    baseURL + `/Product/Products categories by supplier id?SupplierId=${id}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  );
+};
+
+export const getSupplierProductsApi = async (id, catName) => {
+  console.log('id', id, 'cat', catName);
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.get(
+    baseURL +
+      `/Product/Products by category and supplier id?SupplierId=${id}&Category=${catName}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  );
+};
+
+export const unMapProductAdminApi = async payload => {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.post(
+    baseURL + `/InventoryProductMapping/remove product mapping`,
+    payload,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  );
 };

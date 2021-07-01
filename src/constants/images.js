@@ -53,4 +53,5 @@ export default {
   editIconGreen: require('../assests/Images/editIconGreen.png'),
   viewInventoryIcon: require('../assests/Images/viewInventoryIcon.png'),
   doubleArrowIconNew: require('../assests/Images/doubleArrowIcon.png'),
+  cartIcon: require('../assests/Images/cartIcon.png'),
 };

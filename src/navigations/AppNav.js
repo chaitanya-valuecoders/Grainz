@@ -22,7 +22,7 @@ import EventsAdminScreen from '../screens/Home/Admin/Events/Events';
 import AddNewEventAdminScreen from '../screens/Home/Admin/Events/AddNewEvent';
 import InventoryAdminScreen from '../screens/Home/Admin/Inventory/Inventory';
 import OrderingAdminScreen from '../screens/Home/Admin/Ordering';
-import NewOrderScreen from '../screens/Home/Admin/Ordering/NewOrder';
+import NewOrderScreen from '../screens/Home/Admin/Ordering/AddOrder/NewOrder';
 import OrderingThreeAdminScreen from '../screens/Home/Admin/Ordering/OrderingThree';
 import DraftOrderAdminScreen from '../screens/Home/Admin/Ordering/DraftOrder';
 import PendingDeliveryAdminScreen from '../screens/Home/Admin/Ordering/PendingDelivery';
@@ -50,6 +50,9 @@ import AddBuilderMepScreen from '../screens/Mep/AddBuilder';
 import ViewRecipeMepScreen from '../screens/Mep/ViewRecipe';
 import ViewInventoryMepScreen from '../screens/MepAdvance/ViewInventory';
 import AddPurchaseScreen from '../screens/CasualPurchase/AddPurchase';
+import AddItemsOrderScreen from '../screens/Home/Admin/Ordering/AddOrder/AddItems';
+import InventoryListOrderScreen from '../screens/Home/Admin/Ordering/AddOrder/InventoryList';
+import SupplierlistOrderScreen from '../screens/Home/Admin/Ordering/AddOrder/Supplierlist';
 
 const AppNav = createStackNavigator();
 
@@ -63,8 +66,16 @@ export default function AppNavFun() {
       <AppNav.Screen name="MyProfile" component={MyProfile} />
       <AppNav.Screen name="StockTakeScreen" component={StockTakeScreen} />
       <AppNav.Screen
-        name="CasualPurchaseScreen"
-        component={CasualPurchaseScreen}
+        name="InventoryListOrderScreen"
+        component={InventoryListOrderScreen}
+      />
+      <AppNav.Screen
+        name="SupplierlistOrderScreen"
+        component={SupplierlistOrderScreen}
+      />
+      <AppNav.Screen
+        name="AddItemsOrderScreen"
+        component={AddItemsOrderScreen}
       />
       <AppNav.Screen
         name="OrderNowInventoryAdminScreen"
