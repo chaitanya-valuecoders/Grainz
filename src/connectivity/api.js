@@ -775,3 +775,21 @@ export const getMappedProductsInventoryAdminApi = async id => {
     },
   );
 };
+
+export const getDraftOrdersInventoryAdminApi = async id => {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.get(baseURL + `/Order/draft orders?supplierId=${id}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+export const addOrderItemAdminApi = async payload => {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.post(baseURL + `/Order/add order item`, payload, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};

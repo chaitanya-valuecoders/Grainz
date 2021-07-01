@@ -251,7 +251,15 @@ class InventorySec extends Component {
                                           alignItems: 'center',
                                           justifyContent: 'center',
                                         }}>
-                                        <Text style={{textAlign: 'center'}}>
+                                        <Text
+                                          style={{
+                                            textAlign: 'center',
+                                            color:
+                                              item.targetInventory >
+                                              item.currentInventory
+                                                ? 'red'
+                                                : 'grey',
+                                          }}>
                                           {item.name}
                                         </Text>
                                       </View>
