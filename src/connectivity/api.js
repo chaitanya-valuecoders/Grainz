@@ -648,9 +648,98 @@ export const getMenuItemsSetupApi = async () => {
   });
 };
 
+export const getMenuListApi = async () => {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.get(baseURL + `/Menu/menu list`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+export const getMenuDetailsApi = async id => {
+  let url = baseURL + `/Menu/menu details?Id=${id}`;
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.get(url, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+export const getMenuCategoriesApi = async () => {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.get(baseURL + `/Menu/categories`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
 export const viewMenuItemsSetupApi = async id => {
   const token = await AsyncStorage.getItem('@appToken');
   return axios.get(baseURL + `/Menu/menu item by id?id=${id}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+export const addMenuItemCategoryApi = async payload => {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.post(baseURL + '/MenuItemCategory/add category', payload, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+export const addMenuItemSubCategoryApi = async payload => {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.post(baseURL + '/MenuItemCategory/add sub category', payload, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+export const deleteSubCatApi = async id => {
+  let url = baseURL + `/MenuItemCategory/delete sub category?Id=${id}`;
+  console.warn('URL', url);
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.post(url, null, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+export const deleteCatApi = async id => {
+  let url = baseURL + `/MenuItemCategory/delete category?Id=${id}`;
+  console.warn('URL', url);
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.post(url, null, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+export const deleteMenuApi = async id => {
+  let url = baseURL + `/Menu/delete menu?Id=${id}`;
+  console.warn('URL', url);
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.post(url, null, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+export const deleteMenuItemLinkApi = async id => {
+  let url = baseURL + `/Menu/delete menu item link?Id=${id}`;
+  console.warn('URL', url);
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.post(url, null, {
     headers: {
       Authorization: `Bearer ${token}`,
     },

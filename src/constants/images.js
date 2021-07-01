@@ -42,4 +42,6 @@ export default {
   threeDotsIcon: require('../assests/Images/threeDotsIcon.png'),
   editIconNew: require('../assests/Images/editIconNew.png'),
   deleteIconNew: require('../assests/Images/deleteIconNew.png'),
+  leftArrowIcon: require('../assests/Images/leftArrow.png'),
+  warningIcon: require('../assests/Images/warning.png'),
 };

@@ -160,6 +160,7 @@
     "Apply": "Apply",
     "New recipe": "New recipe",
     "Menu": "Menu",
+    "New Menu Details" : "New Menu Details",
     "Position": "Position",
     "Menu item details": "Menu item details",
     "Till reference": "Till reference",
@@ -395,6 +396,7 @@
     "Add Menu": "Add Menu",
     "Edit categories": "Edit categories",
     "Categories": "Categories",
+    "Categories List" : "Categories List",
     "Add photos": "Add photos",
     "Photo details": "Photo details",
     "Save changes": "Save changes",
@@ -756,5 +758,8 @@
     "ie.John Fish Bar": "John\"s Fish Bar",
     "selectAllText": "Select All",
     "searchPlaceholderText":"Search",
-    "Select Casual Purchase":"Select"
+    "Select Casual Purchase":"Select",
+    "Menu Details" : "Menu Details",
+    "Menu Details Edit": "Menu Details Edit"
+
 }
