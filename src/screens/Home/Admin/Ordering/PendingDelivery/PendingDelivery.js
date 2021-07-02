@@ -95,7 +95,6 @@ class PendingDelivery extends Component {
 
   getFinalData = () => {
     const {listId} = this.state;
-    console.log('listId', listId);
     if (listId === 2) {
       this.getDeliveryPendingData();
     } else if (listId === 3) {
@@ -186,6 +185,12 @@ class PendingDelivery extends Component {
       //After setting the data it will automatically re-render the view
       deliveryPendingData: newData,
       searchItem: text,
+    });
+  };
+
+  viewFun = item => {
+    this.props.navigation.navigate('ViewPendingDeliveryScreen', {
+      item,
     });
   };
 
@@ -352,9 +357,9 @@ class PendingDelivery extends Component {
                         <View>
                           {deliveryPendingData && deliveryPendingData.length > 0
                             ? deliveryPendingData.map((item, index) => {
-                                console.log('item', item);
                                 return (
-                                  <View
+                                  <TouchableOpacity
+                                    onPress={() => this.viewFun(item)}
                                     style={{
                                       paddingVertical: 10,
                                       paddingHorizontal: 5,
@@ -404,7 +409,7 @@ class PendingDelivery extends Component {
                                         $ {item && Number(item.htva).toFixed(2)}
                                       </Text>
                                     </View>
-                                  </View>
+                                  </TouchableOpacity>
                                 );
                               })
                             : null}
