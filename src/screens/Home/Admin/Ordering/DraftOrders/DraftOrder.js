@@ -10,19 +10,22 @@ import {
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {connect} from 'react-redux';
-import img from '../../../../constants/images';
-import SubHeader from '../../../../components/SubHeader';
-import Header from '../../../../components/Header';
+import img from '../../../../../constants/images';
+import SubHeader from '../../../../../components/SubHeader';
+import Header from '../../../../../components/Header';
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
-import {UserTokenAction} from '../../../../redux/actions/UserTokenAction';
-import {getMyProfileApi, draftOrderingApi} from '../../../../connectivity/api';
+import {UserTokenAction} from '../../../../../redux/actions/UserTokenAction';
+import {
+  getMyProfileApi,
+  draftOrderingApi,
+} from '../../../../../connectivity/api';
 import moment from 'moment';
-import styles from './style';
+import styles from '../style';
 
-import {translate} from '../../../../utils/translations';
+import {translate} from '../../../../../utils/translations';
 
 class DraftOrder extends Component {
   constructor(props) {
@@ -249,7 +252,16 @@ class DraftOrder extends Component {
                       draftsOrderData.map((item, index) => {
                         return (
                           <View>
-                            <View
+                            <TouchableOpacity
+                              onPress={() =>
+                                this.props.navigation.navigate(
+                                  'ViewDraftOrdersScreen',
+                                  {
+                                    supplierName: item.supplierName,
+                                    productId: item.id,
+                                  },
+                                )
+                              }
                               style={{
                                 flexDirection: 'row',
                                 justifyContent: 'space-between',
@@ -270,7 +282,7 @@ class DraftOrder extends Component {
                                     moment(item.orderDate).format('L')}
                                 </Text>
                               </View>
-                            </View>
+                            </TouchableOpacity>
                           </View>
                         );
                       })}

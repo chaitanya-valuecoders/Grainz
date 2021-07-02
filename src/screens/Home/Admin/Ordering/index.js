@@ -115,7 +115,9 @@ class index extends Component {
 
   componentDidMount() {
     this.getData();
-    this.getOrderingData();
+    this.props.navigation.addListener('focus', () => {
+      this.getOrderingData();
+    });
   }
 
   getOrderingData = () => {

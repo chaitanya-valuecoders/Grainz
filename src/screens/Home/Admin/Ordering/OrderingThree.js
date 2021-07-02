@@ -93,14 +93,14 @@ class OrderingThree extends Component {
 
   componentDidMount() {
     this.getData();
-    const pageData = this.props.route && this.props.route.params.data;
+    // const pageData = this.props.route && this.props.route.params.data;
 
-    const finalPrice = pageData.price * pageData.grainzVolume;
+    // const finalPrice = pageData.price * pageData.grainzVolume;
     this.setState({
-      pageData,
-      userDefinedQuantity: String(pageData.userDefinedQuantity),
-      priceFinal: finalPrice.toFixed(2),
-      priceFinalBackup: finalPrice.toFixed(2),
+      // pageData,
+      // userDefinedQuantity: String(pageData.userDefinedQuantity),
+      // priceFinal: finalPrice.toFixed(2),
+      // priceFinalBackup: finalPrice.toFixed(2),
     });
   }
 
@@ -147,11 +147,8 @@ class OrderingThree extends Component {
   };
 
   changePriceFunSec = () => {
-    const {
-      privatePriceValue,
-      userDefinedQuantity,
-      priceFinalBackup,
-    } = this.state;
+    const {privatePriceValue, userDefinedQuantity, priceFinalBackup} =
+      this.state;
     const finalPriceCal = userDefinedQuantity * privatePriceValue;
     if (privatePriceValue) {
       this.setState({
@@ -220,7 +217,7 @@ class OrderingThree extends Component {
                   <View style={{marginLeft: wp('3%')}}>
                     <TextInput
                       editable={false}
-                      value={pageData.supplierName}
+                      // value={pageData.supplierName}
                       placeholder="Supplier"
                       style={{
                         borderWidth: 1,
@@ -245,7 +242,7 @@ class OrderingThree extends Component {
                   <View style={{marginLeft: wp('3%')}}>
                     <TextInput
                       editable={false}
-                      value={pageData.productCode}
+                      // value={pageData.productCode}
                       placeholder="Product Code"
                       style={{
                         borderWidth: 1,
@@ -269,7 +266,7 @@ class OrderingThree extends Component {
                   </View>
                   <View style={{marginLeft: wp('3%')}}>
                     <TextInput
-                      value={pageData.productName}
+                      // value={pageData.productName}
                       editable={false}
                       placeholder="Product Name"
                       style={{
@@ -294,7 +291,7 @@ class OrderingThree extends Component {
                   </View>
                   <View style={{marginLeft: wp('3%')}}>
                     <TextInput
-                      value={String(pageData.packSize)}
+                      // value={String(pageData.packSize)}
                       editable={false}
                       placeholder="Pack Size"
                       style={{
@@ -319,7 +316,7 @@ class OrderingThree extends Component {
                   </View>
                   <View style={{marginLeft: wp('3%')}}>
                     <TextInput
-                      value={pageData.price + ' / ' + pageData.unit}
+                      // value={pageData.price + ' / ' + pageData.unit}
                       editable={false}
                       placeholder="List Price"
                       style={{
@@ -371,7 +368,7 @@ class OrderingThree extends Component {
                   </View>
                   <View style={{marginLeft: wp('3%')}}>
                     <TextInput
-                      value={pageData.inventoryName}
+                      // value={pageData.inventoryName}
                       editable={false}
                       placeholder="Inventory Item"
                       style={{
@@ -396,7 +393,7 @@ class OrderingThree extends Component {
                   </View>
                   <View style={{marginLeft: wp('3%')}}>
                     <TextInput
-                      value={pageData.inventoryUnit}
+                      // value={pageData.inventoryUnit}
                       editable={false}
                       placeholder="Inventory Unit"
                       style={{
@@ -542,7 +539,7 @@ class OrderingThree extends Component {
                             width: wp('40%'),
                           }}>
                           <TextInput
-                            value={String(pageData.grainzVolume)}
+                            // value={String(pageData.grainzVolume)}
                             editable={false}
                             style={{
                               borderWidth: 1,
@@ -558,7 +555,7 @@ class OrderingThree extends Component {
                             width: wp('40%'),
                           }}>
                           <TextInput
-                            value={pageData.grainzUnit}
+                            // value={pageData.grainzUnit}
                             editable={false}
                             style={{
                               borderWidth: 1,
@@ -607,7 +604,7 @@ class OrderingThree extends Component {
                             width: wp('40%'),
                           }}>
                           <TextInput
-                            value={pageData.userDefinedUnit}
+                            // value={pageData.userDefinedUnit}
                             editable={false}
                             style={{
                               borderWidth: 1,

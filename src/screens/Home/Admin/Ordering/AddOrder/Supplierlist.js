@@ -40,6 +40,11 @@ class SupplierList extends Component {
       modalLoader: false,
       actionModalStatus: false,
       mapStatus: '',
+      finalBaketData: [],
+      apiDeliveryDate: '',
+      apiOrderDate: '',
+      placedByValue: '',
+      supplierId: '',
     };
   }
 
@@ -82,11 +87,15 @@ class SupplierList extends Component {
 
   componentDidMount() {
     this.getData();
-    const {supplierId, catName} = this.props.route && this.props.route.params;
+    const {supplierId, catName, apiDeliveryDate, apiOrderDate, placedByValue} =
+      this.props.route && this.props.route.params;
     this.setState(
       {
         supplierId,
         catName,
+        apiDeliveryDate,
+        apiOrderDate,
+        placedByValue,
       },
       () => this.getInsideCatFun(),
     );
@@ -101,8 +110,14 @@ class SupplierList extends Component {
       () =>
         getSupplierProductsApi(supplierId, catName)
           .then(res => {
+            const finalArr = res.data;
+            finalArr.forEach(function (item) {
+              item.isSelected = false;
+              item.quantityProduct = '';
+            });
+
             this.setState({
-              modalData: res.data,
+              modalData: [...finalArr],
               modalLoader: false,
             });
           })
@@ -208,20 +223,78 @@ class SupplierList extends Component {
       });
   };
 
-  editQuantityFun = (index, type, value) => {
+  editQuantityFun = (index, type, value, data) => {
+    console.log('data', data);
     const {modalData} = this.state;
+    if (data.isMapped === true) {
+      if (type === 'isSelected') {
+        let newArr = modalData.map((item, i) =>
+          index === i && item.quantityProduct !== ''
+            ? {
+                ...item,
+                [type]: !value,
+              }
+            : item,
+        );
 
-    let newArr = modalData.map((item, i) =>
-      index === i
-        ? {
-            ...item,
-            [type]: value,
+        var filteredArray = newArr.filter(function (itm) {
+          if (itm.quantityProduct !== '') {
+            return itm.isSelected === true;
           }
-        : item,
-    );
-    this.setState({
-      modalData: [...newArr],
-    });
+        });
+
+        console.log('fil', filteredArray);
+
+        this.setState({
+          modalData: [...newArr],
+          finalBaketData: filteredArray,
+        });
+      } else {
+        let newArr = modalData.map((item, i) =>
+          index === i
+            ? {
+                ...item,
+                [type]: value,
+              }
+            : item,
+        );
+        this.setState({
+          modalData: [...newArr],
+        });
+      }
+    } else {
+      Alert.alert('Grainz', 'Please map this product to an inventory item', [
+        {
+          text: 'Yes',
+          onPress: () => alert('Lets map'),
+          style: 'default',
+        },
+        {
+          text: 'No',
+        },
+      ]);
+    }
+  };
+
+  placeOrderFun = () => {
+    const {
+      finalBaketData,
+      apiDeliveryDate,
+      apiOrderDate,
+      placedByValue,
+      supplierId,
+    } = this.state;
+    if (finalBaketData.length > 0) {
+      this.props.navigation.navigate('BasketOrderScreen', {
+        finalData: finalBaketData,
+        apiDeliveryDate,
+        apiOrderDate,
+        placedByValue,
+        supplierId,
+      });
+    } else {
+      alert('Please select atleast one item');
+    }
   };
 
   render() {
@@ -233,6 +306,8 @@ class SupplierList extends Component {
       actionModalStatus,
       mapStatus,
     } = this.state;
+
+    console.log('modaldata', modalData);
 
     return (
       <View style={styles.container}>
@@ -385,14 +460,19 @@ class SupplierList extends Component {
                                         }}>
                                         <Text>{item.code}</Text>
                                       </View>
-                                      <View
+                                      <TouchableOpacity
+                                        onPress={() =>
+                                          this.props.navigation.navigate(
+                                            'OrderingThreeAdminScreen',
+                                          )
+                                        }
                                         style={{
                                           width: wp('30%'),
                                           alignItems: 'center',
                                           justifyContent: 'center',
                                         }}>
                                         <Text>{item.name}</Text>
-                                      </View>
+                                      </TouchableOpacity>
                                       <View
                                         style={{
                                           width: wp('30%'),
@@ -435,13 +515,21 @@ class SupplierList extends Component {
                                               index,
                                               'quantityProduct',
                                               value,
+                                              item,
                                             )
                                           }
                                         />
                                       </View>
 
                                       <TouchableOpacity
-                                        onPress={() => this.actionFun(item)}
+                                        onPress={() =>
+                                          this.editQuantityFun(
+                                            index,
+                                            'isSelected',
+                                            item.isSelected,
+                                            item,
+                                          )
+                                        }
                                         style={{
                                           width: wp('30%'),
                                           alignItems: 'center',
@@ -449,7 +537,9 @@ class SupplierList extends Component {
                                         }}>
                                         <View
                                           style={{
-                                            backgroundColor: '#86AC32',
+                                            backgroundColor: item.isSelected
+                                              ? '#86AC32'
+                                              : '#C2C2C1',
                                             padding: 10,
                                             borderRadius: 6,
                                           }}>
@@ -501,7 +591,7 @@ class SupplierList extends Component {
           )}
           <View style={{justifyContent: 'center', alignItems: 'center'}}>
             <TouchableOpacity
-              onPress={() => alert('Place Order')}
+              onPress={() => this.placeOrderFun()}
               style={{
                 height: hp('6%'),
                 width: wp('80%'),

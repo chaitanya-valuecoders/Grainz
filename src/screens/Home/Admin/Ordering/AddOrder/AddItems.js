@@ -61,6 +61,9 @@ class AddItems extends Component {
       supplierStatus: false,
       inventoryStatus: true,
       supplierId: '',
+      apiDeliveryDate: '',
+      apiOrderDate: '',
+      placedByValue: '',
     };
   }
 
@@ -174,12 +177,16 @@ class AddItems extends Component {
   componentDidMount() {
     this.getData();
     this.props.navigation.addListener('focus', () => {
-      const {supplierValue} = this.props.route && this.props.route.params;
+      const {supplierValue, apiDeliveryDate, apiOrderDate, placedByValue} =
+        this.props.route && this.props.route.params;
       this.setState({
         supplierId: supplierValue,
         activeSections: [],
         supplierStatus: false,
         inventoryStatus: true,
+        apiDeliveryDate,
+        apiOrderDate,
+        placedByValue,
       });
       this.getManualLogsData();
     });
@@ -325,12 +332,22 @@ class AddItems extends Component {
         });
       }
     } else {
-      const {supplierId, SECTIONS, activeSections} = this.state;
+      const {
+        supplierId,
+        SECTIONS,
+        activeSections,
+        apiDeliveryDate,
+        apiOrderDate,
+        placedByValue,
+      } = this.state;
       const catName = SECTIONS[activeSections].title;
       if (activeSections.length > 0) {
         this.props.navigation.navigate('SupplierlistOrderScreen', {
           supplierId,
           catName,
+          apiDeliveryDate,
+          apiOrderDate,
+          placedByValue,
         });
       } else {
         this.setState({

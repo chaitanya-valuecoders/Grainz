@@ -24,8 +24,10 @@ import InventoryAdminScreen from '../screens/Home/Admin/Inventory/Inventory';
 import OrderingAdminScreen from '../screens/Home/Admin/Ordering';
 import NewOrderScreen from '../screens/Home/Admin/Ordering/AddOrder/NewOrder';
 import OrderingThreeAdminScreen from '../screens/Home/Admin/Ordering/OrderingThree';
-import DraftOrderAdminScreen from '../screens/Home/Admin/Ordering/DraftOrder';
-import PendingDeliveryAdminScreen from '../screens/Home/Admin/Ordering/PendingDelivery';
+import DraftOrderAdminScreen from '../screens/Home/Admin/Ordering/DraftOrders/DraftOrder';
+import ViewDraftOrdersScreen from '../screens/Home/Admin/Ordering/DraftOrders/ViewDraftOrders';
+import PendingDeliveryAdminScreen from '../screens/Home/Admin/Ordering/PendingDelivery/PendingDelivery';
+import ViewPendingDeliveryScreen from '../screens/Home/Admin/Ordering/PendingDelivery/ViewPendingDelivery';
 import ReportsAdminScreen from '../screens/Home/Admin/Reports/Reports';
 import GrossMarginAdminScreen from '../screens/Home/Admin/Reports/GrossMargin';
 import MenuAnalysisAdminScreen from '../screens/Home/Admin/Reports/MenuAnalysis';
@@ -53,6 +55,7 @@ import AddPurchaseScreen from '../screens/CasualPurchase/AddPurchase';
 import AddItemsOrderScreen from '../screens/Home/Admin/Ordering/AddOrder/AddItems';
 import InventoryListOrderScreen from '../screens/Home/Admin/Ordering/AddOrder/InventoryList';
 import SupplierlistOrderScreen from '../screens/Home/Admin/Ordering/AddOrder/Supplierlist';
+import BasketOrderScreen from '../screens/Home/Admin/Ordering/AddOrder/Basket';
 
 const AppNav = createStackNavigator();
 
@@ -73,6 +76,7 @@ export default function AppNavFun() {
         name="SupplierlistOrderScreen"
         component={SupplierlistOrderScreen}
       />
+      <AppNav.Screen name="BasketOrderScreen" component={BasketOrderScreen} />
       <AppNav.Screen
         name="AddItemsOrderScreen"
         component={AddItemsOrderScreen}
@@ -80,6 +84,10 @@ export default function AppNavFun() {
       <AppNav.Screen
         name="OrderNowInventoryAdminScreen"
         component={OrderNowInventoryAdminScreen}
+      />
+      <AppNav.Screen
+        name="ViewPendingDeliveryScreen"
+        component={ViewPendingDeliveryScreen}
       />
       <AppNav.Screen name="AddPurchaseScreen" component={AddPurchaseScreen} />
       <AppNav.Screen
@@ -155,6 +163,10 @@ export default function AppNavFun() {
       <AppNav.Screen
         name="DraftOrderAdminScreen"
         component={DraftOrderAdminScreen}
+      />
+      <AppNav.Screen
+        name="ViewDraftOrdersScreen"
+        component={ViewDraftOrdersScreen}
       />
       <AppNav.Screen
         name="PendingDeliveryAdminScreen"

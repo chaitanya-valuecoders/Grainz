@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import {View, Text} from 'react-native';
 
-class InventoryListOrder extends Component {
+class ViewPendingDelivery extends Component {
   constructor(props) {
     super(props);
     this.state = {};
@@ -10,10 +10,10 @@ class InventoryListOrder extends Component {
   render() {
     return (
       <View>
-        <Text> InventoryListOrder </Text>
+        <Text> ViewPendingDelivery </Text>
       </View>
     );
   }
 }
 
-export default InventoryListOrder;
+export default ViewPendingDelivery;
