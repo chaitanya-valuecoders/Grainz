@@ -845,3 +845,16 @@ export const unMapProductAdminApi = async payload => {
     },
   );
 };
+
+export const mapProductAdminApi = async payload => {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.post(
+    baseURL + `/InventoryProductMapping/add product mapping`,
+    payload,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  );
+};

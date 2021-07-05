@@ -23,11 +23,13 @@ import {
   getMyProfileApi,
   getSupplierProductsApi,
   unMapProductAdminApi,
+  lookupDepartmentsApi,
+  lookupCategoriesApi,
 } from '../../../../../connectivity/api';
 import CheckBox from '@react-native-community/checkbox';
 import Modal from 'react-native-modal';
 import styles from '../style';
-
+import Accordion from 'react-native-collapsible/Accordion';
 import {translate} from '../../../../../utils/translations';
 
 class SupplierList extends Component {
@@ -45,6 +47,8 @@ class SupplierList extends Component {
       apiOrderDate: '',
       placedByValue: '',
       supplierId: '',
+      mapModalStatus: false,
+      activeSections: [],
     };
   }
 
@@ -86,20 +90,50 @@ class SupplierList extends Component {
   };
 
   componentDidMount() {
-    this.getData();
     const {supplierId, catName, apiDeliveryDate, apiOrderDate, placedByValue} =
       this.props.route && this.props.route.params;
-    this.setState(
-      {
-        supplierId,
-        catName,
-        apiDeliveryDate,
-        apiOrderDate,
-        placedByValue,
-      },
-      () => this.getInsideCatFun(),
-    );
+    this.getData();
+    this.props.navigation.addListener('focus', () => {
+      this.createFirstData();
+      this.setState(
+        {
+          supplierId,
+          catName,
+          apiDeliveryDate,
+          apiOrderDate,
+          placedByValue,
+        },
+        () => this.getInsideCatFun(),
+      );
+    });
   }
+
+  createFirstData = () => {
+    lookupDepartmentsApi()
+      .then(res => {
+        let finalArray = res.data.map((item, index) => {
+          return {
+            title: item.name,
+            content: item.id,
+          };
+        });
+
+        const result = finalArray;
+
+        this.setState({
+          SECTIONS: [...result],
+          recipeLoader: false,
+          SECTIONS_SEC: [...result],
+        });
+      })
+      .catch(err => {
+        console.log('ERR MEP', err);
+
+        this.setState({
+          recipeLoader: false,
+        });
+      });
+  };
 
   getInsideCatFun = () => {
     const {supplierId, catName} = this.state;
@@ -154,11 +188,14 @@ class SupplierList extends Component {
   setModalVisibleFalse = visible => {
     this.setState({
       actionModalStatus: visible,
+      mapModalStatus: visible,
     });
   };
 
   hitMapApi = () => {
-    alert('Map');
+    this.setState({
+      mapModalStatus: true,
+    });
   };
 
   unMapInventoryFun = () => {
@@ -224,6 +261,15 @@ class SupplierList extends Component {
   };
 
   editQuantityFun = (index, type, value, data) => {
+    this.setState(
+      {
+        inventoryId: data.id,
+      },
+      () => this.editQuantityFunSec(index, type, value, data),
+    );
+  };
+
+  editQuantityFunSec = (index, type, value, data) => {
     console.log('data', data);
     const {modalData} = this.state;
     if (data.isMapped === true) {
@@ -266,7 +312,7 @@ class SupplierList extends Component {
       Alert.alert('Grainz', 'Please map this product to an inventory item', [
         {
           text: 'Yes',
-          onPress: () => alert('Lets map'),
+          onPress: () => this.hitMapApi(),
           style: 'default',
         },
         {
@@ -297,6 +343,133 @@ class SupplierList extends Component {
     }
   };
 
+  _renderHeader = (section, index, isActive) => {
+    return (
+      <View
+        style={{
+          backgroundColor: '#FFFFFF',
+          flexDirection: 'row',
+          borderWidth: 0.5,
+          borderColor: '#F0F0F0',
+          height: 60,
+          marginTop: hp('2%'),
+          alignItems: 'center',
+          borderRadius: 6,
+        }}>
+        <Image
+          style={{
+            height: 18,
+            width: 18,
+            resizeMode: 'contain',
+            marginLeft: wp('2%'),
+          }}
+          source={isActive ? img.upArrowIcon : img.arrowRightIcon}
+        />
+        <Text
+          style={{
+            color: '#492813',
+            fontSize: 14,
+            marginLeft: wp('2%'),
+            fontFamily: 'Inter-Regular',
+          }}>
+          {section.title}
+        </Text>
+      </View>
+    );
+  };
+
+  openListFun = (item, index, section) => {
+    const {inventoryId} = this.state;
+    console.log('inve', inventoryId);
+    this.setState(
+      {
+        mapModalStatus: false,
+      },
+      () =>
+        this.props.navigation.navigate('MapProductsListScreen', {
+          item,
+          section,
+          inventoryId,
+        }),
+    );
+  };
+
+  _renderContent = section => {
+    const {categoryLoader, catArray} = this.state;
+    return (
+      <View>
+        {categoryLoader ? (
+          <ActivityIndicator size="large" color="#94C036" />
+        ) : (
+          <View>
+            {catArray &&
+              catArray.map((item, index) => {
+                return (
+                  <View>
+                    <TouchableOpacity
+                      onPress={() => this.openListFun(item, index, section)}
+                      style={{
+                        borderWidth: 1,
+                        paddingVertical: 15,
+                        paddingHorizontal: 10,
+                        flexDirection: 'row',
+                        justifyContent: 'space-between',
+                        marginTop: 10,
+                        width: wp('70%'),
+                        borderRadius: 6,
+                        borderColor: '#00000099',
+                      }}>
+                      <View style={{}}>
+                        <Text
+                          style={{textAlign: 'center', color: '#161C27'}}
+                          numberOfLines={1}>
+                          {item.name}{' '}
+                        </Text>
+                      </View>
+                    </TouchableOpacity>
+                  </View>
+                );
+              })}
+          </View>
+        )}
+      </View>
+    );
+  };
+
+  _updateSections = activeSections => {
+    this.setState(
+      {
+        activeSections,
+        categoryLoader: true,
+      },
+      () => this.updateSubFun(),
+    );
+  };
+
+  updateSubFun = () => {
+    const {SECTIONS, activeSections} = this.state;
+    if (activeSections.length > 0) {
+      const deptId = SECTIONS[activeSections].content;
+      lookupCategoriesApi(deptId)
+        .then(res => {
+          console.log('res', res);
+
+          this.setState({
+            catArray: res.data,
+            categoryLoader: false,
+          });
+        })
+        .catch(err => {
+          console.log('ERR', err);
+        });
+    } else {
+      this.setState({
+        activeSections: [],
+        categoryLoader: false,
+      });
+    }
+  };
+
   render() {
     const {
       buttonsSubHeader,
@@ -305,6 +478,9 @@ class SupplierList extends Component {
       modalLoader,
       actionModalStatus,
       mapStatus,
+      mapModalStatus,
+      SECTIONS,
+      activeSections,
     } = this.state;
 
     console.log('modaldata', modalData);
@@ -617,6 +793,79 @@ class SupplierList extends Component {
               </View>
             </TouchableOpacity>
           </View>
+          <Modal isVisible={mapModalStatus} backdropOpacity={0.35}>
+            <View
+              style={{
+                width: wp('80%'),
+                height: hp('70%'),
+                backgroundColor: '#F0F4FE',
+                alignSelf: 'center',
+                borderRadius: 14,
+              }}>
+              <View
+                style={{
+                  backgroundColor: '#93BA3A',
+                  height: hp('7%'),
+                  flexDirection: 'row',
+                  borderTopRightRadius: 6,
+                  borderTopLeftRadius: 6,
+                }}>
+                <View
+                  style={{
+                    flex: 3,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}>
+                  <Text
+                    style={{
+                      fontSize: 16,
+                      color: '#fff',
+                      fontFamily: 'Inter-Regular',
+                    }}>
+                    Map Products
+                  </Text>
+                </View>
+                <View
+                  style={{
+                    flex: 1,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}>
+                  <TouchableOpacity
+                    onPress={() => this.setModalVisibleFalse(false)}>
+                    <Image
+                      source={img.cancelIcon}
+                      style={{
+                        height: 22,
+                        width: 22,
+                        tintColor: 'white',
+                        resizeMode: 'contain',
+                      }}
+                    />
+                  </TouchableOpacity>
+                </View>
+              </View>
+              {recipeLoader ? (
+                <ActivityIndicator color="#94C036" size="large" />
+              ) : (
+                <ScrollView
+                  showsVerticalScrollIndicator={false}
+                  style={{marginBottom: hp('2%')}}>
+                  <View
+                    style={{marginTop: hp('2%'), marginHorizontal: wp('5%')}}>
+                    <Accordion
+                      underlayColor="#fff"
+                      sections={SECTIONS}
+                      activeSections={activeSections}
+                      renderHeader={this._renderHeader}
+                      renderContent={this._renderContent}
+                      onChange={this._updateSections}
+                    />
+                  </View>
+                </ScrollView>
+              )}
+            </View>
+          </Modal>
           <Modal isVisible={actionModalStatus} backdropOpacity={0.35}>
             <View
               style={{
