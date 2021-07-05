@@ -27,9 +27,6 @@ import {
   getSupplierListAdminApi,
   getCurrentLocUsersAdminApi,
   clonePreviousApi,
-  inventoryListAdminApi,
-  supplierAdminApi,
-  unMapProductApi,
 } from '../../../../../connectivity/api';
 import CheckBox from '@react-native-community/checkbox';
 import Modal from 'react-native-modal';

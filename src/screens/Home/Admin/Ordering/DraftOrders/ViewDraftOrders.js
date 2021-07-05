@@ -83,16 +83,19 @@ class ViewDraftOrders extends Component {
   };
 
   componentDidMount() {
+    this.getData();
     const {supplierName, productId} =
       this.props.route && this.props.route.params;
-    this.setState(
-      {
-        supplierName,
-        productId,
-      },
-      () => this.getDraftOrderData(),
-    );
-    this.getData();
+    this.props.navigation.addListener('focus', () => {
+      this.setState(
+        {
+          supplierName,
+          productId,
+          modalLoaderDrafts: true,
+        },
+        () => this.getDraftOrderData(),
+      );
+    });
   }
 
   getDraftOrderData = () => {
@@ -113,46 +116,26 @@ class ViewDraftOrders extends Component {
     this.props.navigation.navigate('MyProfile');
   };
 
-  onPressFun = () => {
-    this.props.navigation.goBack();
-  };
-
-  actionFun = data => {
-    console.log('data', data);
-    this.setState({
-      actionModalStatus: true,
-    });
-  };
-
-  setModalVisibleFalse = visible => {
-    this.setState({
-      actionModalStatus: visible,
-    });
-  };
-
   editFun = () => {
-    alert('edit');
+    const {productId} = this.state;
+    this.props.navigation.navigate('EditDraftOrderScreen', {
+      productId,
+    });
   };
 
   deleteFun = () => {
-    this.setState(
-      {
-        actionModalStatus: false,
-      },
-      () =>
-        setTimeout(() => {
-          Alert.alert('Grainz', 'Are you sure you want to delete this order?', [
-            {
-              text: 'Yes',
-              onPress: () => this.hitDeleteApi(),
-            },
-            {
-              text: 'No',
-              style: 'cancel',
-            },
-          ]);
-        }, 400),
-    );
+    setTimeout(() => {
+      Alert.alert('Grainz', 'Are you sure you want to delete this order?', [
+        {
+          text: 'Yes',
+          onPress: () => this.hitDeleteApi(),
+        },
+        {
+          text: 'No',
+          style: 'cancel',
+        },
+      ]);
+    }, 100);
   };
 
   hitDeleteApi = () => {
@@ -177,7 +160,7 @@ class ViewDraftOrders extends Component {
   };
 
   addItemsFun = () => {
-    alert('add Items');
+    this.props.navigation.navigate('NewOrderScreen');
   };
 
   render() {
@@ -213,6 +196,27 @@ class ViewDraftOrders extends Component {
                 onPress={() => this.props.navigation.goBack()}
                 style={styles.goBackContainer}>
                 <Text style={styles.goBackTextStyle}>Go Back</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+          <View style={{}}>
+            <View style={styles.firstContainer}>
+              <TouchableOpacity
+                style={{flex: 1}}
+                onPress={() => this.editFun()}>
+                <Text
+                  style={{
+                    fontSize: 18,
+                    fontFamily: 'Inter-SemiBold',
+                    color: '#87AC33',
+                  }}>
+                  Edit
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => this.deleteFun()}
+                style={styles.goBackContainer}>
+                <Text style={styles.goBackTextStyle}>Delete</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -284,10 +288,10 @@ class ViewDraftOrders extends Component {
                     </View>
                     {draftsOrderData &&
                       draftsOrderData.orderItems.map((item, index) => {
+                        console.log('item', item);
                         return (
                           <View>
                             <TouchableOpacity
-                              onPress={() => this.actionFun(item)}
                               style={{
                                 flexDirection: 'row',
                                 justifyContent: 'space-between',
@@ -304,7 +308,7 @@ class ViewDraftOrders extends Component {
                                   justifyContent: 'center',
                                   alignItems: 'center',
                                 }}>
-                                <Text style={{}}>{item.supplierName}</Text>
+                                <Text style={{}}>{item.productName}</Text>
                               </View>
                               <View
                                 style={{
@@ -352,8 +356,43 @@ class ViewDraftOrders extends Component {
                             flex: 1,
                             justifyContent: 'center',
                             alignItems: 'center',
+                          }}></View>
+                        <View
+                          style={{
+                            flex: 1,
+                            justifyContent: 'center',
+                            alignItems: 'center',
                           }}>
-                          <Text style={{}}>Supplier</Text>
+                          <Text style={{}}>Total HTVA</Text>
+                        </View>
+                        <View
+                          style={{
+                            flex: 1,
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                          }}>
+                          <Text>1,124 $</Text>
+                        </View>
+                      </View>
+                    </View>
+                    <View>
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          justifyContent: 'space-between',
+                          flex: 1,
+                          backgroundColor: '#FFFFFF',
+                          paddingVertical: hp('3%'),
+                          borderTopLeftRadius: 5,
+                          borderTopRightRadius: 5,
+                        }}>
+                        <View
+                          style={{
+                            flex: 1,
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                          }}>
+                          <Text style={{}}>Supplier:</Text>
                         </View>
                         <View
                           style={{
@@ -388,7 +427,7 @@ class ViewDraftOrders extends Component {
                             justifyContent: 'center',
                             alignItems: 'center',
                           }}>
-                          <Text style={{}}>Placed By</Text>
+                          <Text style={{}}>Placed By:</Text>
                         </View>
                         <View
                           style={{
@@ -423,7 +462,7 @@ class ViewDraftOrders extends Component {
                             justifyContent: 'center',
                             alignItems: 'center',
                           }}>
-                          <Text style={{}}>Order Date</Text>
+                          <Text style={{}}>Order Date:</Text>
                         </View>
                         <View
                           style={{
@@ -461,7 +500,7 @@ class ViewDraftOrders extends Component {
                             justifyContent: 'center',
                             alignItems: 'center',
                           }}>
-                          <Text style={{}}>Delivery date</Text>
+                          <Text style={{}}>Delivery date:</Text>
                         </View>
                         <View
                           style={{
@@ -480,41 +519,6 @@ class ViewDraftOrders extends Component {
                             justifyContent: 'center',
                             alignItems: 'center',
                           }}></View>
-                      </View>
-                    </View>
-                    <View>
-                      <View
-                        style={{
-                          flexDirection: 'row',
-                          justifyContent: 'space-between',
-                          flex: 1,
-                          backgroundColor: '#FFFFFF',
-                          paddingVertical: hp('3%'),
-                          borderTopLeftRadius: 5,
-                          borderTopRightRadius: 5,
-                        }}>
-                        <View
-                          style={{
-                            flex: 1,
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                          }}></View>
-                        <View
-                          style={{
-                            flex: 1,
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                          }}>
-                          <Text style={{}}>Total HTVA</Text>
-                        </View>
-                        <View
-                          style={{
-                            flex: 1,
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                          }}>
-                          <Text>1,124 $</Text>
-                        </View>
                       </View>
                     </View>
                   </View>
@@ -561,89 +565,6 @@ class ViewDraftOrders extends Component {
             </View>
           </TouchableOpacity>
         </View>
-        <Modal isVisible={actionModalStatus} backdropOpacity={0.35}>
-          <View
-            style={{
-              width: wp('80%'),
-              height: hp('19%'),
-              backgroundColor: '#fff',
-              alignSelf: 'center',
-              borderRadius: 14,
-            }}>
-            <TouchableOpacity
-              style={{flex: 1, justifyContent: 'center'}}
-              onPress={() => this.editFun()}>
-              <View
-                style={{
-                  paddingHorizontal: wp('8%'),
-                  flexDirection: 'row',
-                  justifyContent: 'space-between',
-                }}>
-                <Text
-                  style={{
-                    color: '#161C27',
-                    fontFamily: 'Inter-Regular',
-                    fontSize: 18,
-                  }}>
-                  Edit
-                </Text>
-                <Image
-                  source={img.editIconNew}
-                  style={{
-                    height: 15,
-                    width: 15,
-                    resizeMode: 'contain',
-                  }}
-                />
-              </View>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={{flex: 1, justifyContent: 'center'}}
-              onPress={() => this.deleteFun()}>
-              <View
-                style={{
-                  paddingHorizontal: wp('8%'),
-                  flexDirection: 'row',
-                  justifyContent: 'space-between',
-                }}>
-                <Text
-                  style={{
-                    color: '#94C01F',
-                    fontFamily: 'Inter-Regular',
-                    fontSize: 18,
-                  }}>
-                  Delete
-                </Text>
-                <Image
-                  source={img.deleteIconNew}
-                  style={{
-                    height: 15,
-                    width: 15,
-                    resizeMode: 'contain',
-                  }}
-                />
-              </View>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => this.setModalVisibleFalse(false)}
-              style={{
-                flex: 1,
-                justifyContent: 'center',
-                alignItems: 'center',
-              }}>
-              <View style={{}}>
-                <Text
-                  style={{
-                    color: '#161C27',
-                    fontFamily: 'Inter-Regular',
-                    fontSize: 18,
-                  }}>
-                  Cancel
-                </Text>
-              </View>
-            </TouchableOpacity>
-          </View>
-        </Modal>
       </View>
     );
   }

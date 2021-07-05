@@ -858,3 +858,12 @@ export const mapProductAdminApi = async payload => {
     },
   );
 };
+
+export const updateDraftOrderApi = async payload => {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.post(baseURL + `/Order/update order`, payload, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
