@@ -210,8 +210,10 @@ class EditDraftOrder extends Component {
   };
 
   flatListFun = item => {
+    const {supplierValue, apiDeliveryDate, apiOrderDate, placedByValue} =
+      this.state;
     if (item.id === 0) {
-      alert('Add items');
+      // this.props.navigation.navigate('AddItemsOrderScreen');
     } else if (item.id === 1) {
       this.saveDraftFun();
     } else {
@@ -333,7 +335,17 @@ class EditDraftOrder extends Component {
   };
 
   hitDeleteApiSec = () => {
-    const {inventoryData} = this.state;
+    const {
+      inventoryData,
+      draftsOrderData,
+      finalOrderDate,
+      supplierValue,
+      finalDeliveryDate,
+      placedByValue,
+      productId,
+    } = this.state;
+    console.log('finalOrderDate', finalOrderDate);
+
     let payload = {
       ambientTemp: null,
       checkedBy: null,
@@ -345,22 +357,22 @@ class EditDraftOrder extends Component {
       deliveryNoteReference: null,
       departmentId: null,
       frozenTemp: null,
-      id: 'ee4f1e0c-6d55-48d7-8a86-6b5d998d8c3f',
+      id: draftsOrderData.id,
       images: [],
       invoiceNumber: null,
       isAdhoc: false,
       isAuditComplete: null,
       isPlaced: null,
       isTDC: false,
-      locationName: 'Ginette Bar Lux',
+      locationName: draftsOrderData.locationName,
       notes: null,
       orderDate: '2021-07-04T22:46:06.767Z',
       orderItems: inventoryData,
-      orderReference: 'GINLUX_202175_1',
-      placedBy: '45c91b2d-9f7c-4d12-8d7d-1e49ffb94543',
-      placedByNAme: 'Rudi ',
-      supplierId: '9c7411e7-7fef-4e0d-9030-91b12a61f26d',
-      supplierName: 'Biofresh',
+      orderReference: draftsOrderData.orderReference,
+      placedBy: draftsOrderData.placedBy,
+      placedByNAme: draftsOrderData.placedByNAme,
+      supplierId: draftsOrderData.supplierId,
+      supplierName: draftsOrderData.supplierName,
     };
     console.log('payload', payload);
 
@@ -411,7 +423,6 @@ class EditDraftOrder extends Component {
       buttonsSubHeader,
       recipeLoader,
       modalLoaderDrafts,
-      draftsOrderData,
       buttons,
       supplierList,
       supplierValue,

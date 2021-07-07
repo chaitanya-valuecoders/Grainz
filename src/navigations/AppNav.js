@@ -75,6 +75,10 @@ export default function AppNavFun() {
         component={InventoryListOrderScreen}
       />
       <AppNav.Screen
+        name="CasualPurchaseScreen"
+        component={CasualPurchaseScreen}
+      />
+      <AppNav.Screen
         name="EditDraftOrderScreen"
         component={EditDraftOrderScreen}
       />
