@@ -46,7 +46,7 @@ class NewOrder extends Component {
       modalVisible: false,
       firstName: '',
       recipeLoader: false,
-      pageLoading: false,
+      pageLoading: true,
       selectedItemObjects: '',
       buttonsSubHeader: [],
       supplierValue: '',
@@ -62,6 +62,8 @@ class NewOrder extends Component {
       sentValue: 'No',
       apiDeliveryDate: '',
       apiOrderDate: '',
+      searchItem: '',
+      supplierListBackup: [],
     };
   }
 
@@ -139,6 +141,8 @@ class NewOrder extends Component {
         this.setState({
           supplierList: finalSupplierList,
           recipeLoader: false,
+          pageLoading: false,
+          supplierListBackup: finalSupplierList,
         });
       })
       .catch(err => {
@@ -148,21 +152,6 @@ class NewOrder extends Component {
 
   myProfile = () => {
     this.props.navigation.navigate('MyProfile');
-  };
-
-  cloneFun = item => {
-    const {supplierValue} = this.state;
-    if (supplierValue) {
-      this.setState(
-        {
-          clonePreviouseModalStatus: true,
-          cloneLoader: true,
-        },
-        () => this.hitCloneApi(),
-      );
-    } else {
-      alert('Please select supplier first');
-    }
   };
 
   hitCloneApi = () => {
@@ -234,19 +223,35 @@ class NewOrder extends Component {
     });
   };
 
-  addItemsFun = () => {
-    const {supplierValue, apiDeliveryDate, apiOrderDate, placedByValue} =
-      this.state;
-    if (supplierValue && apiDeliveryDate && apiOrderDate && placedByValue) {
-      this.props.navigation.navigate('AddItemsOrderScreen', {
-        supplierValue,
-        apiDeliveryDate,
-        apiOrderDate,
-        placedByValue,
-      });
-    } else {
-      alert('Please select all fields');
-    }
+  addItemsFun = item => {
+    this.props.navigation.navigate('AddItemsOrderScreen', {
+      supplierValue: item.value,
+    });
+  };
+
+  searchFun = txt => {
+    this.setState(
+      {
+        searchItem: txt,
+      },
+      () => this.filterData(txt),
+    );
+  };
+
+  filterData = text => {
+    //passing the inserted text in textinput
+    const newData = this.state.supplierListBackup.filter(function (item) {
+      //applying filter for the inserted text in search bar
+      const itemData = item.label ? item.label.toUpperCase() : ''.toUpperCase();
+      const textData = text.toUpperCase();
+      return itemData.indexOf(textData) > -1;
+    });
+    this.setState({
+      //setting the filtered newData on datasource
+      //After setting the data it will automatically re-render the view
+      supplierList: newData,
+      searchItem: text,
+    });
   };
 
   render() {
@@ -267,6 +272,7 @@ class NewOrder extends Component {
       cloneLoader,
       cloneOrderData,
       sentValue,
+      searchItem,
     } = this.state;
 
     return (
@@ -298,422 +304,86 @@ class NewOrder extends Component {
               </TouchableOpacity>
             </View>
           </View>
-          <TouchableOpacity
-            onPress={() => this.cloneFun()}
+
+          <View
             style={{
               flexDirection: 'row',
-              height: hp('6%'),
-              width: wp('80%'),
-              backgroundColor: '#94C036',
-              justifyContent: 'center',
               alignItems: 'center',
-              marginVertical: hp('2%'),
-              alignSelf: 'center',
+              borderWidth: 1,
+              borderColor: '#E2E8F0',
+              height: hp('7%'),
+              width: wp('90%'),
               borderRadius: 100,
+              backgroundColor: '#fff',
+              alignSelf: 'center',
+              justifyContent: 'space-between',
+              marginVertical: hp('2%'),
             }}>
-            <View style={{}}>
-              <Text
-                style={{
-                  color: 'white',
-                  fontFamily: 'Inter-SemiBold',
-                  fontSize: 15,
-                }}>
-                {translate('Clone previous')}
-              </Text>
-            </View>
-          </TouchableOpacity>
+            <TextInput
+              placeholder="Search"
+              value={searchItem}
+              style={{
+                padding: 15,
+                width: wp('75%'),
+              }}
+              onChangeText={value => this.searchFun(value)}
+            />
+            <Image
+              style={{
+                height: 18,
+                width: 18,
+                resizeMode: 'contain',
+                marginRight: wp('5%'),
+              }}
+              source={img.searchIcon}
+            />
+          </View>
 
           {pageLoading ? (
             <ActivityIndicator color="#94C036" size="large" />
           ) : (
-            <View style={{marginHorizontal: wp('3%')}}>
-              <View>
-                <View
-                  style={{
-                    marginTop: hp('2%'),
-                  }}>
-                  <View
-                    style={{
-                      flexDirection: 'row',
-                      width: wp('90%'),
-                      backgroundColor: '#fff',
-                      paddingVertical: Platform.OS === 'ios' ? 15 : 5,
-                      borderRadius: 5,
-                      justifyContent: 'space-between',
-                    }}>
-                    <View
-                      style={{
-                        width: wp('80%'),
-                        alignSelf: 'center',
-                        justifyContent: 'center',
-                      }}>
-                      <RNPickerSelect
-                        placeholder={{
-                          label: 'Select supplier*',
-                          value: null,
-                          color: 'black',
-                        }}
-                        placeholderTextColor="red"
-                        onValueChange={value => {
-                          this.setState({
-                            supplierValue: value,
-                          });
-                        }}
-                        style={{
-                          inputIOS: {
-                            fontSize: 14,
-                            paddingHorizontal: '3%',
-                            color: '#161C27',
-                            width: '100%',
-                            alignSelf: 'center',
-                          },
-                          inputAndroid: {
-                            fontSize: 14,
-                            paddingHorizontal: '3%',
-                            color: '#161C27',
-                            width: '100%',
-                            alignSelf: 'center',
-                          },
-                          iconContainer: {
-                            top: '40%',
-                          },
-                        }}
-                        items={supplierList}
-                        value={supplierValue}
-                        useNativeAndroidPickerStyle={false}
-                      />
-                    </View>
-                    <View style={{marginRight: wp('5%')}}>
-                      <Image
-                        source={img.arrowDownIcon}
-                        resizeMode="contain"
-                        style={{
-                          height: 18,
-                          width: 18,
-                          resizeMode: 'contain',
-                          marginTop: Platform.OS === 'ios' ? 0 : 15,
-                        }}
-                      />
-                    </View>
-                  </View>
-                </View>
-                <View
-                  style={{
-                    marginTop: hp('3%'),
-                  }}>
-                  <View style={{}}>
+            <View style={{marginHorizontal: wp('5%')}}>
+              {supplierList.map((item, index) => {
+                return (
+                  <View style={{marginTop: hp('2%')}} key={index}>
                     <TouchableOpacity
-                      onPress={() => this.showDatePickerOrderDate()}
+                      onPress={() => this.addItemsFun(item)}
                       style={{
-                        width: wp('90%'),
-                        padding: Platform.OS === 'ios' ? 15 : 5,
+                        backgroundColor: '#EFFBCF',
+                        paddingVertical: 15,
                         flexDirection: 'row',
-                        justifyContent: 'space-between',
-                        backgroundColor: '#fff',
-                        borderRadius: 5,
+                        borderRadius: 6,
                       }}>
-                      <TextInput
-                        placeholder="Order Date"
-                        value={finalOrderDate}
-                        editable={false}
-                      />
-                      <Image
-                        source={img.calenderIcon}
-                        style={{
-                          width: 20,
-                          height: 20,
-                          resizeMode: 'contain',
-                          marginTop: Platform.OS === 'android' ? 15 : 0,
-                          marginRight: Platform.OS === 'android' ? 15 : 0,
-                        }}
-                      />
-                    </TouchableOpacity>
-                    <DateTimePickerModal
-                      isVisible={isDatePickerVisibleOrderDate}
-                      mode={'date'}
-                      onConfirm={this.handleConfirmOrderDate}
-                      onCancel={this.hideDatePickerOrderDate}
-                    />
-                  </View>
-                </View>
-                <View
-                  style={{
-                    marginTop: hp('3%'),
-                  }}>
-                  <View style={{}}>
-                    <TouchableOpacity
-                      onPress={() => this.showDatePickerDeliveryDate()}
-                      style={{
-                        width: wp('90%'),
-                        padding: Platform.OS === 'ios' ? 15 : 5,
-                        flexDirection: 'row',
-                        justifyContent: 'space-between',
-                        backgroundColor: '#fff',
-                        borderRadius: 5,
-                      }}>
-                      <TextInput
-                        placeholder="Delivery Date"
-                        value={finalDeliveryDate}
-                        editable={false}
-                      />
-                      <Image
-                        source={img.calenderIcon}
-                        style={{
-                          width: 20,
-                          height: 20,
-                          resizeMode: 'contain',
-                          marginTop: Platform.OS === 'android' ? 15 : 0,
-                          marginRight: Platform.OS === 'android' ? 15 : 0,
-                        }}
-                      />
-                    </TouchableOpacity>
-                    <DateTimePickerModal
-                      isVisible={isDatePickerVisibleDeliveryDate}
-                      mode={'date'}
-                      onConfirm={this.handleConfirmDeliveryDate}
-                      onCancel={this.hideDatePickerDeliveryDate}
-                    />
-                  </View>
-                </View>
-              </View>
-              <View>
-                <View
-                  style={{
-                    marginTop: hp('3%'),
-                  }}>
-                  <View
-                    style={{
-                      flexDirection: 'row',
-                      width: wp('90%'),
-                      backgroundColor: '#fff',
-                      paddingVertical: Platform.OS === 'ios' ? 15 : 5,
-                      borderRadius: 5,
-                      justifyContent: 'space-between',
-                    }}>
-                    <View
-                      style={{
-                        width: wp('80%'),
-                        alignSelf: 'center',
-                        justifyContent: 'center',
-                      }}>
-                      <RNPickerSelect
-                        placeholder={{
-                          label: 'Select placed by*',
-                          value: null,
-                          color: 'grey',
-                        }}
-                        onValueChange={value => {
-                          this.setState({
-                            placedByValue: value,
-                          });
-                        }}
-                        style={{
-                          inputIOS: {
-                            fontSize: 14,
-                            paddingHorizontal: '3%',
-                            color: '#161C27',
-                            width: '100%',
-                            alignSelf: 'center',
-                          },
-                          inputAndroid: {
-                            fontSize: 14,
-                            paddingHorizontal: '3%',
-                            color: '#161C27',
-                            width: '100%',
-                            alignSelf: 'center',
-                          },
-                          iconContainer: {
-                            top: '40%',
-                          },
-                        }}
-                        items={usersList}
-                        value={placedByValue}
-                        useNativeAndroidPickerStyle={false}
-                      />
-                    </View>
-                    <View style={{marginRight: wp('5%')}}>
-                      <Image
-                        source={img.arrowDownIcon}
-                        resizeMode="contain"
-                        style={{
-                          height: 20,
-                          width: 20,
-                          marginTop: Platform.OS === 'ios' ? 0 : 15,
-                        }}
-                      />
-                    </View>
-                  </View>
-                </View>
-                <View
-                  style={{
-                    marginTop: hp('3%'),
-                  }}>
-                  <View style={{}}>
-                    <TextInput
-                      editable={false}
-                      value={sentValue}
-                      placeholder="Sent"
-                      style={{
-                        width: wp('90%'),
-                        padding: 15,
-                        flexDirection: 'row',
-                        justifyContent: 'space-between',
-                        backgroundColor: '#fff',
-                        borderRadius: 5,
-                      }}
-                    />
-                  </View>
-                </View>
-              </View>
-            </View>
-          )}
-          <Modal isVisible={clonePreviouseModalStatus} backdropOpacity={0.35}>
-            <View
-              style={{
-                width: wp('80%'),
-                height: hp('70%'),
-                backgroundColor: '#F0F4FE',
-                alignSelf: 'center',
-                borderRadius: 6,
-              }}>
-              <View
-                style={{
-                  backgroundColor: '#83AB2F',
-                  height: hp('6%'),
-                  flexDirection: 'row',
-                  borderTopRightRadius: 6,
-                  borderTopLeftRadius: 6,
-                }}>
-                <View
-                  style={{
-                    flex: 3,
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}>
-                  <Text
-                    style={{
-                      fontSize: 16,
-                      color: '#fff',
-                      fontFamily: 'Inter-Regular',
-                    }}>
-                    {translate('Previous order item')}
-                  </Text>
-                </View>
-                <View
-                  style={{
-                    flex: 1,
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}>
-                  <TouchableOpacity
-                    onPress={() => this.setModalVisibleFalse(false)}>
-                    <Image
-                      source={img.cancelIcon}
-                      style={{
-                        height: 22,
-                        width: 22,
-                        tintColor: 'white',
-                        resizeMode: 'contain',
-                      }}
-                    />
-                  </TouchableOpacity>
-                </View>
-              </View>
-
-              <ScrollView showsVerticalScrollIndicator={false}>
-                {cloneLoader ? (
-                  <ActivityIndicator color="grey" size="large" />
-                ) : (
-                  <View style={{marginTop: hp('2%')}}>
-                    {cloneOrderData.length > 0 ? (
-                      <View>
-                        {cloneOrderData.map(item => {
-                          return (
-                            <View style={{marginLeft: wp('5%')}}>
-                              <Text
-                                style={{
-                                  marginVertical: hp('2%'),
-                                  color: '#151B26',
-                                  fontFamily: 'Inter-Regular',
-                                }}>
-                                {moment(item.orderDate).format('LL')}
-                              </Text>
-                            </View>
-                          );
-                        })}
-                      </View>
-                    ) : (
                       <View
                         style={{
-                          marginTop: hp('5%'),
-                          alignItems: 'center',
+                          flex: 1,
                           justifyContent: 'center',
+                          alignItems: 'center',
                         }}>
-                        <Text style={{fontSize: 20, color: 'red'}}>
-                          No data available
+                        <Image
+                          source={img.menusIcon}
+                          style={{
+                            width: 20,
+                            height: 20,
+                            resizeMode: 'contain',
+                          }}
+                        />
+                      </View>
+                      <View style={{flex: 4}}>
+                        <Text
+                          style={{
+                            fontFamily: 'Inter-Regular',
+                            fontSize: 16,
+                          }}>
+                          {item.label}
                         </Text>
                       </View>
-                    )}
+                    </TouchableOpacity>
                   </View>
-                )}
-              </ScrollView>
-              <View style={{alignSelf: 'center'}}>
-                <TouchableOpacity
-                  onPress={() => this.setModalVisibleFalse(false)}
-                  style={{
-                    height: hp('6%'),
-                    width: wp('70%'),
-                    backgroundColor: '#E7943B',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    marginBottom: 20,
-                    borderRadius: 100,
-                  }}>
-                  <View style={{}}>
-                    <Text style={{color: 'white', marginLeft: 5}}>Close</Text>
-                  </View>
-                </TouchableOpacity>
-              </View>
+                );
+              })}
             </View>
-          </Modal>
-          <View style={{justifyContent: 'center', alignItems: 'center'}}>
-            <TouchableOpacity
-              onPress={() => this.addItemsFun()}
-              style={{
-                height: hp('6%'),
-                width: wp('80%'),
-                backgroundColor: '#94C036',
-                justifyContent: 'center',
-                alignItems: 'center',
-                marginTop: hp('3%'),
-                borderRadius: 100,
-                marginBottom: hp('5%'),
-              }}>
-              <View
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                }}>
-                <Image
-                  source={img.addIcon}
-                  style={{
-                    width: 20,
-                    height: 20,
-                    tintColor: '#fff',
-                    resizeMode: 'contain',
-                  }}
-                />
-                <Text
-                  style={{
-                    color: 'white',
-                    marginLeft: 10,
-                    fontFamily: 'Inter-SemiBold',
-                  }}>
-                  Add items
-                </Text>
-              </View>
-            </TouchableOpacity>
-          </View>
+          )}
         </ScrollView>
       </View>
     );

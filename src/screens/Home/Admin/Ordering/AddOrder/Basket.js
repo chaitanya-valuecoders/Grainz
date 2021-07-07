@@ -24,12 +24,15 @@ import {
   getMyProfileApi,
   getSupplierProductsApi,
   addOrderApi,
+  getCurrentLocUsersAdminApi,
 } from '../../../../../connectivity/api';
 import CheckBox from '@react-native-community/checkbox';
 import Modal from 'react-native-modal';
 import styles from '../style';
-
+import RNPickerSelect from 'react-native-picker-select';
+import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import {translate} from '../../../../../utils/translations';
+import moment from 'moment';
 
 class Basket extends Component {
   constructor(props) {
@@ -46,6 +49,20 @@ class Basket extends Component {
       placedByValue: '',
       supplierId: '',
       finalApiData: [],
+      modalVisible: false,
+      supplierValue: '',
+      finalOrderDate: '',
+      isDatePickerVisibleOrderDate: false,
+      finalDeliveryDate: '',
+      placedByValue: '',
+      supplierList: [],
+      usersList: [],
+      clonePreviouseModalStatus: false,
+      cloneLoader: false,
+      cloneOrderData: [],
+      sentValue: 'No',
+      apiDeliveryDate: '',
+      apiOrderDate: '',
     };
   }
 
@@ -106,13 +123,8 @@ class Basket extends Component {
 
   componentDidMount() {
     this.getData();
-    const {
-      finalData,
-      apiDeliveryDate,
-      apiOrderDate,
-      placedByValue,
-      supplierId,
-    } = this.props.route && this.props.route.params;
+    this.getUsersListData();
+    const {finalData, supplierId} = this.props.route && this.props.route.params;
     const finalArr = [];
     finalData.map(item => {
       finalArr.push({
@@ -125,9 +137,6 @@ class Basket extends Component {
 
     this.setState({
       modalData: finalData,
-      apiDeliveryDate,
-      apiOrderDate,
-      placedByValue,
       supplierId,
       finalApiData: [...finalArr],
     });
@@ -140,6 +149,26 @@ class Basket extends Component {
     //   () => this.getInsideCatFun(),
     // );
   }
+
+  getUsersListData = () => {
+    getCurrentLocUsersAdminApi()
+      .then(res => {
+        const {data} = res;
+        let finalUsersList = data.map((item, index) => {
+          return {
+            label: item.firstName,
+            value: item.id,
+          };
+        });
+        this.setState({
+          usersList: finalUsersList,
+          recipeLoader: false,
+        });
+      })
+      .catch(err => {
+        console.log('ERR', err);
+      });
+  };
 
   getInsideCatFun = () => {
     const {supplierId, catName} = this.state;
@@ -224,7 +253,6 @@ class Basket extends Component {
       placedBy: placedByValue,
       supplierId: supplierId,
     };
-    console.log('payload', payload);
     addOrderApi(payload)
       .then(res => {
         Alert.alert('Grainz', 'Order added successfully', [
@@ -250,6 +278,52 @@ class Basket extends Component {
     }
   };
 
+  showDatePickerOrderDate = () => {
+    this.setState({
+      isDatePickerVisibleOrderDate: true,
+    });
+  };
+
+  showDatePickerDeliveryDate = () => {
+    this.setState({
+      isDatePickerVisibleDeliveryDate: true,
+    });
+  };
+
+  handleConfirmOrderDate = date => {
+    console.log('date', date);
+    let newdate = moment(date).format('MM/DD/YYYY');
+    let apiOrderDate = date.toISOString();
+    this.setState({
+      finalOrderDate: newdate,
+      apiOrderDate,
+    });
+    this.hideDatePickerOrderDate();
+  };
+
+  hideDatePickerOrderDate = () => {
+    this.setState({
+      isDatePickerVisibleOrderDate: false,
+    });
+  };
+
+  handleConfirmDeliveryDate = date => {
+    console.log('date', date);
+    let newdate = moment(date).format('MM/DD/YYYY');
+    let apiDeliveryDate = date.toISOString();
+    this.setState({
+      finalDeliveryDate: newdate,
+      apiDeliveryDate,
+    });
+    this.hideDatePickerDeliveryDate();
+  };
+
+  hideDatePickerDeliveryDate = () => {
+    this.setState({
+      isDatePickerVisibleDeliveryDate: false,
+    });
+  };
+
   render() {
     const {
       buttonsSubHeader,
@@ -258,6 +332,18 @@ class Basket extends Component {
       modalLoader,
       actionModalStatus,
       buttons,
+      supplierValue,
+      finalOrderDate,
+      isDatePickerVisibleOrderDate,
+      isDatePickerVisibleDeliveryDate,
+      finalDeliveryDate,
+      placedByValue,
+      supplierList,
+      usersList,
+      clonePreviouseModalStatus,
+      cloneLoader,
+      cloneOrderData,
+      sentValue,
     } = this.state;
 
     return (
@@ -293,11 +379,162 @@ class Basket extends Component {
               </View>
             </View>
           </View>
+          <View style={{marginHorizontal: wp('3%')}}>
+            <View>
+              <View
+                style={{
+                  marginTop: hp('3%'),
+                }}>
+                <View style={{}}>
+                  <TouchableOpacity
+                    onPress={() => this.showDatePickerOrderDate()}
+                    style={{
+                      width: wp('90%'),
+                      padding: Platform.OS === 'ios' ? 15 : 5,
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
+                      backgroundColor: '#fff',
+                      borderRadius: 5,
+                    }}>
+                    <TextInput
+                      placeholder="Order Date"
+                      value={finalOrderDate}
+                      editable={false}
+                    />
+                    <Image
+                      source={img.calenderIcon}
+                      style={{
+                        width: 20,
+                        height: 20,
+                        resizeMode: 'contain',
+                        marginTop: Platform.OS === 'android' ? 15 : 0,
+                        marginRight: Platform.OS === 'android' ? 15 : 0,
+                      }}
+                    />
+                  </TouchableOpacity>
+                  <DateTimePickerModal
+                    isVisible={isDatePickerVisibleOrderDate}
+                    mode={'date'}
+                    onConfirm={this.handleConfirmOrderDate}
+                    onCancel={this.hideDatePickerOrderDate}
+                  />
+                </View>
+              </View>
+              <View
+                style={{
+                  marginTop: hp('3%'),
+                }}>
+                <View style={{}}>
+                  <TouchableOpacity
+                    onPress={() => this.showDatePickerDeliveryDate()}
+                    style={{
+                      width: wp('90%'),
+                      padding: Platform.OS === 'ios' ? 15 : 5,
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
+                      backgroundColor: '#fff',
+                      borderRadius: 5,
+                    }}>
+                    <TextInput
+                      placeholder="Delivery Date"
+                      value={finalDeliveryDate}
+                      editable={false}
+                    />
+                    <Image
+                      source={img.calenderIcon}
+                      style={{
+                        width: 20,
+                        height: 20,
+                        resizeMode: 'contain',
+                        marginTop: Platform.OS === 'android' ? 15 : 0,
+                        marginRight: Platform.OS === 'android' ? 15 : 0,
+                      }}
+                    />
+                  </TouchableOpacity>
+                  <DateTimePickerModal
+                    isVisible={isDatePickerVisibleDeliveryDate}
+                    mode={'date'}
+                    onConfirm={this.handleConfirmDeliveryDate}
+                    onCancel={this.hideDatePickerDeliveryDate}
+                  />
+                </View>
+              </View>
+            </View>
+            <View>
+              <View
+                style={{
+                  marginTop: hp('3%'),
+                }}>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    width: wp('90%'),
+                    backgroundColor: '#fff',
+                    paddingVertical: Platform.OS === 'ios' ? 15 : 5,
+                    borderRadius: 5,
+                    justifyContent: 'space-between',
+                  }}>
+                  <View
+                    style={{
+                      width: wp('80%'),
+                      alignSelf: 'center',
+                      justifyContent: 'center',
+                    }}>
+                    <RNPickerSelect
+                      placeholder={{
+                        label: 'Select placed by*',
+                        value: null,
+                        color: 'grey',
+                      }}
+                      onValueChange={value => {
+                        this.setState({
+                          placedByValue: value,
+                        });
+                      }}
+                      style={{
+                        inputIOS: {
+                          fontSize: 14,
+                          paddingHorizontal: '3%',
+                          color: '#161C27',
+                          width: '100%',
+                          alignSelf: 'center',
+                        },
+                        inputAndroid: {
+                          fontSize: 14,
+                          paddingHorizontal: '3%',
+                          color: '#161C27',
+                          width: '100%',
+                          alignSelf: 'center',
+                        },
+                        iconContainer: {
+                          top: '40%',
+                        },
+                      }}
+                      items={usersList}
+                      value={placedByValue}
+                      useNativeAndroidPickerStyle={false}
+                    />
+                  </View>
+                  <View style={{marginRight: wp('5%')}}>
+                    <Image
+                      source={img.arrowDownIcon}
+                      resizeMode="contain"
+                      style={{
+                        height: 20,
+                        width: 20,
+                        marginTop: Platform.OS === 'ios' ? 0 : 15,
+                      }}
+                    />
+                  </View>
+                </View>
+              </View>
+            </View>
+          </View>
 
           {recipeLoader ? (
             <ActivityIndicator size="small" color="#94C036" />
           ) : (
-            <View style={{}}>
+            <View style={{marginTop: hp('2%')}}>
               <ScrollView>
                 {modalLoader ? (
                   <ActivityIndicator size="large" color="grey" />

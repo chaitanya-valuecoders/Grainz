@@ -157,7 +157,7 @@ class index extends Component {
             <View
               style={{
                 borderWidth: 0.4,
-                height: hp('6%'),
+                height: hp('7%'),
                 width: wp('70%'),
                 borderRadius: 100,
                 backgroundColor: '#fff',

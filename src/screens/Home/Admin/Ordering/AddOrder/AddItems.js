@@ -20,10 +20,8 @@ import {
 import {UserTokenAction} from '../../../../../redux/actions/UserTokenAction';
 import {
   getMyProfileApi,
-  lookupDepartmentsApi,
-  lookupCategoriesApi,
+  getInventoryBySupplierIdApi,
   getSupplierCatalogApi,
-  getSupplierProductsApi,
 } from '../../../../../connectivity/api';
 import Accordion from 'react-native-collapsible/Accordion';
 import styles from '../style';
@@ -39,7 +37,7 @@ class AddItems extends Component {
       firstName: '',
       activeSections: [],
       SECTIONS: [],
-      recipeLoader: false,
+      recipeLoader: true,
       sectionData: {},
       isMakeMeStatus: true,
       productionDate: '',
@@ -61,9 +59,6 @@ class AddItems extends Component {
       supplierStatus: false,
       inventoryStatus: true,
       supplierId: '',
-      apiDeliveryDate: '',
-      apiOrderDate: '',
-      placedByValue: '',
     };
   }
 
@@ -93,6 +88,7 @@ class AddItems extends Component {
             {name: translate('Setup')},
             {name: translate('INBOX')},
           ],
+          recipeLoader: false,
         });
       })
       .catch(err => {
@@ -103,7 +99,7 @@ class AddItems extends Component {
   getManualLogsData = () => {
     this.setState(
       {
-        recipeLoader: true,
+        modalLoader: true,
       },
       () => this.createFirstData(),
     );
@@ -112,7 +108,7 @@ class AddItems extends Component {
   getSupplierData = () => {
     this.setState(
       {
-        recipeLoader: true,
+        modalLoader: true,
       },
       () => this.createSupplierData(),
     );
@@ -134,7 +130,7 @@ class AddItems extends Component {
 
         this.setState({
           SECTIONS: [...result],
-          recipeLoader: false,
+          modalLoader: false,
           SECTIONS_SEC: [...result],
         });
       })
@@ -142,17 +138,19 @@ class AddItems extends Component {
         console.log('ERR MEP', err);
 
         this.setState({
-          recipeLoader: false,
+          modalLoader: false,
         });
       });
   };
 
   createFirstData = () => {
-    lookupDepartmentsApi()
+    const {supplierId} = this.state;
+    getInventoryBySupplierIdApi(supplierId)
       .then(res => {
+        console.log('res', res);
         let finalArray = res.data.map((item, index) => {
           return {
-            title: item.name,
+            title: item.displayName,
             content: item.id,
           };
         });
@@ -161,7 +159,7 @@ class AddItems extends Component {
 
         this.setState({
           SECTIONS: [...result],
-          recipeLoader: false,
+          modalLoader: false,
           SECTIONS_SEC: [...result],
         });
       })
@@ -169,7 +167,7 @@ class AddItems extends Component {
         console.log('ERR MEP', err);
 
         this.setState({
-          recipeLoader: false,
+          modalLoader: false,
         });
       });
   };
@@ -177,18 +175,16 @@ class AddItems extends Component {
   componentDidMount() {
     this.getData();
     this.props.navigation.addListener('focus', () => {
-      const {supplierValue, apiDeliveryDate, apiOrderDate, placedByValue} =
-        this.props.route && this.props.route.params;
-      this.setState({
-        supplierId: supplierValue,
-        activeSections: [],
-        supplierStatus: false,
-        inventoryStatus: true,
-        apiDeliveryDate,
-        apiOrderDate,
-        placedByValue,
-      });
-      this.getManualLogsData();
+      const {supplierValue} = this.props.route && this.props.route.params;
+      this.setState(
+        {
+          supplierId: supplierValue,
+          activeSections: [],
+          supplierStatus: false,
+          inventoryStatus: true,
+        },
+        () => this.getManualLogsData(),
+      );
     });
   }
 
@@ -235,58 +231,9 @@ class AddItems extends Component {
     );
   };
 
-  openListFun = (item, index, section) => {
-    console.log('item', item);
-    const {inventoryStatus, supplierId} = this.state;
-    if (inventoryStatus) {
-      this.props.navigation.navigate('InventoryListOrderScreen', {
-        item,
-        section,
-        supplierId,
-      });
-    }
-  };
-
   _renderContent = section => {
     const {categoryLoader, catArray} = this.state;
-    return (
-      <View>
-        {categoryLoader ? (
-          <ActivityIndicator size="large" color="#94C036" />
-        ) : (
-          <View>
-            {catArray &&
-              catArray.map((item, index) => {
-                return (
-                  <View>
-                    <TouchableOpacity
-                      onPress={() => this.openListFun(item, index, section)}
-                      style={{
-                        borderWidth: 1,
-                        paddingVertical: 15,
-                        paddingHorizontal: 10,
-                        flexDirection: 'row',
-                        justifyContent: 'space-between',
-                        marginTop: 10,
-                        width: wp('89%'),
-                        borderRadius: 6,
-                        borderColor: '#00000099',
-                      }}>
-                      <View style={{}}>
-                        <Text
-                          style={{textAlign: 'center', color: '#161C27'}}
-                          numberOfLines={1}>
-                          {item.name}{' '}
-                        </Text>
-                      </View>
-                    </TouchableOpacity>
-                  </View>
-                );
-              })}
-          </View>
-        )}
-      </View>
-    );
+    return <View></View>;
   };
 
   _updateSections = activeSections => {
@@ -295,7 +242,7 @@ class AddItems extends Component {
       this.setState(
         {
           activeSections,
-          categoryLoader: true,
+          categoryLoader: false,
         },
         () => this.updateSubFun(),
       );
@@ -312,19 +259,15 @@ class AddItems extends Component {
   updateSubFun = () => {
     const {inventoryStatus} = this.state;
     if (inventoryStatus) {
-      const {SECTIONS, activeSections} = this.state;
+      const {SECTIONS, activeSections, supplierId} = this.state;
       if (activeSections.length > 0) {
-        const deptId = SECTIONS[activeSections].content;
-        lookupCategoriesApi(deptId)
-          .then(res => {
-            this.setState({
-              catArray: res.data,
-              categoryLoader: false,
-            });
-          })
-          .catch(err => {
-            console.log('ERR', err);
-          });
+        const catId = SECTIONS[activeSections].content;
+        const catName = SECTIONS[activeSections].title;
+        this.props.navigation.navigate('InventoryListOrderScreen', {
+          supplierId,
+          catName,
+          catId,
+        });
       } else {
         this.setState({
           activeSections: [],
@@ -332,22 +275,12 @@ class AddItems extends Component {
         });
       }
     } else {
-      const {
-        supplierId,
-        SECTIONS,
-        activeSections,
-        apiDeliveryDate,
-        apiOrderDate,
-        placedByValue,
-      } = this.state;
+      const {supplierId, SECTIONS, activeSections} = this.state;
       const catName = SECTIONS[activeSections].title;
       if (activeSections.length > 0) {
         this.props.navigation.navigate('SupplierlistOrderScreen', {
           supplierId,
           catName,
-          apiDeliveryDate,
-          apiOrderDate,
-          placedByValue,
         });
       } else {
         this.setState({
@@ -420,6 +353,7 @@ class AddItems extends Component {
       supplierStatus,
       inventoryStatus,
       searchItem,
+      modalLoader,
     } = this.state;
 
     return (
@@ -531,7 +465,7 @@ class AddItems extends Component {
               source={img.searchIcon}
             />
           </View>
-          {recipeLoader ? (
+          {modalLoader ? (
             <ActivityIndicator color="#94C036" size="large" />
           ) : (
             <View style={{marginTop: hp('2%'), marginHorizontal: wp('5%')}}>

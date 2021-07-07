@@ -180,7 +180,7 @@ class index extends Component {
               alignItems: 'center',
               borderWidth: 1,
               borderColor: '#E2E8F0',
-              height: hp('6%'),
+              height: hp('7%'),
               width: wp('90%'),
               borderRadius: 100,
               backgroundColor: '#fff',

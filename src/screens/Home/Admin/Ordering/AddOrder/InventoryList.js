@@ -45,6 +45,7 @@ class InventoryList extends Component {
       catId: '',
       inventoryId: '',
       productId: '',
+      catName: '',
     };
   }
 
@@ -87,15 +88,13 @@ class InventoryList extends Component {
 
   componentDidMount() {
     this.getData();
-    const {item, section, supplierId} =
+    const {supplierId, catName, catId} =
       this.props.route && this.props.route.params;
-    console.log('item', item);
     this.setState(
       {
-        sectionName: section.title,
-        finalName: item.name,
         supplierId,
-        catId: item.id,
+        catName,
+        catId,
       },
       () => this.getInsideCatFun(),
     );
@@ -212,13 +211,12 @@ class InventoryList extends Component {
       buttonsSubHeader,
       recipeLoader,
       modalData,
-      finalName,
       modalLoader,
-      sectionName,
+      catName,
       actionModalStatus,
     } = this.state;
 
-    console.log('modaData', modalData);
+    console.log('modalDta', modalData);
 
     return (
       <View style={styles.container}>
@@ -237,10 +235,7 @@ class InventoryList extends Component {
           <View style={styles.subContainer}>
             <View style={styles.firstContainer}>
               <View style={{flex: 1}}>
-                <Text style={styles.adminTextStyle}>
-                  {' '}
-                  {sectionName} - {finalName}
-                </Text>
+                <Text style={styles.adminTextStyle}>{catName}</Text>
               </View>
               <TouchableOpacity
                 onPress={() => this.props.navigation.goBack()}
@@ -266,284 +261,260 @@ class InventoryList extends Component {
                       horizontal
                       showsHorizontalScrollIndicator={false}>
                       <View>
-                        {modalData && modalData.length > 0 ? (
-                          modalData.map((item, index) => {
-                            return (
-                              <View style={{marginTop: hp('2%')}} key={index}>
-                                <View>
-                                  <View
-                                    style={{
-                                      paddingVertical: 15,
-                                      paddingHorizontal: 5,
-                                      flexDirection: 'row',
-                                      justifyContent: 'space-between',
-                                      backgroundColor: '#EFFBCF',
-                                    }}>
+                        <View style={{marginTop: hp('2%')}}>
+                          <View>
+                            <View
+                              style={{
+                                paddingVertical: 15,
+                                paddingHorizontal: 5,
+                                flexDirection: 'row',
+                                justifyContent: 'space-between',
+                                backgroundColor: '#EFFBCF',
+                              }}>
+                              <View
+                                style={{
+                                  width: wp('30%'),
+                                  alignItems: 'center',
+                                }}>
+                                <Text>Name</Text>
+                              </View>
+                              <View
+                                style={{
+                                  width: wp('30%'),
+                                  alignItems: 'center',
+                                }}>
+                                <Text>In stock ?</Text>
+                              </View>
+                              <View
+                                style={{
+                                  width: wp('30%'),
+                                  alignItems: 'center',
+                                }}>
+                                <Text>Code</Text>
+                              </View>
+                              <View
+                                style={{
+                                  width: wp('30%'),
+                                  alignItems: 'center',
+                                }}>
+                                <Text>Name</Text>
+                              </View>
+                              <View
+                                style={{
+                                  width: wp('30%'),
+                                  alignItems: 'center',
+                                }}>
+                                <Text>Stock</Text>
+                              </View>
+                              <View
+                                style={{
+                                  width: wp('30%'),
+                                  alignItems: 'center',
+                                }}>
+                                <Text>Price</Text>
+                              </View>
+                              <View
+                                style={{
+                                  width: wp('30%'),
+                                  alignItems: 'center',
+                                }}>
+                                <Text>Quantity</Text>
+                              </View>
+                              <View
+                                style={{
+                                  width: wp('30%'),
+                                  alignItems: 'center',
+                                }}>
+                                <Text>Preferred</Text>
+                              </View>
+                              <View
+                                style={{
+                                  width: wp('30%'),
+                                  alignItems: 'center',
+                                }}></View>
+                              <View
+                                style={{
+                                  width: wp('30%'),
+                                  alignItems: 'center',
+                                }}></View>
+                            </View>
+                            <View>
+                              {modalData.length > 0 ? (
+                                modalData.map((item, index) => {
+                                  return (
                                     <View
+                                      key={index}
                                       style={{
-                                        width: wp('30%'),
-                                        alignItems: 'center',
+                                        paddingVertical: 10,
+                                        paddingHorizontal: 5,
+                                        flexDirection: 'row',
+                                        backgroundColor:
+                                          index % 2 === 0
+                                            ? '#FFFFFF'
+                                            : '#F7F8F5',
                                       }}>
-                                      <Text>{item.name}</Text>
-                                    </View>
-                                    <View
-                                      style={{
-                                        width: wp('30%'),
-                                        alignItems: 'center',
-                                      }}>
-                                      <Text>In stock ?</Text>
-                                    </View>
-                                    <View
-                                      style={{
-                                        width: wp('30%'),
-                                        alignItems: 'center',
-                                      }}>
-                                      <Text>Code</Text>
-                                    </View>
-                                    <View
-                                      style={{
-                                        width: wp('30%'),
-                                        alignItems: 'center',
-                                      }}>
-                                      <Text>Name</Text>
-                                    </View>
-                                    <View
-                                      style={{
-                                        width: wp('30%'),
-                                        alignItems: 'center',
-                                      }}>
-                                      <Text>Stock</Text>
-                                    </View>
-                                    <View
-                                      style={{
-                                        width: wp('30%'),
-                                        alignItems: 'center',
-                                      }}>
-                                      <Text>Price</Text>
-                                    </View>
-                                    <View
-                                      style={{
-                                        width: wp('30%'),
-                                        alignItems: 'center',
-                                      }}>
-                                      <Text>Quantity</Text>
-                                    </View>
-                                    <View
-                                      style={{
-                                        width: wp('30%'),
-                                        alignItems: 'center',
-                                      }}>
-                                      <Text>Preferred</Text>
-                                    </View>
-                                    <View
-                                      style={{
-                                        width: wp('30%'),
-                                        alignItems: 'center',
-                                      }}></View>
-                                    <View
-                                      style={{
-                                        width: wp('30%'),
-                                        alignItems: 'center',
-                                      }}></View>
-                                  </View>
-                                  <View>
-                                    {item.productMappings.length > 0 ? (
-                                      item.productMappings.map(
-                                        (subItem, subIndex) => {
-                                          return (
-                                            <View
-                                              key={subIndex}
-                                              style={{
-                                                paddingVertical: 10,
-                                                paddingHorizontal: 5,
-                                                flexDirection: 'row',
-                                                backgroundColor:
-                                                  subIndex % 2 === 0
-                                                    ? '#FFFFFF'
-                                                    : '#F7F8F5',
-                                              }}>
-                                              <View
-                                                style={{
-                                                  width: wp('30%'),
-                                                  alignItems: 'center',
-                                                  justifyContent: 'center',
-                                                }}></View>
-                                              <View
-                                                style={{
-                                                  width: wp('30%'),
-                                                  justifyContent: 'center',
-                                                  alignItems: 'center',
-                                                }}>
-                                                <CheckBox
-                                                  disabled={true}
-                                                  value={subItem.isInStock}
-                                                  // onValueChange={() =>
-                                                  //   this.setState({htvaIsSelected: !htvaIsSelected})
-                                                  // }
-                                                  style={{
-                                                    height: 20,
-                                                    width: 20,
-                                                  }}
-                                                />
-                                              </View>
-                                              <View
-                                                style={{
-                                                  width: wp('30%'),
-                                                  alignItems: 'center',
-                                                  justifyContent: 'center',
-                                                }}>
-                                                <Text>
-                                                  {subItem.productCode}
-                                                </Text>
-                                              </View>
-                                              <View
-                                                style={{
-                                                  width: wp('30%'),
-                                                  alignItems: 'center',
-                                                  justifyContent: 'center',
-                                                }}>
-                                                <Text>
-                                                  {subItem.productName}
-                                                </Text>
-                                              </View>
-                                              <View
-                                                style={{
-                                                  width: wp('30%'),
-                                                  alignItems: 'center',
-                                                  justifyContent: 'center',
-                                                }}>
-                                                <Text>
-                                                  {subItem.userDefinedQuantity}{' '}
-                                                  {subItem.unit}
-                                                </Text>
-                                              </View>
-                                              <View
-                                                style={{
-                                                  width: wp('30%'),
-                                                  alignItems: 'center',
-                                                  justifyContent: 'center',
-                                                }}>
-                                                <Text>
-                                                  {subItem.comparePrice} /{' '}
-                                                  {subItem.compareUnit}
-                                                </Text>
-                                              </View>
-                                              <View
-                                                style={{
-                                                  width: wp('30%'),
-                                                  alignItems: 'center',
-                                                  justifyContent: 'center',
-                                                }}>
-                                                <TextInput
-                                                  placeholder="quantityProduct"
-                                                  value={item.Quantity}
-                                                  style={{
-                                                    borderWidth: 1,
-                                                    borderRadius: 6,
-                                                    padding: 10,
-                                                    width: wp('22%'),
-                                                  }}
-                                                  onChangeText={value =>
-                                                    this.editQuantityFun(
-                                                      index,
-                                                      'quantityProduct',
-                                                      value,
-                                                    )
-                                                  }
-                                                />
-                                              </View>
-                                              <View
-                                                style={{
-                                                  width: wp('30%'),
-                                                  alignItems: 'center',
-                                                  justifyContent: 'center',
-                                                }}>
-                                                <CheckBox
-                                                  disabled={true}
-                                                  value={subItem.isPreferred}
-                                                  // onValueChange={() =>
-                                                  //   this.setState({htvaIsSelected: !htvaIsSelected})
-                                                  // }
-                                                  style={{
-                                                    height: 20,
-                                                    width: 20,
-                                                  }}
-                                                />
-                                              </View>
-                                              <TouchableOpacity
-                                                onPress={() =>
-                                                  this.actionFun(subItem)
-                                                }
-                                                style={{
-                                                  width: wp('30%'),
-                                                  alignItems: 'center',
-                                                  justifyContent: 'center',
-                                                }}>
-                                                <View
-                                                  style={{
-                                                    backgroundColor: '#86AC32',
-                                                    padding: 10,
-                                                    borderRadius: 6,
-                                                  }}>
-                                                  <Image
-                                                    source={img.cartIcon}
-                                                    style={{
-                                                      height: 25,
-                                                      width: 25,
-                                                      resizeMode: 'contain',
-                                                    }}
-                                                  />
-                                                </View>
-                                              </TouchableOpacity>
-                                              <TouchableOpacity
-                                                onPress={() =>
-                                                  this.actionFun(subItem)
-                                                }
-                                                style={{
-                                                  width: wp('30%'),
-                                                  alignItems: 'center',
-                                                  justifyContent: 'center',
-                                                }}>
-                                                <Image
-                                                  source={img.threeDotsIcon}
-                                                  style={{
-                                                    height: 15,
-                                                    width: 15,
-                                                    resizeMode: 'contain',
-                                                  }}
-                                                />
-                                              </TouchableOpacity>
-                                            </View>
-                                          );
-                                        },
-                                      )
-                                    ) : (
-                                      <View style={{marginTop: hp('3%')}}>
-                                        <Text
+                                      <View
+                                        style={{
+                                          width: wp('30%'),
+                                          justifyContent: 'center',
+                                          alignItems: 'center',
+                                        }}>
+                                        <CheckBox
+                                          disabled={true}
+                                          value={item.isInStock}
+                                          // onValueChange={() =>
+                                          //   this.setState({htvaIsSelected: !htvaIsSelected})
+                                          // }
                                           style={{
-                                            color: 'red',
-                                            fontSize: 20,
-                                          }}>
-                                          No data available
+                                            height: 20,
+                                            width: 20,
+                                          }}
+                                        />
+                                      </View>
+                                      <View
+                                        style={{
+                                          width: wp('30%'),
+                                          alignItems: 'center',
+                                          justifyContent: 'center',
+                                        }}>
+                                        <Text>{item.name}</Text>
+                                      </View>
+
+                                      <View
+                                        style={{
+                                          width: wp('30%'),
+                                          alignItems: 'center',
+                                          justifyContent: 'center',
+                                        }}>
+                                        <Text>{item.productCode}</Text>
+                                      </View>
+                                      <View
+                                        style={{
+                                          width: wp('30%'),
+                                          alignItems: 'center',
+                                          justifyContent: 'center',
+                                        }}>
+                                        <Text>{item.productName}</Text>
+                                      </View>
+                                      <View
+                                        style={{
+                                          width: wp('30%'),
+                                          alignItems: 'center',
+                                          justifyContent: 'center',
+                                        }}>
+                                        <Text>
+                                          {item.userDefinedQuantity} {item.unit}
                                         </Text>
                                       </View>
-                                    )}
-                                  </View>
+                                      <View
+                                        style={{
+                                          width: wp('30%'),
+                                          alignItems: 'center',
+                                          justifyContent: 'center',
+                                        }}>
+                                        <Text>
+                                          {item.comparePrice} /{' '}
+                                          {item.compareUnit}
+                                        </Text>
+                                      </View>
+                                      <View
+                                        style={{
+                                          width: wp('30%'),
+                                          alignItems: 'center',
+                                          justifyContent: 'center',
+                                        }}>
+                                        <TextInput
+                                          placeholder="quantityProduct"
+                                          value={item.Quantity}
+                                          style={{
+                                            borderWidth: 1,
+                                            borderRadius: 6,
+                                            padding: 10,
+                                            width: wp('22%'),
+                                          }}
+                                          onChangeText={value =>
+                                            this.editQuantityFun(
+                                              index,
+                                              'quantityProduct',
+                                              value,
+                                            )
+                                          }
+                                        />
+                                      </View>
+                                      <View
+                                        style={{
+                                          width: wp('30%'),
+                                          alignItems: 'center',
+                                          justifyContent: 'center',
+                                        }}>
+                                        <CheckBox
+                                          disabled={true}
+                                          value={item.isPreferred}
+                                          // onValueChange={() =>
+                                          //   this.setState({htvaIsSelected: !htvaIsSelected})
+                                          // }
+                                          style={{
+                                            height: 20,
+                                            width: 20,
+                                          }}
+                                        />
+                                      </View>
+                                      <TouchableOpacity
+                                        onPress={() => this.actionFun(item)}
+                                        style={{
+                                          width: wp('30%'),
+                                          alignItems: 'center',
+                                          justifyContent: 'center',
+                                        }}>
+                                        <View
+                                          style={{
+                                            backgroundColor: '#86AC32',
+                                            padding: 10,
+                                            borderRadius: 6,
+                                          }}>
+                                          <Image
+                                            source={img.cartIcon}
+                                            style={{
+                                              height: 25,
+                                              width: 25,
+                                              resizeMode: 'contain',
+                                            }}
+                                          />
+                                        </View>
+                                      </TouchableOpacity>
+                                      <TouchableOpacity
+                                        onPress={() => this.actionFun(item)}
+                                        style={{
+                                          width: wp('30%'),
+                                          alignItems: 'center',
+                                          justifyContent: 'center',
+                                        }}>
+                                        <Image
+                                          source={img.threeDotsIcon}
+                                          style={{
+                                            height: 15,
+                                            width: 15,
+                                            resizeMode: 'contain',
+                                          }}
+                                        />
+                                      </TouchableOpacity>
+                                    </View>
+                                  );
+                                })
+                              ) : (
+                                <View style={{marginTop: hp('3%')}}>
+                                  <Text
+                                    style={{
+                                      color: 'red',
+                                      fontSize: 20,
+                                    }}>
+                                    No data available
+                                  </Text>
                                 </View>
-                              </View>
-                            );
-                          })
-                        ) : (
-                          <View style={{marginTop: hp('3%')}}>
-                            <Text
-                              style={{
-                                color: 'red',
-                                fontSize: 20,
-                              }}>
-                              No data available
-                            </Text>
+                              )}
+                            </View>
                           </View>
-                        )}
+                        </View>
                       </View>
                     </ScrollView>
                   </View>
@@ -553,7 +524,7 @@ class InventoryList extends Component {
           )}
           <View style={{justifyContent: 'center', alignItems: 'center'}}>
             <TouchableOpacity
-              onPress={() => alert('Place Order')}
+              onPress={() => alert('Add to basket')}
               style={{
                 height: hp('6%'),
                 width: wp('80%'),
@@ -574,7 +545,7 @@ class InventoryList extends Component {
                     marginLeft: 10,
                     fontFamily: 'Inter-SemiBold',
                   }}>
-                  Place Order
+                  Add to basket
                 </Text>
               </View>
             </TouchableOpacity>

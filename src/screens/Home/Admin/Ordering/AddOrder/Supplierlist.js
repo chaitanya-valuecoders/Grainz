@@ -43,9 +43,6 @@ class SupplierList extends Component {
       actionModalStatus: false,
       mapStatus: '',
       finalBaketData: [],
-      apiDeliveryDate: '',
-      apiOrderDate: '',
-      placedByValue: '',
       supplierId: '',
       mapModalStatus: false,
       activeSections: [],
@@ -90,18 +87,14 @@ class SupplierList extends Component {
   };
 
   componentDidMount() {
-    const {supplierId, catName, apiDeliveryDate, apiOrderDate, placedByValue} =
-      this.props.route && this.props.route.params;
     this.getData();
     this.props.navigation.addListener('focus', () => {
+      const {supplierId, catName} = this.props.route && this.props.route.params;
       this.createFirstData();
       this.setState(
         {
           supplierId,
           catName,
-          apiDeliveryDate,
-          apiOrderDate,
-          placedByValue,
         },
         () => this.getInsideCatFun(),
       );
@@ -322,20 +315,11 @@ class SupplierList extends Component {
     }
   };
 
-  placeOrderFun = () => {
-    const {
-      finalBaketData,
-      apiDeliveryDate,
-      apiOrderDate,
-      placedByValue,
-      supplierId,
-    } = this.state;
+  addToBasketFun = () => {
+    const {finalBaketData, supplierId} = this.state;
     if (finalBaketData.length > 0) {
       this.props.navigation.navigate('BasketOrderScreen', {
         finalData: finalBaketData,
-        apiDeliveryDate,
-        apiOrderDate,
-        placedByValue,
         supplierId,
       });
     } else {
@@ -481,9 +465,11 @@ class SupplierList extends Component {
       mapModalStatus,
       SECTIONS,
       activeSections,
+      catName,
+      finalBaketData,
     } = this.state;
 
-    console.log('modaldata', modalData);
+    console.log('finalBaketData', finalBaketData);
 
     return (
       <View style={styles.container}>
@@ -502,7 +488,7 @@ class SupplierList extends Component {
           <View style={styles.subContainer}>
             <View style={styles.firstContainer}>
               <View style={{flex: 1}}>
-                <Text style={styles.adminTextStyle}></Text>
+                <Text style={styles.adminTextStyle}>{catName}</Text>
               </View>
               <TouchableOpacity
                 onPress={() => this.props.navigation.goBack()}
@@ -678,7 +664,7 @@ class SupplierList extends Component {
                                           justifyContent: 'center',
                                         }}>
                                         <TextInput
-                                          placeholder="quantityProduct"
+                                          placeholder="0"
                                           value={item.Quantity}
                                           style={{
                                             borderWidth: 1,
@@ -713,20 +699,31 @@ class SupplierList extends Component {
                                         }}>
                                         <View
                                           style={{
-                                            backgroundColor: item.isSelected
-                                              ? '#86AC32'
-                                              : '#C2C2C1',
+                                            backgroundColor: '#86AC32',
                                             padding: 10,
                                             borderRadius: 6,
                                           }}>
-                                          <Image
-                                            source={img.cartIcon}
-                                            style={{
-                                              height: 25,
-                                              width: 25,
-                                              resizeMode: 'contain',
-                                            }}
-                                          />
+                                          {item.isSelected ? (
+                                            <Image
+                                              source={img.dashIcon}
+                                              style={{
+                                                height: 18,
+                                                width: 18,
+                                                resizeMode: 'contain',
+                                                tintColor: '#fff',
+                                              }}
+                                            />
+                                          ) : (
+                                            <Image
+                                              source={img.plusIcon}
+                                              style={{
+                                                height: 25,
+                                                width: 25,
+                                                resizeMode: 'contain',
+                                                tintColor: '#fff',
+                                              }}
+                                            />
+                                          )}
                                         </View>
                                       </TouchableOpacity>
                                       <TouchableOpacity
@@ -767,7 +764,7 @@ class SupplierList extends Component {
           )}
           <View style={{justifyContent: 'center', alignItems: 'center'}}>
             <TouchableOpacity
-              onPress={() => this.placeOrderFun()}
+              onPress={() => this.addToBasketFun()}
               style={{
                 height: hp('6%'),
                 width: wp('80%'),
@@ -788,7 +785,7 @@ class SupplierList extends Component {
                     marginLeft: 10,
                     fontFamily: 'Inter-SemiBold',
                   }}>
-                  Place Order
+                  Add to Basket
                 </Text>
               </View>
             </TouchableOpacity>

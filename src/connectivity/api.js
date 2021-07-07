@@ -867,3 +867,16 @@ export const updateDraftOrderApi = async payload => {
     },
   });
 };
+
+export const getInventoryBySupplierIdApi = async id => {
+  console.log('id', id);
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.get(
+    baseURL + `/lookup/Inventory categories by supplier?SupplierId=${id}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  );
+};

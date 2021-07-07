@@ -78,6 +78,7 @@ class index extends Component {
               icon: img.miscIcon,
               screen: 'MepScreen',
             },
+
             // {
             //   name: translate('Recipes'),
             //   icon: img.searchIcon,
@@ -102,6 +103,11 @@ class index extends Component {
               name: translate('Casual purchase'),
               icon: img.CasualIcon,
               screen: 'CasualPurchaseScreen',
+            },
+            {
+              name: translate('Ordering'),
+              icon: img.orderingIcon,
+              screen: 'OrderingAdminScreen',
             },
             // {name: translate('Events'), icon: img.addIcon, screen: 'EventsScreen'},
           ],
