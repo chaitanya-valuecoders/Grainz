@@ -33,6 +33,12 @@ import {
   deleteCatApi,
   deleteMenuApi,
   deleteMenuItemLinkApi,
+  updateMenuItemPriceApi,
+  updateMenuItemCategoryApi,
+  getMenuItemsSetupApi,
+  addMenuItemToCategoryApi,
+  addMenuApi,
+  updateMenuApi,
 } from '../../../../connectivity/api';
 import Accordion from 'react-native-collapsible/Accordion';
 import Modal from 'react-native-modal';
@@ -55,6 +61,7 @@ class Menus extends Component {
       firstPage: true,
       buttonsSubHeader: [],
       firstName: '',
+      chosenMenu: false,
       newMenu: false,
       departmentList: [],
       departmentsLoader: false,
@@ -74,12 +81,22 @@ class Menus extends Component {
       catId: '',
       subCategoryName: '',
       menuSelected: false,
-      menuDepartment: 'Select department',
+      menuDepartment: {label: 'Select Department', value: ''},
       manageCats: false,
       dotModalVisible: false,
       DeleteMenuItemModal: false,
       EditMenuItemModal: false,
       pendingMenuItem: {},
+      pendingItemPrice: '',
+      pendingItemVat: '',
+      categorySelected: '',
+      showItemCategories: false,
+      addMenuItemModal: false,
+      showMenuItems: false,
+      menuItemsList: [],
+      height: '29%',
+      itemsAdded: [],
+      menuName: '',
     };
   }
 
@@ -156,7 +173,7 @@ class Menus extends Component {
         let newArr = [];
         let pos = 0;
         res.data.menuCategoryLinks.map(item => {
-          if (item.menuItemCategoryLinks.length > 0) {
+          if (item.menuItemCategoryLinks.length >= 0) {
             newArr.push({
               categoryName: item.categoryName,
               menuItemCategoryLinks: item.menuItemCategoryLinks,
@@ -169,11 +186,14 @@ class Menus extends Component {
           }
         });
         detailsList = newArr;
+
         lookupDepartmentsApi()
           .then(ser => {
             ser.data.map(ele => {
               if (ele.id === res.data.departmentId) {
-                this.setState({menuDepartment: ele.name});
+                this.setState({
+                  menuDepartment: {label: ele.name, value: ele.id},
+                });
               }
             });
           })
@@ -194,12 +214,13 @@ class Menus extends Component {
   selectMenu(item) {
     this.getMenuDetails(item.value);
     this.setState({menu: item});
-    this.setState({newMenu: true, firstPage: false});
+
+    this.setState({chosenMenu: true, firstPage: false});
   }
 
   showCats() {
     this.getMenuCategories();
-    this.setState({showCategories: true, newMenu: false, firstPage: false});
+    this.setState({showCategories: true, chosenMenu: false, firstPage: false});
   }
 
   addCategory(cat) {
@@ -270,9 +291,16 @@ class Menus extends Component {
         text: 'OK',
         onPress: () => {
           deleteMenuApi(id)
-            .then(res => this.getMenuList())
+            .then(res => {
+              this.getMenuList();
+              this.setState({
+                chosenMenu: false,
+                firstPage: true,
+                menu: {label: '', value: ''},
+                menuDepartment: {label: 'Select Department', value: ''},
+              });
+            })
             .catch(err => console.warn('deleted', err));
-          this.setState({newMenu: false, firstPage: true});
         },
       },
     ]);
@@ -305,10 +333,124 @@ class Menus extends Component {
     });
   }
 
+  updateMenuitem() {
+    const {
+      pendingItemVat,
+      pendingItemPrice,
+      pendingMenuItem,
+      categorySelected,
+    } = this.state;
+
+    let payload = {
+      id: pendingMenuItem.id,
+      price: pendingItemPrice,
+      vat: pendingItemVat,
+    };
+
+    updateMenuItemPriceApi(payload)
+      .then(res => console.warn('updated', res))
+      .catch(err => console.warn(err));
+
+    updateMenuItemCategoryApi({
+      id: pendingMenuItem.id,
+      menuMenuItemCategoryLinkId: categorySelected.uniqueId,
+    })
+      .then(res => {
+        this.setState({EditMenuItemModal: false, dotModalVisible: false});
+      })
+      .catch(err => console.warn('err', err));
+  }
+
+  addItemToList(item) {
+    const {itemsAdded, categorySelected} = this.state;
+    let newArr = [];
+    newArr.push(item);
+    let arr = newArr.concat(itemsAdded);
+    this.setState({itemsAdded: arr});
+  }
+
+  getMenuItemsList() {
+    getMenuItemsSetupApi()
+      .then(res => this.setState({menuItemsList: res.data}))
+      .catch(err => console.warn('erer', err));
+  }
+
+  addItemToCategory() {
+    const {details, categorySelected, itemsAdded} = this.state;
+    let pos = 1;
+    itemsAdded.map(item => {
+      let payload = {
+        id: details.id,
+        menuItemId: item.id,
+        menuMenuItemCategoryLinkId: categorySelected.uniqueId,
+        menuPosition: pos,
+        name: item.name,
+        price: null,
+        productKey: null,
+        reference: item.reference,
+      };
+
+      addMenuItemToCategoryApi(payload)
+        .then(res => console.warn(res))
+        .catch(err => console.warn(err));
+    });
+    pos = pos + 1;
+  }
+
+  addMenuFun() {
+    const {menuName, menuDepartment, inUse} = this.state;
+
+    let payload = {
+      action: 'New',
+      departmentId: menuDepartment.value,
+      inUse: inUse,
+      menuCategoryLinks: [],
+      menuItemCategoryLinks: [],
+      name: menuName,
+      reference: menuName,
+    };
+
+    addMenuApi(payload)
+      .then(res => {
+        this.setState({
+          newMenu: false,
+          chosenMenu: true,
+          menu: {label: menuName, value: ''},
+        }),
+          console.warn('added', res);
+      })
+      .catch(err => console.warn('err', err));
+  }
+  updateMenuFun() {
+    const {menuName, menuDepartment, inUse, menu} = this.state;
+
+    let payload = {
+      departmentId: menuDepartment.value,
+      inUse: inUse,
+      menuCategoryLinks: [],
+      id: menu.value,
+      name: menu.label,
+      reference: menu.label,
+    };
+
+    updateMenuApi(payload)
+      .then(res => {
+        this.setState({
+          chosenMenu: false,
+          firstPage: true,
+          menu: {label: menuName, value: ''},
+        }),
+          this.getDepartments();
+        this.getMenuList();
+        console.warn('updated', res);
+      })
+      .catch(err => console.warn('err', err));
+  }
+
   render() {
     const {
       buttonsSubHeader,
-      newMenu,
+      chosenMenu,
       showCategories,
       departmentList,
       departmentsLoader,
@@ -331,7 +473,16 @@ class Menus extends Component {
       dotModalVisible,
       DeleteMenuItemModal,
       pendingMenuItem,
+      pendingItemPrice,
+      pendingItemVat,
       EditMenuItemModal,
+      categorySelected,
+      showItemCategories,
+      addMenuItemModal,
+      showMenuItems,
+      menuItemsList,
+      height,
+      newMenu,
     } = this.state;
     return (
       <View>
@@ -345,33 +496,28 @@ class Menus extends Component {
               {departmentsLoader ? (
                 <ActivityIndicator size="small" color="#94C036" />
               ) : null}
-              {newMenu ? (
+              {chosenMenu ? (
                 <View style={{margin: 10}}>
                   <View style={{flexDirection: 'row', paddingBottom: 20}}>
                     <View style={{flex: 2}}>
-                      {menu.label ? (
-                        <View>
-                          <Text style={styles.adminTextStyle}>
-                            {translate('Menu Details')}
-                          </Text>
-                        </View>
-                      ) : (
-                        <View>
-                          <Text style={styles.adminTextStyle}>
-                            {translate('New Menu Details')}
-                          </Text>
-                        </View>
-                      )}
+                      <View>
+                        <Text style={styles.adminTextStyle}>
+                          {translate('Menu Details')}
+                        </Text>
+                      </View>
                     </View>
 
                     <View style={{flex: 1}}>
                       <TouchableOpacity
                         onPress={() =>
                           this.setState({
-                            newMenu: false,
+                            chosenMenu: false,
                             firstPage: true,
                             menu: {label: '', value: ''},
-                            menuDepartment: 'Select department',
+                            menuDepartment: {
+                              label: 'Select Department',
+                              value: '',
+                            },
                           })
                         }
                         style={styles.goBackContainer}>
@@ -421,7 +567,7 @@ class Menus extends Component {
                       placeholder="Menu name"
                       placeholderTextColor="black"
                       onChangeText={value =>
-                        this.setState({subCategoryName: value})
+                        this.setState({menu: {label: value, value: menu.value}})
                       }
                     />
                   </View>
@@ -434,8 +580,8 @@ class Menus extends Component {
                     }}>
                     <DropDownPicker
                       items={departmentList}
-                      value={menuDepartment}
-                      placeholder={menuDepartment}
+                      value={menuDepartment.label}
+                      placeholder={menuDepartment.label}
                       zIndex={100}
                       containerStyle={{
                         height: 50,
@@ -450,7 +596,9 @@ class Menus extends Component {
                         justifyContent: 'flex-start',
                       }}
                       dropDownStyle={{backgroundColor: '#fff'}}
-                      onChangeItem={value => this.setState(menuDepartment)}
+                      onChangeItem={value =>
+                        this.setState({menuDepartment: value})
+                      }
                     />
 
                     <View
@@ -546,9 +694,13 @@ class Menus extends Component {
                       <TouchableOpacity
                         onPress={() =>
                           this.setState({
-                            newMenu: false,
+                            chosenMenu: false,
                             firstPage: true,
                             menu: {label: '', value: ''},
+                            menuDepartment: {
+                              label: 'Select Department',
+                              value: '',
+                            },
                           })
                         }
                         style={{
@@ -570,11 +722,7 @@ class Menus extends Component {
                     <View style={{margin: '2%'}}>
                       <TouchableOpacity
                         onPress={() => {
-                          this.setState({
-                            newMenu: true,
-                            departmentsLoader: true,
-                          }),
-                            this.getDepartments();
+                          this.updateMenuFun();
                         }}
                         style={{
                           height: hp('5%'),
@@ -748,25 +896,41 @@ class Menus extends Component {
                               {item.categoryName}
                             </Text>
                             <View style={{width: wp('5%')}}>
-                              <View
-                                style={{
-                                  height: 17,
-                                  width: 17,
-                                  backgroundColor: '#94C036',
-                                  borderRadius: 50,
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
+                              <TouchableOpacity
+                                onPress={() => {
+                                  this.setState({
+                                    addMenuItemModal: true,
+                                    categorySelected: {
+                                      name: item.categoryName,
+                                      uniqueId:
+                                        item.menuItemCategoryLinks[0]
+                                          .menuMenuItemCategoryLinkId,
+                                      id: item.id,
+                                    },
+                                  });
+                                  this.getMenuItemsList();
+                                  console.warn('ppp', item);
                                 }}>
-                                <Image
-                                  source={img.addIcon}
+                                <View
                                   style={{
-                                    resizeMode: 'contain',
-                                    height: 16,
-                                    width: 16,
-                                    tintColor: '#fff',
-                                  }}
-                                />
-                              </View>
+                                    height: 17,
+                                    width: 17,
+                                    backgroundColor: '#94C036',
+                                    borderRadius: 50,
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                  }}>
+                                  <Image
+                                    source={img.addIcon}
+                                    style={{
+                                      resizeMode: 'contain',
+                                      height: 16,
+                                      width: 16,
+                                      tintColor: '#fff',
+                                    }}
+                                  />
+                                </View>
+                              </TouchableOpacity>
                             </View>
                             <Text style={{marginLeft: 8, width: wp('17%')}}>
                               Ordering
@@ -827,12 +991,39 @@ class Menus extends Component {
                                           marginLeft: 10,
                                         }}>
                                         <TouchableOpacity
-                                          onPress={() =>
+                                          onPress={() => {
+                                            if (ele.price == null) {
+                                              this.setState({
+                                                pendingItemPrice: '',
+                                              });
+                                            } else {
+                                              this.setState({
+                                                pendingItemPrice: ele.price,
+                                              });
+                                            }
+                                            if (ele.vat == null) {
+                                              this.setState({
+                                                pendingItemVat: '',
+                                              });
+                                            } else {
+                                              this.setState({
+                                                pendingItemVat: ele.vat,
+                                              });
+                                            }
+                                            console.warn(ele, 'KKKKK', item);
                                             this.setState({
                                               pendingMenuItem: ele,
+                                              categorySelected: {
+                                                name: item.categoryName,
+                                                uniqueId:
+                                                  ele.menuMenuItemCategoryLinkId,
+                                                id: item.id,
+                                              },
+
                                               dotModalVisible: true,
-                                            })
-                                          }>
+                                            });
+                                            console.warn(ele);
+                                          }}>
                                           <Image
                                             source={img.threeDotsIcon}
                                             style={{
@@ -857,6 +1048,201 @@ class Menus extends Component {
                   <View style={{height: 100}}></View>
                 </View>
               ) : null}
+
+              {newMenu ? (
+                <View>
+                  <View style={{margin: 10}}>
+                    <View style={{flexDirection: 'row', paddingBottom: 20}}>
+                      <View style={{flex: 2}}>
+                        <View>
+                          <Text style={styles.adminTextStyle}>
+                            {translate('New Menu Details')}
+                          </Text>
+                        </View>
+                      </View>
+
+                      <View style={{flex: 1}}>
+                        <TouchableOpacity
+                          onPress={() =>
+                            this.setState({
+                              newMenu: false,
+                              firstPage: true,
+                              menu: {label: '', value: ''},
+                              menuDepartment: {
+                                label: 'Select Department',
+                                value: '',
+                              },
+                            })
+                          }
+                          style={styles.goBackContainer}>
+                          <Text style={styles.goBackTextStyle}>Go Back</Text>
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+
+                    <View
+                      style={{
+                        width: wp('90%'),
+                        height: hp('10%'),
+                        marginLeft: 5,
+                      }}>
+                      <TextInput
+                        style={{
+                          padding: 20,
+                          borderRadius: 5,
+                          backgroundColor: 'white',
+                        }}
+                        value={menu.label}
+                        placeholder="Menu name"
+                        placeholderTextColor="black"
+                        onChangeText={value =>
+                          this.setState({
+                            menuName: value,
+                            menu: {label: value, value: ''},
+                          })
+                        }
+                      />
+                    </View>
+
+                    <View
+                      style={{
+                        width: wp('90%'),
+                        height: hp('10%'),
+                        marginLeft: 5,
+                      }}>
+                      <DropDownPicker
+                        items={departmentList}
+                        value={menuDepartment.label}
+                        placeholder={menuDepartment.label}
+                        zIndex={100}
+                        containerStyle={{
+                          height: 50,
+                          width: wp('90%'),
+                          marginBottom: hp('3%'),
+                        }}
+                        style={{
+                          backgroundColor: '#fff',
+                          borderColor: 'white',
+                        }}
+                        itemStyle={{
+                          justifyContent: 'flex-start',
+                        }}
+                        dropDownStyle={{backgroundColor: '#fff'}}
+                        onChangeItem={value =>
+                          this.setState({menuDepartment: value})
+                        }
+                      />
+
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          alignItems: 'center',
+                          marginTop: '15%',
+                        }}></View>
+                    </View>
+                    <View style={{margin: '4%'}}>
+                      <View
+                        style={{flexDirection: 'row', alignItems: 'center'}}>
+                        <View style={{flex: 3}}>
+                          <Text style={{}}>Date created</Text>
+                        </View>
+                        <View style={{flex: 1}}>
+                          <Text style={{}}>
+                            {moment(details.createdDate).format('DD/MM/YYYY')}{' '}
+                          </Text>
+                        </View>
+                      </View>
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          alignItems: 'center',
+                          marginTop: 25,
+                        }}>
+                        <View style={{flex: 9}}>
+                          <Text style={{fontWeight: 'bold'}}>In use ?</Text>
+                        </View>
+                        <View style={{flex: 1}}>
+                          <CheckBox
+                            // editable={false}
+                            value={inUse}
+                            style={{
+                              backgroundColor: '#E9ECEF',
+                              height: 20,
+                              width: 20,
+                            }}
+                          />
+                        </View>
+                      </View>
+                    </View>
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        margin: '5%',
+                        marginBottom: 20,
+                        marginLeft: '22%',
+                      }}>
+                      <View style={{margin: '2%'}}>
+                        <TouchableOpacity
+                          onPress={() =>
+                            this.setState({
+                              newMenu: false,
+                              firstPage: true,
+                              menu: {label: '', value: ''},
+                            })
+                          }
+                          style={{
+                            height: hp('5%'),
+                            width: wp('29%'),
+                            borderWidth: 1,
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            marginTop: hp('1.5%'),
+                            borderRadius: 100,
+                            alignSelf: 'center',
+                            flexDirection: 'row',
+                          }}>
+                          <View>
+                            <Text style={{}}>Cancel </Text>
+                          </View>
+                        </TouchableOpacity>
+                      </View>
+                      <View style={{margin: '2%'}}>
+                        <TouchableOpacity
+                          onPress={() => {
+                            this.addMenuFun();
+                          }}
+                          style={{
+                            height: hp('5%'),
+                            width: wp('29%'),
+                            backgroundColor: '#94C036',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            marginTop: hp('1.5%'),
+                            borderRadius: 100,
+                            alignSelf: 'center',
+                            flexDirection: 'row',
+                          }}>
+                          <View>
+                            <Image
+                              source={img.addIcon}
+                              style={{
+                                height: 16,
+                                width: 16,
+                                resizeMode: 'contain',
+                                tintColor: 'white',
+                              }}
+                            />
+                          </View>
+                          <View>
+                            <Text style={{color: 'white'}}>Save </Text>
+                          </View>
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+                  </View>
+                </View>
+              ) : null}
+
               {firstPage ? (
                 <View>
                   <View style={{flexDirection: 'row', margin: 10}}>
@@ -1437,128 +1823,260 @@ class Menus extends Component {
           </View>
         </Modal>
         <Modal isVisible={manageCats} backdropOpacity={0.35}>
-          <View style={{height: hp('100%'), width: wp('90%'), marginTop: 10}}>
+          {addSubCatModal ? (
             <View
-              style={{height: hp('10%'), backgroundColor: '#91B933'}}></View>
+              style={{
+                width: wp('70%'),
+                height: hp('25%'),
+                backgroundColor: '#F0F4FF',
+                alignSelf: 'center',
+                borderRadius: 10,
+              }}>
+              <View
+                style={{
+                  backgroundColor: '#94BC37',
+                  height: hp('5%'),
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                }}>
+                <View style={{flexDirection: 'row', flex: 7}}>
+                  <View style={{flex: 6}}>
+                    <Text style={{color: 'white', margin: '3%'}}>
+                      Add Sub Category
+                    </Text>
+                  </View>
+                  <View style={{flex: 1, margin: '3%'}}>
+                    <TouchableOpacity
+                      onPress={() => this.setState({addSubCatModal: false})}>
+                      <Image
+                        source={img.cancelIcon}
+                        style={{
+                          height: 16,
+                          width: 16,
+                          resizeMode: 'contain',
+                          tintColor: 'white',
+                        }}
+                      />
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              </View>
+              <View style={{flex: 3, flexDirection: 'row', margin: '5%'}}>
+                <View style={{flex: 2, marginLeft: 5}}>
+                  <TextInput
+                    style={{
+                      padding: 8,
+                      borderRadius: 5,
+                      backgroundColor: 'white',
+                    }}
+                    value={subCategoryName}
+                    placeholder="Sub Category Name"
+                    placeholderTextColor="black"
+                    onChangeText={value =>
+                      this.setState({subCategoryName: value})
+                    }
+                  />
+                </View>
+              </View>
+              <View
+                style={{flexDirection: 'row', margin: '5%', marginBottom: 20}}>
+                <View style={{margin: '2%'}}>
+                  <TouchableOpacity
+                    onPress={() => this.setState({addSubCatModal: false})}
+                    style={{
+                      height: hp('4%'),
+                      width: wp('25%'),
+                      borderWidth: 1,
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      marginTop: hp('1.5%'),
+                      borderRadius: 100,
+                      alignSelf: 'center',
+                      flexDirection: 'row',
+                    }}>
+                    <View>
+                      <Text style={{}}>Cancel </Text>
+                    </View>
+                  </TouchableOpacity>
+                </View>
+                <View style={{margin: '2%'}}>
+                  <TouchableOpacity
+                    onPress={() => this.addSubCategory(subCategoryName)}
+                    style={{
+                      height: hp('4%'),
+                      width: wp('25%'),
+                      backgroundColor: '#94C036',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      marginTop: hp('1.5%'),
+                      borderRadius: 100,
+                      alignSelf: 'center',
+                      flexDirection: 'row',
+                    }}>
+                    <View>
+                      <Image
+                        source={img.addIcon}
+                        style={{
+                          height: 16,
+                          width: 16,
+                          resizeMode: 'contain',
+                          tintColor: 'white',
+                        }}
+                      />
+                    </View>
+                    <View>
+                      <Text style={{color: 'white'}}>Add </Text>
+                    </View>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </View>
+          ) : (
+            <View style={{height: hp('80%'), width: wp('90%'), marginTop: 10}}>
+              <View
+                style={{
+                  height: hp('6%'),
+                  backgroundColor: '#91B933',
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                }}>
+                <Text style={{flex: 7, color: 'white', marginLeft: 10}}>
+                  Manage Categories
+                </Text>
+                <TouchableOpacity
+                  style={{flex: 1}}
+                  onPress={() => this.setState({manageCats: false})}>
+                  <Image
+                    source={img.cancelIcon}
+                    style={{
+                      resizeMode: 'contain',
+                      tintColor: 'white',
+                      height: 16,
+                      width: 16,
+                    }}
+                  />
+                </TouchableOpacity>
+              </View>
 
-            <View style={{height: hp('60%'), backgroundColor: '#EFF3FE'}}>
-              <ScrollView>
-                <View style={{marginTop: 15}}>
-                  {categories.map(item => {
-                    return (
-                      <View style={{marginBottom: '5%'}}>
-                        <View
-                          style={{
-                            flexDirection: 'row',
-                            flex: 10,
-                            padding: 1,
-                            marginLeft: 25,
-                          }}>
-                          <View style={{flex: 8}}>
-                            <Text style={{fontWeight: 'bold'}}>
-                              {item.name}
-                            </Text>
-                          </View>
-                          <View style={{flex: 1}}>
-                            <TouchableOpacity
-                              onPress={() =>
-                                this.setState({
-                                  addSubCatModal: true,
-                                  catId: item.id,
-                                })
-                              }
-                              style={{
-                                backgroundColor: '#94C01F',
-                                width: wp('5%'),
-                                borderRadius: 50,
-                                alignItems: 'center',
-                                padding: '2%',
-                                marginLeft: 10,
-                              }}>
-                              <Image
-                                source={img.addIcon}
+              <View style={{height: hp('60%'), backgroundColor: '#EFF3FE'}}>
+                <ScrollView style={{marginBottom: '9%'}}>
+                  <View style={{marginTop: 15}}>
+                    {categories.map(item => {
+                      return (
+                        <View style={{marginBottom: '5%'}}>
+                          <View
+                            style={{
+                              flexDirection: 'row',
+                              flex: 10,
+                              padding: 1,
+                              marginLeft: 25,
+                            }}>
+                            <View style={{flex: 8}}>
+                              <Text style={{fontWeight: 'bold'}}>
+                                {item.name}
+                              </Text>
+                            </View>
+                            <View style={{flex: 1}}>
+                              <TouchableOpacity
+                                onPress={() =>
+                                  this.setState({
+                                    addSubCatModal: true,
+                                    catId: item.id,
+                                  })
+                                }
                                 style={{
-                                  height: 16,
-                                  width: 16,
-                                  resizeMode: 'contain',
-                                  tintColor: 'white',
-                                }}
-                              />
-                            </TouchableOpacity>
-                          </View>
-                          <View style={{flex: 1}}>
-                            <TouchableOpacity
-                              onPress={() => this.deleteCat(item.id)}
-                              style={{
-                                // backgroundColor: '#FF8C89',
-                                width: wp('5%'),
-                                alignItems: 'center',
-                              }}>
-                              <Image
-                                source={img.deleteIconNew}
-                                style={{
-                                  height: 12,
-                                  width: 12,
-                                  resizeMode: 'contain',
-                                  tintColor: '#FF034D',
-                                }}
-                              />
-                            </TouchableOpacity>
-                          </View>
-                        </View>
-                        {item.subCategories.map(ele => {
-                          return (
-                            <View
-                              style={{
-                                flexDirection: 'row',
-                                marginLeft: 30,
-                                flex: 10,
-                              }}>
-                              <View style={{flex: 7, flexDirection: 'row'}}>
-                                <View
+                                  backgroundColor: '#94C01F',
+                                  width: wp('5%'),
+                                  borderRadius: 50,
+                                  alignItems: 'center',
+                                  padding: '2%',
+                                  marginLeft: 10,
+                                }}>
+                                <Image
+                                  source={img.addIcon}
                                   style={{
-                                    borderRadius: 50,
-                                    backgroundColor: 'black',
-                                    height: 5,
-                                    width: 5,
-                                    marginTop: 6,
-                                    margin: '2%',
-                                  }}></View>
-                                <View style={{}}>
-                                  <Text>{ele.name} </Text>
+                                    height: 16,
+                                    width: 16,
+                                    resizeMode: 'contain',
+                                    tintColor: 'white',
+                                  }}
+                                />
+                              </TouchableOpacity>
+                            </View>
+                            <View style={{flex: 1}}>
+                              <TouchableOpacity
+                                onPress={() => this.deleteCat(item.id)}
+                                style={{
+                                  // backgroundColor: '#FF8C89',
+                                  width: wp('5%'),
+                                  alignItems: 'center',
+                                }}>
+                                <Image
+                                  source={img.deleteIconNew}
+                                  style={{
+                                    height: 12,
+                                    width: 12,
+                                    resizeMode: 'contain',
+                                    tintColor: '#FF034D',
+                                  }}
+                                />
+                              </TouchableOpacity>
+                            </View>
+                          </View>
+                          {item.subCategories.map(ele => {
+                            return (
+                              <View
+                                style={{
+                                  flexDirection: 'row',
+                                  marginLeft: 30,
+                                  flex: 10,
+                                }}>
+                                <View style={{flex: 7, flexDirection: 'row'}}>
+                                  <View
+                                    style={{
+                                      borderRadius: 50,
+                                      backgroundColor: 'black',
+                                      height: 5,
+                                      width: 5,
+                                      marginTop: 6,
+                                      margin: '2%',
+                                    }}></View>
+                                  <View style={{}}>
+                                    <Text>{ele.name} </Text>
+                                  </View>
+                                </View>
+                                <View style={{flex: 1, marginLeft: 59}}>
+                                  <TouchableOpacity
+                                    onPress={() => this.deleteSubCat(ele.id)}
+                                    style={{
+                                      // backgroundColor: '#FF8C89',
+                                      width: wp('5%'),
+                                      borderRadius: 5,
+                                      alignItems: 'center',
+                                      padding: '2%',
+                                    }}>
+                                    <Image
+                                      source={img.deleteIconNew}
+                                      style={{
+                                        height: 12,
+                                        width: 12,
+                                        resizeMode: 'contain',
+                                        tintColor: '#FF034D',
+                                      }}
+                                    />
+                                  </TouchableOpacity>
                                 </View>
                               </View>
-                              <View style={{flex: 1, marginLeft: 59}}>
-                                <TouchableOpacity
-                                  onPress={() => this.deleteSubCat(ele.id)}
-                                  style={{
-                                    // backgroundColor: '#FF8C89',
-                                    width: wp('5%'),
-                                    borderRadius: 5,
-                                    alignItems: 'center',
-                                    padding: '2%',
-                                  }}>
-                                  <Image
-                                    source={img.deleteIconNew}
-                                    style={{
-                                      height: 12,
-                                      width: 12,
-                                      resizeMode: 'contain',
-                                      tintColor: '#FF034D',
-                                    }}
-                                  />
-                                </TouchableOpacity>
-                              </View>
-                            </View>
-                          );
-                        })}
-                      </View>
-                    );
-                  })}
-                </View>
-              </ScrollView>
+                            );
+                          })}
+                        </View>
+                      );
+                    })}
+                  </View>
+                </ScrollView>
+              </View>
             </View>
-          </View>
+          )}
         </Modal>
         <Modal isVisible={dotModalVisible}>
           {DeleteMenuItemModal ? (
@@ -1720,19 +2238,18 @@ class Menus extends Component {
                         style={{
                           flexDirection: 'row',
                           height: hp('7%'),
-                          justifyContent: 'center',
                         }}>
-                        <View style={{width: wp('30%')}}>
-                          <Text>Grain price : </Text>
+                        <View style={{width: wp('30%'), marginTop: 20}}>
+                          <Text>Grainz price : </Text>
                         </View>
-                        <View style={{}}>
-                          <Text style={{marginRight: 10}}>$ </Text>
+                        <View style={{width: wp('6%')}}>
+                          <Text style={{marginRight: 10, marginTop: 20}}>
+                            $
+                          </Text>
                         </View>
                         <View
                           style={{
-                            justifyContent: 'center',
-                            marginBottom: 40,
-                            width: wp('45%'),
+                            width: wp('40%'),
                           }}>
                           <TextInput
                             style={{
@@ -1742,8 +2259,12 @@ class Menus extends Component {
                               borderWidth: 1,
                               borderColor: 'grey',
                             }}
-                            placeholder={pendingMenuItem.price}
-                            value={pendingMenuItem.price.toString()}
+                            placeholder={pendingItemPrice.toString()}
+                            placeholderTextColor="black"
+                            value={pendingItemPrice}
+                            onChangeText={value =>
+                              this.setState({pendingItemPrice: value})
+                            }
                           />
                         </View>
                       </View>
@@ -1751,19 +2272,19 @@ class Menus extends Component {
                         style={{
                           flexDirection: 'row',
                           height: hp('7%'),
-                          justifyContent: 'center',
+                          marginTop: 10,
                         }}>
-                        <View style={{width: wp('30%')}}>
-                          <Text>Vat price : </Text>
+                        <View style={{width: wp('30%'), marginTop: 20}}>
+                          <Text>Vat : </Text>
                         </View>
-                        <View style={{}}>
-                          <Text style={{marginRight: 10}}>%</Text>
+                        <View style={{width: wp('6%')}}>
+                          <Text style={{marginRight: 10, marginTop: 20}}>
+                            %
+                          </Text>
                         </View>
                         <View
                           style={{
-                            justifyContent: 'center',
-                            marginBottom: 40,
-                            
+                            width: wp('40%'),
                           }}>
                           <TextInput
                             style={{
@@ -1772,19 +2293,139 @@ class Menus extends Component {
                               backgroundColor: 'white',
                               borderWidth: 1,
                               borderColor: 'grey',
-                              width: wp('45%'),
                             }}
-                            placeholder={pendingMenuItem.vat}
-                         
+                            placeholder={pendingItemVat.toString()}
+                            placeholderTextColor="black"
+                            value={pendingItemVat}
+                            onChangeText={value =>
+                              this.setState({pendingItemVat: value})
+                            }
                           />
                         </View>
                       </View>
-                      <View style={{flexDirection: 'row', height: hp('7%')}}>
-                        <View style={{width: wp('30%'), alignItems: 'center'}}>
-                          <Text>Menu item : </Text>
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          height: hp('7%'),
+                          marginTop: 25,
+                        }}>
+                        <View
+                          style={{
+                            width: wp('36%'),
+                            marginTop: 10,
+                          }}>
+                          <Text>Category : </Text>
                         </View>
-                        <View style={{width: wp('50%'), alignItems: 'center'}}>
-                          <Text style={{}}>{pendingMenuItem.name} </Text>
+
+                        <View style={{width: wp('50%')}}>
+                          <TouchableOpacity
+                            onPress={() =>
+                              this.setState({
+                                showItemCategories: !showItemCategories,
+                              })
+                            }>
+                            <View
+                              style={{
+                                borderWidth: 1,
+                                width: wp('40%'),
+                                height: hp('4%'),
+                                flexDirection: 'row',
+
+                                alignItems: 'center',
+                                borderRadius: 5,
+                              }}>
+                              <View style={{width: wp('30%')}}>
+                                <Text style={{marginLeft: 5}}>
+                                  {categorySelected.name}
+                                </Text>
+                              </View>
+
+                              <View style={{width: wp('5%')}}>
+                                <Image
+                                  source={img.arrowDownIcon}
+                                  style={{
+                                    resizeMode: 'contain',
+                                    height: 16,
+                                    width: 16,
+                                    marginLeft: wp('4%'),
+                                  }}
+                                />
+                              </View>
+                            </View>
+                          </TouchableOpacity>
+                          <View style={{height: hp('10%')}}>
+                            <ScrollView>
+                              {showItemCategories ? (
+                                <View>
+                                  {detailsList.map(item => {
+                                    return (
+                                      <View>
+                                        <TouchableOpacity
+                                          onPress={() =>
+                                            this.setState({
+                                              categorySelected: {
+                                                name: item.categoryName,
+                                                uniqueId:
+                                                  categorySelected.uniqueId,
+                                              },
+                                              showItemCategories: false,
+                                            })
+                                          }>
+                                          <Text>{item.categoryName}</Text>
+                                        </TouchableOpacity>
+                                      </View>
+                                    );
+                                  })}
+                                </View>
+                              ) : null}
+                            </ScrollView>
+                          </View>
+                        </View>
+                      </View>
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          margin: '5%',
+                        }}>
+                        <View style={{margin: '2%'}}>
+                          <TouchableOpacity
+                            onPress={() =>
+                              this.setState({EditMenuItemModal: false})
+                            }
+                            style={{
+                              height: hp('5%'),
+                              width: wp('35%'),
+                              borderWidth: 1,
+                              justifyContent: 'center',
+                              alignItems: 'center',
+                              marginTop: hp('1.5%'),
+                              borderRadius: 100,
+                              alignSelf: 'center',
+                              flexDirection: 'row',
+                            }}>
+                            <View>
+                              <Text style={{}}>Cancel </Text>
+                            </View>
+                          </TouchableOpacity>
+                        </View>
+                        <View style={{margin: '2%'}}>
+                          <TouchableOpacity
+                            onPress={() => this.updateMenuitem()}
+                            style={{
+                              height: hp('5%'),
+                              width: wp('35%'),
+                              backgroundColor: '#94C036',
+                              justifyContent: 'center',
+                              alignItems: 'center',
+                              marginTop: hp('1.5%'),
+                              borderRadius: 100,
+                              alignSelf: 'center',
+                              flexDirection: 'row',
+                            }}>
+                            <View>
+                              <Text style={{color: 'white'}}>Save </Text>
+                            </View>
+                          </TouchableOpacity>
                         </View>
                       </View>
                     </View>
@@ -1873,6 +2514,159 @@ class Menus extends Component {
               )}
             </View>
           )}
+        </Modal>
+        <Modal isVisible={addMenuItemModal}>
+          <View
+            style={{
+              width: wp('90%'),
+              height: hp(height),
+              backgroundColor: '#F0F4FF',
+              marginBottom: wp('5%'),
+              marginLeft: wp('1%'),
+              borderRadius: 10,
+            }}>
+            <View
+              style={{
+                backgroundColor: '#94BC37',
+                height: hp('5%'),
+                flexDirection: 'row',
+                alignItems: 'center',
+              }}>
+              <View style={{flexDirection: 'row', flex: 9}}>
+                <View style={{flex: 8}}>
+                  <Text style={{color: 'white', margin: '3%'}}>
+                    Add Menu item - {categorySelected.name}
+                  </Text>
+                </View>
+                <View style={{flex: 1, margin: '3%'}}>
+                  <TouchableOpacity
+                    onPress={() => this.setState({addMenuItemModal: false})}>
+                    <Image
+                      source={img.cancelIcon}
+                      style={{
+                        height: 16,
+                        width: 16,
+                        resizeMode: 'contain',
+                        tintColor: 'white',
+                      }}
+                    />
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </View>
+
+            <View style={{height: hp('11%'), alignItems: 'center'}}>
+              <TouchableOpacity
+                onPress={() =>
+                  this.setState({showMenuItems: !showMenuItems, height: '50%'})
+                }>
+                <View
+                  style={{
+                    width: wp('80%'),
+                    height: hp('7%'),
+                    backgroundColor: 'white',
+                    flexDirection: 'row',
+                    margin: '4%',
+                    marginTop: 30,
+                    alignItems: 'center',
+                    borderRadius: 5,
+                  }}>
+                  <View style={{marginLeft: 10, width: wp('70%')}}>
+                    <Text>Select Menu item</Text>
+                  </View>
+                  <View style={{width: wp('5%')}}>
+                    <Image
+                      source={img.arrowDownIcon}
+                      style={{resizeMode: 'contain', height: 16, width: 16}}
+                    />
+                  </View>
+                </View>
+              </TouchableOpacity>
+            </View>
+
+            {/* <View style={{height : hp('15%')}}>
+              <View
+                style={{
+                  marginLeft: '5%',
+                  marginRight: '15%',
+                  height: hp('20%'),
+                }}> */}
+            <ScrollView>
+              {showMenuItems ? (
+                <View
+                  style={{
+                    marginLeft: '5%',
+                    marginRight: '15%',
+                    height: hp('40%'),
+                  }}>
+                  {menuItemsList.map(item => {
+                    return (
+                      <View style={{margin: '2%', flexDirection: 'row'}}>
+                        <CheckBox
+                          // editable={false}
+                          onChange={() => this.addItemToList(item)}
+                          style={{
+                            backgroundColor: '#E9ECEF',
+                            height: 20,
+                            width: 20,
+                          }}
+                        />
+                        <Text style={{marginLeft: 15}}>{item.name}</Text>
+                      </View>
+                    );
+                  })}
+                </View>
+              ) : null}
+            </ScrollView>
+            {/* </View>
+            </View> */}
+            <View
+              style={{
+                flexDirection: 'row',
+                margin: '5%',
+              }}>
+              <View style={{margin: '2%'}}>
+                <TouchableOpacity
+                  onPress={() =>
+                    this.setState({addMenuItemModal: false, itemsAdded: []})
+                  }
+                  style={{
+                    height: hp('5%'),
+                    width: wp('35%'),
+                    borderWidth: 1,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    marginTop: hp('1.5%'),
+                    borderRadius: 100,
+                    alignSelf: 'center',
+                    flexDirection: 'row',
+                  }}>
+                  <View>
+                    <Text style={{}}>Cancel </Text>
+                  </View>
+                </TouchableOpacity>
+              </View>
+              <View style={{margin: '2%'}}>
+                <TouchableOpacity
+                  onPress={() => this.addItemToCategory()}
+                  style={{
+                    height: hp('5%'),
+                    width: wp('35%'),
+                    backgroundColor: '#94C036',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    marginTop: hp('1.5%'),
+                    borderRadius: 100,
+                    alignSelf: 'center',
+                    flexDirection: 'row',
+                  }}>
+                  <View>
+                    <Text style={{color: 'white'}}>Apply </Text>
+                  </View>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
         </Modal>
       </View>
     );
