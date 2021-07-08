@@ -128,10 +128,9 @@ class Basket extends Component {
     const finalArr = [];
     finalData.map(item => {
       finalArr.push({
-        inventoryProductMappingId:
-          item.inventoryMapping && item.inventoryMapping.id,
+        inventoryProductMappingId: item.id,
         quantityOrdered: item.quantityProduct,
-        unitPrice: item.inventoryMapping && item.inventoryMapping.price,
+        unitPrice: item.price,
       });
     });
 
@@ -140,14 +139,6 @@ class Basket extends Component {
       supplierId,
       finalApiData: [...finalArr],
     });
-    console.log('final', finalData);
-    // this.setState(
-    //   {
-    //     supplierId,
-    //     catName,
-    //   },
-    //   () => this.getInsideCatFun(),
-    // );
   }
 
   getUsersListData = () => {
@@ -168,26 +159,6 @@ class Basket extends Component {
       .catch(err => {
         console.log('ERR', err);
       });
-  };
-
-  getInsideCatFun = () => {
-    const {supplierId, catName} = this.state;
-    this.setState(
-      {
-        modalLoader: true,
-      },
-      () =>
-        getSupplierProductsApi(supplierId, catName)
-          .then(res => {
-            this.setState({
-              modalData: res.data,
-              modalLoader: false,
-            });
-          })
-          .catch(err => {
-            console.warn('err', err);
-          }),
-    );
   };
 
   myProfile = () => {
@@ -253,6 +224,7 @@ class Basket extends Component {
       placedBy: placedByValue,
       supplierId: supplierId,
     };
+    console.log('paylaod', payload);
     addOrderApi(payload)
       .then(res => {
         Alert.alert('Grainz', 'Order added successfully', [

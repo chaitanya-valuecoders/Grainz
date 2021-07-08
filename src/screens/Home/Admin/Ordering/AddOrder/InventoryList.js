@@ -23,6 +23,7 @@ import {
   getMyProfileApi,
   getOrderCategoriesApi,
   unMapProductAdminApi,
+  getInsideInventoryNewApi,
 } from '../../../../../connectivity/api';
 import CheckBox from '@react-native-community/checkbox';
 import Modal from 'react-native-modal';
@@ -46,6 +47,7 @@ class InventoryList extends Component {
       inventoryId: '',
       productId: '',
       catName: '',
+      finalBaketData: [],
     };
   }
 
@@ -107,10 +109,17 @@ class InventoryList extends Component {
         modalLoader: true,
       },
       () =>
-        getOrderCategoriesApi(catId, supplierId)
+        getInsideInventoryNewApi(catId, supplierId)
           .then(res => {
+            console.log('res', res);
+            const finalArr = res.data;
+            finalArr.forEach(function (item) {
+              item.isSelected = false;
+              item.quantityProduct = '';
+            });
+
             this.setState({
-              modalData: res.data,
+              modalData: [...finalArr],
               modalLoader: false,
             });
           })
@@ -138,7 +147,7 @@ class InventoryList extends Component {
     this.setState({
       actionModalStatus: true,
       inventoryId: data.id,
-      productId: data.productId,
+      productId: data.id,
     });
   };
 
@@ -169,25 +178,26 @@ class InventoryList extends Component {
   };
 
   hitUnMapApi = () => {
-    const {inventoryId, productId} = this.state;
-    let payload = {
-      inventoryId: inventoryId,
-      productId: productId,
-    };
-    unMapProductAdminApi(payload)
-      .then(res => {
-        Alert.alert('Grainz', 'Product unmapped successfully', [
-          {
-            text: 'Okay',
-            onPress: () => this.getInsideCatFun(),
-          },
-        ]);
-      })
-      .catch(err => {
-        console.warn('err', err);
-      });
+    alert('map');
+    // const {inventoryId, productId} = this.state;
+    // let payload = {
+    //   inventoryId: inventoryId,
+    //   productId: productId,
+    // };
+    // unMapProductAdminApi(payload)
+    //   .then(res => {
+    //     Alert.alert('Grainz', 'Product unmapped successfully', [
+    //       {
+    //         text: 'Okay',
+    //         onPress: () => this.getInsideCatFun(),
+    //       },
+    //     ]);
+    //   })
+    //   .catch(err => {
+    //     console.warn('err', err);
+    //   });
 
-    console.log('payload', payload);
+    // console.log('payload', payload);
   };
 
   editQuantityFun = (index, type, value) => {
@@ -206,6 +216,67 @@ class InventoryList extends Component {
     });
   };
 
+  editQuantityFun = (index, type, value, data) => {
+    this.setState(
+      {
+        inventoryId: data.id,
+      },
+      () => this.editQuantityFunSec(index, type, value, data),
+    );
+  };
+
+  editQuantityFunSec = (index, type, value, data) => {
+    console.log('data', data);
+    const {modalData} = this.state;
+    if (type === 'isSelected') {
+      let newArr = modalData.map((item, i) =>
+        index === i && item.quantityProduct !== ''
+          ? {
+              ...item,
+              [type]: !value,
+            }
+          : item,
+      );
+
+      var filteredArray = newArr.filter(function (itm) {
+        if (itm.quantityProduct !== '') {
+          return itm.isSelected === true;
+        }
+      });
+
+      console.log('fil', filteredArray);
+
+      this.setState({
+        modalData: [...newArr],
+        finalBaketData: filteredArray,
+      });
+    } else {
+      let newArr = modalData.map((item, i) =>
+        index === i
+          ? {
+              ...item,
+              [type]: value,
+            }
+          : item,
+      );
+      this.setState({
+        modalData: [...newArr],
+      });
+    }
+  };
+
+  addToBasketFun = () => {
+    const {finalBaketData, supplierId} = this.state;
+    if (finalBaketData.length > 0) {
+      this.props.navigation.navigate('BasketOrderScreen', {
+        finalData: finalBaketData,
+        supplierId,
+      });
+    } else {
+      alert('Please select atleast one item');
+    }
+  };
+
   render() {
     const {
       buttonsSubHeader,
@@ -215,8 +286,6 @@ class InventoryList extends Component {
       catName,
       actionModalStatus,
     } = this.state;
-
-    console.log('modalDta', modalData);
 
     return (
       <View style={styles.container}>
@@ -276,13 +345,6 @@ class InventoryList extends Component {
                                   width: wp('30%'),
                                   alignItems: 'center',
                                 }}>
-                                <Text>Name</Text>
-                              </View>
-                              <View
-                                style={{
-                                  width: wp('30%'),
-                                  alignItems: 'center',
-                                }}>
                                 <Text>In stock ?</Text>
                               </View>
                               <View
@@ -290,8 +352,9 @@ class InventoryList extends Component {
                                   width: wp('30%'),
                                   alignItems: 'center',
                                 }}>
-                                <Text>Code</Text>
+                                <Text>Name</Text>
                               </View>
+
                               <View
                                 style={{
                                   width: wp('30%'),
@@ -320,13 +383,7 @@ class InventoryList extends Component {
                                 }}>
                                 <Text>Quantity</Text>
                               </View>
-                              <View
-                                style={{
-                                  width: wp('30%'),
-                                  alignItems: 'center',
-                                }}>
-                                <Text>Preferred</Text>
-                              </View>
+
                               <View
                                 style={{
                                   width: wp('30%'),
@@ -386,14 +443,6 @@ class InventoryList extends Component {
                                           alignItems: 'center',
                                           justifyContent: 'center',
                                         }}>
-                                        <Text>{item.productCode}</Text>
-                                      </View>
-                                      <View
-                                        style={{
-                                          width: wp('30%'),
-                                          alignItems: 'center',
-                                          justifyContent: 'center',
-                                        }}>
                                         <Text>{item.productName}</Text>
                                       </View>
                                       <View
@@ -424,7 +473,7 @@ class InventoryList extends Component {
                                           justifyContent: 'center',
                                         }}>
                                         <TextInput
-                                          placeholder="quantityProduct"
+                                          placeholder="0"
                                           value={item.Quantity}
                                           style={{
                                             borderWidth: 1,
@@ -437,49 +486,60 @@ class InventoryList extends Component {
                                               index,
                                               'quantityProduct',
                                               value,
+                                              item,
                                             )
                                           }
                                         />
                                       </View>
-                                      <View
-                                        style={{
-                                          width: wp('30%'),
-                                          alignItems: 'center',
-                                          justifyContent: 'center',
-                                        }}>
-                                        <CheckBox
-                                          disabled={true}
-                                          value={item.isPreferred}
-                                          // onValueChange={() =>
-                                          //   this.setState({htvaIsSelected: !htvaIsSelected})
-                                          // }
-                                          style={{
-                                            height: 20,
-                                            width: 20,
-                                          }}
-                                        />
-                                      </View>
+
                                       <TouchableOpacity
-                                        onPress={() => this.actionFun(item)}
                                         style={{
                                           width: wp('30%'),
                                           alignItems: 'center',
                                           justifyContent: 'center',
-                                        }}>
+                                        }}
+                                        onPress={() =>
+                                          this.editQuantityFun(
+                                            index,
+                                            'isSelected',
+                                            item.isSelected,
+                                            item,
+                                          )
+                                        }>
                                         <View
                                           style={{
                                             backgroundColor: '#86AC32',
-                                            padding: 10,
+                                            padding: 8,
                                             borderRadius: 6,
                                           }}>
-                                          <Image
-                                            source={img.cartIcon}
+                                          <View
                                             style={{
-                                              height: 25,
-                                              width: 25,
-                                              resizeMode: 'contain',
-                                            }}
-                                          />
+                                              backgroundColor: '#86AC32',
+                                              padding: 10,
+                                              borderRadius: 6,
+                                            }}>
+                                            {item.isSelected ? (
+                                              <Image
+                                                source={img.dashIcon}
+                                                style={{
+                                                  height: 18,
+                                                  width: 18,
+                                                  resizeMode: 'contain',
+                                                  tintColor: '#fff',
+                                                }}
+                                              />
+                                            ) : (
+                                              <Image
+                                                source={img.plusIcon}
+                                                style={{
+                                                  height: 22,
+                                                  width: 22,
+                                                  resizeMode: 'contain',
+                                                  tintColor: '#fff',
+                                                }}
+                                              />
+                                            )}
+                                          </View>
                                         </View>
                                       </TouchableOpacity>
                                       <TouchableOpacity
@@ -524,7 +584,7 @@ class InventoryList extends Component {
           )}
           <View style={{justifyContent: 'center', alignItems: 'center'}}>
             <TouchableOpacity
-              onPress={() => alert('Add to basket')}
+              onPress={() => this.addToBasketFun()}
               style={{
                 height: hp('6%'),
                 width: wp('80%'),

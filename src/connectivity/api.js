@@ -880,3 +880,16 @@ export const getInventoryBySupplierIdApi = async id => {
     },
   );
 };
+
+export const getInsideInventoryNewApi = async (catId, supId) => {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.get(
+    baseURL +
+      `/inventory/inventories by category and supplier?CategoryId=${catId}&SupplieId=${supId}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  );
+};
