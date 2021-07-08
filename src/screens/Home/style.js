@@ -7,28 +7,43 @@ const numColumns = 3;
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: '10%',
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#F0F4FE',
   },
-  tinyLogo: {
-    width: 50,
-    height: 50,
-  },
-  logo: {
-    width: 66,
-    height: 58,
+  subContainer: {
+    marginTop: hp('2%'),
   },
   itemContainer: {
     width: Dimensions.get('window').width / numColumns,
     height: Dimensions.get('window').width / numColumns,
     borderRadius: 50,
   },
-  item: {
+  tileContainer: {
+    backgroundColor: '#fff',
     flex: 1,
-    margin: 5,
-    backgroundColor: 'lightblue',
-    borderRadius: 50,
+    margin: 10,
+    borderRadius: 8,
+    padding: 10,
+  },
+  tileImageContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  tileImageStyling: {
+    height: 40,
+    width: 40,
+    resizeMode: 'contain',
+  },
+  tileTextContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  tileTextStyling: {
+    fontSize: 13,
+    textAlign: 'center',
+    fontFamily: 'Inter-Regular',
   },
 });
 export default styles;

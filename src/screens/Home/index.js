@@ -4,10 +4,7 @@ import {
   Text,
   TouchableOpacity,
   Image,
-  ScrollView,
   ActivityIndicator,
-  Switch,
-  TextInput,
   Alert,
   FlatList,
 } from 'react-native';
@@ -16,22 +13,11 @@ import {connect} from 'react-redux';
 import img from '../../constants/images';
 import SubHeader from '../../components/SubHeader';
 import Header from '../../components/Header';
-import {
-  widthPercentageToDP as wp,
-  heightPercentageToDP as hp,
-} from 'react-native-responsive-screen';
 import {UserTokenAction} from '../../redux/actions/UserTokenAction';
 import {getMyProfileApi} from '../../connectivity/api';
 import styles from './style';
-import Modal from 'react-native-modal';
-import moment from 'moment';
 
 import {translate, setI18nConfig} from '../../utils/translations';
-
-var minTime = new Date();
-minTime.setHours(0);
-minTime.setMinutes(0);
-minTime.setMilliseconds(0);
 
 class index extends Component {
   constructor(props) {
@@ -39,7 +25,6 @@ class index extends Component {
     this.state = {
       buttons: [],
       token: '',
-      firstName: '',
       buttonsSubHeader: [],
       loader: true,
     };
@@ -65,7 +50,6 @@ class index extends Component {
     getMyProfileApi()
       .then(res => {
         this.setState({
-          firstName: res.data.firstName,
           loader: false,
           buttons: [
             {
@@ -159,10 +143,10 @@ class index extends Component {
   };
 
   render() {
-    const {firstName, buttons, buttonsSubHeader, loader} = this.state;
+    const {buttons, buttonsSubHeader, loader} = this.state;
 
     return (
-      <View style={{flex: 1, backgroundColor: '#F0F4FE'}}>
+      <View style={styles.container}>
         <Header
           logoutFun={this.myProfile}
           logoFun={() => this.props.navigation.navigate('HomeScreen')}
@@ -172,52 +156,19 @@ class index extends Component {
         ) : (
           <SubHeader {...this.props} buttons={buttonsSubHeader} />
         )}
-
-        <View
-          style={{
-            marginTop: hp('2%'),
-          }}>
+        <View style={styles.subContainer}>
           <FlatList
             data={buttons}
             renderItem={({item}) => (
               <View style={styles.itemContainer}>
                 <TouchableOpacity
                   onPress={() => this.onPressFun(item)}
-                  style={{
-                    backgroundColor: '#fff',
-                    flex: 1,
-                    margin: 10,
-                    borderRadius: 8,
-                    padding: 10,
-                  }}>
-                  <View
-                    style={{
-                      flex: 1,
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                    }}>
-                    <Image
-                      source={item.icon}
-                      style={{
-                        height: 40,
-                        width: 40,
-                        resizeMode: 'contain',
-                      }}
-                    />
+                  style={styles.tileContainer}>
+                  <View style={styles.tileImageContainer}>
+                    <Image source={item.icon} style={styles.tileImageStyling} />
                   </View>
-                  <View
-                    style={{
-                      flex: 1,
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                    }}>
-                    <Text
-                      style={{
-                        fontSize: 13,
-                        textAlign: 'center',
-                        fontFamily: 'Inter-Regular',
-                      }}
-                      numberOfLines={1}>
+                  <View style={styles.tileTextContainer}>
+                    <Text style={styles.tileTextStyling} numberOfLines={1}>
                       {' '}
                       {item.name}
                     </Text>
@@ -228,40 +179,6 @@ class index extends Component {
             keyExtractor={item => item.id}
             numColumns={3}
           />
-          {/* {buttons.map((item, index) => {
-              return (
-                <View style={{}} key={index}>
-                  <TouchableOpacity
-                    onPress={() => this.onPressFun(item)}
-                    style={{
-                      flexDirection: 'row',
-                      height: hp('6%'),
-                      width: wp('70%'),
-                      backgroundColor: '#94C036',
-                      alignItems: 'center',
-                      marginTop: 20,
-                    }}>
-                    <View style={{}}>
-                      <Image
-                        source={item.icon}
-                        style={{
-                          height: 22,
-                          width: 22,
-                          tintColor: 'white',
-                          resizeMode: 'contain',
-                          marginLeft: 15,
-                        }}
-                      />
-                    </View>
-                    <View style={{}}>
-                      <Text style={{color: 'white', marginLeft: 5}}>
-                        {item.name}
-                      </Text>
-                    </View>
-                  </TouchableOpacity>
-                </View>
-              );
-            })} */}
         </View>
       </View>
     );

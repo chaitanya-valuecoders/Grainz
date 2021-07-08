@@ -124,10 +124,9 @@ class index extends Component {
         ) : (
           <SubHeader {...this.props} buttons={buttonsSubHeader} />
         )}
-
         <View style={styles.subContainer}>
           <View style={styles.firstContainer}>
-            <View style={{flex: 1}}>
+            <View style={styles.flex}>
               <Text style={styles.adminTextStyle}>
                 {translate('Stock Take')}
               </Text>
@@ -138,20 +137,9 @@ class index extends Component {
               <Text style={styles.goBackTextStyle}>Go Back</Text>
             </TouchableOpacity>
           </View>
-          <View
-            style={{
-              alignItems: 'center',
-              marginHorizontal: wp('5%'),
-              marginVertical: hp('2%'),
-            }}>
-            <View style={{}}>
-              <Text
-                style={{
-                  fontSize: 18,
-                  fontFamily: 'Inter-Regular',
-                  color: '#523622',
-                  textAlign: 'center',
-                }}>
+          <View style={styles.headingContainer}>
+            <View>
+              <Text style={styles.headingTextStyling}>
                 {translate('Select which department you wish to stock take')}
               </Text>
             </View>
@@ -162,19 +150,8 @@ class index extends Component {
               <View style={styles.itemContainer}>
                 <TouchableOpacity
                   onPress={() => this.onPressFun(item)}
-                  style={{
-                    backgroundColor: '#fff',
-                    flex: 1,
-                    margin: 10,
-                    borderRadius: 8,
-                    padding: 10,
-                  }}>
-                  <View
-                    style={{
-                      flex: 1,
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                    }}>
+                  style={styles.tileContainer}>
+                  <View style={styles.tileImageContainer}>
                     <Image
                       source={
                         item.name === 'Bar'
@@ -187,27 +164,11 @@ class index extends Component {
                           ? img.retailIcon
                           : null
                       }
-                      style={{
-                        height: 40,
-                        width: 40,
-                        resizeMode: 'contain',
-                      }}
+                      style={styles.tileImageStyling}
                     />
                   </View>
-                  <View
-                    style={{
-                      flex: 1,
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                    }}>
-                    <Text
-                      style={{
-                        fontSize: 13,
-                        textAlign: 'center',
-                        fontFamily: 'Inter-Regular',
-                      }}
-                      numberOfLines={1}>
-                      {' '}
+                  <View style={styles.tileTextContainer}>
+                    <Text style={styles.tileTextStyling} numberOfLines={1}>
                       {item.name}
                     </Text>
                   </View>

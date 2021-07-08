@@ -11,7 +11,6 @@ import {
   Image,
 } from 'react-native';
 import styles from './style';
-import Header from '../../components/Header';
 import img from '../../constants/images';
 import {
   widthPercentageToDP as wp,
@@ -166,22 +165,8 @@ class index extends Component {
             animationType="slide"
             transparent={true}
             visible={this.state.loader}>
-            <View
-              style={{
-                flex: 1,
-                backgroundColor: 'transparent',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}>
-              <View
-                style={{
-                  flexDirection: 'row',
-                  backgroundColor: '#00000090',
-                  alignContent: 'center',
-                  justifyContent: 'center',
-                  width: wp('1000%'),
-                  height: hp('100%'),
-                }}>
+            <View style={styles.modalContainer}>
+              <View style={styles.modalSubContainer}>
                 <ActivityIndicator size="large" color={'#ffffff'} />
               </View>
             </View>

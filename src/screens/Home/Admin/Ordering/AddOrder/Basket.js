@@ -63,6 +63,7 @@ class Basket extends Component {
       sentValue: 'No',
       apiDeliveryDate: '',
       apiOrderDate: '',
+      itemType: '',
     };
   }
 
@@ -124,21 +125,38 @@ class Basket extends Component {
   componentDidMount() {
     this.getData();
     this.getUsersListData();
-    const {finalData, supplierId} = this.props.route && this.props.route.params;
+    const {finalData, supplierId, itemType} =
+      this.props.route && this.props.route.params;
     const finalArr = [];
-    finalData.map(item => {
-      finalArr.push({
-        inventoryProductMappingId: item.id,
-        quantityOrdered: item.quantityProduct,
-        unitPrice: item.price,
+    if (itemType === 'Inventory') {
+      finalData.map(item => {
+        console.log('item', item);
+        finalArr.push({
+          inventoryProductMappingId:
+            item.inventoryMapping && item.inventoryMapping.id,
+          quantityOrdered: item.quantityProduct,
+          unitPrice: item.inventoryMapping && item.inventoryMapping.price,
+        });
       });
-    });
+    } else {
+      finalData.map(item => {
+        console.log('item', item);
+        finalArr.push({
+          inventoryProductMappingId:
+            item.inventoryMapping && item.inventoryMapping.id,
+          quantityOrdered: item.quantityProduct,
+          unitPrice: item.inventoryMapping && item.inventoryMapping.price,
+        });
+      });
+    }
 
     this.setState({
       modalData: finalData,
       supplierId,
       finalApiData: [...finalArr],
+      itemType,
     });
+    console.log('final', finalData);
   }
 
   getUsersListData = () => {

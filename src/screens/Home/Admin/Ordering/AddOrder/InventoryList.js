@@ -271,6 +271,7 @@ class InventoryList extends Component {
       this.props.navigation.navigate('BasketOrderScreen', {
         finalData: finalBaketData,
         supplierId,
+        itemType: 'Inventory',
       });
     } else {
       alert('Please select atleast one item');
@@ -360,7 +361,7 @@ class InventoryList extends Component {
                                   width: wp('30%'),
                                   alignItems: 'center',
                                 }}>
-                                <Text>Name</Text>
+                                <Text>Product Name</Text>
                               </View>
                               <View
                                 style={{

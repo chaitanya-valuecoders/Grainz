@@ -321,6 +321,7 @@ class SupplierList extends Component {
       this.props.navigation.navigate('BasketOrderScreen', {
         finalData: finalBaketData,
         supplierId,
+        itemType: 'Supplier',
       });
     } else {
       alert('Please select atleast one item');

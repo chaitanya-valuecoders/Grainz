@@ -38,17 +38,11 @@ class StockScreen extends Component {
     super(props);
     this.state = {
       token: '',
-      modalVisible: false,
-      firstName: '',
       activeSections: [],
       SECTIONS: [],
       subHeaderLoader: true,
       recipeLoader: false,
       buttonsSubHeader: [],
-      SECTIONS_SEC: [],
-      SECTIONS: [],
-      modalVisibleSetup: false,
-      sectionName: '',
       categoryLoader: false,
       departmentData: '',
       finalDate: '',
@@ -81,7 +75,6 @@ class StockScreen extends Component {
     getMyProfileApi()
       .then(res => {
         this.setState({
-          firstName: res.data.firstName,
           subHeaderLoader: false,
           buttonsSubHeader: [
             {name: translate('ADMIN')},
@@ -106,7 +99,6 @@ class StockScreen extends Component {
 
   createFirstData = () => {
     const {departmentData} = this.state;
-    console.log('de', departmentData);
     lookupInventoryApi(departmentData.id)
       .then(res => {
         console.log('res', res);
@@ -117,18 +109,14 @@ class StockScreen extends Component {
             departmentId: item.departmentId,
           };
         });
-
         const result = finalArray;
-
         this.setState({
           SECTIONS: [...result],
           recipeLoader: false,
-          SECTIONS_SEC: [...result],
         });
       })
       .catch(err => {
         console.log('ERR MEP', err);
-
         this.setState({
           recipeLoader: false,
         });
@@ -138,7 +126,6 @@ class StockScreen extends Component {
   componentDidMount() {
     const {departmentData} = this.props.route && this.props.route.params;
     this.getData();
-
     this.setState({
       departmentData,
     });
@@ -154,35 +141,12 @@ class StockScreen extends Component {
 
   _renderHeader = (section, index, isActive) => {
     return (
-      <View
-        style={{
-          backgroundColor: '#FFFFFF',
-          flexDirection: 'row',
-          borderWidth: 0.5,
-          borderColor: '#F0F0F0',
-          height: 60,
-          marginTop: hp('2%'),
-          alignItems: 'center',
-          borderRadius: 6,
-        }}>
+      <View style={styles.renderHeaderContainer}>
         <Image
-          style={{
-            height: 18,
-            width: 18,
-            resizeMode: 'contain',
-            marginLeft: wp('2%'),
-          }}
+          style={styles.renderHeaderImageStyling}
           source={isActive ? img.upArrowIcon : img.arrowRightIcon}
         />
-        <Text
-          style={{
-            color: '#492813',
-            fontSize: 14,
-            marginLeft: wp('2%'),
-            fontFamily: 'Inter-Regular',
-          }}>
-          {section.title}
-        </Text>
+        <Text style={styles.renderHeaderTextStyling}>{section.title}</Text>
       </View>
     );
   };
@@ -209,52 +173,19 @@ class StockScreen extends Component {
     const {categoryLoader, catArray} = this.state;
     return (
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-        <View style={{backgroundColor: '#fff', height: hp('30%')}}>
-          <View
-            style={{
-              flexDirection: 'row',
-              paddingBottom: 15,
-              marginHorizontal: wp('5%'),
-            }}>
-            <View style={{width: wp('40%')}}>
-              <Text
-                style={{
-                  fontSize: 14,
-                  color: '#161C27',
-                  fontFamily: 'Inter-SemiBold',
-                }}>
-                Name
-              </Text>
+        <View style={styles.renderContentContainer}>
+          <View style={styles.renderContentSubContainer}>
+            <View style={styles.boxSize}>
+              <Text style={styles.boxTextHeadingStyling}>Name</Text>
             </View>
             <View style={{width: wp('40')}}>
-              <Text
-                style={{
-                  fontSize: 14,
-                  color: '#161C27',
-                  fontFamily: 'Inter-SemiBold',
-                }}>
-                System says
-              </Text>
+              <Text style={styles.boxTextHeadingStyling}>System says</Text>
             </View>
-            <View style={{width: wp('30%')}}>
-              <Text
-                style={{
-                  fontSize: 14,
-                  color: '#161C27',
-                  fontFamily: 'Inter-SemiBold',
-                }}>
-                Stock Take
-              </Text>
+            <View style={styles.boxSize}>
+              <Text style={styles.boxTextHeadingStyling}>Stock Take</Text>
             </View>
-            <View style={{width: wp('20%')}}>
-              <Text
-                style={{
-                  fontSize: 14,
-                  color: '#161C27',
-                  fontFamily: 'Inter-SemiBold',
-                }}>
-                Correction
-              </Text>
+            <View style={styles.boxSize}>
+              <Text style={styles.boxTextHeadingStyling}>Correction</Text>
             </View>
           </View>
           {categoryLoader ? (
@@ -266,57 +197,32 @@ class StockScreen extends Component {
                   return (
                     <View
                       key={index}
-                      style={{
-                        flexDirection: 'row',
-                        borderTopWidth: 1,
-                        paddingVertical: 10,
-                        marginHorizontal: wp('5%'),
-                        borderTopColor: '#0000001A',
-                      }}>
+                      style={styles.renderHeaderContentContainer}>
                       <TouchableOpacity
                         onPress={() => this.editUnitsFun(item)}
                         style={{
                           flexDirection: 'row',
                         }}>
-                        <View style={{width: wp('40%')}}>
-                          <Text
-                            style={{
-                              fontSize: 14,
-                              color: '#161C27',
-                              fontFamily: 'Inter-Regular',
-                            }}>
+                        <View style={styles.boxSize}>
+                          <Text style={styles.boxTextDataStyling}>
                             {item.name && item.name}
                           </Text>
                         </View>
-                        <View style={{width: wp('40%')}}>
+                        <View style={styles.boxSize}>
                           <Text
-                            style={{
-                              fontSize: 14,
-                              color: '#161C27',
-                              fontFamily: 'Inter-Regular',
-                            }}
+                            style={styles.boxTextDataStyling}
                             numberOfLines={1}>
                             {item.systemSays && item.systemSays.toFixed(2)}{' '}
                             {item.unit}
                           </Text>
                         </View>
-                        <View style={{width: wp('30%')}}>
-                          <Text
-                            style={{
-                              fontSize: 14,
-                              color: '#161C27',
-                              fontFamily: 'Inter-Regular',
-                            }}>
+                        <View style={styles.boxSize}>
+                          <Text style={styles.boxTextDataStyling}>
                             {item.quantity} {item.unit}
                           </Text>
                         </View>
-                        <View style={{width: wp('30%')}}>
-                          <Text
-                            style={{
-                              fontSize: 14,
-                              color: '#161C27',
-                              fontFamily: 'Inter-Regular',
-                            }}>
+                        <View style={styles.boxSize}>
+                          <Text style={styles.boxTextDataStyling}>
                             {item.correction} {item.unit}
                           </Text>
                         </View>
@@ -325,8 +231,8 @@ class StockScreen extends Component {
                   );
                 })
               ) : (
-                <View style={{paddingVertical: 10, marginHorizontal: wp('5%')}}>
-                  <Text style={{color: 'red', fontFamily: 'Inter-Regular'}}>
+                <View style={styles.notAvailableContainer}>
+                  <Text style={styles.notAvailableStyling}>
                     No data available
                   </Text>
                 </View>
@@ -370,12 +276,6 @@ class StockScreen extends Component {
         catArray: [],
       });
     }
-  };
-
-  setAdminModalVisible = visible => {
-    this.setState({
-      modalVisibleSetup: visible,
-    });
   };
 
   showDatePickerFun = () => {

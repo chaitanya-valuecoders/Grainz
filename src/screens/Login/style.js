@@ -20,8 +20,8 @@ const styles = StyleSheet.create({
     height: hp('30%'),
   },
   logoStyling: {
-    height: 150,
-    width: 150,
+    height: 180,
+    width: 180,
     resizeMode: 'contain',
   },
   insideContainer: {
@@ -69,6 +69,20 @@ const styles = StyleSheet.create({
     fontSize: 20,
     color: '#fff',
     fontFamily: 'Inter-SemiBold',
+  },
+  modalContainer: {
+    flex: 1,
+    backgroundColor: 'transparent',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  modalSubContainer: {
+    flexDirection: 'row',
+    backgroundColor: '#00000090',
+    alignContent: 'center',
+    justifyContent: 'center',
+    width: wp('1000%'),
+    height: hp('100%'),
   },
 });
 export default styles;

@@ -349,10 +349,12 @@ class NewOrder extends Component {
                     <TouchableOpacity
                       onPress={() => this.addItemsFun(item)}
                       style={{
-                        backgroundColor: '#EFFBCF',
-                        paddingVertical: 15,
+                        backgroundColor: '#FFFFFF',
+                        paddingVertical: 18,
                         flexDirection: 'row',
                         borderRadius: 6,
+                        borderWidth: 1,
+                        borderColor: '#F0F0F0',
                       }}>
                       <View
                         style={{
@@ -374,6 +376,7 @@ class NewOrder extends Component {
                           style={{
                             fontFamily: 'Inter-Regular',
                             fontSize: 16,
+                            color: '#482813',
                           }}>
                           {item.label}
                         </Text>
