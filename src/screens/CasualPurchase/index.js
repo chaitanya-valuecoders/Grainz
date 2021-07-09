@@ -14,10 +14,6 @@ import img from '../../constants/images';
 import SubHeader from '../../components/SubHeader';
 import Header from '../../components/Header';
 import moment from 'moment';
-import {
-  widthPercentageToDP as wp,
-  heightPercentageToDP as hp,
-} from 'react-native-responsive-screen';
 import {UserTokenAction} from '../../redux/actions/UserTokenAction';
 import {getMyProfileApi, getCasualPurchasesApi} from '../../connectivity/api';
 import {translate} from '../../utils/translations';
@@ -29,14 +25,7 @@ class index extends Component {
     this.state = {
       token: '',
       casualPurchases: [],
-      productionDate: '',
-      selectedItems: [],
-      selectedItemObjects: '',
-      testItem: null,
-      photo: null,
       casualListLoader: false,
-      arrayObjPosition: 1,
-      quantityValue: '',
       recipeLoader: true,
       buttonsSubHeader: [],
     };
@@ -128,14 +117,13 @@ class index extends Component {
           <SubHeader {...this.props} buttons={buttonsSubHeader} />
         )}
         <ScrollView
-          style={{marginBottom: hp('2%')}}
           ref={ref => {
             this.scrollListReftop = ref;
           }}>
           <View>
             <View style={styles.subContainer}>
               <View style={styles.firstContainer}>
-                <View style={{flex: 1}}>
+                <View style={styles.flex}>
                   <Text style={styles.adminTextStyle}>
                     {translate('Casual purchase')}
                   </Text>
@@ -151,111 +139,47 @@ class index extends Component {
               <View>
                 <TouchableOpacity
                   onPress={() => this.newCasualPurchase()}
-                  style={{
-                    height: hp('6%'),
-                    width: wp('80%'),
-                    backgroundColor: '#94C036',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    borderRadius: 100,
-                    alignSelf: 'center',
-                    marginBottom: hp('4%'),
-                    marginTop: hp('2%'),
-                  }}>
-                  <View
-                    style={{
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                    }}>
+                  style={styles.addNewContainer}>
+                  <View style={styles.addNewSubContainer}>
                     <Image
                       source={img.addIcon}
-                      style={{
-                        width: 20,
-                        height: 20,
-                        tintColor: '#fff',
-                        resizeMode: 'contain',
-                      }}
+                      style={styles.addImageStyling}
                     />
-                    <Text
-                      style={{
-                        color: 'white',
-                        marginLeft: 10,
-                        fontFamily: 'Inter-SemiBold',
-                      }}>
-                      Add New
-                    </Text>
+                    <Text style={styles.addTextStyling}>Add New</Text>
                   </View>
                 </TouchableOpacity>
               </View>
             </View>
           </View>
-          <View style={{}}>
-            <View
-              style={{
-                flexDirection: 'row',
-                borderBottomColor: '#EAEAF0',
-                marginHorizontal: wp('3%'),
-                backgroundColor: '#EFFBCF',
-                paddingHorizontal: 10,
-                paddingVertical: 15,
-              }}>
-              <View
-                style={{
-                  flexDirection: 'row',
-                  flex: 1,
-                  alignItems: 'center',
-                }}>
-                <Text style={{fontWeight: 'bold'}}>{translate('Date')}</Text>
+          <View>
+            <View style={styles.listHeading}>
+              <View style={styles.listSubHeading}>
+                <Text style={styles.listTextStyling}>{translate('Date')}</Text>
                 <Pressable>
                   <Image
-                    style={{
-                      width: 10,
-                      height: 10,
-                      resizeMode: 'contain',
-                      marginLeft: 5,
-                    }}
+                    style={styles.listImageStyling}
                     source={img.doubleArrowIconNew}
                   />
                 </Pressable>
               </View>
-              <View
-                style={{
-                  flexDirection: 'row',
-                  flex: 1,
-                  alignItems: 'center',
-                }}>
-                <Text style={{fontWeight: 'bold'}}>
+              <View style={styles.listSubHeading}>
+                <Text style={styles.listTextStyling}>
                   {translate('Supplier')}
                 </Text>
                 <Pressable>
                   <Image
-                    style={{
-                      width: 10,
-                      height: 10,
-                      resizeMode: 'contain',
-                      marginLeft: 5,
-                    }}
+                    style={styles.listImageStyling}
                     source={img.doubleArrowIconNew}
                   />
                 </Pressable>
               </View>
-              <View
-                style={{
-                  flexDirection: 'row',
-                  flex: 1,
-                  alignItems: 'center',
-                }}>
-                <Text style={{fontWeight: 'bold'}}>
+              <View style={styles.listSubHeading}>
+                <Text style={styles.listTextStyling}>
                   $ {translate('Total')} HTVA
                 </Text>
                 <Pressable>
                   <Image
-                    style={{
-                      width: 10,
-                      height: 10,
-                      resizeMode: 'contain',
-                      marginLeft: 5,
-                    }}
+                    style={styles.listImageStyling}
                     source={img.doubleArrowIconNew}
                   />
                 </Pressable>
@@ -270,28 +194,24 @@ class index extends Component {
                 return (
                   <View
                     style={{
-                      borderBottomColor: '#EAEAF0',
-                      marginHorizontal: wp('3%'),
+                      ...styles.listDataHeadingContainer,
                       backgroundColor: index % 2 === 0 ? '#FFFFFF' : '#F7F8F5',
-                      paddingVertical: 10,
                     }}>
                     <TouchableOpacity
-                      style={{
-                        flexDirection: 'row',
-                        paddingLeft: 10,
-                        alignItems: 'flex-start',
-                      }}
+                      style={styles.listDataHeadingSubContainer}
                       onPress={() => this.navigateToEditFun(item)}>
-                      <View style={{margin: 5, flex: 3}}>
-                        <Text style={{fontWeight: 'bold'}}>{date}</Text>
+                      <View style={styles.listDataContainer}>
+                        <Text style={styles.listDataTextStyling}>{date}</Text>
                       </View>
-                      <View style={{margin: 5, flex: 3, paddingLeft: 50}}>
-                        <Text style={{fontWeight: 'bold'}}>
+                      <View style={styles.listDataContainer}>
+                        <Text style={styles.listDataTextStyling}>
                           {item.supplierName}
                         </Text>
                       </View>
-                      <View style={{margin: 5, flex: 2, paddingLeft: 50}}>
-                        <Text style={{fontWeight: 'bold'}}>$ {price}</Text>
+                      <View style={styles.listDataContainer}>
+                        <Text style={styles.listDataTextStyling}>
+                          $ {price}
+                        </Text>
                       </View>
                     </TouchableOpacity>
                   </View>

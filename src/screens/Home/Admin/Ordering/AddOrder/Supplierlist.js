@@ -25,6 +25,7 @@ import {
   unMapProductAdminApi,
   lookupDepartmentsApi,
   lookupCategoriesApi,
+  addBasketApi,
 } from '../../../../../connectivity/api';
 import CheckBox from '@react-native-community/checkbox';
 import Modal from 'react-native-modal';
@@ -42,7 +43,7 @@ class SupplierList extends Component {
       modalLoader: false,
       actionModalStatus: false,
       mapStatus: '',
-      finalBaketData: [],
+      finalBasketData: [],
       supplierId: '',
       mapModalStatus: false,
       activeSections: [],
@@ -282,11 +283,28 @@ class SupplierList extends Component {
           }
         });
 
-        console.log('fil', filteredArray);
-
+        const finalArr = [];
+        filteredArray.map(item => {
+          console.log('item', item);
+          finalArr.push({
+            id: item.inventoryMapping && item.inventoryMapping.id,
+            inventoryId: item.inventoryMapping && item.inventoryMapping.id,
+            inventoryProductMappingId:
+              item.inventoryMapping && item.inventoryMapping.id,
+            unitPrice: item.inventoryMapping && item.inventoryMapping.id,
+            quantity: item.inventoryMapping && item.inventoryMapping.id,
+            action: 'string',
+            value: Number(
+              item.inventoryMapping &&
+                item.inventoryMapping.id * item.inventoryMapping &&
+                item.inventoryMapping.id * item.inventoryMapping &&
+                item.inventoryMapping.id,
+            ),
+          });
+        });
         this.setState({
           modalData: [...newArr],
-          finalBaketData: filteredArray,
+          finalBasketData: [...finalArr],
         });
       } else {
         let newArr = modalData.map((item, i) =>
@@ -316,13 +334,26 @@ class SupplierList extends Component {
   };
 
   addToBasketFun = () => {
-    const {finalBaketData, supplierId} = this.state;
-    if (finalBaketData.length > 0) {
-      this.props.navigation.navigate('BasketOrderScreen', {
-        finalData: finalBaketData,
-        supplierId,
-        itemType: 'Supplier',
-      });
+    const {finalBasketData, supplierId} = this.state;
+    if (finalBasketData.length > 0) {
+      let payload = {
+        supplierId: supplierId,
+        shopingBasketItemViewModel: finalBasketData,
+      };
+      console.log('Payload', payload);
+      addBasketApi()
+        .then(res => {
+          console.log('rs', res);
+
+          // this.props.navigation.navigate('BasketOrderScreen', {
+          //   finalData: finalBasketData,
+          //   supplierId,
+          //   itemType: 'Supplier',
+          // });
+        })
+        .catch(err => {
+          console.log('err', err);
+        });
     } else {
       alert('Please select atleast one item');
     }
@@ -435,6 +466,8 @@ class SupplierList extends Component {
     const {SECTIONS, activeSections} = this.state;
     if (activeSections.length > 0) {
       const deptId = SECTIONS[activeSections].content;
+      console.log('deptId', deptId);
+
       lookupCategoriesApi(deptId)
         .then(res => {
           console.log('res', res);
@@ -467,10 +500,11 @@ class SupplierList extends Component {
       SECTIONS,
       activeSections,
       catName,
-      finalBaketData,
+      finalBasketData,
     } = this.state;
 
-    console.log('finalBaketData', finalBaketData);
+    console.log('modalData', modalData);
+    console.log('finalBasketData', finalBasketData);
 
     return (
       <View style={styles.container}>
@@ -532,16 +566,14 @@ class SupplierList extends Component {
                                   width: wp('30%'),
                                   alignItems: 'center',
                                 }}>
-                                <Text style={{textAlign: 'center'}}>
-                                  In Stock?
-                                </Text>
+                                <Text>Quantity</Text>
                               </View>
                               <View
                                 style={{
                                   width: wp('30%'),
                                   alignItems: 'center',
                                 }}>
-                                <Text>Code</Text>
+                                <Text>Action</Text>
                               </View>
                               <View
                                 style={{
@@ -549,6 +581,13 @@ class SupplierList extends Component {
                                   alignItems: 'center',
                                 }}>
                                 <Text>Name</Text>
+                              </View>
+                              <View
+                                style={{
+                                  width: wp('30%'),
+                                  alignItems: 'center',
+                                }}>
+                                <Text>Code</Text>
                               </View>
                               <View
                                 style={{
@@ -569,13 +608,10 @@ class SupplierList extends Component {
                                   width: wp('30%'),
                                   alignItems: 'center',
                                 }}>
-                                <Text>Quantity</Text>
+                                <Text style={{textAlign: 'center'}}>
+                                  In Stock?
+                                </Text>
                               </View>
-                              <View
-                                style={{
-                                  width: wp('30%'),
-                                  alignItems: 'center',
-                                }}></View>
                               <View
                                 style={{
                                   width: wp('30%'),
@@ -597,67 +633,6 @@ class SupplierList extends Component {
                                             ? '#FFFFFF'
                                             : '#F7F8F5',
                                       }}>
-                                      <View
-                                        style={{
-                                          width: wp('30%'),
-                                          alignItems: 'center',
-                                          justifyContent: 'center',
-                                        }}>
-                                        <CheckBox
-                                          disabled={true}
-                                          value={item.isInStock}
-                                          // onValueChange={() =>
-                                          //   this.setState({htvaIsSelected: !htvaIsSelected})
-                                          // }
-                                          style={{
-                                            height: 20,
-                                            width: 20,
-                                          }}
-                                        />
-                                      </View>
-                                      <View
-                                        style={{
-                                          width: wp('30%'),
-                                          justifyContent: 'center',
-                                          alignItems: 'center',
-                                        }}>
-                                        <Text>{item.code}</Text>
-                                      </View>
-                                      <TouchableOpacity
-                                        onPress={() =>
-                                          this.props.navigation.navigate(
-                                            'OrderingThreeAdminScreen',
-                                          )
-                                        }
-                                        style={{
-                                          width: wp('30%'),
-                                          alignItems: 'center',
-                                          justifyContent: 'center',
-                                        }}>
-                                        <Text>{item.name}</Text>
-                                      </TouchableOpacity>
-                                      <View
-                                        style={{
-                                          width: wp('30%'),
-                                          alignItems: 'center',
-                                          justifyContent: 'center',
-                                        }}>
-                                        <Text>
-                                          {item.grainzVolume} {item.unit}
-                                        </Text>
-                                      </View>
-
-                                      <View
-                                        style={{
-                                          width: wp('30%'),
-                                          alignItems: 'center',
-                                          justifyContent: 'center',
-                                        }}>
-                                        <Text>
-                                          {Number(item.price).toFixed(2)} $ /{' '}
-                                          {item.unit}
-                                        </Text>
-                                      </View>
                                       <View
                                         style={{
                                           width: wp('30%'),
@@ -727,6 +702,66 @@ class SupplierList extends Component {
                                           )}
                                         </View>
                                       </TouchableOpacity>
+                                      <TouchableOpacity
+                                        onPress={() =>
+                                          this.props.navigation.navigate(
+                                            'OrderingThreeAdminScreen',
+                                          )
+                                        }
+                                        style={{
+                                          width: wp('30%'),
+                                          alignItems: 'center',
+                                          justifyContent: 'center',
+                                        }}>
+                                        <Text>{item.name}</Text>
+                                      </TouchableOpacity>
+                                      <View
+                                        style={{
+                                          width: wp('30%'),
+                                          justifyContent: 'center',
+                                          alignItems: 'center',
+                                        }}>
+                                        <Text>{item.code}</Text>
+                                      </View>
+                                      <View
+                                        style={{
+                                          width: wp('30%'),
+                                          alignItems: 'center',
+                                          justifyContent: 'center',
+                                        }}>
+                                        <Text>
+                                          {item.grainzVolume} {item.unit}
+                                        </Text>
+                                      </View>
+                                      <View
+                                        style={{
+                                          width: wp('30%'),
+                                          alignItems: 'center',
+                                          justifyContent: 'center',
+                                        }}>
+                                        <Text>
+                                          {Number(item.price).toFixed(2)} $ /{' '}
+                                          {item.unit}
+                                        </Text>
+                                      </View>
+                                      <View
+                                        style={{
+                                          width: wp('30%'),
+                                          alignItems: 'center',
+                                          justifyContent: 'center',
+                                        }}>
+                                        <CheckBox
+                                          disabled={true}
+                                          value={item.isInStock}
+                                          // onValueChange={() =>
+                                          //   this.setState({htvaIsSelected: !htvaIsSelected})
+                                          // }
+                                          style={{
+                                            height: 20,
+                                            width: 20,
+                                          }}
+                                        />
+                                      </View>
                                       <TouchableOpacity
                                         onPress={() => this.actionFun(item)}
                                         style={{

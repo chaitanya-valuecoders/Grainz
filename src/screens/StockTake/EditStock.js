@@ -85,9 +85,6 @@ class EditStock extends Component {
     this.getData();
     const {item, pageDate, inventoryId, departmentData} =
       this.props.route && this.props.route.params;
-    console.log('pageDate', pageDate);
-    console.log('inventoryId', inventoryId);
-
     let finalUnitData = item.units.map((item, index) => {
       return {
         label: item.name,
@@ -147,8 +144,6 @@ class EditStock extends Component {
   };
 
   actionFun = (data, index) => {
-    console.log('data', data);
-
     Alert.alert('Grainz', 'Choose your option?', [
       {
         text: 'Edit',
@@ -178,10 +173,6 @@ class EditStock extends Component {
   };
 
   deleteFun = (item, index) => {
-    console.log('ITEM', item);
-
-    const {pageDate} = this.state;
-
     let payload = [
       {
         action: 'Delete',
@@ -198,9 +189,6 @@ class EditStock extends Component {
         unitId: item.unitId,
       },
     ];
-
-    console.log('PAYLOAD', payload);
-
     if (item.action === 'Update') {
       addStockTakeApi(payload)
         .then(res => {
@@ -229,9 +217,7 @@ class EditStock extends Component {
   };
 
   editOfferItemsFun = (index, type, value) => {
-    const {modalData, unitData} = this.state;
-    console.log('unitDa', unitData);
-
+    const {modalData} = this.state;
     let newArr = modalData.map((item, i) =>
       index === i
         ? {
@@ -275,13 +261,7 @@ class EditStock extends Component {
 
   saveFun = () => {
     const {modalData} = this.state;
-
-    console.log('modalData', modalData);
-
     let payload = modalData;
-
-    console.log('PAYLOAD', payload);
-
     addStockTakeApi(payload)
       .then(res => {
         Alert.alert('Grainz', 'Stock trade added successfully', [
@@ -306,16 +286,9 @@ class EditStock extends Component {
       modalData,
       finalName,
       modalLoader,
-      sectionName,
       unitData,
       editableStatus,
-      pageData,
-      pageDate,
-      departmentData,
     } = this.state;
-
-    console.log('modalData', modalData);
-
     return (
       <View style={styles.container}>
         <Header
@@ -327,12 +300,10 @@ class EditStock extends Component {
         ) : (
           <SubHeader {...this.props} buttons={buttonsSubHeader} index={0} />
         )}
-        <ScrollView
-          style={{marginBottom: hp('2%')}}
-          showsVerticalScrollIndicator={false}>
+        <ScrollView showsVerticalScrollIndicator={false}>
           <View style={styles.subContainer}>
             <View style={styles.firstContainer}>
-              <View style={{flex: 1}}>
+              <View style={styles.flex}>
                 <Text style={styles.adminTextStyle}> {finalName}</Text>
               </View>
               <TouchableOpacity
@@ -344,53 +315,21 @@ class EditStock extends Component {
           </View>
           <TouchableOpacity
             onPress={() => this.addDataInArrFun()}
-            style={{
-              height: hp('6%'),
-              width: wp('80%'),
-              backgroundColor: '#94C036',
-              justifyContent: 'center',
-              alignItems: 'center',
-              marginVertical: hp('2%'),
-              borderRadius: 100,
-              alignSelf: 'center',
-            }}>
-            <View
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-              }}>
-              <Image
-                source={img.addIcon}
-                style={{
-                  width: 20,
-                  height: 20,
-                  tintColor: '#fff',
-                  resizeMode: 'contain',
-                }}
-              />
-              <Text
-                style={{
-                  color: 'white',
-                  marginLeft: 10,
-                  fontFamily: 'Inter-SemiBold',
-                }}>
-                Add Line
-              </Text>
+            style={styles.addContainer}>
+            <View style={styles.addSubContainer}>
+              <Image source={img.addIcon} style={styles.addImageStyling} />
+              <Text style={styles.addTextStyling}>Add Line</Text>
             </View>
           </TouchableOpacity>
-
           {recipeLoader ? (
             <ActivityIndicator size="small" color="#94C036" />
           ) : (
-            <View style={{}}>
+            <View>
               <ScrollView>
                 {modalLoader ? (
                   <ActivityIndicator size="large" color="grey" />
                 ) : (
-                  <View
-                    style={{
-                      padding: hp('2%'),
-                    }}>
+                  <View style={styles.paddingContainer}>
                     <ScrollView
                       horizontal
                       showsHorizontalScrollIndicator={false}>
@@ -399,49 +338,22 @@ class EditStock extends Component {
                           horizontal
                           showsHorizontalScrollIndicator={false}>
                           <View>
-                            <View
-                              style={{
-                                paddingVertical: 15,
-                                paddingHorizontal: 5,
-                                flexDirection: 'row',
-                                justifyContent: 'space-between',
-                                backgroundColor: '#EFFBCF',
-                              }}>
-                              <View
-                                style={{
-                                  width: wp('30%'),
-                                  alignItems: 'center',
-                                }}>
+                            <View style={styles.headingEditContainer}>
+                              <View style={styles.headingSubContainer}>
                                 <Text style={{textAlign: 'center'}}>
                                   Quantity
                                 </Text>
                               </View>
-                              <View
-                                style={{
-                                  width: wp('30%'),
-                                  alignItems: 'center',
-                                }}>
+                              <View style={styles.headingSubContainer}>
                                 <Text>Unit</Text>
                               </View>
-                              <View
-                                style={{
-                                  width: wp('30%'),
-                                  alignItems: 'center',
-                                }}>
+                              <View style={styles.headingSubContainer}>
                                 <Text>Inventory</Text>
                               </View>
-                              <View
-                                style={{
-                                  width: wp('30%'),
-                                  alignItems: 'center',
-                                }}>
+                              <View style={styles.headingSubContainer}>
                                 <Text>Name</Text>
                               </View>
-                              <View
-                                style={{
-                                  width: wp('30%'),
-                                  alignItems: 'center',
-                                }}>
+                              <View style={styles.headingSubContainer}>
                                 <Text>Action</Text>
                               </View>
                             </View>

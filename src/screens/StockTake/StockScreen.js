@@ -285,7 +285,6 @@ class StockScreen extends Component {
   };
 
   handleConfirm = date => {
-    console.log('date', date);
     let newdate = moment(date).format('MM/DD/YYYY');
     let finalPageDate = date.toISOString();
     this.setState(
@@ -409,7 +408,6 @@ class StockScreen extends Component {
         let newItems = [];
         let pos = 0;
         list.map(item => {
-          // console.warn('lll', item);
           childrenList.push(item.children);
           newItems.push({
             name: item.name,
@@ -438,7 +436,6 @@ class StockScreen extends Component {
     const {departmentData, finalDate, topCount} = this.state;
     getNewTopStockTakeApi(departmentData.id, finalDate, topCount)
       .then(res => {
-        console.log('res', res);
         this.setState({newStock: res.data});
 
         function groupByKey(array, key) {
@@ -449,9 +446,7 @@ class StockScreen extends Component {
             });
           }, {});
         }
-
         let groupedCategory = groupByKey(res.data, 'category');
-
         let finalArray = Object.keys(groupedCategory).map((item, index) => {
           return {
             name: item,
@@ -459,13 +454,11 @@ class StockScreen extends Component {
             children: groupedCategory[item],
           };
         });
-
         let childrenList = [];
         let list = [...finalArray];
         let newItems = [];
         let pos = 0;
         list.map(item => {
-          // console.warn('lll', item);
           childrenList.push(item.children);
           newItems.push({
             name: item.name,
@@ -519,12 +512,10 @@ class StockScreen extends Component {
         ) : (
           <SubHeader {...this.props} buttons={buttonsSubHeader} />
         )}
-        <ScrollView
-          style={{marginBottom: hp('2%')}}
-          showsVerticalScrollIndicator={false}>
+        <ScrollView showsVerticalScrollIndicator={false}>
           <View style={styles.subContainer}>
             <View style={styles.firstContainer}>
-              <View style={{flex: 1}}>
+              <View style={styles.flex}>
                 <Text style={styles.adminTextStyle}>
                   {translate('Stock Take')} - {departmentData.name}
                 </Text>
@@ -539,7 +530,7 @@ class StockScreen extends Component {
           <View>
             <View style={styles.firstContainer}>
               <TouchableOpacity
-                style={{flex: 1}}
+                style={styles.flex}
                 onPress={() => this.openNewModalFun()}>
                 <Text style={styles.adminTextStyle}>{translate('New')}</Text>
               </TouchableOpacity>
@@ -549,16 +540,7 @@ class StockScreen extends Component {
                 <View>
                   <TouchableOpacity
                     onPress={() => this.showDatePickerFun()}
-                    style={{
-                      width: wp('40%'),
-                      borderWidth: 1,
-                      padding: Platform.OS === 'ios' ? 10 : 2,
-                      flexDirection: 'row',
-                      justifyContent: 'space-between',
-                      borderColor: '#CFD7E2',
-                      backgroundColor: '#fff',
-                      borderRadius: 6,
-                    }}>
+                    style={styles.dateContainer}>
                     <TextInput
                       placeholder="dd-mm-yy"
                       value={finalDate}
@@ -567,13 +549,7 @@ class StockScreen extends Component {
                     />
                     <Image
                       source={img.calenderIcon}
-                      style={{
-                        width: 17,
-                        height: 17,
-                        marginTop: Platform.OS === 'android' ? 13 : 0,
-                        marginRight: Platform.OS === 'android' ? 10 : 0,
-                        resizeMode: 'contain',
-                      }}
+                      style={styles.calenderImageStyling}
                     />
                   </TouchableOpacity>
                   <DateTimePickerModal
@@ -581,8 +557,6 @@ class StockScreen extends Component {
                     mode={'date'}
                     onConfirm={this.handleConfirm}
                     onCancel={this.hideDatePicker}
-                    // maximumDate={tomorrow}
-                    // minimumDate={new Date()}
                   />
                 </View>
               </TouchableOpacity>
@@ -591,7 +565,7 @@ class StockScreen extends Component {
           {recipeLoader ? (
             <ActivityIndicator color="#94C036" size="large" />
           ) : (
-            <View style={{marginTop: hp('2%'), marginHorizontal: wp('5%')}}>
+            <View style={styles.margin}>
               <Accordion
                 underlayColor="#fff"
                 sections={SECTIONS}
@@ -603,87 +577,34 @@ class StockScreen extends Component {
             </View>
           )}
           <Modal isVisible={newModalIsVisible} backdropOpacity={0.35}>
-            <View
-              style={{
-                width: wp('80%'),
-                height: hp('50%'),
-                backgroundColor: '#F0F4FE',
-                alignSelf: 'center',
-                borderRadius: 6,
-              }}>
-              <View
-                style={{
-                  backgroundColor: '#99C23E',
-                  height: hp('6%'),
-                  flexDirection: 'row',
-                  borderTopLeftRadius: 6,
-                  borderTopRightRadius: 6,
-                }}>
-                <View
-                  style={{
-                    flex: 3,
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}>
-                  <Text
-                    style={{
-                      fontSize: 16,
-                      color: '#fff',
-                      fontFamily: 'Inter-Regular',
-                    }}>
+            <View style={styles.modalContainer}>
+              <View style={styles.modalHeadingContainer}>
+                <View style={styles.modalHeadingTextContainer}>
+                  <Text style={styles.modalHeadingTextStyling}>
                     {translate('Stock take quantity')}
                   </Text>
                 </View>
-                <View
-                  style={{
-                    flex: 1,
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}>
+                <View style={styles.modalHeadingImageContainer}>
                   <TouchableOpacity onPress={() => this.closeNewModalFun()}>
                     <Image
                       source={img.cancelIcon}
-                      style={{
-                        height: 22,
-                        width: 22,
-                        tintColor: 'white',
-                        resizeMode: 'contain',
-                      }}
+                      style={styles.modalHeadingImageStyling}
                     />
                   </TouchableOpacity>
                 </View>
               </View>
               <ScrollView>
-                <View style={{padding: hp('3%')}}>
-                  <View style={{}}>
-                    <View style={{marginBottom: 10}}>
-                      <Text
-                        style={{
-                          fontFamily: 'Inter-Regular',
-                          fontSize: 15,
-                          color: '#000000',
-                        }}>
+                <View style={styles.modalSubContainer}>
+                  <View>
+                    <View style={styles.modalSubContainerText}>
+                      <Text style={styles.modalSubContainerTextStyling}>
                         {translate(
                           'Stock take must be done at the start of the day or at the end of the day',
                         )}
                       </Text>
                     </View>
-
-                    <View
-                      style={{
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        marginTop: hp('2%'),
-                      }}>
-                      <Text
-                        style={{
-                          width: 50,
-                          fontFamily: 'Inter-SemiBold',
-                          fontSize: 15,
-                          color: '#000000',
-                        }}>
-                        All
-                      </Text>
+                    <View style={styles.checkBoxContainer}>
+                      <Text style={styles.checkBoxTextStyling}>All</Text>
                       <CheckBox
                         value={allSelected}
                         onValueChange={() =>
@@ -692,28 +613,11 @@ class StockScreen extends Component {
                             topSelected: false,
                           })
                         }
-                        style={{
-                          height: 20,
-                          width: 20,
-                        }}
+                        style={styles.checkBoxStyling}
                       />
                     </View>
-
-                    <View
-                      style={{
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        marginTop: 20,
-                      }}>
-                      <Text
-                        style={{
-                          width: 50,
-                          fontFamily: 'Inter-SemiBold',
-                          fontSize: 15,
-                          color: '#000000',
-                        }}>
-                        Top
-                      </Text>
+                    <View style={styles.checkBoxContainer}>
+                      <Text style={styles.checkBoxTextStyling}>Top</Text>
                       <CheckBox
                         value={topSelected}
                         onValueChange={() =>
@@ -722,23 +626,12 @@ class StockScreen extends Component {
                             allSelected: false,
                           })
                         }
-                        style={{
-                          height: 20,
-                          width: 20,
-                        }}
+                        style={styles.checkBoxStyling}
                       />
                     </View>
-
                     {topSelected ? (
                       <TextInput
-                        style={{
-                          paddingVertical: 10,
-                          borderColor: 'grey',
-                          borderWidth: 1,
-                          width: wp('20%'),
-                          paddingLeft: 10,
-                          marginTop: hp('2%'),
-                        }}
+                        style={styles.textInputModalStyling}
                         multiline={true}
                         numberOfLines={1}
                         onChangeText={value => {
@@ -749,51 +642,18 @@ class StockScreen extends Component {
                         value={topCount}
                       />
                     ) : null}
-
-                    <View
-                      style={{
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        marginTop: hp('5%'),
-                        justifyContent: 'center',
-                      }}>
+                    <View style={styles.modalButtonContainer}>
                       <TouchableOpacity
                         onPress={() => this.startFun()}
-                        style={{
-                          height: hp('5%'),
-                          backgroundColor: '#94C036',
-                          justifyContent: 'center',
-                          alignItems: 'center',
-                          borderRadius: 100,
-                          width: wp('20%'),
-                        }}>
-                        <Text
-                          style={{
-                            color: '#fff',
-                            fontSize: 15,
-                            fontWeight: 'bold',
-                          }}>
+                        style={styles.saveContainer}>
+                        <Text style={styles.saveTextStyling}>
                           {translate('Start')}
                         </Text>
                       </TouchableOpacity>
                       <TouchableOpacity
                         onPress={() => this.endFun()}
-                        style={{
-                          width: wp('15%'),
-                          height: hp('5%'),
-                          backgroundColor: '#E7943B',
-                          justifyContent: 'center',
-                          alignItems: 'center',
-                          borderRadius: 100,
-                          width: wp('20%'),
-                          marginLeft: 15,
-                        }}>
-                        <Text
-                          style={{
-                            color: '#fff',
-                            fontSize: 15,
-                            fontWeight: 'bold',
-                          }}>
+                        style={styles.endContainer}>
+                        <Text style={styles.saveTextStyling}>
                           {translate('End')}
                         </Text>
                       </TouchableOpacity>

@@ -24,6 +24,7 @@ import {
   getOrderCategoriesApi,
   unMapProductAdminApi,
   getInsideInventoryNewApi,
+  addBasketApi,
 } from '../../../../../connectivity/api';
 import CheckBox from '@react-native-community/checkbox';
 import Modal from 'react-native-modal';
@@ -47,7 +48,7 @@ class InventoryList extends Component {
       inventoryId: '',
       productId: '',
       catName: '',
-      finalBaketData: [],
+      finalBasketData: [],
     };
   }
 
@@ -147,7 +148,7 @@ class InventoryList extends Component {
     this.setState({
       actionModalStatus: true,
       inventoryId: data.id,
-      productId: data.id,
+      productId: data.productId,
     });
   };
 
@@ -178,26 +179,25 @@ class InventoryList extends Component {
   };
 
   hitUnMapApi = () => {
-    alert('map');
-    // const {inventoryId, productId} = this.state;
-    // let payload = {
-    //   inventoryId: inventoryId,
-    //   productId: productId,
-    // };
-    // unMapProductAdminApi(payload)
-    //   .then(res => {
-    //     Alert.alert('Grainz', 'Product unmapped successfully', [
-    //       {
-    //         text: 'Okay',
-    //         onPress: () => this.getInsideCatFun(),
-    //       },
-    //     ]);
-    //   })
-    //   .catch(err => {
-    //     console.warn('err', err);
-    //   });
+    const {inventoryId, productId} = this.state;
+    let payload = {
+      inventoryId: inventoryId,
+      productId: productId,
+    };
+    console.log('payload', payload);
 
-    // console.log('payload', payload);
+    unMapProductAdminApi(payload)
+      .then(res => {
+        Alert.alert('Grainz', 'Product unmapped successfully', [
+          {
+            text: 'Okay',
+            onPress: () => this.getInsideCatFun(),
+          },
+        ]);
+      })
+      .catch(err => {
+        console.warn('err', err);
+      });
   };
 
   editQuantityFun = (index, type, value) => {
@@ -226,7 +226,6 @@ class InventoryList extends Component {
   };
 
   editQuantityFunSec = (index, type, value, data) => {
-    console.log('data', data);
     const {modalData} = this.state;
     if (type === 'isSelected') {
       let newArr = modalData.map((item, i) =>
@@ -243,12 +242,23 @@ class InventoryList extends Component {
           return itm.isSelected === true;
         }
       });
-
-      console.log('fil', filteredArray);
-
+      const finalArr = [];
+      filteredArray.map(item => {
+        console.log('item', item);
+        finalArr.push({
+          inventoryId: item.id,
+          inventoryProductMappingId: item.inventoryProductMappingId,
+          unitPrice: item.productPrice,
+          quantity: item.quantityProduct,
+          action: 'string',
+          value: Number(
+            item.quantityProduct * item.productPrice * item.packSize,
+          ),
+        });
+      });
       this.setState({
         modalData: [...newArr],
-        finalBaketData: filteredArray,
+        finalBasketData: [...finalArr],
       });
     } else {
       let newArr = modalData.map((item, i) =>
@@ -266,13 +276,26 @@ class InventoryList extends Component {
   };
 
   addToBasketFun = () => {
-    const {finalBaketData, supplierId} = this.state;
-    if (finalBaketData.length > 0) {
-      this.props.navigation.navigate('BasketOrderScreen', {
-        finalData: finalBaketData,
-        supplierId,
-        itemType: 'Inventory',
-      });
+    const {finalBasketData, supplierId} = this.state;
+    if (finalBasketData.length > 0) {
+      let payload = {
+        supplierId: supplierId,
+        shopingBasketItemViewModel: finalBasketData,
+      };
+      console.log('Payload', payload);
+      addBasketApi()
+        .then(res => {
+          console.log('rs', res);
+
+          // this.props.navigation.navigate('BasketOrderScreen', {
+          //   finalData: finalBasketData,
+          //   supplierId,
+          //   itemType: 'Inventory',
+          // });
+        })
+        .catch(err => {
+          console.log('err', err);
+        });
     } else {
       alert('Please select atleast one item');
     }
@@ -286,8 +309,10 @@ class InventoryList extends Component {
       modalLoader,
       catName,
       actionModalStatus,
+      finalBasketData,
     } = this.state;
 
+    console.log('finalBasketData', finalBasketData);
     return (
       <View style={styles.container}>
         <Header
@@ -346,8 +371,17 @@ class InventoryList extends Component {
                                   width: wp('30%'),
                                   alignItems: 'center',
                                 }}>
-                                <Text>In stock ?</Text>
+                                <Text>Quantity</Text>
                               </View>
+
+                              <View
+                                style={{
+                                  width: wp('30%'),
+                                  alignItems: 'center',
+                                }}>
+                                <Text>Action</Text>
+                              </View>
+
                               <View
                                 style={{
                                   width: wp('30%'),
@@ -382,14 +416,8 @@ class InventoryList extends Component {
                                   width: wp('30%'),
                                   alignItems: 'center',
                                 }}>
-                                <Text>Quantity</Text>
+                                <Text>In stock ?</Text>
                               </View>
-
-                              <View
-                                style={{
-                                  width: wp('30%'),
-                                  alignItems: 'center',
-                                }}></View>
                               <View
                                 style={{
                                   width: wp('30%'),
@@ -411,62 +439,6 @@ class InventoryList extends Component {
                                             ? '#FFFFFF'
                                             : '#F7F8F5',
                                       }}>
-                                      <View
-                                        style={{
-                                          width: wp('30%'),
-                                          justifyContent: 'center',
-                                          alignItems: 'center',
-                                        }}>
-                                        <CheckBox
-                                          disabled={true}
-                                          value={item.isInStock}
-                                          // onValueChange={() =>
-                                          //   this.setState({htvaIsSelected: !htvaIsSelected})
-                                          // }
-                                          style={{
-                                            height: 20,
-                                            width: 20,
-                                          }}
-                                        />
-                                      </View>
-                                      <View
-                                        style={{
-                                          width: wp('30%'),
-                                          alignItems: 'center',
-                                          justifyContent: 'center',
-                                        }}>
-                                        <Text>{item.name}</Text>
-                                      </View>
-
-                                      <View
-                                        style={{
-                                          width: wp('30%'),
-                                          alignItems: 'center',
-                                          justifyContent: 'center',
-                                        }}>
-                                        <Text>{item.productName}</Text>
-                                      </View>
-                                      <View
-                                        style={{
-                                          width: wp('30%'),
-                                          alignItems: 'center',
-                                          justifyContent: 'center',
-                                        }}>
-                                        <Text>
-                                          {item.userDefinedQuantity} {item.unit}
-                                        </Text>
-                                      </View>
-                                      <View
-                                        style={{
-                                          width: wp('30%'),
-                                          alignItems: 'center',
-                                          justifyContent: 'center',
-                                        }}>
-                                        <Text>
-                                          {item.comparePrice} /{' '}
-                                          {item.compareUnit}
-                                        </Text>
-                                      </View>
                                       <View
                                         style={{
                                           width: wp('30%'),
@@ -510,7 +482,7 @@ class InventoryList extends Component {
                                         <View
                                           style={{
                                             backgroundColor: '#86AC32',
-                                            padding: 8,
+                                            padding: 5,
                                             borderRadius: 6,
                                           }}>
                                           <View
@@ -543,6 +515,63 @@ class InventoryList extends Component {
                                           </View>
                                         </View>
                                       </TouchableOpacity>
+                                      <View
+                                        style={{
+                                          width: wp('30%'),
+                                          alignItems: 'center',
+                                          justifyContent: 'center',
+                                        }}>
+                                        <Text>{item.name}</Text>
+                                      </View>
+
+                                      <View
+                                        style={{
+                                          width: wp('30%'),
+                                          alignItems: 'center',
+                                          justifyContent: 'center',
+                                        }}>
+                                        <Text>{item.productName}</Text>
+                                      </View>
+                                      <View
+                                        style={{
+                                          width: wp('30%'),
+                                          alignItems: 'center',
+                                          justifyContent: 'center',
+                                        }}>
+                                        <Text>
+                                          {item.userDefinedQuantity} {item.unit}
+                                        </Text>
+                                      </View>
+                                      <View
+                                        style={{
+                                          width: wp('30%'),
+                                          alignItems: 'center',
+                                          justifyContent: 'center',
+                                        }}>
+                                        <Text>
+                                          {item.comparePrice} /{' '}
+                                          {item.compareUnit}
+                                        </Text>
+                                      </View>
+
+                                      <View
+                                        style={{
+                                          width: wp('30%'),
+                                          justifyContent: 'center',
+                                          alignItems: 'center',
+                                        }}>
+                                        <CheckBox
+                                          disabled={true}
+                                          value={item.isInStock}
+                                          // onValueChange={() =>
+                                          //   this.setState({htvaIsSelected: !htvaIsSelected})
+                                          // }
+                                          style={{
+                                            height: 20,
+                                            width: 20,
+                                          }}
+                                        />
+                                      </View>
                                       <TouchableOpacity
                                         onPress={() => this.actionFun(item)}
                                         style={{

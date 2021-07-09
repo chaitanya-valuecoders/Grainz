@@ -1,13 +1,3 @@
-// import {StyleSheet} from 'react-native';
-
-// const styles = StyleSheet.create({
-//   container: {flex: 1, padding: 16, paddingTop: 30, backgroundColor: '#fff'},
-//   head: {height: 40, backgroundColor: '#f1f8ff'},
-//   text: {margin: 6},
-// });
-
-// export default styles;
-
 import {StyleSheet, Dimensions} from 'react-native';
 import {
   widthPercentageToDP as wp,
@@ -50,11 +40,72 @@ const styles = StyleSheet.create({
     height: Dimensions.get('window').width / numColumns,
     borderRadius: 50,
   },
-  item: {
+  flex: {flex: 1},
+  addNewContainer: {
+    height: hp('6%'),
+    width: wp('80%'),
+    backgroundColor: '#94C036',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 100,
+    alignSelf: 'center',
+    marginBottom: hp('4%'),
+    marginTop: hp('2%'),
+  },
+  addNewSubContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  addImageStyling: {
+    width: 20,
+    height: 20,
+    tintColor: '#fff',
+    resizeMode: 'contain',
+  },
+  addTextStyling: {
+    color: 'white',
+    marginLeft: 10,
+    fontFamily: 'Inter-SemiBold',
+  },
+  listHeading: {
+    flexDirection: 'row',
+    borderBottomColor: '#EAEAF0',
+    marginHorizontal: wp('3%'),
+    backgroundColor: '#EFFBCF',
+    paddingHorizontal: 10,
+    paddingVertical: 15,
+  },
+  listSubHeading: {
+    flexDirection: 'row',
     flex: 1,
-    margin: 5,
-    backgroundColor: 'lightblue',
-    borderRadius: 50,
+    alignItems: 'center',
+  },
+  listTextStyling: {
+    fontSize: 14,
+    fontFamily: 'Inter-SemiBold',
+    color: '#151B26',
+  },
+  listImageStyling: {
+    width: 10,
+    height: 10,
+    resizeMode: 'contain',
+    marginLeft: 5,
+  },
+  listDataHeadingContainer: {
+    borderBottomColor: '#EAEAF0',
+    marginHorizontal: wp('3%'),
+    paddingVertical: 10,
+  },
+  listDataHeadingSubContainer: {
+    flexDirection: 'row',
+    paddingLeft: 10,
+    alignItems: 'flex-start',
+  },
+  listDataContainer: {flex: 3},
+  listDataTextStyling: {
+    fontSize: 14,
+    fontFamily: 'Inter-Regular',
+    color: '#151B26',
   },
 });
 export default styles;

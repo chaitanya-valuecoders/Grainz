@@ -893,3 +893,12 @@ export const getInsideInventoryNewApi = async (catId, supId) => {
     },
   );
 };
+
+export const addBasketApi = async payload => {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.post(baseURL + `/ShopingBasket/add basket`, payload, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};

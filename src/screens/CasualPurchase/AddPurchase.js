@@ -16,7 +16,6 @@ import img from '../../constants/images';
 import SubHeader from '../../components/SubHeader';
 import Header from '../../components/Header';
 import CheckBox from '@react-native-community/checkbox';
-import DropDownPicker from 'react-native-dropdown-picker';
 import SectionedMultiSelect from 'react-native-sectioned-multi-select';
 import moment from 'moment';
 import {
@@ -26,7 +25,6 @@ import {
 import {UserTokenAction} from '../../redux/actions/UserTokenAction';
 import {
   getMyProfileApi,
-  getCasualPurchasesApi,
   getSupplierListApi,
   addOrderApi,
   getInventoryListApi,
@@ -44,15 +42,11 @@ minTime.setHours(0);
 minTime.setMinutes(0);
 minTime.setMilliseconds(0);
 
-let list = [];
-
 class index extends Component {
   constructor(props) {
     super(props);
     this.state = {
       token: '',
-      firstName: '',
-      casualPurchases: [],
       isDatePickerVisible: false,
       finalDate: '',
       productionDate: '',
@@ -74,10 +68,6 @@ class index extends Component {
       items: [],
       selectedItems: [],
       selectedItemObjects: '',
-      departmentName: '',
-      testItem: null,
-      photo: null,
-      casualListLoader: false,
       supplierListLoader: false,
       orderItemsFinal: [
         {
@@ -130,7 +120,6 @@ class index extends Component {
     getMyProfileApi()
       .then(res => {
         this.setState({
-          firstName: res.data.firstName,
           recipeLoader: false,
           buttonsSubHeader: [
             {name: translate('ADMIN')},
@@ -143,23 +132,6 @@ class index extends Component {
         console.warn('ERr', err);
       });
   };
-
-  getCasualPurchasesData() {
-    this.setState(
-      {
-        casualListLoader: true,
-      },
-      () =>
-        getCasualPurchasesApi()
-          .then(res => {
-            this.setState({casualPurchases: res.data, casualListLoader: false});
-          })
-          .catch(err => {
-            this.setState({casualListLoader: false});
-            console.warn('errR', err);
-          }),
-    );
-  }
 
   getSupplierListData() {
     this.setState(
@@ -180,14 +152,8 @@ class index extends Component {
 
   componentDidMount() {
     this.props.navigation.addListener('focus', () => {
-      this.getCasualPurchasesData();
       this.clearData();
-      this.setState(
-        {
-          casualPurchases: [],
-        },
-        () => this.getSupplierListData(),
-      );
+      this.getSupplierListData();
     });
     this.getProfileDataFun();
   }
@@ -497,15 +463,10 @@ class index extends Component {
 
   render() {
     const {
-      firstName,
-      casualPurchases,
-      casualListLoader,
       isDatePickerVisible,
       finalDate,
       htvaIsSelected,
       auditIsSelected,
-      quantityValue,
-      price,
       note,
       showSuppliers,
       supplierList,
@@ -514,7 +475,6 @@ class index extends Component {
       items,
       loading,
       orderItemsFinal,
-      departmentName,
       orderTotal,
       saveLoader,
       saveTouchableStatus,
@@ -531,7 +491,6 @@ class index extends Component {
     return (
       <View style={styles.container}>
         <Header
-          logout={firstName}
           logoutFun={this.myProfileFun}
           logoFun={() => this.props.navigation.navigate('HomeScreen')}
         />
