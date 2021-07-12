@@ -287,19 +287,14 @@ class SupplierList extends Component {
         filteredArray.map(item => {
           console.log('item', item);
           finalArr.push({
-            id: item.inventoryMapping && item.inventoryMapping.id,
-            inventoryId: item.inventoryMapping && item.inventoryMapping.id,
+            inventoryId:
+              item.inventoryMapping && item.inventoryMapping.inventoryId,
             inventoryProductMappingId:
               item.inventoryMapping && item.inventoryMapping.id,
-            unitPrice: item.inventoryMapping && item.inventoryMapping.id,
-            quantity: item.inventoryMapping && item.inventoryMapping.id,
+            unitPrice: item.price,
+            quantity: Number(item.quantityProduct),
             action: 'string',
-            value: Number(
-              item.inventoryMapping &&
-                item.inventoryMapping.id * item.inventoryMapping &&
-                item.inventoryMapping.id * item.inventoryMapping &&
-                item.inventoryMapping.id,
-            ),
+            value: Number(item.quantityProduct * item.price * item.packSize),
           });
         });
         this.setState({
@@ -341,15 +336,13 @@ class SupplierList extends Component {
         shopingBasketItemViewModel: finalBasketData,
       };
       console.log('Payload', payload);
-      addBasketApi()
+      addBasketApi(payload)
         .then(res => {
-          console.log('rs', res);
-
-          // this.props.navigation.navigate('BasketOrderScreen', {
-          //   finalData: finalBasketData,
-          //   supplierId,
-          //   itemType: 'Supplier',
-          // });
+          this.props.navigation.navigate('BasketOrderScreen', {
+            finalData: res.data && res.data.id,
+            supplierId,
+            itemType: 'Supplier',
+          });
         })
         .catch(err => {
           console.log('err', err);

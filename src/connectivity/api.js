@@ -895,10 +895,23 @@ export const getInsideInventoryNewApi = async (catId, supId) => {
 };
 
 export const addBasketApi = async payload => {
+  console.log('payload', payload);
   const token = await AsyncStorage.getItem('@appToken');
   return axios.post(baseURL + `/ShopingBasket/add basket`, payload, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
   });
+};
+
+export const getBasketApi = async id => {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.get(
+    baseURL + `/ShopingBasket/Get shoping basket by id?Id=${id}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  );
 };

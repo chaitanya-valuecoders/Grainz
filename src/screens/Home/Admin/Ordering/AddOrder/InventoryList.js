@@ -249,7 +249,7 @@ class InventoryList extends Component {
           inventoryId: item.id,
           inventoryProductMappingId: item.inventoryProductMappingId,
           unitPrice: item.productPrice,
-          quantity: item.quantityProduct,
+          quantity: Number(item.quantityProduct),
           action: 'string',
           value: Number(
             item.quantityProduct * item.productPrice * item.packSize,
@@ -280,18 +280,16 @@ class InventoryList extends Component {
     if (finalBasketData.length > 0) {
       let payload = {
         supplierId: supplierId,
-        shopingBasketItemViewModel: finalBasketData,
+        shopingBasketItemList: finalBasketData,
       };
-      console.log('Payload', payload);
-      addBasketApi()
+      addBasketApi(payload)
         .then(res => {
-          console.log('rs', res);
-
-          // this.props.navigation.navigate('BasketOrderScreen', {
-          //   finalData: finalBasketData,
-          //   supplierId,
-          //   itemType: 'Inventory',
-          // });
+          console.log('res', res);
+          this.props.navigation.navigate('BasketOrderScreen', {
+            finalData: res.data && res.data.id,
+            supplierId,
+            itemType: 'Inventory',
+          });
         })
         .catch(err => {
           console.log('err', err);

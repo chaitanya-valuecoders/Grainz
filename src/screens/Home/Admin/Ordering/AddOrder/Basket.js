@@ -25,6 +25,7 @@ import {
   getSupplierProductsApi,
   addOrderApi,
   getCurrentLocUsersAdminApi,
+  getBasketApi,
 } from '../../../../../connectivity/api';
 import CheckBox from '@react-native-community/checkbox';
 import Modal from 'react-native-modal';
@@ -127,37 +128,56 @@ class Basket extends Component {
     this.getUsersListData();
     const {finalData, supplierId, itemType} =
       this.props.route && this.props.route.params;
-    const finalArr = [];
-    if (itemType === 'Inventory') {
-      finalData.map(item => {
-        console.log('item', item);
-        finalArr.push({
-          inventoryProductMappingId:
-            item.inventoryMapping && item.inventoryMapping.id,
-          quantityOrdered: item.quantityProduct,
-          unitPrice: item.inventoryMapping && item.inventoryMapping.price,
-        });
-      });
-    } else {
-      finalData.map(item => {
-        console.log('item', item);
-        finalArr.push({
-          inventoryProductMappingId:
-            item.inventoryMapping && item.inventoryMapping.id,
-          quantityOrdered: item.quantityProduct,
-          unitPrice: item.inventoryMapping && item.inventoryMapping.price,
-        });
-      });
-    }
 
-    this.setState({
-      modalData: finalData,
-      supplierId,
-      finalApiData: [...finalArr],
-      itemType,
-    });
-    console.log('final', finalData);
+    if (itemType === 'Inventory') {
+      getBasketApi(finalData)
+        .then(res => {
+          console.log('res', res);
+          this.setState(
+            {
+              modalData: res.data && res.data.shopingBasketItemList,
+              supplierId,
+              itemType,
+            },
+            () => this.createApiData(),
+          );
+        })
+        .catch(err => {
+          console.log('err', err);
+        });
+    } else {
+      getBasketApi(finalData)
+        .then(res => {
+          console.log('res', res);
+          this.setState(
+            {
+              modalData: res.data && res.data.shopingBasketItemList,
+              supplierId,
+              itemType,
+            },
+            () => this.createApiData(),
+          );
+        })
+        .catch(err => {
+          console.log('err', err);
+        });
+    }
   }
+
+  createApiData = () => {
+    const {modalData} = this.state;
+    const finalArr = [];
+    modalData.map(item => {
+      finalArr.push({
+        inventoryProductMappingId: item.inventoryProductMappingId,
+        quantityOrdered: item.quantity,
+        unitPrice: item.unitPrice,
+      });
+    });
+    this.setState({
+      finalApiData: [...finalArr],
+    });
+  };
 
   getUsersListData = () => {
     getCurrentLocUsersAdminApi()
@@ -242,20 +262,29 @@ class Basket extends Component {
       placedBy: placedByValue,
       supplierId: supplierId,
     };
-    console.log('paylaod', payload);
-    addOrderApi(payload)
-      .then(res => {
-        Alert.alert('Grainz', 'Order added successfully', [
-          {
-            text: 'okay',
-            onPress: () =>
-              this.props.navigation.navigate('OrderingAdminScreen'),
-          },
-        ]);
-      })
-      .catch(err => {
-        console.log('err', err);
-      });
+    if (
+      apiDeliveryDate &&
+      apiOrderDate &&
+      placedByValue &&
+      supplierId &&
+      finalApiData
+    ) {
+      addOrderApi(payload)
+        .then(res => {
+          Alert.alert('Grainz', 'Order added successfully', [
+            {
+              text: 'okay',
+              onPress: () =>
+                this.props.navigation.navigate('OrderingAdminScreen'),
+            },
+          ]);
+        })
+        .catch(err => {
+          console.log('err', err);
+        });
+    } else {
+      alert('Please select all values.');
+    }
   };
 
   flatListFun = item => {
@@ -582,60 +611,60 @@ class Basket extends Component {
                                 modalData.map((item, index) => {
                                   return (
                                     <View key={index}>
-                                      {item.isSelected === true ? (
+                                      <View
+                                        style={{
+                                          paddingVertical: 10,
+                                          paddingHorizontal: 5,
+                                          flexDirection: 'row',
+                                          backgroundColor:
+                                            index % 2 === 0
+                                              ? '#FFFFFF'
+                                              : '#F7F8F5',
+                                        }}>
                                         <View
                                           style={{
-                                            paddingVertical: 10,
-                                            paddingHorizontal: 5,
-                                            flexDirection: 'row',
-                                            backgroundColor:
-                                              index % 2 === 0
-                                                ? '#FFFFFF'
-                                                : '#F7F8F5',
+                                            width: wp('40%'),
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
                                           }}>
-                                          <View
-                                            style={{
-                                              width: wp('40%'),
-                                              alignItems: 'center',
-                                              justifyContent: 'center',
-                                            }}>
-                                            <Text>{item.name}</Text>
-                                          </View>
-                                          <View
-                                            style={{
-                                              width: wp('30%'),
-                                              justifyContent: 'center',
-                                              alignItems: 'center',
-                                            }}>
-                                            <Text>{item.quantityProduct}</Text>
-                                          </View>
-                                          <View
-                                            style={{
-                                              width: wp('30%'),
-                                              alignItems: 'center',
-                                              justifyContent: 'center',
-                                            }}>
-                                            <Text>{item.HTVA}</Text>
-                                          </View>
-
-                                          <TouchableOpacity
-                                            onPress={() => this.actionFun(item)}
-                                            style={{
-                                              width: wp('30%'),
-                                              alignItems: 'center',
-                                              justifyContent: 'center',
-                                            }}>
-                                            <Image
-                                              source={img.threeDotsIcon}
-                                              style={{
-                                                height: 15,
-                                                width: 15,
-                                                resizeMode: 'contain',
-                                              }}
-                                            />
-                                          </TouchableOpacity>
+                                          <Text>{item.id}</Text>
                                         </View>
-                                      ) : null}
+                                        <View
+                                          style={{
+                                            width: wp('30%'),
+                                            justifyContent: 'center',
+                                            alignItems: 'center',
+                                          }}>
+                                          <Text>{item.quantity}</Text>
+                                        </View>
+                                        <View
+                                          style={{
+                                            width: wp('30%'),
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                          }}>
+                                          <Text>
+                                            {Number(item.value).toFixed(2)}
+                                          </Text>
+                                        </View>
+
+                                        <TouchableOpacity
+                                          onPress={() => this.actionFun(item)}
+                                          style={{
+                                            width: wp('30%'),
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                          }}>
+                                          <Image
+                                            source={img.threeDotsIcon}
+                                            style={{
+                                              height: 15,
+                                              width: 15,
+                                              resizeMode: 'contain',
+                                            }}
+                                          />
+                                        </TouchableOpacity>
+                                      </View>
                                     </View>
                                   );
                                 })
