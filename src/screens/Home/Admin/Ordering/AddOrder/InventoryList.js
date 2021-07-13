@@ -282,6 +282,7 @@ class InventoryList extends Component {
         supplierId: supplierId,
         shopingBasketItemList: finalBasketData,
       };
+      console.log('Paylaod', payload);
       addBasketApi(payload)
         .then(res => {
           console.log('res', res);

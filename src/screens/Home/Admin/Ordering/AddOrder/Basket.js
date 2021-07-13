@@ -23,7 +23,7 @@ import {UserTokenAction} from '../../../../../redux/actions/UserTokenAction';
 import {
   getMyProfileApi,
   getSupplierProductsApi,
-  addOrderApi,
+  addDraftApi,
   getCurrentLocUsersAdminApi,
   getBasketApi,
 } from '../../../../../connectivity/api';
@@ -65,6 +65,7 @@ class Basket extends Component {
       apiDeliveryDate: '',
       apiOrderDate: '',
       itemType: '',
+      basketId: '',
     };
   }
 
@@ -138,6 +139,7 @@ class Basket extends Component {
               modalData: res.data && res.data.shopingBasketItemList,
               supplierId,
               itemType,
+              basketId: finalData,
             },
             () => this.createApiData(),
           );
@@ -154,6 +156,7 @@ class Basket extends Component {
               modalData: res.data && res.data.shopingBasketItemList,
               supplierId,
               itemType,
+              basketId: finalData,
             },
             () => this.createApiData(),
           );
@@ -168,10 +171,15 @@ class Basket extends Component {
     const {modalData} = this.state;
     const finalArr = [];
     modalData.map(item => {
+      console.log('item', item);
       finalArr.push({
+        id: item.id,
+        inventoryId: item.inventoryId,
         inventoryProductMappingId: item.inventoryProductMappingId,
-        quantityOrdered: item.quantity,
         unitPrice: item.unitPrice,
+        quantity: item.quantity,
+        action: 'string',
+        value: item.value,
       });
     });
     this.setState({
@@ -253,15 +261,19 @@ class Basket extends Component {
       placedByValue,
       supplierId,
       finalApiData,
+      basketId,
+      modalData,
     } = this.state;
+    console.log('finalApiData', finalApiData);
     let payload = {
-      deliveryDate: apiDeliveryDate,
-      isAdhoc: false,
-      orderDate: apiOrderDate,
-      orderItems: finalApiData,
-      placedBy: placedByValue,
+      id: basketId,
       supplierId: supplierId,
+      orderDate: apiOrderDate,
+      deliveryDate: apiDeliveryDate,
+      placedBy: placedByValue,
+      shopingBasketItemList: finalApiData,
     };
+    console.log('payoad', payload);
     if (
       apiDeliveryDate &&
       apiOrderDate &&
@@ -269,7 +281,7 @@ class Basket extends Component {
       supplierId &&
       finalApiData
     ) {
-      addOrderApi(payload)
+      addDraftApi(payload)
         .then(res => {
           Alert.alert('Grainz', 'Order added successfully', [
             {
@@ -389,13 +401,6 @@ class Basket extends Component {
                 style={styles.goBackContainer}>
                 <Text style={styles.goBackTextStyle}>Go Back</Text>
               </TouchableOpacity>
-            </View>
-          </View>
-          <View style={{}}>
-            <View style={styles.firstContainer}>
-              <View style={{flex: 1}}>
-                <Text style={styles.adminTextStyle}>Supplier - Biofresh</Text>
-              </View>
             </View>
           </View>
           <View style={{marginHorizontal: wp('3%')}}>
@@ -627,7 +632,10 @@ class Basket extends Component {
                                             alignItems: 'center',
                                             justifyContent: 'center',
                                           }}>
-                                          <Text>{item.id}</Text>
+                                          <Text>
+                                            {item.inventoryMapping &&
+                                              item.inventoryMapping.productName}
+                                          </Text>
                                         </View>
                                         <View
                                           style={{
@@ -700,7 +708,7 @@ class Basket extends Component {
                                     width: wp('30%'),
                                     alignItems: 'center',
                                   }}>
-                                  <Text>1,1224 $</Text>
+                                  <Text>$</Text>
                                 </View>
 
                                 <View

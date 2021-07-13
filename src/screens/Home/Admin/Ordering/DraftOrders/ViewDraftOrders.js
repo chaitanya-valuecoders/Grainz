@@ -23,6 +23,7 @@ import {
   getMyProfileApi,
   getOrderByIdApi,
   deleteOrderApi,
+  getBasketApi,
 } from '../../../../../connectivity/api';
 import moment from 'moment';
 import styles from '../style';
@@ -84,7 +85,7 @@ class ViewDraftOrders extends Component {
 
   componentDidMount() {
     this.getData();
-    const {supplierName, productId} =
+    const {supplierName, productId, basketId} =
       this.props.route && this.props.route.params;
     this.props.navigation.addListener('focus', () => {
       this.setState(
@@ -92,6 +93,7 @@ class ViewDraftOrders extends Component {
           supplierName,
           productId,
           modalLoaderDrafts: true,
+          basketId,
         },
         () => this.getDraftOrderData(),
       );
@@ -99,17 +101,33 @@ class ViewDraftOrders extends Component {
   }
 
   getDraftOrderData = () => {
-    const {productId} = this.state;
-    getOrderByIdApi(productId)
-      .then(res => {
-        this.setState({
-          draftsOrderData: res.data,
-          modalLoaderDrafts: false,
+    const {productId, basketId} = this.state;
+    console.log('bake', basketId);
+    if (basketId) {
+      getBasketApi(basketId)
+        .then(res => {
+          console.log('res', res);
+          this.setState({
+            draftsOrderData: res.data.shopingBasketItemList,
+            modalLoaderDrafts: false,
+          });
+        })
+        .catch(err => {
+          console.warn('errBasket', err);
         });
-      })
-      .catch(err => {
-        console.warn('err', err);
-      });
+    } else {
+      getOrderByIdApi(productId)
+        .then(res => {
+          console.log('res', res);
+          this.setState({
+            draftsOrderData: res.data,
+            modalLoaderDrafts: false,
+          });
+        })
+        .catch(err => {
+          console.warn('errProduct', err);
+        });
+    }
   };
 
   myProfile = () => {
@@ -233,113 +251,195 @@ class ViewDraftOrders extends Component {
                     style={{
                       marginHorizontal: wp('4%'),
                     }}>
-                    <View
-                      style={{
-                        flexDirection: 'row',
-                        justifyContent: 'space-between',
-                        flex: 1,
-                        backgroundColor: '#EFFBCF',
-                        paddingVertical: hp('3%'),
-                        borderTopLeftRadius: 5,
-                        borderTopRightRadius: 5,
-                      }}>
-                      <View
-                        style={{
-                          flex: 1,
-                          justifyContent: 'center',
-                          alignItems: 'center',
-                        }}>
-                        <Text
-                          style={{
-                            color: '#161C27',
-                            fontFamily: 'Inter-SemiBold',
-                          }}>
-                          Name
-                        </Text>
-                      </View>
-                      <View
-                        style={{
-                          flex: 1,
-                          justifyContent: 'center',
-                          alignItems: 'center',
-                        }}>
-                        <Text
-                          style={{
-                            color: '#161C27',
-                            fontFamily: 'Inter-SemiBold',
-                          }}>
-                          Quantity
-                        </Text>
-                      </View>
-                      <View
-                        style={{
-                          flex: 1,
-                          justifyContent: 'center',
-                          alignItems: 'center',
-                        }}>
-                        <Text
-                          style={{
-                            color: '#161C27',
-                            fontFamily: 'Inter-SemiBold',
-                          }}>
-                          HTVA $
-                        </Text>
-                      </View>
-                    </View>
-                    {draftsOrderData &&
-                      draftsOrderData.orderItems.map((item, index) => {
-                        console.log('item', item);
-                        return (
+                    <ScrollView
+                      horizontal
+                      showsHorizontalScrollIndicator={false}>
+                      <View>
+                        <ScrollView
+                          horizontal
+                          showsHorizontalScrollIndicator={false}>
                           <View>
-                            <TouchableOpacity
+                            <View
                               style={{
                                 flexDirection: 'row',
                                 justifyContent: 'space-between',
                                 flex: 1,
-                                backgroundColor:
-                                  index % 2 === 0 ? '#FFFFFF' : '#F7F8F5',
+                                backgroundColor: '#EFFBCF',
                                 paddingVertical: hp('3%'),
                                 borderTopLeftRadius: 5,
                                 borderTopRightRadius: 5,
                               }}>
                               <View
                                 style={{
-                                  flex: 1,
-                                  justifyContent: 'center',
+                                  width: wp('30%'),
                                   alignItems: 'center',
                                 }}>
-                                <Text style={{}}>{item.productName}</Text>
-                              </View>
-                              <View
-                                style={{
-                                  flex: 1,
-                                  justifyContent: 'center',
-                                  alignItems: 'center',
-                                }}>
-                                <Text style={{}}>
-                                  {Number(
-                                    item.grainzVolume * item.quantityOrdered,
-                                  ).toFixed(2)}{' '}
-                                  {item.unit}
+                                <Text
+                                  style={{
+                                    color: '#161C27',
+                                    fontFamily: 'Inter-SemiBold',
+                                  }}>
+                                  Name
                                 </Text>
                               </View>
                               <View
                                 style={{
-                                  flex: 1,
-                                  justifyContent: 'center',
+                                  width: wp('30%'),
                                   alignItems: 'center',
                                 }}>
-                                <Text>
-                                  ${' '}
-                                  {Number(
-                                    item.quantityOrdered * item.productPrice,
-                                  ).toFixed(2)}
+                                <Text
+                                  style={{
+                                    color: '#161C27',
+                                    fontFamily: 'Inter-SemiBold',
+                                  }}>
+                                  Quantity
                                 </Text>
                               </View>
-                            </TouchableOpacity>
+                              <View
+                                style={{
+                                  width: wp('30%'),
+                                  alignItems: 'center',
+                                }}>
+                                <Text
+                                  style={{
+                                    color: '#161C27',
+                                    fontFamily: 'Inter-SemiBold',
+                                  }}>
+                                  HTVA $
+                                </Text>
+                              </View>
+                              <View
+                                style={{
+                                  width: wp('30%'),
+                                  alignItems: 'center',
+                                }}>
+                                <Text
+                                  style={{
+                                    color: '#161C27',
+                                    fontFamily: 'Inter-SemiBold',
+                                  }}>
+                                  Order date
+                                </Text>
+                              </View>
+                              <View
+                                style={{
+                                  width: wp('30%'),
+                                  alignItems: 'center',
+                                }}>
+                                <Text
+                                  style={{
+                                    color: '#161C27',
+                                    fontFamily: 'Inter-SemiBold',
+                                  }}>
+                                  Delivery date
+                                </Text>
+                              </View>
+                              <View
+                                style={{
+                                  width: wp('30%'),
+                                  alignItems: 'center',
+                                }}>
+                                <Text
+                                  style={{
+                                    color: '#161C27',
+                                    fontFamily: 'Inter-SemiBold',
+                                  }}>
+                                  Placed by
+                                </Text>
+                              </View>
+                            </View>
+                            {draftsOrderData &&
+                              draftsOrderData.map((item, index) => {
+                                console.log('item', item);
+                                return (
+                                  <View>
+                                    <View
+                                      style={{
+                                        flexDirection: 'row',
+                                        justifyContent: 'space-between',
+                                        flex: 1,
+                                        backgroundColor:
+                                          index % 2 === 0
+                                            ? '#FFFFFF'
+                                            : '#F7F8F5',
+                                        paddingVertical: hp('3%'),
+                                        borderTopLeftRadius: 5,
+                                        borderTopRightRadius: 5,
+                                      }}>
+                                      <View
+                                        style={{
+                                          width: wp('30%'),
+                                          alignItems: 'center',
+                                          justifyContent: 'center',
+                                        }}>
+                                        <Text style={{}}>
+                                          {item.inventoryMapping &&
+                                            item.inventoryMapping.productName}
+                                        </Text>
+                                      </View>
+                                      <View
+                                        style={{
+                                          width: wp('30%'),
+                                          alignItems: 'center',
+                                          justifyContent: 'center',
+                                        }}>
+                                        <Text style={{}}>
+                                          {Number(
+                                            item.inventoryMapping.grainzVolume *
+                                              item.quantity,
+                                          ).toFixed(2)}{' '}
+                                          {item.inventoryMapping.unit}
+                                        </Text>
+                                      </View>
+                                      <View
+                                        style={{
+                                          width: wp('30%'),
+                                          alignItems: 'center',
+                                          justifyContent: 'center',
+                                        }}>
+                                        <Text>
+                                          $ {Number(item.value).toFixed(2)}
+                                        </Text>
+                                      </View>
+                                      <View
+                                        style={{
+                                          width: wp('30%'),
+                                          alignItems: 'center',
+                                          justifyContent: 'center',
+                                        }}>
+                                        <Text>
+                                          $ {Number(item.value).toFixed(2)}
+                                        </Text>
+                                      </View>
+                                      <View
+                                        style={{
+                                          width: wp('30%'),
+                                          alignItems: 'center',
+                                          justifyContent: 'center',
+                                        }}>
+                                        <Text>
+                                          $ {Number(item.value).toFixed(2)}
+                                        </Text>
+                                      </View>
+                                      <View
+                                        style={{
+                                          width: wp('30%'),
+                                          alignItems: 'center',
+                                          justifyContent: 'center',
+                                        }}>
+                                        <Text>
+                                          $ {Number(item.value).toFixed(2)}
+                                        </Text>
+                                      </View>
+                                    </View>
+                                  </View>
+                                );
+                              })}
                           </View>
-                        );
-                      })}
+                        </ScrollView>
+                      </View>
+                    </ScrollView>
+
                     <View>
                       <View
                         style={{
@@ -371,154 +471,8 @@ class ViewDraftOrders extends Component {
                             justifyContent: 'center',
                             alignItems: 'center',
                           }}>
-                          <Text>1,124 $</Text>
+                          <Text> $</Text>
                         </View>
-                      </View>
-                    </View>
-                    <View>
-                      <View
-                        style={{
-                          flexDirection: 'row',
-                          justifyContent: 'space-between',
-                          flex: 1,
-                          backgroundColor: '#FFFFFF',
-                          paddingVertical: hp('3%'),
-                          borderTopLeftRadius: 5,
-                          borderTopRightRadius: 5,
-                        }}>
-                        <View
-                          style={{
-                            flex: 1,
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                          }}>
-                          <Text style={{}}>Supplier:</Text>
-                        </View>
-                        <View
-                          style={{
-                            flex: 1,
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                          }}>
-                          <Text style={{}}>{draftsOrderData.supplierName}</Text>
-                        </View>
-                        <View
-                          style={{
-                            flex: 1,
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                          }}></View>
-                      </View>
-                    </View>
-                    <View>
-                      <View
-                        style={{
-                          flexDirection: 'row',
-                          justifyContent: 'space-between',
-                          flex: 1,
-                          backgroundColor: '#FFFFFF',
-                          paddingVertical: hp('3%'),
-                          borderTopLeftRadius: 5,
-                          borderTopRightRadius: 5,
-                        }}>
-                        <View
-                          style={{
-                            flex: 1,
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                          }}>
-                          <Text style={{}}>Placed By:</Text>
-                        </View>
-                        <View
-                          style={{
-                            flex: 1,
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                          }}>
-                          <Text style={{}}>{draftsOrderData.placedByNAme}</Text>
-                        </View>
-                        <View
-                          style={{
-                            flex: 1,
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                          }}></View>
-                      </View>
-                    </View>
-                    <View>
-                      <View
-                        style={{
-                          flexDirection: 'row',
-                          justifyContent: 'space-between',
-                          flex: 1,
-                          backgroundColor: '#FFFFFF',
-                          paddingVertical: hp('3%'),
-                          borderTopLeftRadius: 5,
-                          borderTopRightRadius: 5,
-                        }}>
-                        <View
-                          style={{
-                            flex: 1,
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                          }}>
-                          <Text style={{}}>Order Date:</Text>
-                        </View>
-                        <View
-                          style={{
-                            flex: 1,
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                          }}>
-                          <Text style={{}}>
-                            {draftsOrderData.orderDate &&
-                              moment(draftsOrderData.orderDate).format('L')}
-                          </Text>
-                        </View>
-                        <View
-                          style={{
-                            flex: 1,
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                          }}></View>
-                      </View>
-                    </View>
-                    <View>
-                      <View
-                        style={{
-                          flexDirection: 'row',
-                          justifyContent: 'space-between',
-                          flex: 1,
-                          backgroundColor: '#FFFFFF',
-                          paddingVertical: hp('3%'),
-                          borderTopLeftRadius: 5,
-                          borderTopRightRadius: 5,
-                        }}>
-                        <View
-                          style={{
-                            flex: 1,
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                          }}>
-                          <Text style={{}}>Delivery date:</Text>
-                        </View>
-                        <View
-                          style={{
-                            flex: 1,
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                          }}>
-                          <Text style={{}}>
-                            {draftsOrderData.deliveryDate &&
-                              moment(draftsOrderData.deliveryDate).format('L')}
-                          </Text>
-                        </View>
-                        <View
-                          style={{
-                            flex: 1,
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                          }}></View>
                       </View>
                     </View>
                   </View>

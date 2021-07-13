@@ -333,11 +333,12 @@ class SupplierList extends Component {
     if (finalBasketData.length > 0) {
       let payload = {
         supplierId: supplierId,
-        shopingBasketItemViewModel: finalBasketData,
+        shopingBasketItemList: finalBasketData,
       };
       console.log('Payload', payload);
       addBasketApi(payload)
         .then(res => {
+          console.log('res', res);
           this.props.navigation.navigate('BasketOrderScreen', {
             finalData: res.data && res.data.id,
             supplierId,

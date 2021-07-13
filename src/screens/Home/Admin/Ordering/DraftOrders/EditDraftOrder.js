@@ -400,6 +400,7 @@ class EditDraftOrder extends Component {
     const {productId} = this.state;
     getOrderByIdApi(productId)
       .then(res => {
+        console.log('res', res);
         this.setState({
           draftsOrderData: res.data,
           inventoryData: res.data && res.data.orderItems,

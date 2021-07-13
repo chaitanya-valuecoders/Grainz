@@ -209,6 +209,15 @@ export const addOrderApi = async payload => {
   });
 };
 
+export const addDraftApi = async payload => {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.post(baseURL + '/Order/add draft', payload, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
 export async function getSupplierListApi() {
   const token = await AsyncStorage.getItem('@appToken');
   return axios.get(baseURL + '/Supplier/Supplier list', {
@@ -905,6 +914,7 @@ export const addBasketApi = async payload => {
 };
 
 export const getBasketApi = async id => {
+  console.log('is', id);
   const token = await AsyncStorage.getItem('@appToken');
   return axios.get(
     baseURL + `/ShopingBasket/Get shoping basket by id?Id=${id}`,
