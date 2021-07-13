@@ -877,6 +877,15 @@ export const updateDraftOrderApi = async payload => {
   });
 };
 
+export const updateDraftOrderNewApi = async payload => {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.post(baseURL + `/Order/update draft`, payload, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
 export const getInventoryBySupplierIdApi = async id => {
   console.log('id', id);
   const token = await AsyncStorage.getItem('@appToken');

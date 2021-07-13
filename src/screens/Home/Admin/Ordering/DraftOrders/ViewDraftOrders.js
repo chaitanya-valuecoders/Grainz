@@ -103,31 +103,17 @@ class ViewDraftOrders extends Component {
   getDraftOrderData = () => {
     const {productId, basketId} = this.state;
     console.log('bake', basketId);
-    if (basketId) {
-      getBasketApi(basketId)
-        .then(res => {
-          console.log('res', res);
-          this.setState({
-            draftsOrderData: res.data.shopingBasketItemList,
-            modalLoaderDrafts: false,
-          });
-        })
-        .catch(err => {
-          console.warn('errBasket', err);
+    getBasketApi(basketId)
+      .then(res => {
+        console.log('res', res);
+        this.setState({
+          draftsOrderData: res.data.shopingBasketItemList,
+          modalLoaderDrafts: false,
         });
-    } else {
-      getOrderByIdApi(productId)
-        .then(res => {
-          console.log('res', res);
-          this.setState({
-            draftsOrderData: res.data,
-            modalLoaderDrafts: false,
-          });
-        })
-        .catch(err => {
-          console.warn('errProduct', err);
-        });
-    }
+      })
+      .catch(err => {
+        console.warn('errBasket', err);
+      });
   };
 
   myProfile = () => {
@@ -135,9 +121,10 @@ class ViewDraftOrders extends Component {
   };
 
   editFun = () => {
-    const {productId} = this.state;
+    const {productId, basketId} = this.state;
     this.props.navigation.navigate('EditDraftOrderScreen', {
       productId,
+      basketId,
     });
   };
 
@@ -188,7 +175,6 @@ class ViewDraftOrders extends Component {
       modalLoaderDrafts,
       draftsOrderData,
       supplierName,
-      actionModalStatus,
     } = this.state;
 
     return (
@@ -349,6 +335,7 @@ class ViewDraftOrders extends Component {
                               </View>
                             </View>
                             {draftsOrderData &&
+                              draftsOrderData.length > 0 &&
                               draftsOrderData.map((item, index) => {
                                 console.log('item', item);
                                 return (

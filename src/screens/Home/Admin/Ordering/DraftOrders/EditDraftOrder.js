@@ -24,8 +24,8 @@ import {
   getMyProfileApi,
   getSupplierListAdminApi,
   getCurrentLocUsersAdminApi,
-  updateDraftOrderApi,
-  getOrderByIdApi,
+  updateDraftOrderNewApi,
+  getBasketApi,
 } from '../../../../../connectivity/api';
 import moment from 'moment';
 import styles from '../style';
@@ -57,6 +57,7 @@ class EditDraftOrder extends Component {
       actionModalStatus: false,
       inventoryData: [],
       inventoryIndex: '',
+      basketId: '',
     };
   }
 
@@ -118,7 +119,6 @@ class EditDraftOrder extends Component {
       .then(res => {
         this.setState({
           recipeLoader: false,
-          modalLoaderDrafts: false,
           buttons: [
             {
               name: 'Add items',
@@ -126,7 +126,7 @@ class EditDraftOrder extends Component {
               id: 0,
             },
             {
-              name: translate('Save draft'),
+              name: 'Update draft',
               icon: img.draftIcon,
               id: 1,
             },
@@ -156,10 +156,11 @@ class EditDraftOrder extends Component {
     this.getData();
     this.getSupplierListData();
     this.getUsersListData();
-    const {productId} = this.props.route && this.props.route.params;
+    const {productId, basketId} = this.props.route && this.props.route.params;
     this.setState(
       {
         productId,
+        basketId,
       },
       () => this.getInventoryFun(),
     );
@@ -347,63 +348,98 @@ class EditDraftOrder extends Component {
     console.log('finalOrderDate', finalOrderDate);
 
     let payload = {
-      ambientTemp: null,
-      checkedBy: null,
-      checkedByName: null,
-      chilledTemp: null,
-      customerReference: null,
-      deliveredDate: null,
-      deliveryDate: '2021-07-06T22:46:06.000Z',
-      deliveryNoteReference: null,
-      departmentId: null,
-      frozenTemp: null,
-      id: draftsOrderData.id,
-      images: [],
-      invoiceNumber: null,
-      isAdhoc: false,
-      isAuditComplete: null,
-      isPlaced: null,
-      isTDC: false,
-      locationName: draftsOrderData.locationName,
-      notes: null,
-      orderDate: '2021-07-04T22:46:06.767Z',
-      orderItems: inventoryData,
-      orderReference: draftsOrderData.orderReference,
-      placedBy: draftsOrderData.placedBy,
-      placedByNAme: draftsOrderData.placedByNAme,
-      supplierId: draftsOrderData.supplierId,
-      supplierName: draftsOrderData.supplierName,
+      id: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+      supplierId: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+      orderDate: '2021-07-13T06:17:23.807Z',
+      deliveryDate: '2021-07-13T06:17:23.807Z',
+      placedBy: 'string',
+      totalValue: 0,
+      shopingBasketItemList: [
+        {
+          id: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+          inventoryId: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+          inventoryProductMappingId: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+          unitPrice: 0,
+          quantity: 0,
+          calculatedQuantity: 0,
+          unit: 'string',
+          action: 'string',
+          value: 0,
+          inventoryMapping: {
+            id: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+            inventoryId: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+            productId: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+            supplierId: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+            productName: 'string',
+            productCode: 'string',
+            supplierName: 'string',
+            inventoryName: 'string',
+            departmentName: 'string',
+            categoryName: 'string',
+            inventoryUnit: 'string',
+            productCategory: 'string',
+            isPreferred: true,
+            packSize: 0,
+            isInStock: true,
+            productPrice: 0,
+            listPrice: 0,
+            productUnit: 'string',
+            price: 0,
+            discount: 0,
+            unit: 'string',
+            volume: 0,
+            grainzUnit: 'string',
+            grainzVolume: 0,
+            comparePrice: 0,
+            privatePrice: 0,
+            userDefinedUnit: 'string',
+            userDefinedQuantity: 0,
+            compareUnit: 'string',
+            reorderLevel: 0,
+            targetInventory: 0,
+            currentInventory: 0,
+            notes: 'string',
+            isVolumeCustom: true,
+            isPriceCustom: true,
+            isUnitCustom: true,
+            onOrder: 0,
+            delta: 0,
+            eventLevel: 0,
+            orderItemsCount: 0,
+          },
+        },
+      ],
     };
     console.log('payload', payload);
 
-    updateDraftOrderApi(payload)
-      .then(res => {
-        Alert.alert('Grainz', 'Inventory deleted successfully', [
-          {
-            text: 'Okay',
-            onPress: () =>
-              this.setState(
-                {
-                  modalLoaderDrafts: true,
-                },
-                () => this.getInventoryFun(),
-              ),
-          },
-        ]);
-      })
-      .catch(err => {
-        console.log('er', err);
-      });
+    // updateDraftOrderNewApi(payload)
+    //   .then(res => {
+    //     Alert.alert('Grainz', 'Inventory deleted successfully', [
+    //       {
+    //         text: 'Okay',
+    //         onPress: () =>
+    //           this.setState(
+    //             {
+    //               modalLoaderDrafts: true,
+    //             },
+    //             () => this.getInventoryFun(),
+    //           ),
+    //       },
+    //     ]);
+    //   })
+    //   .catch(err => {
+    //     console.log('er', err);
+    //   });
   };
 
   getInventoryFun = () => {
-    const {productId} = this.state;
-    getOrderByIdApi(productId)
+    const {productId, basketId} = this.state;
+    getBasketApi(basketId)
       .then(res => {
         console.log('res', res);
         this.setState({
           draftsOrderData: res.data,
-          inventoryData: res.data && res.data.orderItems,
+          inventoryData: res.data && res.data.shopingBasketItemList,
           modalLoaderDrafts: false,
           supplierValue: res.data && res.data.supplierId,
           finalOrderDate: moment(res.data && res.data.orderDate).format('L'),
@@ -511,12 +547,13 @@ class EditDraftOrder extends Component {
                       top: '40%',
                     },
                   }}
+                  disabled={true}
                   items={supplierList}
                   value={supplierValue}
                   useNativeAndroidPickerStyle={false}
                 />
               </View>
-              <View style={{marginRight: wp('5%')}}>
+              {/* <View style={{marginRight: wp('5%')}}>
                 <Image
                   source={img.arrowDownIcon}
                   resizeMode="contain"
@@ -527,7 +564,7 @@ class EditDraftOrder extends Component {
                     marginTop: Platform.OS === 'ios' ? 0 : 15,
                   }}
                 />
-              </View>
+              </View> */}
             </View>
             <View
               style={{
@@ -675,7 +712,7 @@ class EditDraftOrder extends Component {
                   </View>
                 </View>
               </View>
-              <View
+              {/* <View
                 style={{
                   marginTop: hp('3%'),
                 }}>
@@ -694,7 +731,7 @@ class EditDraftOrder extends Component {
                     }}
                   />
                 </View>
-              </View>
+              </View> */}
             </View>
           </View>
 
@@ -783,6 +820,7 @@ class EditDraftOrder extends Component {
                         </View>
                         {inventoryData &&
                           inventoryData.map((item, index) => {
+                            console.log('item', item);
                             return (
                               <View>
                                 <View
@@ -802,7 +840,9 @@ class EditDraftOrder extends Component {
                                       justifyContent: 'center',
                                       alignItems: 'center',
                                     }}>
-                                    <Text style={{}}>{item.productName}</Text>
+                                    <Text style={{}}>
+                                      {item.inventoryMapping.productName}
+                                    </Text>
                                   </View>
                                   <View
                                     style={{
@@ -812,8 +852,8 @@ class EditDraftOrder extends Component {
                                     }}>
                                     <Text style={{}}>
                                       {Number(
-                                        item.grainzVolume *
-                                          item.quantityOrdered,
+                                        item.inventoryMapping.grainzVolume *
+                                          item.quantity,
                                       ).toFixed(2)}{' '}
                                       {item.unit}
                                     </Text>
@@ -825,11 +865,7 @@ class EditDraftOrder extends Component {
                                       alignItems: 'center',
                                     }}>
                                     <Text>
-                                      ${' '}
-                                      {Number(
-                                        item.quantityOrdered *
-                                          item.productPrice,
-                                      ).toFixed(2)}
+                                      $ {Number(item.value).toFixed(2)}
                                     </Text>
                                   </View>
                                   <TouchableOpacity
@@ -884,7 +920,7 @@ class EditDraftOrder extends Component {
                                 justifyContent: 'center',
                                 alignItems: 'center',
                               }}>
-                              <Text>1,124 $</Text>
+                              <Text> $</Text>
                             </View>
                             <View
                               style={{

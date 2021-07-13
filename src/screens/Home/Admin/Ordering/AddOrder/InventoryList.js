@@ -21,10 +21,10 @@ import {
 import {UserTokenAction} from '../../../../../redux/actions/UserTokenAction';
 import {
   getMyProfileApi,
-  getOrderCategoriesApi,
   unMapProductAdminApi,
   getInsideInventoryNewApi,
   addBasketApi,
+  updateDraftOrderNewApi,
 } from '../../../../../connectivity/api';
 import CheckBox from '@react-native-community/checkbox';
 import Modal from 'react-native-modal';
@@ -49,6 +49,7 @@ class InventoryList extends Component {
       productId: '',
       catName: '',
       finalBasketData: [],
+      screenType: '',
     };
   }
 
@@ -91,13 +92,14 @@ class InventoryList extends Component {
 
   componentDidMount() {
     this.getData();
-    const {supplierId, catName, catId} =
+    const {supplierId, catName, catId, screenType} =
       this.props.route && this.props.route.params;
     this.setState(
       {
         supplierId,
         catName,
         catId,
+        screenType,
       },
       () => this.getInsideCatFun(),
     );
@@ -136,12 +138,6 @@ class InventoryList extends Component {
 
   onPressFun = () => {
     this.props.navigation.goBack();
-  };
-
-  orderNowFun = item => {
-    this.props.navigation.navigate('OrderNowInventoryAdminScreen', {
-      item,
-    });
   };
 
   actionFun = data => {
@@ -226,7 +222,7 @@ class InventoryList extends Component {
   };
 
   editQuantityFunSec = (index, type, value, data) => {
-    const {modalData} = this.state;
+    const {modalData, screenType} = this.state;
     if (type === 'isSelected') {
       let newArr = modalData.map((item, i) =>
         index === i && item.quantityProduct !== ''
@@ -300,6 +296,92 @@ class InventoryList extends Component {
     }
   };
 
+  updateDraftFun = () => {
+    let payload = {
+      id: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+      supplierId: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+      orderDate: '2021-07-13T06:17:23.807Z',
+      deliveryDate: '2021-07-13T06:17:23.807Z',
+      placedBy: 'string',
+      totalValue: 0,
+      shopingBasketItemList: [
+        {
+          id: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+          inventoryId: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+          inventoryProductMappingId: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+          unitPrice: 0,
+          quantity: 0,
+          calculatedQuantity: 0,
+          unit: 'string',
+          action: 'string',
+          value: 0,
+          inventoryMapping: {
+            id: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+            inventoryId: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+            productId: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+            supplierId: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+            productName: 'string',
+            productCode: 'string',
+            supplierName: 'string',
+            inventoryName: 'string',
+            departmentName: 'string',
+            categoryName: 'string',
+            inventoryUnit: 'string',
+            productCategory: 'string',
+            isPreferred: true,
+            packSize: 0,
+            isInStock: true,
+            productPrice: 0,
+            listPrice: 0,
+            productUnit: 'string',
+            price: 0,
+            discount: 0,
+            unit: 'string',
+            volume: 0,
+            grainzUnit: 'string',
+            grainzVolume: 0,
+            comparePrice: 0,
+            privatePrice: 0,
+            userDefinedUnit: 'string',
+            userDefinedQuantity: 0,
+            compareUnit: 'string',
+            reorderLevel: 0,
+            targetInventory: 0,
+            currentInventory: 0,
+            notes: 'string',
+            isVolumeCustom: true,
+            isPriceCustom: true,
+            isUnitCustom: true,
+            onOrder: 0,
+            delta: 0,
+            eventLevel: 0,
+            orderItemsCount: 0,
+          },
+        },
+      ],
+    };
+    console.log('payload', payload);
+
+    // updateDraftOrderNewApi(payload)
+    //   .then(res => {
+    //     Alert.alert('Grainz', 'Inventory deleted successfully', [
+    //       {
+    //         text: 'Okay',
+    //         onPress: () =>
+    //           this.setState(
+    //             {
+    //               modalLoaderDrafts: true,
+    //             },
+    //             () => this.getInventoryFun(),
+    //           ),
+    //       },
+    //     ]);
+    //   })
+    //   .catch(err => {
+    //     console.log('er', err);
+    //   });
+  };
+
   render() {
     const {
       buttonsSubHeader,
@@ -309,9 +391,12 @@ class InventoryList extends Component {
       catName,
       actionModalStatus,
       finalBasketData,
+      screenType,
     } = this.state;
 
     console.log('finalBasketData', finalBasketData);
+    console.log('screenType', screenType);
+
     return (
       <View style={styles.container}>
         <Header

@@ -47,6 +47,7 @@ class SupplierList extends Component {
       supplierId: '',
       mapModalStatus: false,
       activeSections: [],
+      screenType: '',
     };
   }
 
@@ -90,12 +91,14 @@ class SupplierList extends Component {
   componentDidMount() {
     this.getData();
     this.props.navigation.addListener('focus', () => {
-      const {supplierId, catName} = this.props.route && this.props.route.params;
+      const {supplierId, catName, screenType} =
+        this.props.route && this.props.route.params;
       this.createFirstData();
       this.setState(
         {
           supplierId,
           catName,
+          screenType,
         },
         () => this.getInsideCatFun(),
       );

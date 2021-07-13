@@ -226,6 +226,7 @@ class NewOrder extends Component {
   addItemsFun = item => {
     this.props.navigation.navigate('AddItemsOrderScreen', {
       supplierValue: item.value,
+      screen: 'NewOrderScreen',
     });
   };
 
