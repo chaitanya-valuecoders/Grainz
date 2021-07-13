@@ -50,6 +50,9 @@ import AddBuilderMepScreen from '../screens/Mep/AddBuilder';
 import ViewRecipeMepScreen from '../screens/Mep/ViewRecipe';
 import ViewInventoryMepScreen from '../screens/MepAdvance/ViewInventory';
 import AddPurchaseScreen from '../screens/CasualPurchase/AddPurchase';
+import EditMenuScreen from '../screens/Home/Setup/Menus/EditMenu';
+import NewMenuScreen from '../screens/Home/Setup/Menus/NewMenu';
+import MenuCategoriesScreen from '../screens/Home/Setup/Menus/MenuCategories';
 
 const AppNav = createStackNavigator();
 
@@ -162,6 +165,12 @@ export default function AppNavFun() {
       <AppNav.Screen
         name="ViewMenuItemsScreen"
         component={ViewMenuItemsScreen}
+      />
+      <AppNav.Screen name="EditMenuScreen" component={EditMenuScreen} />
+      <AppNav.Screen name="NewMenuScreen" component={NewMenuScreen} />
+      <AppNav.Screen
+        name="MenuCategoriesScreen"
+        component={MenuCategoriesScreen}
       />
     </AppNav.Navigator>
   );
