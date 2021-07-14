@@ -60,6 +60,7 @@ class AddItems extends Component {
       inventoryStatus: true,
       supplierId: '',
       screenType: '',
+      basketId: '',
     };
   }
 
@@ -176,7 +177,7 @@ class AddItems extends Component {
   componentDidMount() {
     this.getData();
     this.props.navigation.addListener('focus', () => {
-      const {supplierValue, screen} =
+      const {supplierValue, screen, basketId} =
         this.props.route && this.props.route.params;
       this.setState(
         {
@@ -185,6 +186,7 @@ class AddItems extends Component {
           supplierStatus: false,
           inventoryStatus: true,
           screenType: screen,
+          basketId,
         },
         () => this.getManualLogsData(),
       );
@@ -262,7 +264,8 @@ class AddItems extends Component {
   updateSubFun = () => {
     const {inventoryStatus} = this.state;
     if (inventoryStatus) {
-      const {SECTIONS, activeSections, supplierId, screenType} = this.state;
+      const {SECTIONS, activeSections, supplierId, screenType, basketId} =
+        this.state;
       if (activeSections.length > 0) {
         const catId = SECTIONS[activeSections].content;
         const catName = SECTIONS[activeSections].title;
@@ -271,6 +274,7 @@ class AddItems extends Component {
           catName,
           catId,
           screenType,
+          basketId,
         });
       } else {
         this.setState({
@@ -279,13 +283,15 @@ class AddItems extends Component {
         });
       }
     } else {
-      const {supplierId, SECTIONS, activeSections, screenType} = this.state;
+      const {supplierId, SECTIONS, activeSections, screenType, basketId} =
+        this.state;
       const catName = SECTIONS[activeSections].title;
       if (activeSections.length > 0) {
         this.props.navigation.navigate('SupplierlistOrderScreen', {
           supplierId,
           catName,
           screenType,
+          basketId,
         });
       } else {
         this.setState({
@@ -360,9 +366,10 @@ class AddItems extends Component {
       searchItem,
       modalLoader,
       screenType,
+      basketId,
     } = this.state;
 
-    console.log('screenType', screenType);
+    console.log('basketId', basketId);
 
     return (
       <View style={styles.container}>

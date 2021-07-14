@@ -300,9 +300,11 @@ class Basket extends Component {
   };
 
   flatListFun = item => {
+    const {basketId} = this.state;
     if (item.id === 0) {
       this.props.navigation.navigate('AddItemsOrderScreen', {
-        screen: 'BasketScreen',
+        screen: 'Update',
+        basketId: basketId,
       });
     } else if (item.id === 1) {
       this.saveDraftFun();

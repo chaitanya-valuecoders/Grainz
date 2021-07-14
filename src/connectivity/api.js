@@ -934,3 +934,13 @@ export const getBasketApi = async id => {
     },
   );
 };
+
+export const updateBasketApi = async payload => {
+  console.log('payload', payload);
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.post(baseURL + `/ShopingBasket/update basket`, payload, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
