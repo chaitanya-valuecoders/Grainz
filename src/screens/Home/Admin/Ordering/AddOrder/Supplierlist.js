@@ -26,6 +26,7 @@ import {
   lookupDepartmentsApi,
   lookupCategoriesApi,
   addBasketApi,
+  updateBasketApi,
 } from '../../../../../connectivity/api';
 import CheckBox from '@react-native-community/checkbox';
 import Modal from 'react-native-modal';
@@ -48,6 +49,8 @@ class SupplierList extends Component {
       mapModalStatus: false,
       activeSections: [],
       screenType: '',
+      basketId: '',
+      navigateType: '',
     };
   }
 
@@ -91,7 +94,7 @@ class SupplierList extends Component {
   componentDidMount() {
     this.getData();
     this.props.navigation.addListener('focus', () => {
-      const {supplierId, catName, screenType} =
+      const {supplierId, catName, screenType, basketId, navigateType} =
         this.props.route && this.props.route.params;
       this.createFirstData();
       this.setState(
@@ -99,6 +102,8 @@ class SupplierList extends Component {
           supplierId,
           catName,
           screenType,
+          basketId,
+          navigateType,
         },
         () => this.getInsideCatFun(),
       );
@@ -268,7 +273,7 @@ class SupplierList extends Component {
 
   editQuantityFunSec = (index, type, value, data) => {
     console.log('data', data);
-    const {modalData} = this.state;
+    const {modalData, screenType} = this.state;
     if (data.isMapped === true) {
       if (type === 'isSelected') {
         let newArr = modalData.map((item, i) =>
@@ -296,7 +301,12 @@ class SupplierList extends Component {
               item.inventoryMapping && item.inventoryMapping.id,
             unitPrice: item.price,
             quantity: Number(item.quantityProduct),
-            action: 'string',
+            action:
+              screenType === 'New'
+                ? 'New'
+                : screenType === 'Update'
+                ? 'New'
+                : 'String',
             value: Number(item.quantityProduct * item.price * item.packSize),
           });
         });
@@ -332,14 +342,51 @@ class SupplierList extends Component {
   };
 
   addToBasketFun = () => {
-    const {finalBasketData, supplierId} = this.state;
-    if (finalBasketData.length > 0) {
+    const {
+      finalBasketData,
+      supplierId,
+      screenType,
+      basketId,
+      navigateType,
+      productId,
+    } = this.state;
+
+    if (screenType === 'New') {
+      if (finalBasketData.length > 0) {
+        let payload = {
+          supplierId: supplierId,
+          shopingBasketItemList: finalBasketData,
+        };
+        console.log('Payload', payload);
+        addBasketApi(payload)
+          .then(res => {
+            if (navigateType === 'EditDraft') {
+              this.props.navigation.navigate('EditDraftOrderScreen', {
+                productId,
+                basketId,
+              });
+            } else {
+              this.props.navigation.navigate('BasketOrderScreen', {
+                finalData: res.data && res.data.id,
+                supplierId,
+                itemType: 'Inventory',
+              });
+            }
+          })
+          .catch(err => {
+            console.log('err', err);
+          });
+      } else {
+        alert('Please select atleast one item');
+      }
+    } else {
       let payload = {
         supplierId: supplierId,
         shopingBasketItemList: finalBasketData,
+        id: basketId,
       };
-      console.log('Payload', payload);
-      addBasketApi(payload)
+      console.log('Paylaod', payload);
+      updateBasketApi(payload)
         .then(res => {
           console.log('res', res);
           this.props.navigation.navigate('BasketOrderScreen', {
@@ -351,8 +398,6 @@ class SupplierList extends Component {
         .catch(err => {
           console.log('err', err);
         });
-    } else {
-      alert('Please select atleast one item');
     }
   };
 
@@ -498,10 +543,13 @@ class SupplierList extends Component {
       activeSections,
       catName,
       finalBasketData,
+      screenType,
     } = this.state;
 
-    console.log('modalData', modalData);
-    console.log('finalBasketData', finalBasketData);
+    // console.log('modalData', modalData);
+    // console.log('finalBasketData', finalBasketData);
+
+    console.log('screenType', screenType);
 
     return (
       <View style={styles.container}>
@@ -818,7 +866,7 @@ class SupplierList extends Component {
                     marginLeft: 10,
                     fontFamily: 'Inter-SemiBold',
                   }}>
-                  Add to Basket
+                  {screenType === 'New' ? 'Add to basket' : 'Update basket'}
                 </Text>
               </View>
             </TouchableOpacity>

@@ -177,7 +177,7 @@ class AddItems extends Component {
   componentDidMount() {
     this.getData();
     this.props.navigation.addListener('focus', () => {
-      const {supplierValue, screen, basketId} =
+      const {supplierValue, screen, basketId, navigateType} =
         this.props.route && this.props.route.params;
       this.setState(
         {
@@ -187,6 +187,7 @@ class AddItems extends Component {
           inventoryStatus: true,
           screenType: screen,
           basketId,
+          navigateType,
         },
         () => this.getManualLogsData(),
       );
@@ -264,8 +265,14 @@ class AddItems extends Component {
   updateSubFun = () => {
     const {inventoryStatus} = this.state;
     if (inventoryStatus) {
-      const {SECTIONS, activeSections, supplierId, screenType, basketId} =
-        this.state;
+      const {
+        SECTIONS,
+        activeSections,
+        supplierId,
+        screenType,
+        basketId,
+        navigateType,
+      } = this.state;
       if (activeSections.length > 0) {
         const catId = SECTIONS[activeSections].content;
         const catName = SECTIONS[activeSections].title;
@@ -275,6 +282,7 @@ class AddItems extends Component {
           catId,
           screenType,
           basketId,
+          navigateType,
         });
       } else {
         this.setState({
@@ -283,8 +291,14 @@ class AddItems extends Component {
         });
       }
     } else {
-      const {supplierId, SECTIONS, activeSections, screenType, basketId} =
-        this.state;
+      const {
+        supplierId,
+        SECTIONS,
+        activeSections,
+        screenType,
+        basketId,
+        navigateType,
+      } = this.state;
       const catName = SECTIONS[activeSections].title;
       if (activeSections.length > 0) {
         this.props.navigation.navigate('SupplierlistOrderScreen', {
@@ -292,6 +306,7 @@ class AddItems extends Component {
           catName,
           screenType,
           basketId,
+          navigateType,
         });
       } else {
         this.setState({

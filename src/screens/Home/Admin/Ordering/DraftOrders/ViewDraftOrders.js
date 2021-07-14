@@ -43,6 +43,9 @@ class ViewDraftOrders extends Component {
       draftsOrderData: [],
       supplierName: '',
       productId: '',
+      totalHTVAVal: '',
+      orderDate: '',
+      deliveryDate: '',
     };
   }
 
@@ -109,6 +112,9 @@ class ViewDraftOrders extends Component {
         this.setState({
           draftsOrderData: res.data.shopingBasketItemList,
           modalLoaderDrafts: false,
+          totalHTVAVal: res.data.totalValue,
+          orderDate: res.data.orderDate,
+          deliveryDate: res.data.deliveryDate,
         });
       })
       .catch(err => {
@@ -175,6 +181,9 @@ class ViewDraftOrders extends Component {
       modalLoaderDrafts,
       draftsOrderData,
       supplierName,
+      totalHTVAVal,
+      orderDate,
+      deliveryDate,
     } = this.state;
 
     return (
@@ -294,45 +303,6 @@ class ViewDraftOrders extends Component {
                                   HTVA $
                                 </Text>
                               </View>
-                              <View
-                                style={{
-                                  width: wp('30%'),
-                                  alignItems: 'center',
-                                }}>
-                                <Text
-                                  style={{
-                                    color: '#161C27',
-                                    fontFamily: 'Inter-SemiBold',
-                                  }}>
-                                  Order date
-                                </Text>
-                              </View>
-                              <View
-                                style={{
-                                  width: wp('30%'),
-                                  alignItems: 'center',
-                                }}>
-                                <Text
-                                  style={{
-                                    color: '#161C27',
-                                    fontFamily: 'Inter-SemiBold',
-                                  }}>
-                                  Delivery date
-                                </Text>
-                              </View>
-                              <View
-                                style={{
-                                  width: wp('30%'),
-                                  alignItems: 'center',
-                                }}>
-                                <Text
-                                  style={{
-                                    color: '#161C27',
-                                    fontFamily: 'Inter-SemiBold',
-                                  }}>
-                                  Placed by
-                                </Text>
-                              </View>
                             </View>
                             {draftsOrderData &&
                               draftsOrderData.length > 0 &&
@@ -371,41 +341,12 @@ class ViewDraftOrders extends Component {
                                           justifyContent: 'center',
                                         }}>
                                         <Text style={{}}>
-                                          {Number(
+                                          {item.calculatedQuantity.toFixed(2)}
+                                          {/* {Number(
                                             item.inventoryMapping.grainzVolume *
                                               item.quantity,
-                                          ).toFixed(2)}{' '}
-                                          {item.inventoryMapping.unit}
-                                        </Text>
-                                      </View>
-                                      <View
-                                        style={{
-                                          width: wp('30%'),
-                                          alignItems: 'center',
-                                          justifyContent: 'center',
-                                        }}>
-                                        <Text>
-                                          $ {Number(item.value).toFixed(2)}
-                                        </Text>
-                                      </View>
-                                      <View
-                                        style={{
-                                          width: wp('30%'),
-                                          alignItems: 'center',
-                                          justifyContent: 'center',
-                                        }}>
-                                        <Text>
-                                          $ {Number(item.value).toFixed(2)}
-                                        </Text>
-                                      </View>
-                                      <View
-                                        style={{
-                                          width: wp('30%'),
-                                          alignItems: 'center',
-                                          justifyContent: 'center',
-                                        }}>
-                                        <Text>
-                                          $ {Number(item.value).toFixed(2)}
+                                          ).toFixed(2)}{' '} */}
+                                          {/* {item.inventoryMapping.unit} */}
                                         </Text>
                                       </View>
                                       <View
@@ -443,12 +384,6 @@ class ViewDraftOrders extends Component {
                             flex: 1,
                             justifyContent: 'center',
                             alignItems: 'center',
-                          }}></View>
-                        <View
-                          style={{
-                            flex: 1,
-                            justifyContent: 'center',
-                            alignItems: 'center',
                           }}>
                           <Text style={{}}>Total HTVA</Text>
                         </View>
@@ -458,8 +393,84 @@ class ViewDraftOrders extends Component {
                             justifyContent: 'center',
                             alignItems: 'center',
                           }}>
-                          <Text> $</Text>
+                          <Text> $ {totalHTVAVal}</Text>
                         </View>
+                        <View
+                          style={{
+                            flex: 1,
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                          }}></View>
+                      </View>
+                    </View>
+                    <View>
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          justifyContent: 'space-between',
+                          flex: 1,
+                          backgroundColor: '#FFFFFF',
+                          paddingVertical: hp('3%'),
+                          borderTopLeftRadius: 5,
+                          borderTopRightRadius: 5,
+                        }}>
+                        <View
+                          style={{
+                            flex: 1,
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                          }}>
+                          <Text style={{}}>Order Date: </Text>
+                        </View>
+                        <View
+                          style={{
+                            flex: 1,
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                          }}>
+                          <Text> {moment(orderDate).format('L')}</Text>
+                        </View>
+                        <View
+                          style={{
+                            flex: 1,
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                          }}></View>
+                      </View>
+                    </View>
+                    <View>
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          justifyContent: 'space-between',
+                          flex: 1,
+                          backgroundColor: '#FFFFFF',
+                          paddingVertical: hp('3%'),
+                          borderTopLeftRadius: 5,
+                          borderTopRightRadius: 5,
+                        }}>
+                        <View
+                          style={{
+                            flex: 1,
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                          }}>
+                          <Text style={{}}>Delivery Date:</Text>
+                        </View>
+                        <View
+                          style={{
+                            flex: 1,
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                          }}>
+                          <Text> {moment(deliveryDate).format('L')}</Text>
+                        </View>
+                        <View
+                          style={{
+                            flex: 1,
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                          }}></View>
                       </View>
                     </View>
                   </View>

@@ -24,8 +24,9 @@ import {
   getMyProfileApi,
   getSupplierListAdminApi,
   getCurrentLocUsersAdminApi,
-  updateDraftOrderNewApi,
   getBasketApi,
+  updateBasketApi,
+  updateDraftOrderNewApi,
 } from '../../../../../connectivity/api';
 import moment from 'moment';
 import styles from '../style';
@@ -56,8 +57,8 @@ class EditDraftOrder extends Component {
       usersList: [],
       actionModalStatus: false,
       inventoryData: [],
-      inventoryIndex: '',
       basketId: '',
+      finalArrData: [],
     };
   }
 
@@ -81,37 +82,40 @@ class EditDraftOrder extends Component {
     alert('Send');
   };
 
-  saveDraftFun = () => {
-    alert('saveDraft');
-    // const {
-    //   apiDeliveryDate,
-    //   apiOrderDate,
-    //   placedByValue,
-    //   supplierId,
-    //   finalApiData,
-    // } = this.state;
-    // let payload = {
-    //   deliveryDate: apiDeliveryDate,
-    //   isAdhoc: false,
-    //   orderDate: apiOrderDate,
-    //   orderItems: finalApiData,
-    //   placedBy: placedByValue,
-    //   supplierId: supplierId,
-    // };
-    // console.log('payload', payload);
-    // addOrderApi(payload)
-    //   .then(res => {
-    //     Alert.alert('Grainz', 'Order added successfully', [
-    //       {
-    //         text: 'okay',
-    //         onPress: () =>
-    //           this.props.navigation.navigate('OrderingAdminScreen'),
-    //       },
-    //     ]);
-    //   })
-    //   .catch(err => {
-    //     console.log('err', err);
-    //   });
+  updateDraftFun = () => {
+    const {
+      apiDeliveryDate,
+      apiOrderDate,
+      placedByValue,
+      supplierValue,
+      basketId,
+      draftsOrderData,
+      finalApiData,
+    } = this.state;
+    let payload = {
+      id: basketId,
+      supplierId: supplierValue,
+      orderDate: apiOrderDate,
+      deliveryDate: apiDeliveryDate,
+      placedBy: placedByValue,
+      totalValue: draftsOrderData.totalValue,
+      shopingBasketItemList: finalApiData,
+    };
+    console.log('payload', payload);
+    updateDraftOrderNewApi(payload)
+      .then(res => {
+        console.log('res', res);
+        Alert.alert('Grainz', 'Order updated successfully', [
+          {
+            text: 'okay',
+            onPress: () =>
+              this.props.navigation.navigate('OrderingAdminScreen'),
+          },
+        ]);
+      })
+      .catch(err => {
+        console.log('err', err);
+      });
   };
 
   getProfileData = () => {
@@ -157,13 +161,16 @@ class EditDraftOrder extends Component {
     this.getSupplierListData();
     this.getUsersListData();
     const {productId, basketId} = this.props.route && this.props.route.params;
-    this.setState(
-      {
-        productId,
-        basketId,
-      },
-      () => this.getInventoryFun(),
-    );
+    this.props.navigation.addListener('focus', () => {
+      this.setState(
+        {
+          productId,
+          basketId,
+          modalLoaderDrafts: true,
+        },
+        () => this.getInventoryFun(),
+      );
+    });
   }
 
   getSupplierListData = () => {
@@ -211,12 +218,16 @@ class EditDraftOrder extends Component {
   };
 
   flatListFun = item => {
-    const {supplierValue, apiDeliveryDate, apiOrderDate, placedByValue} =
-      this.state;
+    const {supplierValue, placedByValue, basketId} = this.state;
     if (item.id === 0) {
-      // this.props.navigation.navigate('AddItemsOrderScreen');
+      this.props.navigation.navigate('AddItemsOrderScreen', {
+        screen: 'Update',
+        navigateType: 'EditDraft',
+        basketId: basketId,
+        supplierValue,
+      });
     } else if (item.id === 1) {
-      this.saveDraftFun();
+      this.updateDraftFun();
     } else {
       alert('view');
     }
@@ -272,7 +283,7 @@ class EditDraftOrder extends Component {
     console.log('data', data);
     this.setState({
       actionModalStatus: true,
-      inventoryIndex: index,
+      finalArrData: data,
     });
   };
 
@@ -315,144 +326,86 @@ class EditDraftOrder extends Component {
   };
 
   hitDeleteApi = () => {
-    const {draftsOrderData, inventoryIndex, inventoryType, inventoryData} =
-      this.state;
-    let value = 'Delete';
-
-    let newArr = inventoryData.map((item, i) =>
-      inventoryIndex === i
-        ? {
-            ...item,
-            [inventoryType]: value,
-          }
-        : item,
-    );
-    this.setState(
-      {
-        inventoryData: [...newArr],
-      },
-      () => this.hitDeleteApiSec(),
-    );
-  };
-
-  hitDeleteApiSec = () => {
-    const {
-      inventoryData,
-      draftsOrderData,
-      finalOrderDate,
-      supplierValue,
-      finalDeliveryDate,
-      placedByValue,
-      productId,
-    } = this.state;
-    console.log('finalOrderDate', finalOrderDate);
-
+    const {supplierValue, basketId, finalArrData} = this.state;
     let payload = {
-      id: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
-      supplierId: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
-      orderDate: '2021-07-13T06:17:23.807Z',
-      deliveryDate: '2021-07-13T06:17:23.807Z',
-      placedBy: 'string',
-      totalValue: 0,
+      supplierId: supplierValue,
       shopingBasketItemList: [
         {
-          id: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
-          inventoryId: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
-          inventoryProductMappingId: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
-          unitPrice: 0,
-          quantity: 0,
-          calculatedQuantity: 0,
-          unit: 'string',
-          action: 'string',
-          value: 0,
-          inventoryMapping: {
-            id: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
-            inventoryId: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
-            productId: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
-            supplierId: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
-            productName: 'string',
-            productCode: 'string',
-            supplierName: 'string',
-            inventoryName: 'string',
-            departmentName: 'string',
-            categoryName: 'string',
-            inventoryUnit: 'string',
-            productCategory: 'string',
-            isPreferred: true,
-            packSize: 0,
-            isInStock: true,
-            productPrice: 0,
-            listPrice: 0,
-            productUnit: 'string',
-            price: 0,
-            discount: 0,
-            unit: 'string',
-            volume: 0,
-            grainzUnit: 'string',
-            grainzVolume: 0,
-            comparePrice: 0,
-            privatePrice: 0,
-            userDefinedUnit: 'string',
-            userDefinedQuantity: 0,
-            compareUnit: 'string',
-            reorderLevel: 0,
-            targetInventory: 0,
-            currentInventory: 0,
-            notes: 'string',
-            isVolumeCustom: true,
-            isPriceCustom: true,
-            isUnitCustom: true,
-            onOrder: 0,
-            delta: 0,
-            eventLevel: 0,
-            orderItemsCount: 0,
-          },
+          id: finalArrData.id,
+          inventoryId: finalArrData.inventoryId,
+          inventoryProductMappingId: finalArrData.inventoryProductMappingId,
+          unitPrice: finalArrData.unitPrice,
+          quantity: finalArrData.quantity,
+          action: 'Delete',
+          value: finalArrData.value,
         },
       ],
+      id: basketId,
     };
+
     console.log('payload', payload);
 
-    // updateDraftOrderNewApi(payload)
-    //   .then(res => {
-    //     Alert.alert('Grainz', 'Inventory deleted successfully', [
-    //       {
-    //         text: 'Okay',
-    //         onPress: () =>
-    //           this.setState(
-    //             {
-    //               modalLoaderDrafts: true,
-    //             },
-    //             () => this.getInventoryFun(),
-    //           ),
-    //       },
-    //     ]);
-    //   })
-    //   .catch(err => {
-    //     console.log('er', err);
-    //   });
+    updateBasketApi(payload)
+      .then(res => {
+        console.log('res', res);
+        this.setState(
+          {
+            modalLoaderDrafts: true,
+          },
+          () => this.getInventoryFun(),
+        );
+      })
+      .catch(err => {
+        console.log('err', err);
+      });
   };
 
   getInventoryFun = () => {
     const {productId, basketId} = this.state;
     getBasketApi(basketId)
       .then(res => {
-        console.log('res', res);
-        this.setState({
-          draftsOrderData: res.data,
-          inventoryData: res.data && res.data.shopingBasketItemList,
-          modalLoaderDrafts: false,
-          supplierValue: res.data && res.data.supplierId,
-          finalOrderDate: moment(res.data && res.data.orderDate).format('L'),
-          finalDeliveryDate: moment(res.data && res.data.deliveryDate).format(
-            'L',
-          ),
-          placedByValue: res.data && res.data.placedBy,
-          productId,
-        });
+        this.setState(
+          {
+            draftsOrderData: res.data,
+            inventoryData: res.data && res.data.shopingBasketItemList,
+            modalLoaderDrafts: false,
+            supplierValue: res.data && res.data.supplierId,
+            finalOrderDate: moment(res.data && res.data.orderDate).format('L'),
+            finalDeliveryDate: moment(res.data && res.data.deliveryDate).format(
+              'L',
+            ),
+            apiDeliveryDate: res.data && res.data.deliveryDate,
+            apiOrderDate: res.data && res.data.orderDate,
+            placedByValue: res.data && res.data.placedBy,
+            productId,
+          },
+          () => this.createApiData(),
+        );
       })
       .catch(err => {
         console.warn('err', err);
       });
+  };
+
+  createApiData = () => {
+    const {inventoryData} = this.state;
+    const finalArr = [];
+    inventoryData.map(item => {
+      finalArr.push({
+        id: item.id,
+        inventoryId: item.inventoryId,
+        inventoryProductMappingId: item.inventoryProductMappingId,
+        unitPrice: item.unitPrice,
+        quantity: item.quantity,
+        calculatedQuantity: item.calculatedQuantity,
+        unit: item.unit,
+        action: 'Update',
+        value: item.value,
+      });
+    });
+    this.setState({
+      finalApiData: [...finalArr],
+    });
   };
 
   render() {
@@ -472,8 +425,11 @@ class EditDraftOrder extends Component {
       usersList,
       actionModalStatus,
       inventoryData,
+      draftsOrderData,
+      finalArrData,
     } = this.state;
 
+    console.log('finalArrData', finalArrData);
     return (
       <View style={styles.container}>
         <Header
@@ -820,7 +776,6 @@ class EditDraftOrder extends Component {
                         </View>
                         {inventoryData &&
                           inventoryData.map((item, index) => {
-                            console.log('item', item);
                             return (
                               <View>
                                 <View
@@ -851,11 +806,12 @@ class EditDraftOrder extends Component {
                                       alignItems: 'center',
                                     }}>
                                     <Text style={{}}>
-                                      {Number(
-                                        item.inventoryMapping.grainzVolume *
-                                          item.quantity,
-                                      ).toFixed(2)}{' '}
-                                      {item.unit}
+                                      {item.calculatedQuantity.toFixed(2)}
+                                      {/* {Number(
+                                            item.inventoryMapping.grainzVolume *
+                                              item.quantity,
+                                          ).toFixed(2)}{' '} */}
+                                      {/* {item.inventoryMapping.unit} */}
                                     </Text>
                                   </View>
                                   <View
@@ -920,7 +876,7 @@ class EditDraftOrder extends Component {
                                 justifyContent: 'center',
                                 alignItems: 'center',
                               }}>
-                              <Text> $</Text>
+                              <Text> $ {draftsOrderData.totalValue}</Text>
                             </View>
                             <View
                               style={{

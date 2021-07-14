@@ -51,6 +51,7 @@ class InventoryList extends Component {
       finalBasketData: [],
       screenType: '',
       basketId: '',
+      navigateType: '',
     };
   }
 
@@ -93,18 +94,21 @@ class InventoryList extends Component {
 
   componentDidMount() {
     this.getData();
-    const {supplierId, catName, catId, screenType, basketId} =
+    const {supplierId, catName, catId, screenType, basketId, navigateType} =
       this.props.route && this.props.route.params;
-    this.setState(
-      {
-        supplierId,
-        catName,
-        catId,
-        screenType,
-        basketId,
-      },
-      () => this.getInsideCatFun(),
-    );
+    this.props.navigation.addListener('focus', () => {
+      this.setState(
+        {
+          supplierId,
+          catName,
+          catId,
+          screenType,
+          basketId,
+          navigateType,
+        },
+        () => this.getInsideCatFun(),
+      );
+    });
   }
 
   getInsideCatFun = () => {
@@ -198,22 +202,6 @@ class InventoryList extends Component {
       });
   };
 
-  editQuantityFun = (index, type, value) => {
-    const {modalData} = this.state;
-
-    let newArr = modalData.map((item, i) =>
-      index === i
-        ? {
-            ...item,
-            [type]: value,
-          }
-        : item,
-    );
-    this.setState({
-      modalData: [...newArr],
-    });
-  };
-
   editQuantityFun = (index, type, value, data) => {
     this.setState(
       {
@@ -224,6 +212,7 @@ class InventoryList extends Component {
   };
 
   editQuantityFunSec = (index, type, value, data) => {
+    console.log('index', index, type, 'type', 'val', value);
     const {modalData, screenType} = this.state;
     if (type === 'isSelected') {
       let newArr = modalData.map((item, i) =>
@@ -252,7 +241,7 @@ class InventoryList extends Component {
             screenType === 'New'
               ? 'New'
               : screenType === 'Update'
-              ? 'Update'
+              ? 'New'
               : 'String',
           value: Number(
             item.quantityProduct * item.productPrice * item.packSize,
@@ -279,7 +268,14 @@ class InventoryList extends Component {
   };
 
   addToBasketFun = () => {
-    const {finalBasketData, supplierId, screenType, basketId} = this.state;
+    const {
+      finalBasketData,
+      supplierId,
+      screenType,
+      basketId,
+      navigateType,
+      productId,
+    } = this.state;
     if (screenType === 'New') {
       if (finalBasketData.length > 0) {
         let payload = {
@@ -312,11 +308,18 @@ class InventoryList extends Component {
       updateBasketApi(payload)
         .then(res => {
           console.log('res', res);
-          this.props.navigation.navigate('BasketOrderScreen', {
-            finalData: res.data && res.data.id,
-            supplierId,
-            itemType: 'Inventory',
-          });
+          if (navigateType === 'EditDraft') {
+            this.props.navigation.navigate('EditDraftOrderScreen', {
+              productId,
+              basketId,
+            });
+          } else {
+            this.props.navigation.navigate('BasketOrderScreen', {
+              finalData: res.data && res.data.id,
+              supplierId,
+              itemType: 'Inventory',
+            });
+          }
         })
         .catch(err => {
           console.log('err', err);

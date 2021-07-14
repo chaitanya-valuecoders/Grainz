@@ -26,6 +26,7 @@ import {
   addDraftApi,
   getCurrentLocUsersAdminApi,
   getBasketApi,
+  updateBasketApi,
 } from '../../../../../connectivity/api';
 import CheckBox from '@react-native-community/checkbox';
 import Modal from 'react-native-modal';
@@ -63,9 +64,11 @@ class Basket extends Component {
       cloneOrderData: [],
       sentValue: 'No',
       apiDeliveryDate: '',
-      apiOrderDate: '',
       itemType: '',
       basketId: '',
+      finalArrData: [],
+      editStatus: false,
+      totalHTVAVal: '',
     };
   }
 
@@ -129,43 +132,37 @@ class Basket extends Component {
     this.getUsersListData();
     const {finalData, supplierId, itemType} =
       this.props.route && this.props.route.params;
-
-    if (itemType === 'Inventory') {
-      getBasketApi(finalData)
-        .then(res => {
-          console.log('res', res);
-          this.setState(
-            {
-              modalData: res.data && res.data.shopingBasketItemList,
-              supplierId,
-              itemType,
-              basketId: finalData,
-            },
-            () => this.createApiData(),
-          );
-        })
-        .catch(err => {
-          console.log('err', err);
-        });
-    } else {
-      getBasketApi(finalData)
-        .then(res => {
-          console.log('res', res);
-          this.setState(
-            {
-              modalData: res.data && res.data.shopingBasketItemList,
-              supplierId,
-              itemType,
-              basketId: finalData,
-            },
-            () => this.createApiData(),
-          );
-        })
-        .catch(err => {
-          console.log('err', err);
-        });
-    }
+    this.setState(
+      {
+        supplierId,
+        itemType,
+        basketId: finalData,
+        modalLoader: true,
+        finalOrderDate: moment(new Date()).format('L'),
+        apiOrderDate: new Date().toISOString(),
+      },
+      () => this.getBasketDataFun(),
+    );
   }
+
+  getBasketDataFun = () => {
+    const {basketId} = this.state;
+    getBasketApi(basketId)
+      .then(res => {
+        console.log('res', res);
+        this.setState(
+          {
+            modalData: res.data && res.data.shopingBasketItemList,
+            modalLoader: false,
+            totalHTVAVal: res.data && res.data.totalValue,
+          },
+          () => this.createApiData(),
+        );
+      })
+      .catch(err => {
+        console.log('err', err);
+      });
+  };
 
   createApiData = () => {
     const {modalData} = this.state;
@@ -215,8 +212,7 @@ class Basket extends Component {
     console.log('data', data);
     this.setState({
       actionModalStatus: true,
-      inventoryId: data.id,
-      productId: data.inventoryMapping && data.inventoryMapping.productId,
+      finalArrData: data,
     });
   };
 
@@ -234,6 +230,7 @@ class Basket extends Component {
         ? {
             ...item,
             [type]: value,
+            ['action']: 'Update',
           }
         : item,
     );
@@ -247,11 +244,66 @@ class Basket extends Component {
   };
 
   editInventoryFun = () => {
-    alert('edit Inventory');
+    this.setState({
+      actionModalStatus: false,
+      editStatus: true,
+    });
   };
 
   deleteInventoryFun = () => {
-    alert('delete Inventory');
+    this.setState(
+      {
+        actionModalStatus: false,
+      },
+      () =>
+        setTimeout(() => {
+          Alert.alert('Grainz', 'Are you sure you want to delete it?', [
+            {
+              text: 'Yes',
+              onPress: () => this.hitDeleteApiFun(),
+            },
+            {
+              text: 'No',
+            },
+          ]);
+        }, 100),
+    );
+  };
+
+  hitDeleteApiFun = () => {
+    const {supplierId, basketId, finalArrData} = this.state;
+    let payload = {
+      supplierId: supplierId,
+      shopingBasketItemList: [
+        {
+          id: finalArrData.id,
+          inventoryId: finalArrData.inventoryId,
+          inventoryProductMappingId: finalArrData.inventoryProductMappingId,
+          unitPrice: finalArrData.unitPrice,
+          quantity: finalArrData.quantity,
+          action: 'Delete',
+          value: finalArrData.value,
+        },
+      ],
+      id: basketId,
+    };
+
+    console.log('finalArrData', finalArrData);
+
+    console.log('Paylaod', payload);
+    updateBasketApi(payload)
+      .then(res => {
+        console.log('res', res);
+        this.setState(
+          {
+            modalLoader: true,
+          },
+          () => this.getBasketDataFun(),
+        );
+      })
+      .catch(err => {
+        console.log('err', err);
+      });
   };
 
   saveDraftFun = () => {
@@ -359,6 +411,29 @@ class Basket extends Component {
     });
   };
 
+  updateBasketFun = () => {
+    const {supplierId, basketId, modalData} = this.state;
+    let payload = {
+      supplierId: supplierId,
+      shopingBasketItemList: modalData,
+      id: basketId,
+    };
+    updateBasketApi(payload)
+      .then(res => {
+        console.log('res', res);
+        this.setState(
+          {
+            modalLoader: true,
+            editStatus: false,
+          },
+          () => this.getBasketDataFun(),
+        );
+      })
+      .catch(err => {
+        console.log('err', err);
+      });
+  };
+
   render() {
     const {
       buttonsSubHeader,
@@ -379,8 +454,11 @@ class Basket extends Component {
       cloneLoader,
       cloneOrderData,
       sentValue,
+      editStatus,
+      totalHTVAVal,
     } = this.state;
 
+    console.log('modalData', modalData);
     return (
       <View style={styles.container}>
         <Header
@@ -563,84 +641,107 @@ class Basket extends Component {
             <ActivityIndicator size="small" color="#94C036" />
           ) : (
             <View style={{marginTop: hp('2%')}}>
-              <ScrollView>
-                {modalLoader ? (
-                  <ActivityIndicator size="large" color="grey" />
-                ) : (
-                  <View
-                    style={{
-                      padding: hp('2%'),
-                    }}>
-                    <ScrollView
-                      horizontal
-                      showsHorizontalScrollIndicator={false}>
-                      <View>
-                        <ScrollView
-                          horizontal
-                          showsHorizontalScrollIndicator={false}>
-                          <View>
+              {modalLoader ? (
+                <ActivityIndicator size="large" color="grey" />
+              ) : (
+                <View
+                  style={{
+                    padding: hp('2%'),
+                  }}>
+                  <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                    <View>
+                      <ScrollView
+                        horizontal
+                        showsHorizontalScrollIndicator={false}>
+                        <View>
+                          <View
+                            style={{
+                              paddingVertical: 15,
+                              paddingHorizontal: 5,
+                              flexDirection: 'row',
+                              justifyContent: 'space-between',
+                              backgroundColor: '#EFFBCF',
+                            }}>
                             <View
                               style={{
-                                paddingVertical: 15,
-                                paddingHorizontal: 5,
-                                flexDirection: 'row',
-                                justifyContent: 'space-between',
-                                backgroundColor: '#EFFBCF',
+                                width: wp('40%'),
+                                alignItems: 'center',
                               }}>
-                              <View
-                                style={{
-                                  width: wp('40%'),
-                                  alignItems: 'center',
-                                }}>
-                                <Text style={{textAlign: 'center'}}>Name</Text>
-                              </View>
-                              <View
-                                style={{
-                                  width: wp('30%'),
-                                  alignItems: 'center',
-                                }}>
-                                <Text>Quantity</Text>
-                              </View>
-                              <View
-                                style={{
-                                  width: wp('30%'),
-                                  alignItems: 'center',
-                                }}>
-                                <Text>HTVA ($)</Text>
-                              </View>
-
-                              <View
-                                style={{
-                                  width: wp('30%'),
-                                  alignItems: 'center',
-                                }}></View>
+                              <Text style={{textAlign: 'center'}}>Name</Text>
                             </View>
-                            <View>
-                              {modalData && modalData.length > 0 ? (
-                                modalData.map((item, index) => {
-                                  return (
-                                    <View key={index}>
+                            <View
+                              style={{
+                                width: wp('30%'),
+                                alignItems: 'center',
+                              }}>
+                              <Text>Quantity</Text>
+                            </View>
+                            <View
+                              style={{
+                                width: wp('30%'),
+                                alignItems: 'center',
+                              }}>
+                              <Text>HTVA ($)</Text>
+                            </View>
+
+                            <View
+                              style={{
+                                width: wp('30%'),
+                                alignItems: 'center',
+                              }}></View>
+                          </View>
+                          <View>
+                            {modalData && modalData.length > 0 ? (
+                              modalData.map((item, index) => {
+                                return (
+                                  <View key={index}>
+                                    <View
+                                      style={{
+                                        paddingVertical: 10,
+                                        paddingHorizontal: 5,
+                                        flexDirection: 'row',
+                                        backgroundColor:
+                                          index % 2 === 0
+                                            ? '#FFFFFF'
+                                            : '#F7F8F5',
+                                      }}>
                                       <View
                                         style={{
-                                          paddingVertical: 10,
-                                          paddingHorizontal: 5,
-                                          flexDirection: 'row',
-                                          backgroundColor:
-                                            index % 2 === 0
-                                              ? '#FFFFFF'
-                                              : '#F7F8F5',
+                                          width: wp('40%'),
+                                          alignItems: 'center',
+                                          justifyContent: 'center',
                                         }}>
+                                        <Text>
+                                          {item.inventoryMapping &&
+                                            item.inventoryMapping.productName}
+                                        </Text>
+                                      </View>
+                                      {editStatus ? (
                                         <View
                                           style={{
-                                            width: wp('40%'),
+                                            width: wp('30%'),
                                             alignItems: 'center',
                                             justifyContent: 'center',
                                           }}>
-                                          <Text>
-                                            {item.inventoryMapping &&
-                                              item.inventoryMapping.productName}
-                                          </Text>
+                                          <TextInput
+                                            value={String(item.quantity)}
+                                            style={{
+                                              borderWidth: 1,
+                                              borderRadius: 6,
+                                              padding: 10,
+                                              width: wp('22%'),
+                                            }}
+                                            onChangeText={value =>
+                                              this.editQuantityFun(
+                                                index,
+                                                'quantity',
+                                                value,
+                                                item,
+                                              )
+                                            }
+                                          />
                                         </View>
+                                      ) : (
                                         <View
                                           style={{
                                             width: wp('30%'),
@@ -649,90 +750,123 @@ class Basket extends Component {
                                           }}>
                                           <Text>{item.quantity}</Text>
                                         </View>
-                                        <View
-                                          style={{
-                                            width: wp('30%'),
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                          }}>
-                                          <Text>
-                                            {Number(item.value).toFixed(2)}
-                                          </Text>
-                                        </View>
-
-                                        <TouchableOpacity
-                                          onPress={() => this.actionFun(item)}
-                                          style={{
-                                            width: wp('30%'),
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                          }}>
-                                          <Image
-                                            source={img.threeDotsIcon}
-                                            style={{
-                                              height: 15,
-                                              width: 15,
-                                              resizeMode: 'contain',
-                                            }}
-                                          />
-                                        </TouchableOpacity>
+                                      )}
+                                      <View
+                                        style={{
+                                          width: wp('30%'),
+                                          alignItems: 'center',
+                                          justifyContent: 'center',
+                                        }}>
+                                        <Text>
+                                          $ {Number(item.value).toFixed(2)}
+                                        </Text>
                                       </View>
+
+                                      <TouchableOpacity
+                                        onPress={() => this.actionFun(item)}
+                                        style={{
+                                          width: wp('30%'),
+                                          alignItems: 'center',
+                                          justifyContent: 'center',
+                                        }}>
+                                        <Image
+                                          source={img.threeDotsIcon}
+                                          style={{
+                                            height: 15,
+                                            width: 15,
+                                            resizeMode: 'contain',
+                                          }}
+                                        />
+                                      </TouchableOpacity>
                                     </View>
-                                  );
-                                })
-                              ) : (
-                                <View style={{marginTop: hp('3%')}}>
-                                  <Text style={{color: 'red', fontSize: 20}}>
-                                    No data available
-                                  </Text>
-                                </View>
-                              )}
+                                  </View>
+                                );
+                              })
+                            ) : (
+                              <View style={{marginTop: hp('3%')}}>
+                                <Text style={{color: 'red', fontSize: 20}}>
+                                  No data available
+                                </Text>
+                              </View>
+                            )}
+                            <View
+                              style={{
+                                paddingVertical: 15,
+                                paddingHorizontal: 5,
+                                flexDirection: 'row',
+                                justifyContent: 'space-between',
+                                backgroundColor: '#FFFFFF',
+                              }}>
                               <View
                                 style={{
-                                  paddingVertical: 15,
-                                  paddingHorizontal: 5,
-                                  flexDirection: 'row',
-                                  justifyContent: 'space-between',
-                                  backgroundColor: '#FFFFFF',
+                                  width: wp('40%'),
+                                  alignItems: 'center',
+                                }}></View>
+                              <View
+                                style={{
+                                  width: wp('30%'),
+                                  alignItems: 'center',
                                 }}>
-                                <View
-                                  style={{
-                                    width: wp('40%'),
-                                    alignItems: 'center',
-                                  }}></View>
-                                <View
-                                  style={{
-                                    width: wp('30%'),
-                                    alignItems: 'center',
-                                  }}>
-                                  <Text>Total HTVA</Text>
-                                </View>
-                                <View
-                                  style={{
-                                    width: wp('30%'),
-                                    alignItems: 'center',
-                                  }}>
-                                  <Text>$</Text>
-                                </View>
-
-                                <View
-                                  style={{
-                                    width: wp('30%'),
-                                    alignItems: 'center',
-                                  }}></View>
+                                <Text>Total HTVA</Text>
                               </View>
+                              <View
+                                style={{
+                                  width: wp('30%'),
+                                  alignItems: 'center',
+                                }}>
+                                <Text>
+                                  {' '}
+                                  $ {Number(totalHTVAVal).toFixed(2)}
+                                </Text>
+                              </View>
+
+                              <View
+                                style={{
+                                  width: wp('30%'),
+                                  alignItems: 'center',
+                                }}></View>
                             </View>
                           </View>
-                        </ScrollView>
-                      </View>
-                    </ScrollView>
-                  </View>
-                )}
-              </ScrollView>
+                        </View>
+                      </ScrollView>
+                    </View>
+                  </ScrollView>
+                </View>
+              )}
             </View>
           )}
+          {editStatus ? (
+            <View style={{justifyContent: 'center', alignItems: 'center'}}>
+              <TouchableOpacity
+                onPress={() => this.updateBasketFun()}
+                style={{
+                  height: hp('6%'),
+                  width: wp('80%'),
+                  backgroundColor: '#94C036',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  borderRadius: 100,
+                  marginTop: hp('2%'),
+                }}>
+                <View
+                  style={{
+                    alignItems: 'center',
+                  }}>
+                  <Text
+                    style={{
+                      color: 'white',
+                      marginLeft: 10,
+                      fontFamily: 'Inter-SemiBold',
+                    }}>
+                    {translate('Update')}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            </View>
+          ) : null}
           <View style={{marginVertical: hp('3%')}}>
             <FlatList
+              horizontal
               data={buttons}
               renderItem={({item}) => (
                 <View style={styles.itemContainer}>
@@ -781,7 +915,7 @@ class Basket extends Component {
                 </View>
               )}
               keyExtractor={item => item.id}
-              numColumns={3}
+              // numColumns={3}
             />
           </View>
 
