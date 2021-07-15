@@ -393,7 +393,7 @@ class ViewDraftOrders extends Component {
                             justifyContent: 'center',
                             alignItems: 'center',
                           }}>
-                          <Text> $ {totalHTVAVal}</Text>
+                          <Text> $ {Number(totalHTVAVal).toFixed(2)}</Text>
                         </View>
                         <View
                           style={{

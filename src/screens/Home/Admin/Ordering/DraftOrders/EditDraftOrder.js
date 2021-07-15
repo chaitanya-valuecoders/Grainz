@@ -876,7 +876,11 @@ class EditDraftOrder extends Component {
                                 justifyContent: 'center',
                                 alignItems: 'center',
                               }}>
-                              <Text> $ {draftsOrderData.totalValue}</Text>
+                              <Text>
+                                {' '}
+                                ${' '}
+                                {Number(draftsOrderData.totalValue).toFixed(2)}
+                              </Text>
                             </View>
                             <View
                               style={{
