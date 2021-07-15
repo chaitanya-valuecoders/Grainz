@@ -57,10 +57,6 @@ class index extends Component {
                 }}
                 source={img.profilePhotoIcon}
               />
-              {/* <Text style={{fontSize: 20, color: 'grey', textAlign: 'center'}}>
-                {' '}
-                {this.props.logout}{' '}
-              </Text> */}
             </TouchableOpacity>
           </View>
         </View>

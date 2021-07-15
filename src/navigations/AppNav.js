@@ -7,7 +7,6 @@ import StockTakeScreen from '../screens/StockTake';
 import ManualLogScreen from '../screens/ManualLog';
 import MyProfile from '../screens/MyProfile';
 import CasualPurchaseScreen from '../screens/CasualPurchase';
-import RecipeScreen from '../screens/Recipes';
 import MenuItemsScreen from '../screens/MenuItems';
 import DeliveriesScreen from '../screens/Deliveries';
 import EventsScreen from '../screens/Events';
@@ -117,7 +116,6 @@ export default function AppNavFun() {
         component={ViewRecipeMepScreen}
       />
       <AppNav.Screen name="EditStockScreen" component={EditStockScreen} />
-      <AppNav.Screen name="RecipeScreen" component={RecipeScreen} />
       <AppNav.Screen name="MenuItemsScreen" component={MenuItemsScreen} />
       <AppNav.Screen name="DeliveriesScreen" component={DeliveriesScreen} />
       <AppNav.Screen name="EventsScreen" component={EventsScreen} />

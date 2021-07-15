@@ -12,15 +12,11 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {connect} from 'react-redux';
 import img from '../../constants/images';
 import SubHeader from '../../components/SubHeader';
-import MepScreen from '../Mep';
 import Header from '../../components/Header';
-import {
-  widthPercentageToDP as wp,
-  heightPercentageToDP as hp,
-} from 'react-native-responsive-screen';
 import {UserTokenAction} from '../../redux/actions/UserTokenAction';
 import {getMyProfileApi} from '../../connectivity/api';
 import {translate} from '../../utils/translations';
+import styles from './style';
 
 class index extends Component {
   constructor(props) {
@@ -32,6 +28,7 @@ class index extends Component {
       phoneNumber: '',
       jobTitle: '',
       pageLoader: true,
+      buttonsSubHeader: [],
     };
   }
 
@@ -46,6 +43,11 @@ class index extends Component {
           jobTitle,
           phoneNumber,
           pageLoader: false,
+          buttonsSubHeader: [
+            {name: translate('ADMIN')},
+            {name: translate('Setup')},
+            {name: translate('INBOX')},
+          ],
         });
       })
       .catch(err => {
@@ -65,6 +67,10 @@ class index extends Component {
     this.props.UserTokenAction(null);
   };
 
+  myProfile = () => {
+    this.props.navigation.navigate('MyProfile');
+  };
+
   render() {
     const {
       pageLoader,
@@ -73,149 +79,105 @@ class index extends Component {
       phoneNumber,
       firstName,
       lastName,
+      buttonsSubHeader,
     } = this.state;
     return (
-      <View style={{flex: 1, backgroundColor: '#fff'}}>
+      <View style={styles.container}>
         <Header
-          logout={translate('Logout')}
-          logoutFun={this.removeToken}
+          logoutFun={this.myProfile}
           logoFun={() => this.props.navigation.navigate('HomeScreen')}
         />
-        {/* <SubHeader /> */}
-        <ScrollView style={{marginTop: hp('2%'), marginBottom: hp('2%')}}>
+        {pageLoader ? (
+          <ActivityIndicator size="small" color="#94C036" />
+        ) : (
+          <SubHeader {...this.props} buttons={buttonsSubHeader} />
+        )}
+        <ScrollView style={styles.subContainer}>
           {pageLoader ? (
             <ActivityIndicator color="#94C036" size="large" />
           ) : (
             <View>
-              <View
-                style={{
-                  height: hp('10%'),
-                  marginHorizontal: wp('5%'),
-                  flexDirection: 'row',
-                }}>
-                <View
-                  style={{
-                    flex: 1,
-                    justifyContent: 'center',
-                  }}>
-                  <Text>{translate('First name')}</Text>
+              <View style={styles.dataContainer}>
+                <View style={styles.dataFirstContainer}>
+                  <Text style={styles.textStyling}>
+                    {translate('First name')}
+                  </Text>
                 </View>
-                <View style={{flex: 3, justifyContent: 'center'}}>
+                <View style={styles.dataSecondContainer}>
                   <TextInput
                     value={firstName}
                     placeholder={translate('First name')}
-                    style={{
-                      borderWidth: 1,
-                      paddingVertical: '5%',
-                      borderColor: 'grey',
-                      paddingLeft: wp('2%'),
-                    }}
+                    style={styles.textInputStyling}
                   />
                 </View>
               </View>
-              <View
-                style={{
-                  height: hp('10%'),
-                  marginHorizontal: wp('5%'),
-                  flexDirection: 'row',
-                }}>
-                <View
-                  style={{
-                    flex: 1,
-                    justifyContent: 'center',
-                  }}>
-                  <Text>{translate('Last name')}</Text>
+              <View style={styles.dataContainer}>
+                <View style={styles.dataFirstContainer}>
+                  <Text style={styles.textStyling}>
+                    {translate('Last name')}
+                  </Text>
                 </View>
-                <View style={{flex: 3, justifyContent: 'center'}}>
+                <View style={styles.dataSecondContainer}>
                   <TextInput
                     value={lastName}
                     placeholder={translate('Last name')}
-                    style={{
-                      borderWidth: 1,
-                      paddingVertical: '5%',
-                      borderColor: 'grey',
-                      paddingLeft: wp('2%'),
-                    }}
+                    style={styles.textInputStyling}
                   />
                 </View>
               </View>
-              <View
-                style={{
-                  height: hp('10%'),
-                  marginHorizontal: wp('5%'),
-                  flexDirection: 'row',
-                }}>
-                <View
-                  style={{
-                    flex: 1,
-                    justifyContent: 'center',
-                  }}>
-                  <Text>{translate('job')}</Text>
+              <View style={styles.dataContainer}>
+                <View style={styles.dataFirstContainer}>
+                  <Text style={styles.textStyling}>{translate('job')}</Text>
                 </View>
-                <View style={{flex: 3, justifyContent: 'center'}}>
+                <View style={styles.dataSecondContainer}>
                   <TextInput
                     value={jobTitle}
                     placeholder={translate('job')}
-                    style={{
-                      borderWidth: 1,
-                      paddingVertical: '5%',
-                      borderColor: 'grey',
-                      paddingLeft: wp('2%'),
-                    }}
+                    style={styles.textInputStyling}
                   />
                 </View>
               </View>
-              <View
-                style={{
-                  height: hp('10%'),
-                  marginHorizontal: wp('5%'),
-                  flexDirection: 'row',
-                }}>
-                <View
-                  style={{
-                    flex: 1,
-                    justifyContent: 'center',
-                  }}>
-                  <Text>{translate('Mobile phone')}</Text>
+              <View style={styles.dataContainer}>
+                <View style={styles.dataFirstContainer}>
+                  <Text style={styles.textStyling}>
+                    {translate('Mobile phone')}
+                  </Text>
                 </View>
-                <View style={{flex: 3, justifyContent: 'center'}}>
+                <View style={styles.dataSecondContainer}>
                   <TextInput
                     value={phoneNumber}
                     placeholder={translate('Mobile phone')}
-                    style={{
-                      borderWidth: 1,
-                      paddingVertical: '5%',
-                      borderColor: 'grey',
-                      paddingLeft: wp('2%'),
-                    }}
+                    style={styles.textInputStyling}
                   />
                 </View>
               </View>
-              <View
-                style={{
-                  height: hp('10%'),
-                  marginHorizontal: wp('5%'),
-                  flexDirection: 'row',
-                }}>
-                <View
-                  style={{
-                    flex: 1,
-                    justifyContent: 'center',
-                  }}>
-                  <Text>{translate('Email')}</Text>
+              <View style={styles.dataContainer}>
+                <View style={styles.dataFirstContainer}>
+                  <Text style={styles.textStyling}>{translate('Email')}</Text>
                 </View>
-                <View style={{flex: 3, justifyContent: 'center'}}>
+                <View style={styles.dataSecondContainer}>
                   <TextInput
                     value={email}
                     placeholder={translate('Email')}
-                    style={{
-                      borderWidth: 1,
-                      paddingVertical: '5%',
-                      borderColor: 'grey',
-                      paddingLeft: wp('2%'),
-                    }}
+                    style={styles.textInputStyling}
                   />
                 </View>
+              </View>
+              <View style={styles.dataContainer}>
+                <View style={styles.dataSecondContainer}></View>
+                <TouchableOpacity
+                  onPress={() => this.removeToken()}
+                  style={{
+                    ...styles.dataFirstContainer,
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                  }}>
+                  <Text style={styles.textStyling}>{translate('Logout')}</Text>
+                  <Image
+                    source={img.logOutIcon}
+                    style={styles.logOutIconStyling}
+                  />
+                </TouchableOpacity>
               </View>
             </View>
           )}

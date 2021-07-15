@@ -53,4 +53,5 @@ export default {
   viewInventoryIcon: require('../assests/Images/viewInventoryIcon.png'),
   doubleArrowIconNew: require('../assests/Images/doubleArrowIcon.png'),
   cartIcon: require('../assests/Images/cartIcon.png'),
+  logOutIcon: require('../assests/Images/logOutIcon.png'),
 };
