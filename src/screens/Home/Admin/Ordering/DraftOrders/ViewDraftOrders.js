@@ -463,7 +463,10 @@ class ViewDraftOrders extends Component {
                             justifyContent: 'center',
                             alignItems: 'center',
                           }}>
-                          <Text> {moment(deliveryDate).format('L')}</Text>
+                          <Text>
+                            {' '}
+                            {deliveryDate && moment(deliveryDate).format('L')}
+                          </Text>
                         </View>
                         <View
                           style={{

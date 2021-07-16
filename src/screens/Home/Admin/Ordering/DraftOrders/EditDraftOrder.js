@@ -59,6 +59,7 @@ class EditDraftOrder extends Component {
       inventoryData: [],
       basketId: '',
       finalArrData: [],
+      editStatus: false,
     };
   }
 
@@ -92,6 +93,7 @@ class EditDraftOrder extends Component {
       draftsOrderData,
       finalApiData,
     } = this.state;
+    console.log('react-native-pd', apiOrderDate);
     let payload = {
       id: basketId,
       supplierId: supplierValue,
@@ -294,7 +296,10 @@ class EditDraftOrder extends Component {
   };
 
   editFun = () => {
-    alert('edit function');
+    this.setState({
+      editStatus: true,
+      actionModalStatus: false,
+    });
   };
 
   deleteFun = () => {
@@ -371,9 +376,9 @@ class EditDraftOrder extends Component {
             modalLoaderDrafts: false,
             supplierValue: res.data && res.data.supplierId,
             finalOrderDate: moment(res.data && res.data.orderDate).format('L'),
-            finalDeliveryDate: moment(res.data && res.data.deliveryDate).format(
-              'L',
-            ),
+            finalDeliveryDate:
+              res.data.deliveryDate &&
+              moment(res.data && res.data.deliveryDate).format('L'),
             apiDeliveryDate: res.data && res.data.deliveryDate,
             apiOrderDate: res.data && res.data.orderDate,
             placedByValue: res.data && res.data.placedBy,
@@ -391,6 +396,7 @@ class EditDraftOrder extends Component {
     const {inventoryData} = this.state;
     const finalArr = [];
     inventoryData.map(item => {
+      console.log('item', item);
       finalArr.push({
         id: item.id,
         inventoryId: item.inventoryId,
@@ -399,13 +405,54 @@ class EditDraftOrder extends Component {
         quantity: item.quantity,
         calculatedQuantity: item.calculatedQuantity,
         unit: item.unit,
-        action: 'Update',
+        action: item.action,
         value: item.value,
       });
     });
     this.setState({
       finalApiData: [...finalArr],
     });
+  };
+
+  editQuantityFun = (index, type, value) => {
+    const {inventoryData} = this.state;
+
+    let newArr = inventoryData.map((item, i) =>
+      index === i
+        ? {
+            ...item,
+            [type]: value,
+            ['action']: 'Update',
+          }
+        : item,
+    );
+    this.setState({
+      inventoryData: [...newArr],
+      finalApiData: [...newArr],
+    });
+  };
+
+  updateBasketFun = () => {
+    const {supplierValue, basketId, finalApiData} = this.state;
+    let payload = {
+      supplierId: supplierValue,
+      shopingBasketItemList: finalApiData,
+      id: basketId,
+    };
+    updateBasketApi(payload)
+      .then(res => {
+        console.log('res', res);
+        this.setState(
+          {
+            modalLoaderDrafts: true,
+            editStatus: false,
+          },
+          () => this.getInventoryFun(),
+        );
+      })
+      .catch(err => {
+        console.log('err', err);
+      });
   };
 
   render() {
@@ -427,9 +474,11 @@ class EditDraftOrder extends Component {
       inventoryData,
       draftsOrderData,
       finalArrData,
+      editStatus,
+      finalApiData,
     } = this.state;
 
-    console.log('finalArrData', finalArrData);
+    console.log('finalApiData', finalApiData);
     return (
       <View style={styles.container}>
         <Header
@@ -799,21 +848,43 @@ class EditDraftOrder extends Component {
                                       {item.inventoryMapping.productName}
                                     </Text>
                                   </View>
-                                  <View
-                                    style={{
-                                      width: wp('30%'),
-                                      justifyContent: 'center',
-                                      alignItems: 'center',
-                                    }}>
-                                    <Text style={{}}>
-                                      {item.calculatedQuantity.toFixed(2)}
-                                      {/* {Number(
-                                            item.inventoryMapping.grainzVolume *
-                                              item.quantity,
-                                          ).toFixed(2)}{' '} */}
-                                      {/* {item.inventoryMapping.unit} */}
-                                    </Text>
-                                  </View>
+                                  {editStatus ? (
+                                    <View
+                                      style={{
+                                        width: wp('30%'),
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                      }}>
+                                      <TextInput
+                                        value={String(item.quantity)}
+                                        style={{
+                                          borderWidth: 1,
+                                          borderRadius: 6,
+                                          padding: 10,
+                                          width: wp('22%'),
+                                        }}
+                                        onChangeText={value =>
+                                          this.editQuantityFun(
+                                            index,
+                                            'quantity',
+                                            value,
+                                            item,
+                                          )
+                                        }
+                                      />
+                                    </View>
+                                  ) : (
+                                    <View
+                                      style={{
+                                        width: wp('30%'),
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                      }}>
+                                      <Text style={{}}>
+                                        {item.calculatedQuantity.toFixed(2)}
+                                      </Text>
+                                    </View>
+                                  )}
                                   <View
                                     style={{
                                       width: wp('30%'),
@@ -897,6 +968,35 @@ class EditDraftOrder extends Component {
               </ScrollView>
             </View>
           )}
+          {editStatus ? (
+            <View style={{justifyContent: 'center', alignItems: 'center'}}>
+              <TouchableOpacity
+                onPress={() => this.updateBasketFun()}
+                style={{
+                  height: hp('6%'),
+                  width: wp('80%'),
+                  backgroundColor: '#94C036',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  borderRadius: 100,
+                  marginTop: hp('2%'),
+                }}>
+                <View
+                  style={{
+                    alignItems: 'center',
+                  }}>
+                  <Text
+                    style={{
+                      color: 'white',
+                      marginLeft: 10,
+                      fontFamily: 'Inter-SemiBold',
+                    }}>
+                    {translate('Update')}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            </View>
+          ) : null}
           <View style={{marginVertical: hp('3%')}}>
             <FlatList
               data={buttons}

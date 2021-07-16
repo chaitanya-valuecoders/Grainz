@@ -155,6 +155,7 @@ class Basket extends Component {
             modalData: res.data && res.data.shopingBasketItemList,
             modalLoader: false,
             totalHTVAVal: res.data && res.data.totalValue,
+            placedByValue: res.data && res.data.placedBy,
           },
           () => this.createApiData(),
         );
@@ -326,13 +327,7 @@ class Basket extends Component {
       shopingBasketItemList: finalApiData,
     };
     console.log('payoad', payload);
-    if (
-      apiDeliveryDate &&
-      apiOrderDate &&
-      placedByValue &&
-      supplierId &&
-      finalApiData
-    ) {
+    if (apiOrderDate && placedByValue && supplierId && finalApiData) {
       addDraftApi(payload)
         .then(res => {
           Alert.alert('Grainz', 'Order added successfully', [
