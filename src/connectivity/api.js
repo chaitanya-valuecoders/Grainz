@@ -923,7 +923,6 @@ export const addBasketApi = async payload => {
 };
 
 export const getBasketApi = async id => {
-  console.log('is', id);
   const token = await AsyncStorage.getItem('@appToken');
   return axios.get(
     baseURL + `/ShopingBasket/Get shoping basket by id?Id=${id}`,
@@ -949,6 +948,16 @@ export const sendOrderApi = async payload => {
   console.log('payload', payload);
   const token = await AsyncStorage.getItem('@appToken');
   return axios.post(baseURL + `/Order/send order`, payload, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+export const viewShoppingBasketApi = async id => {
+  console.log('is', id);
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.get(baseURL + `/Order/view shoping basket?Id=${id}`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },

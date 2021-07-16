@@ -28,6 +28,7 @@ import {
   getBasketApi,
   updateBasketApi,
   sendOrderApi,
+  viewShoppingBasketApi,
 } from '../../../../../connectivity/api';
 import CheckBox from '@react-native-community/checkbox';
 import Modal from 'react-native-modal';
@@ -155,6 +156,7 @@ class Basket extends Component {
 
   getBasketDataFun = () => {
     const {basketId} = this.state;
+    console.log('basketId', basketId);
     getBasketApi(basketId)
       .then(res => {
         console.log('res', res);
@@ -169,7 +171,7 @@ class Basket extends Component {
         );
       })
       .catch(err => {
-        console.log('err', err);
+        console.log('errGETBASKET', err);
       });
   };
 
@@ -275,12 +277,19 @@ class Basket extends Component {
       };
       addDraftApi(payload)
         .then(res => {
+          console.log('res', res);
           Alert.alert('Grainz', 'Order added successfully', [
             {
               text: 'okay',
               onPress: () =>
                 this.setState({
                   mailModalVisible: true,
+                  toRecipientValue:
+                    res.data && res.data.emailDetails.toRecipient,
+                  ccRecipientValue:
+                    res.data && res.data.emailDetails.ccRecipients,
+                  mailTitleValue: res.data && res.data.emailDetails.subject,
+                  mailMessageValue: res.data && res.data.emailDetails.text,
                 }),
             },
           ]);
@@ -379,6 +388,7 @@ class Basket extends Component {
     if (apiOrderDate && placedByValue && supplierId && finalApiData) {
       addDraftApi(payload)
         .then(res => {
+          console.log('res', res);
           Alert.alert('Grainz', 'Order added successfully', [
             {
               text: 'okay',
@@ -405,8 +415,51 @@ class Basket extends Component {
     } else if (item.id === 1) {
       this.saveDraftFun();
     } else {
-      alert('view');
+      this.viewFun();
     }
+  };
+
+  viewFun = () => {
+    const {
+      apiOrderDate,
+      placedByValue,
+      supplierId,
+      finalApiData,
+      basketId,
+      apiDeliveryDate,
+    } = this.state;
+    let payload = {
+      id: basketId,
+      supplierId: supplierId,
+      orderDate: apiOrderDate,
+      deliveryDate: apiDeliveryDate,
+      placedBy: placedByValue,
+      shopingBasketItemList: finalApiData,
+    };
+    addDraftApi(payload)
+      .then(res => {
+        Alert.alert('Grainz', 'Order added successfully', [
+          {
+            text: 'okay',
+            onPress: () => this.viewFunSec(),
+          },
+        ]);
+      })
+      .catch(err => {
+        console.log('err', err);
+      });
+  };
+
+  viewFunSec = () => {
+    const {basketId} = this.state;
+    console.log('bas', basketId);
+    viewShoppingBasketApi(basketId)
+      .then(res => {
+        console.log('res', res);
+      })
+      .catch(err => {
+        console.log('Err', err);
+      });
   };
 
   showDatePickerOrderDate = () => {
@@ -493,7 +546,7 @@ class Basket extends Component {
         text: mailMessageValue,
         toRecipient: toRecipientValue,
       },
-      id: basketId,
+      shopingBasketId: basketId,
     };
 
     console.log('payload', payload);
@@ -551,7 +604,6 @@ class Basket extends Component {
       mailTitleValue,
     } = this.state;
 
-    console.log('modalData', modalData);
     return (
       <View style={styles.container}>
         <Header
