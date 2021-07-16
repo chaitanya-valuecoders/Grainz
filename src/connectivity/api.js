@@ -944,3 +944,13 @@ export const updateBasketApi = async payload => {
     },
   });
 };
+
+export const sendOrderApi = async payload => {
+  console.log('payload', payload);
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.post(baseURL + `/Order/send order`, payload, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};

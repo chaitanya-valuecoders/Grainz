@@ -27,6 +27,7 @@ import {
   getCurrentLocUsersAdminApi,
   getBasketApi,
   updateBasketApi,
+  sendOrderApi,
 } from '../../../../../connectivity/api';
 import CheckBox from '@react-native-community/checkbox';
 import Modal from 'react-native-modal';
@@ -69,6 +70,12 @@ class Basket extends Component {
       finalArrData: [],
       editStatus: false,
       totalHTVAVal: '',
+      mailModalVisible: false,
+      productId: '',
+      toRecipientValue: '',
+      mailMessageValue: '',
+      ccRecipientValue: '',
+      mailTitleValue: '',
     };
   }
 
@@ -130,7 +137,7 @@ class Basket extends Component {
   componentDidMount() {
     this.getData();
     this.getUsersListData();
-    const {finalData, supplierId, itemType} =
+    const {finalData, supplierId, itemType, productId} =
       this.props.route && this.props.route.params;
     this.setState(
       {
@@ -140,6 +147,7 @@ class Basket extends Component {
         modalLoader: true,
         finalOrderDate: moment(new Date()).format('L'),
         apiOrderDate: new Date().toISOString(),
+        productId,
       },
       () => this.getBasketDataFun(),
     );
@@ -220,6 +228,7 @@ class Basket extends Component {
   setModalVisibleFalse = visible => {
     this.setState({
       actionModalStatus: visible,
+      mailModalVisible: visible,
     });
   };
 
@@ -241,7 +250,47 @@ class Basket extends Component {
   };
 
   sendFun = () => {
-    alert('Send');
+    const {
+      apiOrderDate,
+      placedByValue,
+      supplierId,
+      finalApiData,
+      basketId,
+      apiDeliveryDate,
+    } = this.state;
+    if (
+      apiOrderDate &&
+      placedByValue &&
+      supplierId &&
+      finalApiData &&
+      apiDeliveryDate
+    ) {
+      let payload = {
+        id: basketId,
+        supplierId: supplierId,
+        orderDate: apiOrderDate,
+        deliveryDate: apiDeliveryDate,
+        placedBy: placedByValue,
+        shopingBasketItemList: finalApiData,
+      };
+      addDraftApi(payload)
+        .then(res => {
+          Alert.alert('Grainz', 'Order added successfully', [
+            {
+              text: 'okay',
+              onPress: () =>
+                this.setState({
+                  mailModalVisible: true,
+                }),
+            },
+          ]);
+        })
+        .catch(err => {
+          console.log('err', err);
+        });
+    } else {
+      alert('Please select all values');
+    }
   };
 
   editInventoryFun = () => {
@@ -429,6 +478,50 @@ class Basket extends Component {
       });
   };
 
+  sendMailFun = () => {
+    const {
+      basketId,
+      toRecipientValue,
+      mailMessageValue,
+      ccRecipientValue,
+      mailTitleValue,
+    } = this.state;
+    let payload = {
+      emailDetails: {
+        ccRecipients: ccRecipientValue,
+        subject: mailTitleValue,
+        text: mailMessageValue,
+        toRecipient: toRecipientValue,
+      },
+      id: basketId,
+    };
+
+    console.log('payload', payload);
+
+    sendOrderApi(payload)
+      .then(res => {
+        console.log('res', res);
+        this.setState(
+          {
+            mailModalVisible: false,
+          },
+          () => this.props.navigation.navigate('OrderingAdminScreen'),
+        );
+      })
+      .catch(err => {
+        console.log('err', err);
+      });
+  };
+
+  closeMailModal = () => {
+    this.setState(
+      {
+        mailModalVisible: false,
+      },
+      () => this.props.navigation.navigate('OrderingAdminScreen'),
+    );
+  };
+
   render() {
     const {
       buttonsSubHeader,
@@ -451,6 +544,11 @@ class Basket extends Component {
       sentValue,
       editStatus,
       totalHTVAVal,
+      mailModalVisible,
+      toRecipientValue,
+      mailMessageValue,
+      ccRecipientValue,
+      mailTitleValue,
     } = this.state;
 
     console.log('modalData', modalData);
@@ -942,6 +1040,162 @@ class Basket extends Component {
               </View>
             </TouchableOpacity>
           </View>
+          <Modal isVisible={mailModalVisible} backdropOpacity={0.35}>
+            <View
+              style={{
+                width: wp('80%'),
+                height: hp('65%'),
+                backgroundColor: '#F0F4FE',
+                alignSelf: 'center',
+                borderRadius: 6,
+              }}>
+              <View
+                style={{
+                  backgroundColor: '#87AF30',
+                  height: hp('6%'),
+                  flexDirection: 'row',
+                  borderTopRightRadius: 6,
+                  borderTopLeftRadius: 6,
+                }}>
+                <View
+                  style={{
+                    flex: 1,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}>
+                  <Text style={{fontSize: 16, color: '#fff'}}>Send Mail</Text>
+                </View>
+              </View>
+              <ScrollView showsVerticalScrollIndicator={false}>
+                <View
+                  style={{
+                    padding: hp('3%'),
+                  }}>
+                  <View style={{}}>
+                    <View style={{}}>
+                      <TextInput
+                        value={mailTitleValue}
+                        placeholder="Title"
+                        style={{
+                          padding: 15,
+                          width: '100%',
+                          backgroundColor: '#fff',
+                          borderRadius: 5,
+                        }}
+                        onChangeText={value =>
+                          this.setState({
+                            mailTitleValue: value,
+                          })
+                        }
+                      />
+                    </View>
+                    <View style={{marginTop: hp('3%')}}>
+                      <TextInput
+                        value={toRecipientValue}
+                        placeholder="To"
+                        style={{
+                          padding: 15,
+                          width: '100%',
+                          backgroundColor: '#fff',
+                          borderRadius: 5,
+                        }}
+                        onChangeText={value =>
+                          this.setState({
+                            toRecipientValue: value,
+                          })
+                        }
+                      />
+                    </View>
+                    <View style={{marginTop: hp('3%')}}>
+                      <TextInput
+                        value={ccRecipientValue}
+                        placeholder="CC"
+                        style={{
+                          padding: 15,
+                          width: '100%',
+                          backgroundColor: '#fff',
+                          borderRadius: 5,
+                        }}
+                        onChangeText={value =>
+                          this.setState({
+                            ccRecipientValue: value,
+                          })
+                        }
+                      />
+                    </View>
+
+                    <View style={{marginTop: hp('3%')}}>
+                      <TextInput
+                        value={mailMessageValue}
+                        placeholder="Message"
+                        style={{
+                          padding: 15,
+                          width: '100%',
+                          backgroundColor: '#fff',
+                          borderRadius: 5,
+                        }}
+                        onChangeText={value =>
+                          this.setState({
+                            mailMessageValue: value,
+                          })
+                        }
+                      />
+                    </View>
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        marginTop: hp('4%'),
+                      }}>
+                      <TouchableOpacity
+                        onPress={() => this.sendMailFun()}
+                        style={{
+                          width: wp('30%'),
+                          height: hp('5%'),
+                          alignSelf: 'flex-end',
+                          backgroundColor: '#94C036',
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                          borderRadius: 100,
+                        }}>
+                        <Text
+                          style={{
+                            color: '#fff',
+                            fontSize: 15,
+                            fontWeight: 'bold',
+                          }}>
+                          {translate('Confirm')}
+                        </Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        onPress={() => this.closeMailModal()}
+                        style={{
+                          width: wp('30%'),
+                          height: hp('5%'),
+                          alignSelf: 'flex-end',
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                          marginLeft: wp('2%'),
+                          borderRadius: 100,
+                          borderColor: '#482813',
+                          borderWidth: 1,
+                        }}>
+                        <Text
+                          style={{
+                            color: '#482813',
+                            fontSize: 15,
+                            fontWeight: 'bold',
+                          }}>
+                          {translate('Cancel')}
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                </View>
+              </ScrollView>
+            </View>
+          </Modal>
           <Modal isVisible={actionModalStatus} backdropOpacity={0.35}>
             <View
               style={{

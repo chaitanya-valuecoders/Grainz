@@ -290,6 +290,7 @@ class InventoryList extends Component {
               finalData: res.data && res.data.id,
               supplierId,
               itemType: 'Inventory',
+              productId,
             });
           })
           .catch(err => {
@@ -318,6 +319,7 @@ class InventoryList extends Component {
               finalData: res.data && res.data.id,
               supplierId,
               itemType: 'Inventory',
+              productId,
             });
           }
         })
@@ -337,9 +339,10 @@ class InventoryList extends Component {
       actionModalStatus,
       finalBasketData,
       screenType,
+      productId,
     } = this.state;
 
-    console.log('finalBasketData', finalBasketData);
+    console.log('productId', productId);
     console.log('screenType', screenType);
 
     return (
