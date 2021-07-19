@@ -9,6 +9,8 @@ import {
   Image,
   Alert,
   FlatList,
+  Platform,
+  PermissionsAndroid,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {connect} from 'react-redux';
@@ -27,6 +29,8 @@ import {
   getBasketApi,
   updateBasketApi,
   updateDraftOrderNewApi,
+  sendOrderApi,
+  viewShoppingBasketApi,
 } from '../../../../../connectivity/api';
 import moment from 'moment';
 import styles from '../style';
@@ -34,6 +38,7 @@ import RNPickerSelect from 'react-native-picker-select';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import {translate} from '../../../../../utils/translations';
 import Modal from 'react-native-modal';
+import RNFetchBlob from 'rn-fetch-blob';
 
 class EditDraftOrder extends Component {
   constructor(props) {
@@ -60,6 +65,11 @@ class EditDraftOrder extends Component {
       basketId: '',
       finalArrData: [],
       editStatus: false,
+      toRecipientValue: '',
+      mailMessageValue: '',
+      ccRecipientValue: '',
+      mailTitleValue: '',
+      mailModalVisible: false,
     };
   }
 
@@ -80,7 +90,56 @@ class EditDraftOrder extends Component {
     }
   };
   sendFun = () => {
-    alert('Send');
+    const {
+      apiDeliveryDate,
+      apiOrderDate,
+      placedByValue,
+      supplierValue,
+      basketId,
+      draftsOrderData,
+      finalApiData,
+    } = this.state;
+    if (
+      apiOrderDate &&
+      placedByValue &&
+      supplierValue &&
+      finalApiData &&
+      apiDeliveryDate
+    ) {
+      let payload = {
+        id: basketId,
+        supplierId: supplierValue,
+        orderDate: apiOrderDate,
+        deliveryDate: apiDeliveryDate,
+        placedBy: placedByValue,
+        totalValue: draftsOrderData.totalValue,
+        shopingBasketItemList: finalApiData,
+      };
+      updateDraftOrderNewApi(payload)
+        .then(res => {
+          console.log('res', res);
+          Alert.alert('Grainz', 'Order added successfully', [
+            {
+              text: 'okay',
+              onPress: () =>
+                this.setState({
+                  mailModalVisible: true,
+                  toRecipientValue:
+                    res.data && res.data.emailDetails.toRecipient,
+                  ccRecipientValue:
+                    res.data && res.data.emailDetails.ccRecipients,
+                  mailTitleValue: res.data && res.data.emailDetails.subject,
+                  mailMessageValue: res.data && res.data.emailDetails.text,
+                }),
+            },
+          ]);
+        })
+        .catch(err => {
+          console.log('err', err);
+        });
+    } else {
+      alert('Please select all values');
+    }
   };
 
   updateDraftFun = () => {
@@ -231,8 +290,127 @@ class EditDraftOrder extends Component {
     } else if (item.id === 1) {
       this.updateDraftFun();
     } else {
-      alert('view');
+      this.downLoadPdf('data');
+      // this.viewFun();
     }
+  };
+
+  viewFun = () => {
+    const {
+      apiDeliveryDate,
+      apiOrderDate,
+      placedByValue,
+      supplierValue,
+      basketId,
+      draftsOrderData,
+      finalApiData,
+    } = this.state;
+    if (
+      apiOrderDate &&
+      placedByValue &&
+      supplierValue &&
+      finalApiData &&
+      apiDeliveryDate
+    ) {
+      let payload = {
+        id: basketId,
+        supplierId: supplierValue,
+        orderDate: apiOrderDate,
+        deliveryDate: apiDeliveryDate,
+        placedBy: placedByValue,
+        totalValue: draftsOrderData.totalValue,
+        shopingBasketItemList: finalApiData,
+      };
+      updateDraftOrderNewApi(payload)
+        .then(res => {
+          console.log('res', res);
+          Alert.alert('Grainz', 'Order updated successfully', [
+            {
+              text: 'okay',
+              onPress: () => this.viewFunSec(),
+            },
+          ]);
+        })
+        .catch(err => {
+          console.log('err', err);
+        });
+    } else {
+      alert('Please select all values');
+    }
+  };
+
+  viewFunSec = () => {
+    const {basketId} = this.state;
+    console.log('bas', basketId);
+    viewShoppingBasketApi(basketId)
+      .then(res => {
+        this.downLoadPdf(res.data);
+        console.log('res', res);
+      })
+      .catch(err => {
+        console.log('Err', err);
+      });
+  };
+
+  downLoadPdf = data => {
+    this.historyDownload(data);
+  };
+
+  historyDownload = data => {
+    if (Platform.OS === 'ios') {
+      this.downloadHistory(data);
+    } else {
+      try {
+        PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+          {
+            title: 'storage title',
+            message: 'storage_permission',
+          },
+        ).then(granted => {
+          if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+            //Once user grant the permission start downloading
+            // console.log('Storage Permission Granted.');
+            this.downloadHistory(data);
+          } else {
+            //If permission denied then show alert 'Storage Permission Not Granted'
+            Alert.alert('Please grant storage permission');
+          }
+        });
+      } catch (err) {
+        //To handle permission related issue
+        // console.log('error', err);
+      }
+    }
+  };
+
+  downloadHistory = async data => {
+    // console.warn('receipt', data);
+    var pdf_url = data.receipt;
+    let PictureDir = RNFetchBlob.fs.dirs.DownloadDir;
+    let date = new Date();
+    let options = {
+      fileCache: true,
+      addAndroidDownloads: {
+        useDownloadManager: true,
+        notification: true,
+        path:
+          PictureDir +
+          '/grainz_' +
+          Math.floor(date.getTime() + date.getSeconds() / 2) +
+          '.pdf',
+        description: 'Order File',
+      },
+    };
+    RNFetchBlob.config(options)
+      .fetch('GET', 'http://www.africau.edu/images/default/sample.pdf')
+      .then(res => {
+        console.log('res', res);
+        Alert.alert('Ticket receipt downloaded successfully!');
+      })
+      .catch(err => {
+        console.log('PDFErr', err);
+      });
   };
 
   showDatePickerOrderDate = () => {
@@ -292,6 +470,7 @@ class EditDraftOrder extends Component {
   setModalVisibleFalse = visible => {
     this.setState({
       actionModalStatus: visible,
+      mailModalVisible: visible,
     });
   };
 
@@ -455,6 +634,47 @@ class EditDraftOrder extends Component {
       });
   };
 
+  closeMailModal = () => {
+    this.setState({
+      mailModalVisible: false,
+    });
+  };
+
+  sendMailFun = () => {
+    const {
+      basketId,
+      toRecipientValue,
+      mailMessageValue,
+      ccRecipientValue,
+      mailTitleValue,
+    } = this.state;
+    let payload = {
+      emailDetails: {
+        ccRecipients: ccRecipientValue,
+        subject: mailTitleValue,
+        text: mailMessageValue,
+        toRecipient: toRecipientValue,
+      },
+      shopingBasketId: basketId,
+    };
+
+    console.log('payload', payload);
+
+    sendOrderApi(payload)
+      .then(res => {
+        console.log('res', res);
+        this.setState(
+          {
+            mailModalVisible: false,
+          },
+          () => this.props.navigation.navigate('OrderingAdminScreen'),
+        );
+      })
+      .catch(err => {
+        console.log('err', err);
+      });
+  };
+
   render() {
     const {
       buttonsSubHeader,
@@ -476,6 +696,11 @@ class EditDraftOrder extends Component {
       finalArrData,
       editStatus,
       finalApiData,
+      mailModalVisible,
+      toRecipientValue,
+      mailMessageValue,
+      ccRecipientValue,
+      mailTitleValue,
     } = this.state;
 
     console.log('finalApiData', finalApiData);
@@ -1078,6 +1303,162 @@ class EditDraftOrder extends Component {
               </View>
             </TouchableOpacity>
           </View>
+          <Modal isVisible={mailModalVisible} backdropOpacity={0.35}>
+            <View
+              style={{
+                width: wp('80%'),
+                height: hp('65%'),
+                backgroundColor: '#F0F4FE',
+                alignSelf: 'center',
+                borderRadius: 6,
+              }}>
+              <View
+                style={{
+                  backgroundColor: '#87AF30',
+                  height: hp('6%'),
+                  flexDirection: 'row',
+                  borderTopRightRadius: 6,
+                  borderTopLeftRadius: 6,
+                }}>
+                <View
+                  style={{
+                    flex: 1,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}>
+                  <Text style={{fontSize: 16, color: '#fff'}}>Send Mail</Text>
+                </View>
+              </View>
+              <ScrollView showsVerticalScrollIndicator={false}>
+                <View
+                  style={{
+                    padding: hp('3%'),
+                  }}>
+                  <View style={{}}>
+                    <View style={{}}>
+                      <TextInput
+                        value={mailTitleValue}
+                        placeholder="Title"
+                        style={{
+                          padding: 15,
+                          width: '100%',
+                          backgroundColor: '#fff',
+                          borderRadius: 5,
+                        }}
+                        onChangeText={value =>
+                          this.setState({
+                            mailTitleValue: value,
+                          })
+                        }
+                      />
+                    </View>
+                    <View style={{marginTop: hp('3%')}}>
+                      <TextInput
+                        value={toRecipientValue}
+                        placeholder="To"
+                        style={{
+                          padding: 15,
+                          width: '100%',
+                          backgroundColor: '#fff',
+                          borderRadius: 5,
+                        }}
+                        onChangeText={value =>
+                          this.setState({
+                            toRecipientValue: value,
+                          })
+                        }
+                      />
+                    </View>
+                    <View style={{marginTop: hp('3%')}}>
+                      <TextInput
+                        value={ccRecipientValue}
+                        placeholder="CC"
+                        style={{
+                          padding: 15,
+                          width: '100%',
+                          backgroundColor: '#fff',
+                          borderRadius: 5,
+                        }}
+                        onChangeText={value =>
+                          this.setState({
+                            ccRecipientValue: value,
+                          })
+                        }
+                      />
+                    </View>
+
+                    <View style={{marginTop: hp('3%')}}>
+                      <TextInput
+                        value={mailMessageValue}
+                        placeholder="Message"
+                        style={{
+                          padding: 15,
+                          width: '100%',
+                          backgroundColor: '#fff',
+                          borderRadius: 5,
+                        }}
+                        onChangeText={value =>
+                          this.setState({
+                            mailMessageValue: value,
+                          })
+                        }
+                      />
+                    </View>
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        marginTop: hp('4%'),
+                      }}>
+                      <TouchableOpacity
+                        onPress={() => this.sendMailFun()}
+                        style={{
+                          width: wp('30%'),
+                          height: hp('5%'),
+                          alignSelf: 'flex-end',
+                          backgroundColor: '#94C036',
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                          borderRadius: 100,
+                        }}>
+                        <Text
+                          style={{
+                            color: '#fff',
+                            fontSize: 15,
+                            fontWeight: 'bold',
+                          }}>
+                          {translate('Confirm')}
+                        </Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        onPress={() => this.closeMailModal()}
+                        style={{
+                          width: wp('30%'),
+                          height: hp('5%'),
+                          alignSelf: 'flex-end',
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                          marginLeft: wp('2%'),
+                          borderRadius: 100,
+                          borderColor: '#482813',
+                          borderWidth: 1,
+                        }}>
+                        <Text
+                          style={{
+                            color: '#482813',
+                            fontSize: 15,
+                            fontWeight: 'bold',
+                          }}>
+                          {translate('Cancel')}
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                </View>
+              </ScrollView>
+            </View>
+          </Modal>
           <Modal isVisible={actionModalStatus} backdropOpacity={0.35}>
             <View
               style={{

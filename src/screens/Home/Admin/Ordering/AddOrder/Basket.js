@@ -9,6 +9,8 @@ import {
   Alert,
   TextInput,
   FlatList,
+  Platform,
+  PermissionsAndroid,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {connect} from 'react-redux';
@@ -37,6 +39,7 @@ import RNPickerSelect from 'react-native-picker-select';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import {translate} from '../../../../../utils/translations';
 import moment from 'moment';
+import RNFetchBlob from 'rn-fetch-blob';
 
 class Basket extends Component {
   constructor(props) {
@@ -415,7 +418,8 @@ class Basket extends Component {
     } else if (item.id === 1) {
       this.saveDraftFun();
     } else {
-      this.viewFun();
+      this.downLoadPdf('data');
+      // this.viewFun();
     }
   };
 
@@ -436,18 +440,29 @@ class Basket extends Component {
       placedBy: placedByValue,
       shopingBasketItemList: finalApiData,
     };
-    addDraftApi(payload)
-      .then(res => {
-        Alert.alert('Grainz', 'Order added successfully', [
-          {
-            text: 'okay',
-            onPress: () => this.viewFunSec(),
-          },
-        ]);
-      })
-      .catch(err => {
-        console.log('err', err);
-      });
+    if (
+      apiDeliveryDate &&
+      placedByValue &&
+      apiDeliveryDate &&
+      basketId &&
+      finalApiData &&
+      supplierId
+    ) {
+      addDraftApi(payload)
+        .then(res => {
+          Alert.alert('Grainz', 'Order added successfully', [
+            {
+              text: 'okay',
+              onPress: () => this.viewFunSec(),
+            },
+          ]);
+        })
+        .catch(err => {
+          console.log('err', err);
+        });
+    } else {
+      alert('Please select all values');
+    }
   };
 
   viewFunSec = () => {
@@ -455,6 +470,7 @@ class Basket extends Component {
     console.log('bas', basketId);
     viewShoppingBasketApi(basketId)
       .then(res => {
+        this.downLoadPdf(res.data);
         console.log('res', res);
       })
       .catch(err => {
@@ -573,6 +589,67 @@ class Basket extends Component {
       },
       () => this.props.navigation.navigate('OrderingAdminScreen'),
     );
+  };
+
+  downLoadPdf = data => {
+    this.historyDownload(data);
+  };
+
+  historyDownload = data => {
+    if (Platform.OS === 'ios') {
+      this.downloadHistory(data);
+    } else {
+      try {
+        PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+          {
+            title: 'storage title',
+            message: 'storage_permission',
+          },
+        ).then(granted => {
+          if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+            //Once user grant the permission start downloading
+            // console.log('Storage Permission Granted.');
+            this.downloadHistory(data);
+          } else {
+            //If permission denied then show alert 'Storage Permission Not Granted'
+            Alert.alert('Please grant storage permission');
+          }
+        });
+      } catch (err) {
+        //To handle permission related issue
+        // console.log('error', err);
+      }
+    }
+  };
+
+  downloadHistory = async data => {
+    // console.warn('receipt', data);
+    var pdf_url = data.receipt;
+    let PictureDir = RNFetchBlob.fs.dirs.DownloadDir;
+    let date = new Date();
+    let options = {
+      fileCache: true,
+      addAndroidDownloads: {
+        useDownloadManager: true,
+        notification: true,
+        path:
+          PictureDir +
+          '/grainz_' +
+          Math.floor(date.getTime() + date.getSeconds() / 2) +
+          '.pdf',
+        description: 'Order File',
+      },
+    };
+    RNFetchBlob.config(options)
+      .fetch('GET', 'http://www.africau.edu/images/default/sample.pdf')
+      .then(res => {
+        console.log('res', res);
+        Alert.alert('Ticket receipt downloaded successfully!');
+      })
+      .catch(err => {
+        console.log('PDFErr', err);
+      });
   };
 
   render() {
