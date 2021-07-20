@@ -963,3 +963,12 @@ export const viewShoppingBasketApi = async id => {
     },
   });
 };
+
+export const downloadPDFApi = async id => {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.get(baseURL + `/Order/viewPDF?Id=${id}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};

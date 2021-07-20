@@ -125,6 +125,7 @@ class InventoryList extends Component {
             finalArr.forEach(function (item) {
               item.isSelected = false;
               item.quantityProduct = '';
+              item.deltaNew = item.delta;
             });
 
             this.setState({
@@ -212,7 +213,7 @@ class InventoryList extends Component {
   };
 
   editQuantityFunSec = (index, type, value, data) => {
-    console.log('index', index, type, 'type', 'val', value);
+    // console.log('index', index, type, 'type', 'val', value);
     const {modalData, screenType} = this.state;
     if (type === 'isSelected') {
       let newArr = modalData.map((item, i) =>
@@ -231,7 +232,6 @@ class InventoryList extends Component {
       });
       const finalArr = [];
       filteredArray.map(item => {
-        console.log('item', item);
         finalArr.push({
           inventoryId: item.id,
           inventoryProductMappingId: item.inventoryProductMappingId,
@@ -253,11 +253,18 @@ class InventoryList extends Component {
         finalBasketData: [...finalArr],
       });
     } else {
+      const deltaOriginal = Number(data.delta);
+      const newDeltaVal =
+        value !== ''
+          ? Number(data.delta) - Number(value) * Number(data.volume)
+          : deltaOriginal;
+
       let newArr = modalData.map((item, i) =>
         index === i
           ? {
               ...item,
               [type]: value,
+              ['deltaNew']: newDeltaVal,
             }
           : item,
       );
@@ -416,7 +423,7 @@ class InventoryList extends Component {
 
                               <View
                                 style={{
-                                  width: wp('30%'),
+                                  width: wp('40%'),
                                   alignItems: 'center',
                                 }}>
                                 <Text>Name</Text>
@@ -549,11 +556,20 @@ class InventoryList extends Component {
                                       </TouchableOpacity>
                                       <View
                                         style={{
-                                          width: wp('30%'),
+                                          width: wp('40%'),
                                           alignItems: 'center',
                                           justifyContent: 'center',
                                         }}>
                                         <Text>{item.name}</Text>
+                                        {item.deltaNew > 0 ? (
+                                          <Text style={{color: 'red'}}>
+                                            ( Δ {item.deltaNew} {item.unit} )
+                                          </Text>
+                                        ) : (
+                                          <Text style={{color: 'black'}}>
+                                            ( Δ {item.deltaNew} {item.unit} )
+                                          </Text>
+                                        )}
                                       </View>
 
                                       <View
@@ -571,7 +587,7 @@ class InventoryList extends Component {
                                           justifyContent: 'center',
                                         }}>
                                         <Text>
-                                          {item.userDefinedQuantity} {item.unit}
+                                          {item.volume} {item.unit}
                                         </Text>
                                       </View>
                                       <View

@@ -25,6 +25,7 @@ import {
 } from '../../../../../connectivity/api';
 import Accordion from 'react-native-collapsible/Accordion';
 import styles from '../style';
+import RNPickerSelect from 'react-native-picker-select';
 
 import {translate} from '../../../../../utils/translations';
 
@@ -50,7 +51,7 @@ class AddItems extends Component {
       selectedItemObjects: '',
       buttonsSubHeader: [],
       finalName: '',
-      SECTIONS_SEC: [],
+      SECTIONS_SEC_INVEN: [],
       modalVisibleSetup: false,
       modalData: [],
       modalLoader: false,
@@ -61,6 +62,7 @@ class AddItems extends Component {
       supplierId: '',
       screenType: '',
       basketId: '',
+      SECTIONS_SEC_SUPP: [],
     };
   }
 
@@ -133,7 +135,7 @@ class AddItems extends Component {
         this.setState({
           SECTIONS: [...result],
           modalLoader: false,
-          SECTIONS_SEC: [...result],
+          SECTIONS_SEC_SUPP: [...result],
         });
       })
       .catch(err => {
@@ -152,8 +154,9 @@ class AddItems extends Component {
         console.log('res', res);
         let finalArray = res.data.map((item, index) => {
           return {
-            title: item.displayName,
+            title: item.name,
             content: item.id,
+            departmentName: item.departmentName,
           };
         });
 
@@ -162,7 +165,7 @@ class AddItems extends Component {
         this.setState({
           SECTIONS: [...result],
           modalLoader: false,
-          SECTIONS_SEC: [...result],
+          SECTIONS_SEC_INVEN: [...result],
         });
       })
       .catch(err => {
@@ -188,6 +191,7 @@ class AddItems extends Component {
           screenType: screen,
           basketId,
           navigateType,
+          departmentName: '',
         },
         () => this.getManualLogsData(),
       );
@@ -215,24 +219,42 @@ class AddItems extends Component {
           alignItems: 'center',
           borderRadius: 6,
         }}>
-        <Image
+        <View
           style={{
-            height: 18,
-            width: 18,
-            resizeMode: 'contain',
-            marginLeft: wp('2%'),
-          }}
-          source={isActive ? img.upArrowIcon : img.arrowRightIcon}
-        />
-        <Text
-          style={{
-            color: '#492813',
-            fontSize: 14,
-            marginLeft: wp('2%'),
-            fontFamily: 'Inter-Regular',
+            flexDirection: 'row',
+            alignItems: 'center',
+            flex: 1,
           }}>
-          {section.title}
-        </Text>
+          <Image
+            style={{
+              height: 18,
+              width: 18,
+              resizeMode: 'contain',
+              marginLeft: wp('2%'),
+            }}
+            source={isActive ? img.upArrowIcon : img.arrowRightIcon}
+          />
+          <Text
+            style={{
+              color: '#492813',
+              fontSize: 14,
+              marginLeft: wp('2%'),
+              fontFamily: 'Inter-Regular',
+            }}>
+            {section.title}
+          </Text>
+        </View>
+
+        <View style={{flex: 1}}>
+          <Text
+            style={{
+              color: '#492813',
+              fontSize: 14,
+              fontFamily: 'Inter-Regular',
+            }}>
+            {section.departmentName}
+          </Text>
+        </View>
       </View>
     );
   };
@@ -333,8 +355,11 @@ class AddItems extends Component {
   };
 
   filterData = text => {
+    const {inventoryStatus, SECTIONS_SEC_INVEN, SECTIONS_SEC_SUPP} = this.state;
+    const finalValue = inventoryStatus ? SECTIONS_SEC_INVEN : SECTIONS_SEC_SUPP;
+
     //passing the inserted text in textinput
-    const newData = this.state.SECTIONS_BACKUP.filter(function (item) {
+    const newData = finalValue.filter(function (item) {
       //applying filter for the inserted text in search bar
       const itemData = item.title ? item.title.toUpperCase() : ''.toUpperCase();
       const textData = text.toUpperCase();
@@ -370,6 +395,39 @@ class AddItems extends Component {
     );
   };
 
+  selectDepartementNameFun = value => {
+    console.log('value', value);
+    this.setState(
+      {
+        departmentName: value,
+      },
+      () => this.filterDepartmentData(value),
+    );
+  };
+
+  filterDepartmentData = value => {
+    this.filterDataDepartmentName(value);
+  };
+
+  filterDataDepartmentName = value => {
+    console.log('value', value);
+
+    //passing the inserted text in textinput
+    const newData = this.state.SECTIONS_SEC_INVEN.filter(function (item) {
+      //applying filter for the inserted text in search bar
+      const itemData = item.departmentName
+        ? item.departmentName.toUpperCase()
+        : ''.toUpperCase();
+      const textData = value !== null ? value.toUpperCase() : '';
+      return itemData.indexOf(textData) > -1;
+    });
+    this.setState({
+      //setting the filtered newData on datasource
+      //After setting the data it will automatically re-render the view
+      SECTIONS: newData,
+    });
+  };
+
   render() {
     const {
       recipeLoader,
@@ -382,9 +440,10 @@ class AddItems extends Component {
       modalLoader,
       screenType,
       basketId,
+      departmentName,
     } = this.state;
 
-    console.log('basketId', basketId);
+    console.log('inventoryStatus', inventoryStatus);
 
     return (
       <View style={styles.container}>
@@ -462,6 +521,86 @@ class AddItems extends Component {
               </TouchableOpacity>
             </View>
           </View>
+          {inventoryStatus ? (
+            <View
+              style={{
+                flexDirection: 'row',
+                borderRadius: 100,
+                backgroundColor: '#fff',
+                marginHorizontal: wp('5%'),
+                marginVertical: hp('2%'),
+              }}>
+              <View
+                style={{
+                  alignSelf: 'center',
+                  justifyContent: 'center',
+                  width: wp('80%'),
+                }}>
+                <RNPickerSelect
+                  placeholder={{
+                    label: 'Select Department*',
+                    value: null,
+                    color: 'black',
+                  }}
+                  onValueChange={value => {
+                    this.selectDepartementNameFun(value);
+                  }}
+                  style={{
+                    inputIOS: {
+                      fontSize: 14,
+                      paddingHorizontal: '5%',
+                      color: '#161C27',
+                      width: '100%',
+                      alignSelf: 'center',
+                      paddingVertical: 15,
+                    },
+                    inputAndroid: {
+                      fontSize: 14,
+                      paddingHorizontal: '3%',
+                      color: '#161C27',
+                      width: '100%',
+                      alignSelf: 'center',
+                    },
+                    iconContainer: {
+                      top: '40%',
+                    },
+                  }}
+                  items={[
+                    {
+                      label: 'Bar',
+                      value: 'Bar',
+                    },
+                    {
+                      label: 'Restaurant',
+                      value: 'Restaurant',
+                    },
+                    {
+                      label: 'Retail',
+                      value: 'Retail',
+                    },
+                    {
+                      label: 'Other',
+                      value: 'Other',
+                    },
+                  ]}
+                  value={departmentName}
+                  useNativeAndroidPickerStyle={false}
+                />
+              </View>
+              <View style={{marginRight: wp('5%')}}>
+                <Image
+                  source={img.arrowDownIcon}
+                  resizeMode="contain"
+                  style={{
+                    height: 18,
+                    width: 18,
+                    resizeMode: 'contain',
+                    marginTop: Platform.OS === 'ios' ? 15 : 15,
+                  }}
+                />
+              </View>
+            </View>
+          ) : null}
           <View
             style={{
               flexDirection: 'row',
@@ -483,7 +622,7 @@ class AddItems extends Component {
                 padding: 15,
                 width: wp('75%'),
               }}
-              //   onChangeText={value => this.searchFun(value)}
+              onChangeText={value => this.searchFun(value)}
             />
             <Image
               style={{
@@ -495,6 +634,7 @@ class AddItems extends Component {
               source={img.searchIcon}
             />
           </View>
+
           {modalLoader ? (
             <ActivityIndicator color="#94C036" size="large" />
           ) : (

@@ -31,6 +31,7 @@ import {
   updateBasketApi,
   sendOrderApi,
   viewShoppingBasketApi,
+  downloadPDFApi,
 } from '../../../../../connectivity/api';
 import CheckBox from '@react-native-community/checkbox';
 import Modal from 'react-native-modal';
@@ -418,8 +419,9 @@ class Basket extends Component {
     } else if (item.id === 1) {
       this.saveDraftFun();
     } else {
-      this.downLoadPdf('data');
+      // this.downLoadPdf('data');
       // this.viewFun();
+      this.viewFunSec();
     }
   };
 
@@ -468,14 +470,22 @@ class Basket extends Component {
   viewFunSec = () => {
     const {basketId} = this.state;
     console.log('bas', basketId);
-    viewShoppingBasketApi(basketId)
+    downloadPDFApi(basketId)
       .then(res => {
-        this.downLoadPdf(res.data);
+        // this.downLoadPdf(res.data);
         console.log('res', res);
       })
       .catch(err => {
         console.log('Err', err);
       });
+    // viewShoppingBasketApi(basketId)
+    //   .then(res => {
+    //     this.downLoadPdf(res.data);
+    //     console.log('res', res);
+    //   })
+    //   .catch(err => {
+    //     console.log('Err', err);
+    //   });
   };
 
   showDatePickerOrderDate = () => {
@@ -626,7 +636,10 @@ class Basket extends Component {
   downloadHistory = async data => {
     // console.warn('receipt', data);
     var pdf_url = data.receipt;
-    let PictureDir = RNFetchBlob.fs.dirs.DownloadDir;
+    let PictureDir =
+      Platform.OS === 'ios'
+        ? RNFetchBlob.fs.dirs.DocumentDir
+        : RNFetchBlob.fs.dirs.DownloadDir;
     let date = new Date();
     let options = {
       fileCache: true,
