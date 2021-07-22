@@ -135,7 +135,15 @@ class EditDraftOrder extends Component {
           ]);
         })
         .catch(err => {
-          console.log('err', err);
+          Alert.alert(
+            `Error - ${err.response.status}`,
+            'Something went wrong',
+            [
+              {
+                text: 'Okay',
+              },
+            ],
+          );
         });
     } else {
       alert('Please select all values');
@@ -169,13 +177,15 @@ class EditDraftOrder extends Component {
         Alert.alert('Grainz', 'Order updated successfully', [
           {
             text: 'okay',
-            onPress: () =>
-              this.props.navigation.navigate('OrderingAdminScreen'),
           },
         ]);
       })
       .catch(err => {
-        console.log('err', err);
+        Alert.alert(`Error - ${err.response.status}`, 'Something went wrong', [
+          {
+            text: 'Okay',
+          },
+        ]);
       });
   };
 
@@ -290,7 +300,8 @@ class EditDraftOrder extends Component {
     } else if (item.id === 1) {
       this.updateDraftFun();
     } else {
-      this.downLoadPdf('data');
+      alert('View');
+      // this.downLoadPdf('data');
       // this.viewFun();
     }
   };
@@ -332,7 +343,15 @@ class EditDraftOrder extends Component {
           ]);
         })
         .catch(err => {
-          console.log('err', err);
+          Alert.alert(
+            `Error - ${err.response.status}`,
+            'Something went wrong',
+            [
+              {
+                text: 'Okay',
+              },
+            ],
+          );
         });
     } else {
       alert('Please select all values');
@@ -348,7 +367,11 @@ class EditDraftOrder extends Component {
         console.log('res', res);
       })
       .catch(err => {
-        console.log('Err', err);
+        Alert.alert(`Error - ${err.response.status}`, 'Something went wrong', [
+          {
+            text: 'Okay',
+          },
+        ]);
       });
   };
 
@@ -540,7 +563,11 @@ class EditDraftOrder extends Component {
         );
       })
       .catch(err => {
-        console.log('err', err);
+        Alert.alert(`Error - ${err.response.status}`, 'Something went wrong', [
+          {
+            text: 'Okay',
+          },
+        ]);
       });
   };
 
@@ -630,7 +657,11 @@ class EditDraftOrder extends Component {
         );
       })
       .catch(err => {
-        console.log('err', err);
+        Alert.alert(`Error - ${err.response.status}`, 'Something went wrong', [
+          {
+            text: 'Okay',
+          },
+        ]);
       });
   };
 
@@ -671,7 +702,11 @@ class EditDraftOrder extends Component {
         );
       })
       .catch(err => {
-        console.log('err', err);
+        Alert.alert(`Error - ${err.response.status}`, 'Something went wrong', [
+          {
+            text: 'Okay',
+          },
+        ]);
       });
   };
 
@@ -1106,7 +1141,8 @@ class EditDraftOrder extends Component {
                                         alignItems: 'center',
                                       }}>
                                       <Text style={{}}>
-                                        {item.calculatedQuantity.toFixed(2)}
+                                        {item.calculatedQuantity.toFixed(2)}{' '}
+                                        {item.unit}
                                       </Text>
                                     </View>
                                   )}

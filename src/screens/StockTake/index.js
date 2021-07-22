@@ -67,9 +67,6 @@ class index extends Component {
         this.setState({
           loader: false,
         });
-        Alert.alert('Grainz', 'Session Timeout', [
-          {text: 'OK', onPress: () => this.removeToken()},
-        ]);
       });
   };
 

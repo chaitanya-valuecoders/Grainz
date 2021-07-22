@@ -6,11 +6,8 @@ import {
   Image,
   ScrollView,
   ActivityIndicator,
-  Switch,
   TextInput,
   Alert,
-  FlatList,
-  Platform,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {connect} from 'react-redux';
@@ -25,17 +22,8 @@ import {UserTokenAction} from '../../../../../redux/actions/UserTokenAction';
 import {
   getMyProfileApi,
   getSupplierListAdminApi,
-  getCurrentLocUsersAdminApi,
-  clonePreviousApi,
 } from '../../../../../connectivity/api';
-import CheckBox from '@react-native-community/checkbox';
-import Modal from 'react-native-modal';
-import Accordion from 'react-native-collapsible/Accordion';
-import moment from 'moment';
-import RNPickerSelect from 'react-native-picker-select';
-import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import styles from '../style';
-
 import {translate} from '../../../../../utils/translations';
 
 class NewOrder extends Component {
@@ -50,18 +38,7 @@ class NewOrder extends Component {
       selectedItemObjects: '',
       buttonsSubHeader: [],
       supplierValue: '',
-      finalOrderDate: '',
-      isDatePickerVisibleOrderDate: false,
-      finalDeliveryDate: '',
-      placedByValue: '',
       supplierList: [],
-      usersList: [],
-      clonePreviouseModalStatus: false,
-      cloneLoader: false,
-      cloneOrderData: [],
-      sentValue: 'No',
-      apiDeliveryDate: '',
-      apiOrderDate: '',
       searchItem: '',
       supplierListBackup: [],
     };
@@ -105,28 +82,7 @@ class NewOrder extends Component {
   componentDidMount() {
     this.getData();
     this.getSupplierListData();
-    this.getUsersListData();
   }
-
-  getUsersListData = () => {
-    getCurrentLocUsersAdminApi()
-      .then(res => {
-        const {data} = res;
-        let finalUsersList = data.map((item, index) => {
-          return {
-            label: item.firstName,
-            value: item.id,
-          };
-        });
-        this.setState({
-          usersList: finalUsersList,
-          recipeLoader: false,
-        });
-      })
-      .catch(err => {
-        console.log('ERR', err);
-      });
-  };
 
   getSupplierListData = () => {
     getSupplierListAdminApi()
@@ -146,81 +102,17 @@ class NewOrder extends Component {
         });
       })
       .catch(err => {
-        console.log('ERR', err);
+        Alert.alert(`Error - ${err.response.status}`, 'Something went wrong', [
+          {
+            text: 'Okay',
+            onPress: () => this.props.navigation.navigate('HomeScreen'),
+          },
+        ]);
       });
   };
 
   myProfile = () => {
     this.props.navigation.navigate('MyProfile');
-  };
-
-  hitCloneApi = () => {
-    const {supplierValue} = this.state;
-    clonePreviousApi(supplierValue)
-      .then(res => {
-        this.setState({
-          cloneLoader: false,
-          cloneOrderData: res.data,
-        });
-      })
-      .catch(err => {
-        this.setState({
-          cloneLoader: false,
-        });
-        console.warn('errClone', err);
-      });
-  };
-
-  handleConfirmOrderDate = date => {
-    console.log('date', date);
-    let newdate = moment(date).format('MM/DD/YYYY');
-    let apiOrderDate = date.toISOString();
-    this.setState({
-      finalOrderDate: newdate,
-      apiOrderDate,
-    });
-    this.hideDatePickerOrderDate();
-  };
-
-  hideDatePickerOrderDate = () => {
-    this.setState({
-      isDatePickerVisibleOrderDate: false,
-    });
-  };
-
-  handleConfirmDeliveryDate = date => {
-    console.log('date', date);
-    let newdate = moment(date).format('MM/DD/YYYY');
-    let apiDeliveryDate = date.toISOString();
-    this.setState({
-      finalDeliveryDate: newdate,
-      apiDeliveryDate,
-    });
-    this.hideDatePickerDeliveryDate();
-  };
-
-  hideDatePickerDeliveryDate = () => {
-    this.setState({
-      isDatePickerVisibleDeliveryDate: false,
-    });
-  };
-
-  showDatePickerOrderDate = () => {
-    this.setState({
-      isDatePickerVisibleOrderDate: true,
-    });
-  };
-
-  showDatePickerDeliveryDate = () => {
-    this.setState({
-      isDatePickerVisibleDeliveryDate: true,
-    });
-  };
-
-  setModalVisibleFalse = visible => {
-    this.setState({
-      clonePreviouseModalStatus: visible,
-    });
   };
 
   addItemsFun = item => {
@@ -261,18 +153,7 @@ class NewOrder extends Component {
       pageLoading,
       firstName,
       buttonsSubHeader,
-      supplierValue,
-      finalOrderDate,
-      isDatePickerVisibleOrderDate,
-      isDatePickerVisibleDeliveryDate,
-      finalDeliveryDate,
-      placedByValue,
       supplierList,
-      usersList,
-      clonePreviouseModalStatus,
-      cloneLoader,
-      cloneOrderData,
-      sentValue,
       searchItem,
     } = this.state;
 

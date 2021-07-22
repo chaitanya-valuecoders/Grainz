@@ -49,7 +49,7 @@ class InventoryList extends Component {
       productId: '',
       catName: '',
       finalBasketData: [],
-      screenType: '',
+      screenType: 'New',
       basketId: '',
       navigateType: '',
     };
@@ -113,6 +113,8 @@ class InventoryList extends Component {
 
   getInsideCatFun = () => {
     const {catId, supplierId} = this.state;
+    console.log('catID', catId);
+    console.log('supplierId', supplierId);
     this.setState(
       {
         modalLoader: true,
@@ -134,7 +136,16 @@ class InventoryList extends Component {
             });
           })
           .catch(err => {
-            console.warn('err', err);
+            Alert.alert(
+              `Error - ${err.response.status}`,
+              'Something went wrong',
+              [
+                {
+                  text: 'Okay',
+                  onPress: () => this.props.navigation.goBack(),
+                },
+              ],
+            );
           }),
     );
   };
@@ -199,7 +210,11 @@ class InventoryList extends Component {
         ]);
       })
       .catch(err => {
-        console.warn('err', err);
+        Alert.alert(`Error - ${err.response.status}`, 'Something went wrong', [
+          {
+            text: 'Okay',
+          },
+        ]);
       });
   };
 
@@ -215,63 +230,49 @@ class InventoryList extends Component {
   editQuantityFunSec = (index, type, value, data) => {
     // console.log('index', index, type, 'type', 'val', value);
     const {modalData, screenType} = this.state;
-    if (type === 'isSelected') {
-      let newArr = modalData.map((item, i) =>
-        index === i && item.quantityProduct !== ''
-          ? {
-              ...item,
-              [type]: !value,
-            }
-          : item,
-      );
+    const deltaOriginal = Number(data.delta);
+    const isSelectedValue = value !== '' ? true : false;
+    const newDeltaVal =
+      value !== ''
+        ? Number(data.delta) - Number(value) * Number(data.volume)
+        : deltaOriginal;
 
-      var filteredArray = newArr.filter(function (itm) {
-        if (itm.quantityProduct !== '') {
-          return itm.isSelected === true;
-        }
+    let newArr = modalData.map((item, i) =>
+      index === i
+        ? {
+            ...item,
+            [type]: value,
+            ['deltaNew']: newDeltaVal,
+            ['isSelected']: isSelectedValue,
+          }
+        : item,
+    );
+    var filteredArray = newArr.filter(function (itm) {
+      if (itm.quantityProduct !== '') {
+        return itm.isSelected === true;
+      }
+    });
+    const finalArr = [];
+    filteredArray.map(item => {
+      finalArr.push({
+        inventoryId: item.id,
+        inventoryProductMappingId: item.inventoryProductMappingId,
+        unitPrice: item.productPrice,
+        quantity: Number(item.quantityProduct),
+        action:
+          screenType === 'New'
+            ? 'New'
+            : screenType === 'Update'
+            ? 'New'
+            : 'String',
+        value: Number(item.quantityProduct * item.productPrice * item.packSize),
       });
-      const finalArr = [];
-      filteredArray.map(item => {
-        finalArr.push({
-          inventoryId: item.id,
-          inventoryProductMappingId: item.inventoryProductMappingId,
-          unitPrice: item.productPrice,
-          quantity: Number(item.quantityProduct),
-          action:
-            screenType === 'New'
-              ? 'New'
-              : screenType === 'Update'
-              ? 'New'
-              : 'String',
-          value: Number(
-            item.quantityProduct * item.productPrice * item.packSize,
-          ),
-        });
-      });
-      this.setState({
-        modalData: [...newArr],
-        finalBasketData: [...finalArr],
-      });
-    } else {
-      const deltaOriginal = Number(data.delta);
-      const newDeltaVal =
-        value !== ''
-          ? Number(data.delta) - Number(value) * Number(data.volume)
-          : deltaOriginal;
-
-      let newArr = modalData.map((item, i) =>
-        index === i
-          ? {
-              ...item,
-              [type]: value,
-              ['deltaNew']: newDeltaVal,
-            }
-          : item,
-      );
-      this.setState({
-        modalData: [...newArr],
-      });
-    }
+    });
+    console.log('filteredArray', filteredArray);
+    this.setState({
+      modalData: [...newArr],
+      finalBasketData: [...finalArr],
+    });
   };
 
   addToBasketFun = () => {
@@ -301,7 +302,15 @@ class InventoryList extends Component {
             });
           })
           .catch(err => {
-            console.log('err', err);
+            Alert.alert(
+              `Error - ${err.response.status}`,
+              'Something went wrong',
+              [
+                {
+                  text: 'Okay',
+                },
+              ],
+            );
           });
       } else {
         alert('Please select atleast one item');
@@ -331,7 +340,15 @@ class InventoryList extends Component {
           }
         })
         .catch(err => {
-          console.log('err', err);
+          Alert.alert(
+            `Error - ${err.response.status}`,
+            'Something went wrong',
+            [
+              {
+                text: 'Okay',
+              },
+            ],
+          );
         });
     }
   };
@@ -349,8 +366,8 @@ class InventoryList extends Component {
       productId,
     } = this.state;
 
-    console.log('productId', productId);
-    console.log('screenType', screenType);
+    console.log('finalBasketData', finalBasketData);
+    // console.log('screenType', screenType);
 
     return (
       <View style={styles.container}>
@@ -413,13 +430,13 @@ class InventoryList extends Component {
                                 <Text>Quantity</Text>
                               </View>
 
-                              <View
+                              {/* <View
                                 style={{
                                   width: wp('30%'),
                                   alignItems: 'center',
                                 }}>
                                 <Text>Action</Text>
-                              </View>
+                              </View> */}
 
                               <View
                                 style={{
@@ -486,6 +503,7 @@ class InventoryList extends Component {
                                         }}>
                                         <TextInput
                                           placeholder="0"
+                                          keyboardType="number-pad"
                                           value={item.Quantity}
                                           style={{
                                             borderWidth: 1,
@@ -504,7 +522,7 @@ class InventoryList extends Component {
                                         />
                                       </View>
 
-                                      <TouchableOpacity
+                                      {/* <TouchableOpacity
                                         style={{
                                           width: wp('30%'),
                                           alignItems: 'center',
@@ -553,7 +571,7 @@ class InventoryList extends Component {
                                             )}
                                           </View>
                                         </View>
-                                      </TouchableOpacity>
+                                      </TouchableOpacity> */}
                                       <View
                                         style={{
                                           width: wp('40%'),

@@ -135,9 +135,6 @@ class EditEvent extends Component {
       })
       .catch(err => {
         console.warn('ERr', err.response);
-        Alert.alert('Grainz', 'Session Timeout', [
-          {text: 'OK', onPress: () => this.removeToken()},
-        ]);
       });
   };
 

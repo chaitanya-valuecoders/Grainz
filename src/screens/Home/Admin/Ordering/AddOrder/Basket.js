@@ -175,7 +175,11 @@ class Basket extends Component {
         );
       })
       .catch(err => {
-        console.log('errGETBASKET', err);
+        Alert.alert(`Error - ${err.response.status}`, 'Something went wrong', [
+          {
+            text: 'Okay',
+          },
+        ]);
       });
   };
 
@@ -299,7 +303,15 @@ class Basket extends Component {
           ]);
         })
         .catch(err => {
-          console.log('err', err);
+          Alert.alert(
+            `Error - ${err.response.status}`,
+            'Something went wrong',
+            [
+              {
+                text: 'Okay',
+              },
+            ],
+          );
         });
     } else {
       alert('Please select all values');
@@ -365,7 +377,11 @@ class Basket extends Component {
         );
       })
       .catch(err => {
-        console.log('err', err);
+        Alert.alert(`Error - ${err.response.status}`, 'Something went wrong', [
+          {
+            text: 'Okay',
+          },
+        ]);
       });
   };
 
@@ -402,7 +418,15 @@ class Basket extends Component {
           ]);
         })
         .catch(err => {
-          console.log('err', err);
+          Alert.alert(
+            `Error - ${err.response.status}`,
+            'Something went wrong',
+            [
+              {
+                text: 'Okay',
+              },
+            ],
+          );
         });
     } else {
       alert('Please select all values.');
@@ -461,7 +485,15 @@ class Basket extends Component {
           ]);
         })
         .catch(err => {
-          console.log('err', err);
+          Alert.alert(
+            `Error - ${err.response.status}`,
+            'Something went wrong',
+            [
+              {
+                text: 'Okay',
+              },
+            ],
+          );
         });
     } else {
       alert('Please select all values');
@@ -477,7 +509,11 @@ class Basket extends Component {
         console.log('res', res);
       })
       .catch(err => {
-        console.log('Err', err);
+        Alert.alert(`Error - ${err.response.status}`, 'Something went wrong', [
+          {
+            text: 'Okay',
+          },
+        ]);
       });
     // viewShoppingBasketApi(basketId)
     //   .then(res => {
@@ -554,7 +590,11 @@ class Basket extends Component {
         );
       })
       .catch(err => {
-        console.log('err', err);
+        Alert.alert(`Error - ${err.response.status}`, 'Something went wrong', [
+          {
+            text: 'Okay',
+          },
+        ]);
       });
   };
 
@@ -589,7 +629,11 @@ class Basket extends Component {
         );
       })
       .catch(err => {
-        console.log('err', err);
+        Alert.alert(`Error - ${err.response.status}`, 'Something went wrong', [
+          {
+            text: 'Okay',
+          },
+        ]);
       });
   };
 
@@ -984,7 +1028,12 @@ class Basket extends Component {
                                             justifyContent: 'center',
                                             alignItems: 'center',
                                           }}>
-                                          <Text>{item.quantity}</Text>
+                                          <Text>
+                                            {Number(
+                                              item.calculatedQuantity,
+                                            ).toFixed(2)}{' '}
+                                            {item.unit}
+                                          </Text>
                                         </View>
                                       )}
                                       <View

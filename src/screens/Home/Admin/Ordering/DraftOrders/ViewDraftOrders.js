@@ -21,7 +21,6 @@ import {
 import {UserTokenAction} from '../../../../../redux/actions/UserTokenAction';
 import {
   getMyProfileApi,
-  getOrderByIdApi,
   deleteOrderApi,
   getBasketApi,
 } from '../../../../../connectivity/api';
@@ -118,7 +117,12 @@ class ViewDraftOrders extends Component {
         });
       })
       .catch(err => {
-        console.warn('errBasket', err);
+        Alert.alert(`Error - ${err.response.status}`, 'Something went wrong', [
+          {
+            text: 'Okay',
+            onPress: () => this.props.navigation.goBack(),
+          },
+        ]);
       });
   };
 
@@ -163,16 +167,17 @@ class ViewDraftOrders extends Component {
         ]);
       })
       .catch(error => {
-        this.setState({
-          deleteLoader: false,
-        });
-        console.warn('DELETEerror', error.response);
+        Alert.alert(`Error - ${err.response.status}`, 'Something went wrong', [
+          {
+            text: 'Okay',
+          },
+        ]);
       });
   };
 
-  addItemsFun = () => {
-    this.props.navigation.navigate('NewOrderScreen');
-  };
+  // addItemsFun = () => {
+  //   this.props.navigation.navigate('NewOrderScreen');
+  // };
 
   render() {
     const {
@@ -341,7 +346,8 @@ class ViewDraftOrders extends Component {
                                           justifyContent: 'center',
                                         }}>
                                         <Text style={{}}>
-                                          {item.calculatedQuantity.toFixed(2)}
+                                          {item.calculatedQuantity.toFixed(2)}{' '}
+                                          {item.unit}
                                           {/* {Number(
                                             item.inventoryMapping.grainzVolume *
                                               item.quantity,
@@ -482,7 +488,7 @@ class ViewDraftOrders extends Component {
             </View>
           )}
         </ScrollView>
-        <View style={{justifyContent: 'center', alignItems: 'center'}}>
+        {/* <View style={{justifyContent: 'center', alignItems: 'center'}}>
           <TouchableOpacity
             onPress={() => this.addItemsFun()}
             style={{
@@ -519,7 +525,7 @@ class ViewDraftOrders extends Component {
               </Text>
             </View>
           </TouchableOpacity>
-        </View>
+        </View> */}
       </View>
     );
   }

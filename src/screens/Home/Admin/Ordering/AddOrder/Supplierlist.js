@@ -122,6 +122,9 @@ class SupplierList extends Component {
 
         const result = finalArray;
 
+        console.log('res', res);
+        console.log('result', result);
+
         this.setState({
           SECTIONS: [...result],
           recipeLoader: false,
@@ -129,11 +132,11 @@ class SupplierList extends Component {
         });
       })
       .catch(err => {
-        console.log('ERR MEP', err);
-
-        this.setState({
-          recipeLoader: false,
-        });
+        Alert.alert(`Error - ${err.response.status}`, 'Something went wrong', [
+          {
+            text: 'Okay',
+          },
+        ]);
       });
   };
 
@@ -158,7 +161,15 @@ class SupplierList extends Component {
             });
           })
           .catch(err => {
-            console.warn('err', err);
+            Alert.alert(
+              `Error - ${err.response.status}`,
+              'Something went wrong',
+              [
+                {
+                  text: 'Okay',
+                },
+              ],
+            );
           }),
     );
   };
@@ -258,7 +269,11 @@ class SupplierList extends Component {
         ]);
       })
       .catch(err => {
-        console.warn('err', err);
+        Alert.alert(`Error - ${err.response.status}`, 'Something went wrong', [
+          {
+            text: 'Okay',
+          },
+        ]);
       });
   };
 
@@ -274,59 +289,50 @@ class SupplierList extends Component {
   editQuantityFunSec = (index, type, value, data) => {
     console.log('data', data);
     const {modalData, screenType} = this.state;
+    const isSelectedValue = value !== '' ? true : false;
     if (data.isMapped === true) {
-      if (type === 'isSelected') {
-        let newArr = modalData.map((item, i) =>
-          index === i && item.quantityProduct !== ''
-            ? {
-                ...item,
-                [type]: !value,
-              }
-            : item,
-        );
+      let newArr = modalData.map((item, i) =>
+        index === i
+          ? {
+              ...item,
+              [type]: value,
+              ['isSelected']: isSelectedValue,
+            }
+          : item,
+      );
+      console.log('newArr', newArr);
 
-        var filteredArray = newArr.filter(function (itm) {
-          if (itm.quantityProduct !== '') {
-            return itm.isSelected === true;
-          }
-        });
+      var filteredArray = newArr.filter(function (itm) {
+        if (itm.quantityProduct !== '') {
+          return itm.isSelected === true;
+        }
+      });
 
-        const finalArr = [];
-        filteredArray.map(item => {
-          console.log('item', item);
-          finalArr.push({
-            inventoryId:
-              item.inventoryMapping && item.inventoryMapping.inventoryId,
-            inventoryProductMappingId:
-              item.inventoryMapping && item.inventoryMapping.id,
-            unitPrice: item.price,
-            quantity: Number(item.quantityProduct),
-            action:
-              screenType === 'New'
-                ? 'New'
-                : screenType === 'Update'
-                ? 'New'
-                : 'String',
-            value: Number(item.quantityProduct * item.price * item.packSize),
-          });
+      console.log('filteredArray', filteredArray);
+
+      const finalArr = [];
+      filteredArray.map(item => {
+        console.log('item', item);
+        finalArr.push({
+          inventoryId:
+            item.inventoryMapping && item.inventoryMapping.inventoryId,
+          inventoryProductMappingId:
+            item.inventoryMapping && item.inventoryMapping.id,
+          unitPrice: item.price,
+          quantity: Number(item.quantityProduct),
+          action:
+            screenType === 'New'
+              ? 'New'
+              : screenType === 'Update'
+              ? 'New'
+              : 'String',
+          value: Number(item.quantityProduct * item.price * item.packSize),
         });
-        this.setState({
-          modalData: [...newArr],
-          finalBasketData: [...finalArr],
-        });
-      } else {
-        let newArr = modalData.map((item, i) =>
-          index === i
-            ? {
-                ...item,
-                [type]: value,
-              }
-            : item,
-        );
-        this.setState({
-          modalData: [...newArr],
-        });
-      }
+      });
+      this.setState({
+        modalData: [...newArr],
+        finalBasketData: [...finalArr],
+      });
     } else {
       Alert.alert('Grainz', 'Please map this product to an inventory item', [
         {
@@ -374,7 +380,15 @@ class SupplierList extends Component {
             }
           })
           .catch(err => {
-            console.log('err', err);
+            Alert.alert(
+              `Error - ${err.response.status}`,
+              'Something went wrong',
+              [
+                {
+                  text: 'Okay',
+                },
+              ],
+            );
           });
       } else {
         alert('Please select atleast one item');
@@ -396,7 +410,15 @@ class SupplierList extends Component {
           });
         })
         .catch(err => {
-          console.log('err', err);
+          Alert.alert(
+            `Error - ${err.response.status}`,
+            'Something went wrong',
+            [
+              {
+                text: 'Okay',
+              },
+            ],
+          );
         });
     }
   };
@@ -430,7 +452,7 @@ class SupplierList extends Component {
             marginLeft: wp('2%'),
             fontFamily: 'Inter-Regular',
           }}>
-          {section.title}
+          {section ? section.title : null}
         </Text>
       </View>
     );
@@ -520,7 +542,15 @@ class SupplierList extends Component {
           });
         })
         .catch(err => {
-          console.log('ERR', err);
+          Alert.alert(
+            `Error - ${err.response.status}`,
+            'Something went wrong',
+            [
+              {
+                text: 'Okay',
+              },
+            ],
+          );
         });
     } else {
       this.setState({
@@ -547,7 +577,7 @@ class SupplierList extends Component {
     } = this.state;
 
     // console.log('modalData', modalData);
-    // console.log('finalBasketData', finalBasketData);
+    console.log('finalBasketData', finalBasketData);
 
     console.log('screenType', screenType);
 
@@ -613,13 +643,13 @@ class SupplierList extends Component {
                                 }}>
                                 <Text>Quantity</Text>
                               </View>
-                              <View
+                              {/* <View
                                 style={{
                                   width: wp('30%'),
                                   alignItems: 'center',
                                 }}>
                                 <Text>Action</Text>
-                              </View>
+                              </View> */}
                               <View
                                 style={{
                                   width: wp('30%'),
@@ -686,6 +716,7 @@ class SupplierList extends Component {
                                         }}>
                                         <TextInput
                                           placeholder="0"
+                                          keyboardType="number-pad"
                                           value={item.Quantity}
                                           style={{
                                             borderWidth: 1,
@@ -703,7 +734,7 @@ class SupplierList extends Component {
                                           }
                                         />
                                       </View>
-
+                                      {/* 
                                       <TouchableOpacity
                                         onPress={() =>
                                           this.editQuantityFun(
@@ -746,7 +777,7 @@ class SupplierList extends Component {
                                             />
                                           )}
                                         </View>
-                                      </TouchableOpacity>
+                                      </TouchableOpacity> */}
                                       <TouchableOpacity
                                         onPress={() =>
                                           this.props.navigation.navigate(

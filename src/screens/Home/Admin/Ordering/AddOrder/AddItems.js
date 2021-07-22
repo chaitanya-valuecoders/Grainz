@@ -7,6 +7,7 @@ import {
   ScrollView,
   ActivityIndicator,
   TextInput,
+  Alert,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {connect} from 'react-redux';
@@ -139,11 +140,12 @@ class AddItems extends Component {
         });
       })
       .catch(err => {
-        console.log('ERR MEP', err);
-
-        this.setState({
-          modalLoader: false,
-        });
+        Alert.alert(`Error - ${err.response.status}`, 'Something went wrong', [
+          {
+            text: 'Okay',
+            onPress: () => this.props.navigation.goBack(),
+          },
+        ]);
       });
   };
 
@@ -159,9 +161,7 @@ class AddItems extends Component {
             departmentName: item.departmentName,
           };
         });
-
         const result = finalArray;
-
         this.setState({
           SECTIONS: [...result],
           modalLoader: false,
@@ -169,11 +169,12 @@ class AddItems extends Component {
         });
       })
       .catch(err => {
-        console.log('ERR MEP', err);
-
-        this.setState({
-          modalLoader: false,
-        });
+        Alert.alert(`Error - ${err.response.status}`, 'Something went wrong', [
+          {
+            text: 'Okay',
+            onPress: () => this.props.navigation.goBack(),
+          },
+        ]);
       });
   };
 
