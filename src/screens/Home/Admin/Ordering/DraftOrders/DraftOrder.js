@@ -89,7 +89,7 @@ class DraftOrder extends Component {
       .then(res => {
         this.setState({
           draftsOrderData: res.data,
-          draftsOrderDataBackup: res.data,
+          draftsOrderDataBackup: res.data.reverse(),
           modalLoaderDrafts: false,
         });
       })

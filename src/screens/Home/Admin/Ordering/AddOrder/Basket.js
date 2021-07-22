@@ -419,9 +419,10 @@ class Basket extends Component {
     } else if (item.id === 1) {
       this.saveDraftFun();
     } else {
+      alert('VIEW');
       // this.downLoadPdf('data');
       // this.viewFun();
-      this.viewFunSec();
+      // this.viewFunSec();
     }
   };
 

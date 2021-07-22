@@ -567,7 +567,8 @@ class InventoryList extends Component {
                                           </Text>
                                         ) : (
                                           <Text style={{color: 'black'}}>
-                                            ( Δ {item.deltaNew} {item.unit} )
+                                            {/* ( Δ {item.deltaNew} {item.unit} ) */}
+                                            ( Δ 0 {item.unit} )
                                           </Text>
                                         )}
                                       </View>

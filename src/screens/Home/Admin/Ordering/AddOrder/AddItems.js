@@ -535,6 +535,7 @@ class AddItems extends Component {
                   alignSelf: 'center',
                   justifyContent: 'center',
                   width: wp('80%'),
+                  height: hp('7%'),
                 }}>
                 <RNPickerSelect
                   placeholder={{
