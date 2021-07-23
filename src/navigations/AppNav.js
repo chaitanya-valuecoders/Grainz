@@ -57,6 +57,7 @@ import SupplierlistOrderScreen from '../screens/Home/Admin/Ordering/AddOrder/Sup
 import BasketOrderScreen from '../screens/Home/Admin/Ordering/AddOrder/Basket';
 import MapProductsListScreen from '../screens/Home/Admin/Ordering/AddOrder/MapProductsList';
 import EditDraftOrderScreen from '../screens/Home/Admin/Ordering/DraftOrders/EditDraftOrder';
+import PdfViewScreen from '../screens/Home/Admin/Ordering/AddOrder/PdfView';
 
 const AppNav = createStackNavigator();
 
@@ -73,6 +74,7 @@ export default function AppNavFun() {
         name="InventoryListOrderScreen"
         component={InventoryListOrderScreen}
       />
+      <AppNav.Screen name="PdfViewScreen" component={PdfViewScreen} />
       <AppNav.Screen
         name="CasualPurchaseScreen"
         component={CasualPurchaseScreen}

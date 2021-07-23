@@ -32,6 +32,7 @@ import {
   sendOrderApi,
   viewShoppingBasketApi,
   downloadPDFApi,
+  viewHTMLApi,
 } from '../../../../../connectivity/api';
 import CheckBox from '@react-native-community/checkbox';
 import Modal from 'react-native-modal';
@@ -443,9 +444,10 @@ class Basket extends Component {
     } else if (item.id === 1) {
       this.saveDraftFun();
     } else {
-      alert('VIEW');
+      //
+      // alert('VIEW');
       // this.downLoadPdf('data');
-      // this.viewFun();
+      this.viewFun();
       // this.viewFunSec();
     }
   };
@@ -503,10 +505,25 @@ class Basket extends Component {
   viewFunSec = () => {
     const {basketId} = this.state;
     console.log('bas', basketId);
-    downloadPDFApi(basketId)
+    // downloadPDFApi(basketId)
+    //   .then(res => {
+    //     // this.downLoadPdf(res.data);
+    //     console.log('res', res);
+    //   })
+    //   .catch(err => {
+    //     Alert.alert(`Error - ${err.response.status}`, 'Something went wrong', [
+    //       {
+    //         text: 'Okay',
+    //       },
+    //     ]);
+    //   });
+    viewHTMLApi(basketId)
       .then(res => {
         // this.downLoadPdf(res.data);
         console.log('res', res);
+        this.props.navigation.navigate('PdfViewScreen', {
+          htmlData: res.data,
+        });
       })
       .catch(err => {
         Alert.alert(`Error - ${err.response.status}`, 'Something went wrong', [
