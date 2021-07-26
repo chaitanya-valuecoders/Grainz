@@ -981,3 +981,27 @@ export const viewHTMLApi = async id => {
     },
   });
 };
+
+export const searchInventoryItemLApi = async searchText => {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.get(
+    baseURL + `/Inventory/search inventories by name?Name=${searchText}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  );
+};
+
+export const searchSupplierItemLApi = async (id, searchText) => {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.get(
+    baseURL + `/Product/Search products?Search=${searchText}&SupplierId=${id}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  );
+};

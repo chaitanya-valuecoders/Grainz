@@ -23,6 +23,8 @@ import {
   getMyProfileApi,
   getInventoryBySupplierIdApi,
   getSupplierCatalogApi,
+  searchInventoryItemLApi,
+  searchSupplierItemLApi,
 } from '../../../../../connectivity/api';
 import Accordion from 'react-native-collapsible/Accordion';
 import styles from '../style';
@@ -65,6 +67,9 @@ class AddItems extends Component {
       basketId: '',
       SECTIONS_SEC_SUPP: [],
       supplierName: '',
+      searchItemInventory: '',
+      searchItemSupplier: '',
+      searchLoader: false,
     };
   }
 
@@ -195,6 +200,8 @@ class AddItems extends Component {
           navigateType,
           departmentName: '',
           supplierName,
+          searchItemInventory: '',
+          searchItemSupplier: '',
         },
         () => this.getManualLogsData(),
       );
@@ -325,6 +332,7 @@ class AddItems extends Component {
         screenType,
         basketId,
         navigateType,
+        supplierName,
       } = this.state;
       const catName = SECTIONS[activeSections].title;
       if (activeSections.length > 0) {
@@ -351,33 +359,120 @@ class AddItems extends Component {
     });
   };
 
-  searchFun = txt => {
+  hitInventorySearch = () => {
     this.setState(
       {
-        searchItem: txt,
+        searchLoader: true,
       },
-      () => this.filterData(txt),
+      () => this.hitSearchApiInventory(),
     );
   };
 
-  filterData = text => {
-    const {inventoryStatus, SECTIONS_SEC_INVEN, SECTIONS_SEC_SUPP} = this.state;
-    const finalValue = inventoryStatus ? SECTIONS_SEC_INVEN : SECTIONS_SEC_SUPP;
-
-    //passing the inserted text in textinput
-    const newData = finalValue.filter(function (item) {
-      //applying filter for the inserted text in search bar
-      const itemData = item.title ? item.title.toUpperCase() : ''.toUpperCase();
-      const textData = text.toUpperCase();
-      return itemData.indexOf(textData) > -1;
-    });
-    this.setState({
-      //setting the filtered newData on datasource
-      //After setting the data it will automatically re-render the view
-      SECTIONS: newData,
-      searchItem: text,
-    });
+  hitSearchApiInventory = txt => {
+    const {
+      supplierId,
+      searchItemInventory,
+      screenType,
+      basketId,
+      navigateType,
+      supplierName,
+    } = this.state;
+    searchInventoryItemLApi(searchItemInventory)
+      .then(res => {
+        this.setState(
+          {
+            searchLoader: false,
+          },
+          () =>
+            this.props.navigation.navigate('SearchScreen', {
+              searchType: 'Inventory',
+              searchData: res.data,
+              supplierId,
+              screenType,
+              basketId,
+              navigateType,
+              supplierName,
+            }),
+        );
+      })
+      .catch(err => {
+        Alert.alert(`Error - ${err.response.status}`, 'Something went wrong', [
+          {
+            text: 'Okay',
+            onPress: () => this.props.navigation.goBack(),
+          },
+        ]);
+      });
   };
+
+  hitSupplierSearch = () => {
+    this.setState(
+      {
+        searchLoader: true,
+      },
+      () => this.hitSearchApiSupplier(),
+    );
+  };
+
+  hitSearchApiSupplier = () => {
+    const {
+      supplierId,
+      searchItemSupplier,
+      screenType,
+      basketId,
+      navigateType,
+      supplierName,
+    } = this.state;
+    searchSupplierItemLApi(supplierId, searchItemSupplier)
+      .then(res => {
+        this.setState(
+          {
+            searchLoader: false,
+          },
+          () =>
+            this.props.navigation.navigate('SearchScreen', {
+              searchType: 'Supplier',
+              searchData: res.data,
+              supplierId,
+              screenType,
+              basketId,
+              navigateType,
+              supplierName,
+            }),
+        );
+      })
+      .catch(err => {
+        Alert.alert(
+          `SuppError - ${err.response.status}`,
+          'Something went wrong',
+          [
+            {
+              text: 'Okay',
+              onPress: () => this.props.navigation.goBack(),
+            },
+          ],
+        );
+      });
+  };
+
+  // filterData = text => {
+  //   const {inventoryStatus, SECTIONS_SEC_INVEN, SECTIONS_SEC_SUPP} = this.state;
+  //   const finalValue = inventoryStatus ? SECTIONS_SEC_INVEN : SECTIONS_SEC_SUPP;
+
+  //   //passing the inserted text in textinput
+  //   const newData = finalValue.filter(function (item) {
+  //     //applying filter for the inserted text in search bar
+  //     const itemData = item.title ? item.title.toUpperCase() : ''.toUpperCase();
+  //     const textData = text.toUpperCase();
+  //     return itemData.indexOf(textData) > -1;
+  //   });
+  //   this.setState({
+  //     //setting the filtered newData on datasource
+  //     //After setting the data it will automatically re-render the view
+  //     SECTIONS: newData,
+  //     searchItem: text,
+  //   });
+  // };
 
   inventoryFun = () => {
     this.setState(
@@ -385,6 +480,7 @@ class AddItems extends Component {
         supplierStatus: false,
         inventoryStatus: true,
         activeSections: [],
+        searchItemSupplier: '',
       },
       () => this.getManualLogsData(),
     );
@@ -396,6 +492,7 @@ class AddItems extends Component {
         supplierStatus: true,
         inventoryStatus: false,
         activeSections: [],
+        searchItemInventory: '',
       },
       () => this.getSupplierData(),
     );
@@ -442,11 +539,13 @@ class AddItems extends Component {
       buttonsSubHeader,
       supplierStatus,
       inventoryStatus,
-      searchItem,
+      searchItemInventory,
       modalLoader,
       screenType,
       basketId,
       departmentName,
+      searchItemSupplier,
+      searchLoader,
     } = this.state;
 
     console.log('inventoryStatus', inventoryStatus);
@@ -608,39 +707,111 @@ class AddItems extends Component {
               </View>
             </View>
           ) : null}
-          <View
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              borderWidth: 1,
-              borderColor: '#E2E8F0',
-              height: hp('7%'),
-              width: wp('90%'),
-              borderRadius: 100,
-              backgroundColor: '#fff',
-              alignSelf: 'center',
-              justifyContent: 'space-between',
-              marginTop: hp('2%'),
-            }}>
-            <TextInput
-              placeholder="Search"
-              value={searchItem}
+          {inventoryStatus ? (
+            <View
               style={{
-                padding: 15,
-                width: wp('75%'),
-              }}
-              onChangeText={value => this.searchFun(value)}
-            />
-            <Image
+                flexDirection: 'row',
+                alignItems: 'center',
+                height: hp('7%'),
+                width: wp('90%'),
+                alignSelf: 'center',
+                justifyContent: 'space-between',
+                marginTop: hp('2%'),
+                borderRadius: 100,
+                backgroundColor: '#fff',
+              }}>
+              <TextInput
+                placeholder="Search"
+                value={searchItemInventory}
+                style={{
+                  padding: 15,
+                  width: wp('75%'),
+                }}
+                onChangeText={value =>
+                  this.setState({
+                    searchItemInventory: value,
+                  })
+                }
+              />
+
+              <TouchableOpacity
+                onPress={() => this.hitInventorySearch()}
+                style={{
+                  backgroundColor: '#94C036',
+                  padding: 13,
+                  borderTopRightRadius: 100,
+                  borderBottomRightRadius: 100,
+                  marginLeft: 5,
+                }}>
+                {searchLoader ? (
+                  <ActivityIndicator color="#fff" size="small" />
+                ) : (
+                  <Image
+                    style={{
+                      height: 18,
+                      width: 18,
+                      resizeMode: 'contain',
+                      marginRight: wp('5%'),
+                      tintColor: '#fff',
+                    }}
+                    source={img.searchIcon}
+                  />
+                )}
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <View
               style={{
-                height: 18,
-                width: 18,
-                resizeMode: 'contain',
-                marginRight: wp('5%'),
-              }}
-              source={img.searchIcon}
-            />
-          </View>
+                flexDirection: 'row',
+                alignItems: 'center',
+                height: hp('7%'),
+                width: wp('90%'),
+                alignSelf: 'center',
+                justifyContent: 'space-between',
+                marginTop: hp('2%'),
+                borderRadius: 100,
+                backgroundColor: '#fff',
+              }}>
+              <TextInput
+                placeholder="Search"
+                value={searchItemSupplier}
+                style={{
+                  padding: 15,
+                  width: wp('75%'),
+                }}
+                onChangeText={value =>
+                  this.setState({
+                    searchItemSupplier: value,
+                  })
+                }
+              />
+
+              <TouchableOpacity
+                onPress={() => this.hitSupplierSearch()}
+                style={{
+                  backgroundColor: '#94C036',
+                  padding: 13,
+                  borderTopRightRadius: 100,
+                  borderBottomRightRadius: 100,
+                  marginLeft: 5,
+                }}>
+                {searchLoader ? (
+                  <ActivityIndicator color="#fff" size="small" />
+                ) : (
+                  <Image
+                    style={{
+                      height: 18,
+                      width: 18,
+                      resizeMode: 'contain',
+                      marginRight: wp('5%'),
+                      tintColor: '#fff',
+                    }}
+                    source={img.searchIcon}
+                  />
+                )}
+              </TouchableOpacity>
+            </View>
+          )}
 
           {modalLoader ? (
             <ActivityIndicator color="#94C036" size="large" />
