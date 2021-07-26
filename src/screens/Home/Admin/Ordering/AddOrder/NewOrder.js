@@ -119,6 +119,7 @@ class NewOrder extends Component {
     this.props.navigation.navigate('AddItemsOrderScreen', {
       supplierValue: item.value,
       screen: 'New',
+      supplierName: item.label,
     });
   };
 

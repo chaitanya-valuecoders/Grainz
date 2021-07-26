@@ -51,6 +51,7 @@ class SupplierList extends Component {
       screenType: '',
       basketId: '',
       navigateType: '',
+      supplierName: '',
     };
   }
 
@@ -94,8 +95,14 @@ class SupplierList extends Component {
   componentDidMount() {
     this.getData();
     this.props.navigation.addListener('focus', () => {
-      const {supplierId, catName, screenType, basketId, navigateType} =
-        this.props.route && this.props.route.params;
+      const {
+        supplierId,
+        catName,
+        screenType,
+        basketId,
+        navigateType,
+        supplierName,
+      } = this.props.route && this.props.route.params;
       this.createFirstData();
       this.setState(
         {
@@ -104,6 +111,8 @@ class SupplierList extends Component {
           screenType,
           basketId,
           navigateType,
+          finalBasketData: [],
+          supplierName,
         },
         () => this.getInsideCatFun(),
       );
@@ -355,6 +364,7 @@ class SupplierList extends Component {
       basketId,
       navigateType,
       productId,
+      supplierName,
     } = this.state;
 
     if (screenType === 'New') {
@@ -366,18 +376,12 @@ class SupplierList extends Component {
         console.log('Payload', payload);
         addBasketApi(payload)
           .then(res => {
-            if (navigateType === 'EditDraft') {
-              this.props.navigation.navigate('EditDraftOrderScreen', {
-                productId,
-                basketId,
-              });
-            } else {
-              this.props.navigation.navigate('BasketOrderScreen', {
-                finalData: res.data && res.data.id,
-                supplierId,
-                itemType: 'Inventory',
-              });
-            }
+            this.props.navigation.navigate('BasketOrderScreen', {
+              finalData: res.data && res.data.id,
+              supplierId,
+              itemType: 'Supplier',
+              supplierName,
+            });
           })
           .catch(err => {
             Alert.alert(
@@ -400,26 +404,39 @@ class SupplierList extends Component {
         id: basketId,
       };
       console.log('Paylaod', payload);
-      updateBasketApi(payload)
-        .then(res => {
-          console.log('res', res);
-          this.props.navigation.navigate('BasketOrderScreen', {
-            finalData: res.data && res.data.id,
-            supplierId,
-            itemType: 'Supplier',
+      if (finalBasketData.length > 0) {
+        updateBasketApi(payload)
+          .then(res => {
+            console.log('res', res);
+            if (navigateType === 'EditDraft') {
+              this.props.navigation.navigate('EditDraftOrderScreen', {
+                productId,
+                basketId,
+                supplierName,
+              });
+            } else {
+              this.props.navigation.navigate('BasketOrderScreen', {
+                finalData: res.data && res.data.id,
+                supplierId,
+                itemType: 'Supplier',
+                supplierName,
+              });
+            }
+          })
+          .catch(err => {
+            Alert.alert(
+              `Error - ${err.response.status}`,
+              'Something went wrong',
+              [
+                {
+                  text: 'Okay',
+                },
+              ],
+            );
           });
-        })
-        .catch(err => {
-          Alert.alert(
-            `Error - ${err.response.status}`,
-            'Something went wrong',
-            [
-              {
-                text: 'Okay',
-              },
-            ],
-          );
-        });
+      } else {
+        alert('Please select atleast one item');
+      }
     }
   };
 
@@ -574,12 +591,13 @@ class SupplierList extends Component {
       catName,
       finalBasketData,
       screenType,
+      navigateType,
     } = this.state;
 
     // console.log('modalData', modalData);
     console.log('finalBasketData', finalBasketData);
 
-    console.log('screenType', screenType);
+    console.log('navigateType', navigateType);
 
     return (
       <View style={styles.container}>
@@ -606,6 +624,34 @@ class SupplierList extends Component {
                 <Text style={styles.goBackTextStyle}>Go Back</Text>
               </TouchableOpacity>
             </View>
+          </View>
+          <View style={{justifyContent: 'center', alignItems: 'center'}}>
+            <TouchableOpacity
+              onPress={() => this.addToBasketFun()}
+              style={{
+                height: hp('6%'),
+                width: wp('80%'),
+                backgroundColor: '#94C036',
+                justifyContent: 'center',
+                alignItems: 'center',
+                marginTop: hp('3%'),
+                borderRadius: 100,
+                marginBottom: hp('2%'),
+              }}>
+              <View
+                style={{
+                  alignItems: 'center',
+                }}>
+                <Text
+                  style={{
+                    color: 'white',
+                    marginLeft: 10,
+                    fontFamily: 'Inter-SemiBold',
+                  }}>
+                  {screenType === 'New' ? 'Add to basket' : 'Update basket'}
+                </Text>
+              </View>
+            </TouchableOpacity>
           </View>
 
           {recipeLoader ? (
@@ -874,34 +920,7 @@ class SupplierList extends Component {
               </ScrollView>
             </View>
           )}
-          <View style={{justifyContent: 'center', alignItems: 'center'}}>
-            <TouchableOpacity
-              onPress={() => this.addToBasketFun()}
-              style={{
-                height: hp('6%'),
-                width: wp('80%'),
-                backgroundColor: '#94C036',
-                justifyContent: 'center',
-                alignItems: 'center',
-                marginTop: hp('3%'),
-                borderRadius: 100,
-                marginBottom: hp('5%'),
-              }}>
-              <View
-                style={{
-                  alignItems: 'center',
-                }}>
-                <Text
-                  style={{
-                    color: 'white',
-                    marginLeft: 10,
-                    fontFamily: 'Inter-SemiBold',
-                  }}>
-                  {screenType === 'New' ? 'Add to basket' : 'Update basket'}
-                </Text>
-              </View>
-            </TouchableOpacity>
-          </View>
+
           <Modal isVisible={mapModalStatus} backdropOpacity={0.35}>
             <View
               style={{

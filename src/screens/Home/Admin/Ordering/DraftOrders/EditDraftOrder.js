@@ -10,7 +10,6 @@ import {
   Alert,
   FlatList,
   Platform,
-  PermissionsAndroid,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {connect} from 'react-redux';
@@ -31,6 +30,7 @@ import {
   updateDraftOrderNewApi,
   sendOrderApi,
   viewShoppingBasketApi,
+  viewHTMLApi,
 } from '../../../../../connectivity/api';
 import moment from 'moment';
 import styles from '../style';
@@ -38,7 +38,6 @@ import RNPickerSelect from 'react-native-picker-select';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import {translate} from '../../../../../utils/translations';
 import Modal from 'react-native-modal';
-import RNFetchBlob from 'rn-fetch-blob';
 
 class EditDraftOrder extends Component {
   constructor(props) {
@@ -64,7 +63,7 @@ class EditDraftOrder extends Component {
       inventoryData: [],
       basketId: '',
       finalArrData: [],
-      editStatus: false,
+      editStatus: true,
       toRecipientValue: '',
       mailMessageValue: '',
       ccRecipientValue: '',
@@ -300,9 +299,7 @@ class EditDraftOrder extends Component {
     } else if (item.id === 1) {
       this.updateDraftFun();
     } else {
-      alert('View');
-      // this.downLoadPdf('data');
-      // this.viewFun();
+      this.viewFun();
     }
   };
 
@@ -361,10 +358,12 @@ class EditDraftOrder extends Component {
   viewFunSec = () => {
     const {basketId} = this.state;
     console.log('bas', basketId);
-    viewShoppingBasketApi(basketId)
+    viewHTMLApi(basketId)
       .then(res => {
-        this.downLoadPdf(res.data);
         console.log('res', res);
+        this.props.navigation.navigate('PdfViewScreen', {
+          htmlData: res.data,
+        });
       })
       .catch(err => {
         Alert.alert(`Error - ${err.response.status}`, 'Something went wrong', [
@@ -373,67 +372,17 @@ class EditDraftOrder extends Component {
           },
         ]);
       });
-  };
-
-  downLoadPdf = data => {
-    this.historyDownload(data);
-  };
-
-  historyDownload = data => {
-    if (Platform.OS === 'ios') {
-      this.downloadHistory(data);
-    } else {
-      try {
-        PermissionsAndroid.request(
-          PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
-          {
-            title: 'storage title',
-            message: 'storage_permission',
-          },
-        ).then(granted => {
-          if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-            //Once user grant the permission start downloading
-            // console.log('Storage Permission Granted.');
-            this.downloadHistory(data);
-          } else {
-            //If permission denied then show alert 'Storage Permission Not Granted'
-            Alert.alert('Please grant storage permission');
-          }
-        });
-      } catch (err) {
-        //To handle permission related issue
-        // console.log('error', err);
-      }
-    }
-  };
-
-  downloadHistory = async data => {
-    // console.warn('receipt', data);
-    var pdf_url = data.receipt;
-    let PictureDir = RNFetchBlob.fs.dirs.DownloadDir;
-    let date = new Date();
-    let options = {
-      fileCache: true,
-      addAndroidDownloads: {
-        useDownloadManager: true,
-        notification: true,
-        path:
-          PictureDir +
-          '/grainz_' +
-          Math.floor(date.getTime() + date.getSeconds() / 2) +
-          '.pdf',
-        description: 'Order File',
-      },
-    };
-    RNFetchBlob.config(options)
-      .fetch('GET', 'http://www.africau.edu/images/default/sample.pdf')
-      .then(res => {
-        console.log('res', res);
-        Alert.alert('Ticket receipt downloaded successfully!');
-      })
-      .catch(err => {
-        console.log('PDFErr', err);
-      });
+    // viewShoppingBasketApi(basketId)
+    //   .then(res => {
+    //     console.log('res', res);
+    //   })
+    //   .catch(err => {
+    //     Alert.alert(`Error - ${err.response.status}`, 'Something went wrong', [
+    //       {
+    //         text: 'Okay',
+    //       },
+    //     ]);
+    //   });
   };
 
   showDatePickerOrderDate = () => {
@@ -575,6 +524,7 @@ class EditDraftOrder extends Component {
     const {productId, basketId} = this.state;
     getBasketApi(basketId)
       .then(res => {
+        console.log('res', res);
         this.setState(
           {
             draftsOrderData: res.data,
@@ -759,7 +709,9 @@ class EditDraftOrder extends Component {
                 <Text style={styles.adminTextStyle}>Order Edit</Text>
               </View>
               <TouchableOpacity
-                onPress={() => this.props.navigation.goBack()}
+                onPress={() =>
+                  this.props.navigation.navigate('ViewDraftOrdersScreen')
+                }
                 style={styles.goBackContainer}>
                 <Text style={styles.goBackTextStyle}>Go Back</Text>
               </TouchableOpacity>
@@ -1028,7 +980,7 @@ class EditDraftOrder extends Component {
                           }}>
                           <View
                             style={{
-                              width: wp('30%'),
+                              width: wp('40%'),
                               justifyContent: 'center',
                               alignItems: 'center',
                             }}>
@@ -1037,7 +989,7 @@ class EditDraftOrder extends Component {
                                 color: '#161C27',
                                 fontFamily: 'Inter-SemiBold',
                               }}>
-                              Name
+                              Inventory item
                             </Text>
                           </View>
                           <View
@@ -1100,10 +1052,18 @@ class EditDraftOrder extends Component {
                                   }}>
                                   <View
                                     style={{
-                                      width: wp('30%'),
+                                      width: wp('40%'),
                                       justifyContent: 'center',
                                       alignItems: 'center',
                                     }}>
+                                    <Text
+                                      style={{
+                                        fontFamily: 'Inter-SemiBold',
+                                        marginBottom: 5,
+                                      }}>
+                                      {item.inventoryMapping &&
+                                        item.inventoryMapping.inventoryName}
+                                    </Text>
                                     <Text style={{}}>
                                       {item.inventoryMapping.productName}
                                     </Text>
@@ -1140,10 +1100,17 @@ class EditDraftOrder extends Component {
                                         justifyContent: 'center',
                                         alignItems: 'center',
                                       }}>
-                                      <Text style={{}}>
+                                      <Text style={{marginBottom: 5}}>
                                         {item.calculatedQuantity.toFixed(2)}{' '}
                                         {item.unit}
                                       </Text>
+                                      <Text>{`${item.quantity} X ${
+                                        item.inventoryMapping &&
+                                        item.inventoryMapping.packSize
+                                      }/${
+                                        item.inventoryMapping &&
+                                        item.inventoryMapping.productUnit
+                                      }`}</Text>
                                     </View>
                                   )}
                                   <View

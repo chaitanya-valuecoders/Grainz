@@ -52,6 +52,7 @@ class InventoryList extends Component {
       screenType: 'New',
       basketId: '',
       navigateType: '',
+      supplierName: '',
     };
   }
 
@@ -94,8 +95,15 @@ class InventoryList extends Component {
 
   componentDidMount() {
     this.getData();
-    const {supplierId, catName, catId, screenType, basketId, navigateType} =
-      this.props.route && this.props.route.params;
+    const {
+      supplierId,
+      catName,
+      catId,
+      screenType,
+      basketId,
+      navigateType,
+      supplierName,
+    } = this.props.route && this.props.route.params;
     this.props.navigation.addListener('focus', () => {
       this.setState(
         {
@@ -105,6 +113,8 @@ class InventoryList extends Component {
           screenType,
           basketId,
           navigateType,
+          finalBasketData: [],
+          supplierName,
         },
         () => this.getInsideCatFun(),
       );
@@ -283,6 +293,7 @@ class InventoryList extends Component {
       basketId,
       navigateType,
       productId,
+      supplierName,
     } = this.state;
     if (screenType === 'New') {
       if (finalBasketData.length > 0) {
@@ -299,6 +310,7 @@ class InventoryList extends Component {
               supplierId,
               itemType: 'Inventory',
               productId,
+              supplierName,
             });
           })
           .catch(err => {
@@ -322,34 +334,40 @@ class InventoryList extends Component {
         id: basketId,
       };
       console.log('Paylaod', payload);
-      updateBasketApi(payload)
-        .then(res => {
-          console.log('res', res);
-          if (navigateType === 'EditDraft') {
-            this.props.navigation.navigate('EditDraftOrderScreen', {
-              productId,
-              basketId,
-            });
-          } else {
-            this.props.navigation.navigate('BasketOrderScreen', {
-              finalData: res.data && res.data.id,
-              supplierId,
-              itemType: 'Inventory',
-              productId,
-            });
-          }
-        })
-        .catch(err => {
-          Alert.alert(
-            `Error - ${err.response.status}`,
-            'Something went wrong',
-            [
-              {
-                text: 'Okay',
-              },
-            ],
-          );
-        });
+      if (finalBasketData.length > 0) {
+        updateBasketApi(payload)
+          .then(res => {
+            console.log('res', res);
+            if (navigateType === 'EditDraft') {
+              this.props.navigation.navigate('EditDraftOrderScreen', {
+                productId,
+                basketId,
+                supplierName,
+              });
+            } else {
+              this.props.navigation.navigate('BasketOrderScreen', {
+                finalData: res.data && res.data.id,
+                supplierId,
+                itemType: 'Inventory',
+                productId,
+                supplierName,
+              });
+            }
+          })
+          .catch(err => {
+            Alert.alert(
+              `Error - ${err.response.status}`,
+              'Something went wrong',
+              [
+                {
+                  text: 'Okay',
+                },
+              ],
+            );
+          });
+      } else {
+        alert('Please select atleast one item');
+      }
     }
   };
 
@@ -394,6 +412,34 @@ class InventoryList extends Component {
                 <Text style={styles.goBackTextStyle}>Go Back</Text>
               </TouchableOpacity>
             </View>
+          </View>
+          <View style={{justifyContent: 'center', alignItems: 'center'}}>
+            <TouchableOpacity
+              onPress={() => this.addToBasketFun()}
+              style={{
+                height: hp('6%'),
+                width: wp('80%'),
+                backgroundColor: '#94C036',
+                justifyContent: 'center',
+                alignItems: 'center',
+                marginTop: hp('3%'),
+                borderRadius: 100,
+                marginBottom: hp('2%'),
+              }}>
+              <View
+                style={{
+                  alignItems: 'center',
+                }}>
+                <Text
+                  style={{
+                    color: 'white',
+                    marginLeft: 10,
+                    fontFamily: 'Inter-SemiBold',
+                  }}>
+                  {screenType === 'New' ? 'Add to basket' : 'Update basket'}
+                </Text>
+              </View>
+            </TouchableOpacity>
           </View>
 
           {recipeLoader ? (
@@ -679,34 +725,6 @@ class InventoryList extends Component {
               </ScrollView>
             </View>
           )}
-          <View style={{justifyContent: 'center', alignItems: 'center'}}>
-            <TouchableOpacity
-              onPress={() => this.addToBasketFun()}
-              style={{
-                height: hp('6%'),
-                width: wp('80%'),
-                backgroundColor: '#94C036',
-                justifyContent: 'center',
-                alignItems: 'center',
-                marginTop: hp('3%'),
-                borderRadius: 100,
-                marginBottom: hp('5%'),
-              }}>
-              <View
-                style={{
-                  alignItems: 'center',
-                }}>
-                <Text
-                  style={{
-                    color: 'white',
-                    marginLeft: 10,
-                    fontFamily: 'Inter-SemiBold',
-                  }}>
-                  {screenType === 'New' ? 'Add to basket' : 'Update basket'}
-                </Text>
-              </View>
-            </TouchableOpacity>
-          </View>
           <Modal isVisible={actionModalStatus} backdropOpacity={0.35}>
             <View
               style={{

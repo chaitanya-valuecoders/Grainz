@@ -415,7 +415,21 @@ class ViewPendingDelivery extends Component {
                             fontSize: 14,
                             fontFamily: 'Inter-SemiBold',
                           }}>
-                          Name
+                          Inventory item
+                        </Text>
+                      </View>
+                      <View
+                        style={{
+                          width: wp('30%'),
+                          alignItems: 'center',
+                        }}>
+                        <Text
+                          style={{
+                            color: '#161C27',
+                            fontSize: 14,
+                            fontFamily: 'Inter-SemiBold',
+                          }}>
+                          Arrived date
                         </Text>
                       </View>
                       <View
@@ -443,7 +457,21 @@ class ViewPendingDelivery extends Component {
                             fontSize: 14,
                             fontFamily: 'Inter-SemiBold',
                           }}>
-                          HTVA $
+                          $ HTVA
+                        </Text>
+                      </View>
+                      <View
+                        style={{
+                          width: wp('30%'),
+                          alignItems: 'center',
+                        }}>
+                        <Text
+                          style={{
+                            color: '#161C27',
+                            fontSize: 14,
+                            fontFamily: 'Inter-SemiBold',
+                          }}>
+                          Correct ?
                         </Text>
                       </View>
 
@@ -465,6 +493,7 @@ class ViewPendingDelivery extends Component {
                     <View>
                       {pageData && pageData.orderItems.length > 0
                         ? pageData.orderItems.map((item, index) => {
+                            console.log('item', item);
                             return (
                               <View
                                 key={index}
@@ -474,6 +503,34 @@ class ViewPendingDelivery extends Component {
                                   flexDirection: 'row',
                                   backgroundColor: '#fff',
                                 }}>
+                                <View
+                                  style={{
+                                    width: wp('30%'),
+                                    alignItems: 'center',
+                                  }}>
+                                  <Text
+                                    style={{
+                                      color: '#161C27',
+                                      fontSize: 14,
+                                      fontFamily: 'Inter-Regular',
+                                    }}>
+                                    {item.productName}
+                                  </Text>
+                                </View>
+                                <View
+                                  style={{
+                                    width: wp('30%'),
+                                    alignItems: 'center',
+                                  }}>
+                                  <Text
+                                    style={{
+                                      color: '#161C27',
+                                      fontSize: 14,
+                                      fontFamily: 'Inter-Regular',
+                                    }}>
+                                    {item.productName}
+                                  </Text>
+                                </View>
                                 <View
                                   style={{
                                     width: wp('30%'),

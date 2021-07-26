@@ -256,7 +256,7 @@ class DraftOrder extends Component {
                     </View>
                     {draftsOrderData &&
                       draftsOrderData.map((item, index) => {
-                        console.log('item', item.shopingBasketId);
+                        console.log('item', item);
                         return (
                           <View>
                             <TouchableOpacity
@@ -267,6 +267,7 @@ class DraftOrder extends Component {
                                     supplierName: item.supplierName,
                                     productId: item.id,
                                     basketId: item.shopingBasketId,
+                                    placedByName: item.placedByNAme,
                                   },
                                 )
                               }

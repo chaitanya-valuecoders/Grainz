@@ -64,6 +64,7 @@ class AddItems extends Component {
       screenType: '',
       basketId: '',
       SECTIONS_SEC_SUPP: [],
+      supplierName: '',
     };
   }
 
@@ -181,7 +182,7 @@ class AddItems extends Component {
   componentDidMount() {
     this.getData();
     this.props.navigation.addListener('focus', () => {
-      const {supplierValue, screen, basketId, navigateType} =
+      const {supplierValue, screen, basketId, navigateType, supplierName} =
         this.props.route && this.props.route.params;
       this.setState(
         {
@@ -193,6 +194,7 @@ class AddItems extends Component {
           basketId,
           navigateType,
           departmentName: '',
+          supplierName,
         },
         () => this.getManualLogsData(),
       );
@@ -295,6 +297,7 @@ class AddItems extends Component {
         screenType,
         basketId,
         navigateType,
+        supplierName,
       } = this.state;
       if (activeSections.length > 0) {
         const catId = SECTIONS[activeSections].content;
@@ -306,6 +309,7 @@ class AddItems extends Component {
           screenType,
           basketId,
           navigateType,
+          supplierName,
         });
       } else {
         this.setState({
@@ -330,6 +334,7 @@ class AddItems extends Component {
           screenType,
           basketId,
           navigateType,
+          supplierName,
         });
       } else {
         this.setState({

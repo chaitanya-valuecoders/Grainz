@@ -45,6 +45,7 @@ class ViewDraftOrders extends Component {
       totalHTVAVal: '',
       orderDate: '',
       deliveryDate: '',
+      placedByName: '',
     };
   }
 
@@ -87,7 +88,7 @@ class ViewDraftOrders extends Component {
 
   componentDidMount() {
     this.getData();
-    const {supplierName, productId, basketId} =
+    const {supplierName, productId, basketId, placedByName} =
       this.props.route && this.props.route.params;
     this.props.navigation.addListener('focus', () => {
       this.setState(
@@ -96,6 +97,7 @@ class ViewDraftOrders extends Component {
           productId,
           modalLoaderDrafts: true,
           basketId,
+          placedByName,
         },
         () => this.getDraftOrderData(),
       );
@@ -175,10 +177,6 @@ class ViewDraftOrders extends Component {
       });
   };
 
-  // addItemsFun = () => {
-  //   this.props.navigation.navigate('NewOrderScreen');
-  // };
-
   render() {
     const {
       buttonsSubHeader,
@@ -189,6 +187,7 @@ class ViewDraftOrders extends Component {
       totalHTVAVal,
       orderDate,
       deliveryDate,
+      placedByName,
     } = this.state;
 
     return (
@@ -222,20 +221,119 @@ class ViewDraftOrders extends Component {
               <TouchableOpacity
                 style={{flex: 1}}
                 onPress={() => this.editFun()}>
-                <Text
+                <View
                   style={{
-                    fontSize: 18,
-                    fontFamily: 'Inter-SemiBold',
-                    color: '#87AC33',
+                    color: '#523622',
+                    paddingVertical: 8,
+                    borderRadius: 15,
+                    backgroundColor: '#94C036',
+                    width: '55%',
+                    alignItems: 'center',
                   }}>
-                  Edit
-                </Text>
+                  <Image
+                    source={img.editIconNew}
+                    style={{
+                      height: 18,
+                      width: 18,
+                      resizeMode: 'contain',
+                      tintColor: '#fff',
+                    }}
+                  />
+                </View>
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => this.deleteFun()}
-                style={styles.goBackContainer}>
-                <Text style={styles.goBackTextStyle}>Delete</Text>
+                style={{
+                  flex: 1,
+                  justifyContent: 'flex-end',
+                  alignItems: 'flex-end',
+                }}>
+                <View
+                  style={{
+                    color: '#523622',
+                    paddingVertical: 8,
+                    borderRadius: 15,
+                    backgroundColor: 'red',
+                    width: '55%',
+                    alignItems: 'center',
+                  }}>
+                  <Image
+                    source={img.deleteIconNew}
+                    style={{
+                      height: 18,
+                      width: 18,
+                      resizeMode: 'contain',
+                      tintColor: '#fff',
+                    }}
+                  />
+                </View>
               </TouchableOpacity>
+            </View>
+          </View>
+          <View
+            style={{
+              marginTop: hp('3%'),
+            }}>
+            <View style={{justifyContent: 'center', alignItems: 'center'}}>
+              <View
+                style={{
+                  width: wp('90%'),
+                  padding: Platform.OS === 'ios' ? 15 : 5,
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                  backgroundColor: '#fff',
+                  borderRadius: 5,
+                }}>
+                <TextInput
+                  placeholder="Order Date"
+                  value={orderDate && moment(orderDate).format('L')}
+                  editable={false}
+                />
+              </View>
+            </View>
+          </View>
+          <View
+            style={{
+              marginTop: hp('3%'),
+            }}>
+            <View style={{justifyContent: 'center', alignItems: 'center'}}>
+              <View
+                style={{
+                  width: wp('90%'),
+                  padding: Platform.OS === 'ios' ? 15 : 5,
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                  backgroundColor: '#fff',
+                  borderRadius: 5,
+                }}>
+                <TextInput
+                  placeholder="Delivery Date"
+                  value={deliveryDate && moment(deliveryDate).format('L')}
+                  editable={false}
+                />
+              </View>
+            </View>
+          </View>
+          <View
+            style={{
+              marginTop: hp('3%'),
+            }}>
+            <View style={{justifyContent: 'center', alignItems: 'center'}}>
+              <View
+                style={{
+                  width: wp('90%'),
+                  padding: Platform.OS === 'ios' ? 15 : 5,
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                  backgroundColor: '#fff',
+                  borderRadius: 5,
+                }}>
+                <TextInput
+                  placeholder="Placed by"
+                  value={placedByName}
+                  editable={false}
+                />
+              </View>
             </View>
           </View>
 
@@ -271,15 +369,16 @@ class ViewDraftOrders extends Component {
                               }}>
                               <View
                                 style={{
-                                  width: wp('30%'),
+                                  width: wp('40%'),
                                   alignItems: 'center',
                                 }}>
                                 <Text
                                   style={{
                                     color: '#161C27',
                                     fontFamily: 'Inter-SemiBold',
+                                    textAlign: 'center',
                                   }}>
-                                  Name
+                                  Inventory item
                                 </Text>
                               </View>
                               <View
@@ -327,14 +426,24 @@ class ViewDraftOrders extends Component {
                                         paddingVertical: hp('3%'),
                                         borderTopLeftRadius: 5,
                                         borderTopRightRadius: 5,
+                                        paddingHorizontal: 10,
                                       }}>
                                       <View
                                         style={{
-                                          width: wp('30%'),
+                                          width: wp('40%'),
                                           alignItems: 'center',
                                           justifyContent: 'center',
                                         }}>
-                                        <Text style={{}}>
+                                        <Text
+                                          style={{
+                                            fontFamily: 'Inter-SemiBold',
+                                            marginBottom: 5,
+                                          }}>
+                                          {item.inventoryMapping &&
+                                            item.inventoryMapping.inventoryName}
+                                        </Text>
+                                        <Text
+                                          style={{fontFamily: 'Inter-Regular'}}>
                                           {item.inventoryMapping &&
                                             item.inventoryMapping.productName}
                                         </Text>
@@ -345,15 +454,17 @@ class ViewDraftOrders extends Component {
                                           alignItems: 'center',
                                           justifyContent: 'center',
                                         }}>
-                                        <Text style={{}}>
+                                        <Text style={{marginBottom: 5}}>
                                           {item.calculatedQuantity.toFixed(2)}{' '}
                                           {item.unit}
-                                          {/* {Number(
-                                            item.inventoryMapping.grainzVolume *
-                                              item.quantity,
-                                          ).toFixed(2)}{' '} */}
-                                          {/* {item.inventoryMapping.unit} */}
                                         </Text>
+                                        <Text>{`${item.quantity} X ${
+                                          item.inventoryMapping &&
+                                          item.inventoryMapping.packSize
+                                        }/${
+                                          item.inventoryMapping &&
+                                          item.inventoryMapping.productUnit
+                                        }`}</Text>
                                       </View>
                                       <View
                                         style={{
@@ -390,6 +501,12 @@ class ViewDraftOrders extends Component {
                             flex: 1,
                             justifyContent: 'center',
                             alignItems: 'center',
+                          }}></View>
+                        <View
+                          style={{
+                            flex: 1,
+                            justifyContent: 'center',
+                            alignItems: 'center',
                           }}>
                           <Text style={{}}>Total HTVA</Text>
                         </View>
@@ -401,85 +518,6 @@ class ViewDraftOrders extends Component {
                           }}>
                           <Text> $ {Number(totalHTVAVal).toFixed(2)}</Text>
                         </View>
-                        <View
-                          style={{
-                            flex: 1,
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                          }}></View>
-                      </View>
-                    </View>
-                    <View>
-                      <View
-                        style={{
-                          flexDirection: 'row',
-                          justifyContent: 'space-between',
-                          flex: 1,
-                          backgroundColor: '#FFFFFF',
-                          paddingVertical: hp('3%'),
-                          borderTopLeftRadius: 5,
-                          borderTopRightRadius: 5,
-                        }}>
-                        <View
-                          style={{
-                            flex: 1,
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                          }}>
-                          <Text style={{}}>Order Date: </Text>
-                        </View>
-                        <View
-                          style={{
-                            flex: 1,
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                          }}>
-                          <Text> {moment(orderDate).format('L')}</Text>
-                        </View>
-                        <View
-                          style={{
-                            flex: 1,
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                          }}></View>
-                      </View>
-                    </View>
-                    <View>
-                      <View
-                        style={{
-                          flexDirection: 'row',
-                          justifyContent: 'space-between',
-                          flex: 1,
-                          backgroundColor: '#FFFFFF',
-                          paddingVertical: hp('3%'),
-                          borderTopLeftRadius: 5,
-                          borderTopRightRadius: 5,
-                        }}>
-                        <View
-                          style={{
-                            flex: 1,
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                          }}>
-                          <Text style={{}}>Delivery Date:</Text>
-                        </View>
-                        <View
-                          style={{
-                            flex: 1,
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                          }}>
-                          <Text>
-                            {' '}
-                            {deliveryDate && moment(deliveryDate).format('L')}
-                          </Text>
-                        </View>
-                        <View
-                          style={{
-                            flex: 1,
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                          }}></View>
                       </View>
                     </View>
                   </View>
@@ -488,44 +526,6 @@ class ViewDraftOrders extends Component {
             </View>
           )}
         </ScrollView>
-        {/* <View style={{justifyContent: 'center', alignItems: 'center'}}>
-          <TouchableOpacity
-            onPress={() => this.addItemsFun()}
-            style={{
-              height: hp('6%'),
-              width: wp('80%'),
-              backgroundColor: '#94C036',
-              justifyContent: 'center',
-              alignItems: 'center',
-              marginTop: hp('3%'),
-              borderRadius: 100,
-              marginBottom: hp('5%'),
-            }}>
-            <View
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-              }}>
-              <Image
-                source={img.addIcon}
-                style={{
-                  width: 20,
-                  height: 20,
-                  tintColor: '#fff',
-                  resizeMode: 'contain',
-                }}
-              />
-              <Text
-                style={{
-                  color: 'white',
-                  marginLeft: 10,
-                  fontFamily: 'Inter-SemiBold',
-                }}>
-                Add New
-              </Text>
-            </View>
-          </TouchableOpacity>
-        </View> */}
       </View>
     );
   }

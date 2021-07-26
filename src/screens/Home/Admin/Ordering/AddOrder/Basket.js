@@ -82,6 +82,7 @@ class Basket extends Component {
       mailMessageValue: '',
       ccRecipientValue: '',
       mailTitleValue: '',
+      supplierName: '',
     };
   }
 
@@ -143,7 +144,7 @@ class Basket extends Component {
   componentDidMount() {
     this.getData();
     this.getUsersListData();
-    const {finalData, supplierId, itemType, productId} =
+    const {finalData, supplierId, itemType, productId, supplierName} =
       this.props.route && this.props.route.params;
     this.setState(
       {
@@ -154,6 +155,7 @@ class Basket extends Component {
         finalOrderDate: moment(new Date()).format('L'),
         apiOrderDate: new Date().toISOString(),
         productId,
+        supplierName,
       },
       () => this.getBasketDataFun(),
     );
@@ -754,6 +756,7 @@ class Basket extends Component {
       mailMessageValue,
       ccRecipientValue,
       mailTitleValue,
+      supplierName,
     } = this.state;
 
     return (
@@ -782,7 +785,30 @@ class Basket extends Component {
               </TouchableOpacity>
             </View>
           </View>
+
           <View style={{marginHorizontal: wp('3%')}}>
+            <View
+              style={{
+                marginTop: hp('3%'),
+              }}>
+              <View>
+                <View
+                  style={{
+                    width: wp('90%'),
+                    padding: Platform.OS === 'ios' ? 15 : 5,
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    backgroundColor: '#fff',
+                    borderRadius: 5,
+                  }}>
+                  <TextInput
+                    placeholder="Supplier"
+                    value={supplierName}
+                    editable={false}
+                  />
+                </View>
+              </View>
+            </View>
             <View>
               <View
                 style={{
@@ -964,21 +990,37 @@ class Basket extends Component {
                                 width: wp('40%'),
                                 alignItems: 'center',
                               }}>
-                              <Text style={{textAlign: 'center'}}>Name</Text>
+                              <Text
+                                style={{
+                                  textAlign: 'center',
+                                  fontFamily: 'Inter-SemiBold',
+                                }}>
+                                Inventory item
+                              </Text>
                             </View>
                             <View
                               style={{
                                 width: wp('30%'),
                                 alignItems: 'center',
                               }}>
-                              <Text>Quantity</Text>
+                              <Text
+                                style={{
+                                  fontFamily: 'Inter-SemiBold',
+                                }}>
+                                Quantity
+                              </Text>
                             </View>
                             <View
                               style={{
                                 width: wp('30%'),
                                 alignItems: 'center',
                               }}>
-                              <Text>HTVA ($)</Text>
+                              <Text
+                                style={{
+                                  fontFamily: 'Inter-SemiBold',
+                                }}>
+                                HTVA ($)
+                              </Text>
                             </View>
 
                             <View
@@ -995,7 +1037,7 @@ class Basket extends Component {
                                     <View
                                       style={{
                                         paddingVertical: 10,
-                                        paddingHorizontal: 5,
+                                        paddingHorizontal: 10,
                                         flexDirection: 'row',
                                         backgroundColor:
                                           index % 2 === 0
@@ -1008,7 +1050,18 @@ class Basket extends Component {
                                           alignItems: 'center',
                                           justifyContent: 'center',
                                         }}>
-                                        <Text>
+                                        <Text
+                                          style={{
+                                            fontFamily: 'Inter-SemiBold',
+                                            marginBottom: 5,
+                                          }}>
+                                          {item.inventoryMapping &&
+                                            item.inventoryMapping.inventoryName}
+                                        </Text>
+                                        <Text
+                                          style={{
+                                            fontFamily: 'Inter-Regular',
+                                          }}>
                                           {item.inventoryMapping &&
                                             item.inventoryMapping.productName}
                                         </Text>
@@ -1045,14 +1098,26 @@ class Basket extends Component {
                                             justifyContent: 'center',
                                             alignItems: 'center',
                                           }}>
-                                          <Text>
+                                          <Text
+                                            style={{
+                                              marginBottom: 5,
+                                              fontFamily: 'Inter-Regular',
+                                            }}>
                                             {Number(
                                               item.calculatedQuantity,
                                             ).toFixed(2)}{' '}
                                             {item.unit}
                                           </Text>
+                                          <Text>{`${item.quantity} X ${
+                                            item.inventoryMapping &&
+                                            item.inventoryMapping.packSize
+                                          }/${
+                                            item.inventoryMapping &&
+                                            item.inventoryMapping.productUnit
+                                          }`}</Text>
                                         </View>
                                       )}
+
                                       <View
                                         style={{
                                           width: wp('30%'),
