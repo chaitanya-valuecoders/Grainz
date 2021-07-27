@@ -42,6 +42,7 @@ import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import {translate} from '../../../../../utils/translations';
 import moment from 'moment';
 import RNFetchBlob from 'rn-fetch-blob';
+import LoaderComp from '../../../../../components/Loader';
 
 class Basket extends Component {
   constructor(props) {
@@ -83,6 +84,7 @@ class Basket extends Component {
       ccRecipientValue: '',
       mailTitleValue: '',
       supplierName: '',
+      loaderCompStatus: false,
     };
   }
 
@@ -263,6 +265,15 @@ class Basket extends Component {
   };
 
   sendFun = () => {
+    this.setState(
+      {
+        loaderCompStatus: true,
+      },
+      () => this.sendFunSec(),
+    );
+  };
+
+  sendFunSec = () => {
     const {
       apiOrderDate,
       placedByValue,
@@ -295,6 +306,7 @@ class Basket extends Component {
               onPress: () =>
                 this.setState({
                   mailModalVisible: true,
+                  loaderCompStatus: false,
                   toRecipientValue:
                     res.data && res.data.emailDetails.toRecipient,
                   ccRecipientValue:
@@ -317,7 +329,12 @@ class Basket extends Component {
           );
         });
     } else {
-      alert('Please select all values');
+      Alert.alert(`Grainz`, 'Please select all values.', [
+        {
+          text: 'Okay',
+          onPress: () => this.closeLoaderComp(),
+        },
+      ]);
     }
   };
 
@@ -411,6 +428,9 @@ class Basket extends Component {
     if (apiOrderDate && placedByValue && supplierId && finalApiData) {
       addDraftApi(payload)
         .then(res => {
+          this.setState({
+            loaderCompStatus: false,
+          });
           console.log('res', res);
           Alert.alert('Grainz', 'Order added successfully', [
             {
@@ -432,8 +452,19 @@ class Basket extends Component {
           );
         });
     } else {
-      alert('Please select all values.');
+      Alert.alert(`Grainz`, 'Please select all values.', [
+        {
+          text: 'Okay',
+          onPress: () => this.closeLoaderComp(),
+        },
+      ]);
     }
+  };
+
+  closeLoaderComp = () => {
+    this.setState({
+      loaderCompStatus: false,
+    });
   };
 
   flatListFun = item => {
@@ -444,13 +475,19 @@ class Basket extends Component {
         basketId: basketId,
       });
     } else if (item.id === 1) {
-      this.saveDraftFun();
+      this.setState(
+        {
+          loaderCompStatus: true,
+        },
+        () => this.saveDraftFun(),
+      );
     } else {
-      //
-      // alert('VIEW');
-      // this.downLoadPdf('data');
-      this.viewFun();
-      // this.viewFunSec();
+      this.setState(
+        {
+          loaderCompStatus: true,
+        },
+        () => this.viewFun(),
+      );
     }
   };
 
@@ -481,10 +518,19 @@ class Basket extends Component {
     ) {
       addDraftApi(payload)
         .then(res => {
+          this.setState({
+            loaderCompStatus: false,
+          });
           Alert.alert('Grainz', 'Order added successfully', [
             {
               text: 'okay',
-              onPress: () => this.viewFunSec(),
+              onPress: () =>
+                this.setState(
+                  {
+                    loaderCompStatus: true,
+                  },
+                  () => this.viewFunSec(),
+                ),
             },
           ]);
         })
@@ -500,32 +546,27 @@ class Basket extends Component {
           );
         });
     } else {
-      alert('Please select all values');
+      Alert.alert(`Grainz`, 'Please select all values.', [
+        {
+          text: 'Okay',
+          onPress: () => this.closeLoaderComp(),
+        },
+      ]);
     }
   };
 
   viewFunSec = () => {
     const {basketId} = this.state;
-    console.log('bas', basketId);
-    // downloadPDFApi(basketId)
-    //   .then(res => {
-    //     // this.downLoadPdf(res.data);
-    //     console.log('res', res);
-    //   })
-    //   .catch(err => {
-    //     Alert.alert(`Error - ${err.response.status}`, 'Something went wrong', [
-    //       {
-    //         text: 'Okay',
-    //       },
-    //     ]);
-    //   });
+
     viewHTMLApi(basketId)
       .then(res => {
-        // this.downLoadPdf(res.data);
         console.log('res', res);
-        this.props.navigation.navigate('PdfViewScreen', {
-          htmlData: res.data,
-        });
+        this.setState(
+          {
+            loaderCompStatus: false,
+          },
+          () => this.navigateToPdfScreen(res),
+        );
       })
       .catch(err => {
         Alert.alert(`Error - ${err.response.status}`, 'Something went wrong', [
@@ -534,14 +575,26 @@ class Basket extends Component {
           },
         ]);
       });
-    // viewShoppingBasketApi(basketId)
-    //   .then(res => {
-    //     this.downLoadPdf(res.data);
-    //     console.log('res', res);
-    //   })
-    //   .catch(err => {
-    //     console.log('Err', err);
-    //   });
+  };
+
+  navigateToPdfScreen = res => {
+    const {
+      basketId,
+      apiOrderDate,
+      placedByValue,
+      supplierId,
+      finalApiData,
+      apiDeliveryDate,
+    } = this.state;
+    this.props.navigation.navigate('PdfViewScreen', {
+      htmlData: res.data,
+      apiOrderDate,
+      placedByValue,
+      supplierId,
+      finalApiData,
+      basketId,
+      apiDeliveryDate,
+    });
   };
 
   showDatePickerOrderDate = () => {
@@ -618,6 +671,15 @@ class Basket extends Component {
   };
 
   sendMailFun = () => {
+    this.setState(
+      {
+        loaderCompStatus: true,
+      },
+      () => this.sendMailFunSec(),
+    );
+  };
+
+  sendMailFunSec = () => {
     const {
       basketId,
       toRecipientValue,
@@ -643,6 +705,7 @@ class Basket extends Component {
         this.setState(
           {
             mailModalVisible: false,
+            loaderCompStatus: false,
           },
           () => this.props.navigation.navigate('OrderingAdminScreen'),
         );
@@ -757,6 +820,7 @@ class Basket extends Component {
       ccRecipientValue,
       mailTitleValue,
       supplierName,
+      loaderCompStatus,
     } = this.state;
 
     return (
@@ -770,6 +834,7 @@ class Basket extends Component {
         ) : (
           <SubHeader {...this.props} buttons={buttonsSubHeader} index={0} />
         )}
+        <LoaderComp loaderComp={loaderCompStatus} />
         <ScrollView
           style={{marginBottom: hp('2%')}}
           showsVerticalScrollIndicator={false}>
@@ -1422,26 +1487,41 @@ class Basket extends Component {
                         justifyContent: 'center',
                         marginTop: hp('4%'),
                       }}>
-                      <TouchableOpacity
-                        onPress={() => this.sendMailFun()}
-                        style={{
-                          width: wp('30%'),
-                          height: hp('5%'),
-                          alignSelf: 'flex-end',
-                          backgroundColor: '#94C036',
-                          justifyContent: 'center',
-                          alignItems: 'center',
-                          borderRadius: 100,
-                        }}>
-                        <Text
+                      {loaderCompStatus ? (
+                        <View
                           style={{
-                            color: '#fff',
-                            fontSize: 15,
-                            fontWeight: 'bold',
+                            width: wp('30%'),
+                            height: hp('5%'),
+                            alignSelf: 'flex-end',
+                            backgroundColor: '#94C036',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            borderRadius: 100,
                           }}>
-                          {translate('Confirm')}
-                        </Text>
-                      </TouchableOpacity>
+                          <ActivityIndicator size="small" color="#fff" />
+                        </View>
+                      ) : (
+                        <TouchableOpacity
+                          onPress={() => this.sendMailFun()}
+                          style={{
+                            width: wp('30%'),
+                            height: hp('5%'),
+                            alignSelf: 'flex-end',
+                            backgroundColor: '#94C036',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            borderRadius: 100,
+                          }}>
+                          <Text
+                            style={{
+                              color: '#fff',
+                              fontSize: 15,
+                              fontWeight: 'bold',
+                            }}>
+                            {translate('Confirm')}
+                          </Text>
+                        </TouchableOpacity>
+                      )}
                       <TouchableOpacity
                         onPress={() => this.closeMailModal()}
                         style={{

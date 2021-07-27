@@ -22,6 +22,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {connect} from 'react-redux';
 import {UserTokenAction} from '../../redux/actions/UserTokenAction';
 import {translate, setI18nConfig} from '../../utils/translations';
+import Loader from '../../components/Loader';
 
 var querystring = require('querystring');
 
@@ -155,23 +156,14 @@ class index extends Component {
   };
 
   render() {
+    const {loader} = this.state;
     return (
       <View style={styles.container}>
         <KeyboardAwareScrollView
           keyboardShouldPersistTaps="always"
           showsVerticalScrollIndicator={false}
           enableOnAndroid>
-          <Modal
-            animationType="slide"
-            transparent={true}
-            visible={this.state.loader}>
-            <View style={styles.modalContainer}>
-              <View style={styles.modalSubContainer}>
-                <ActivityIndicator size="large" color={'#ffffff'} />
-              </View>
-            </View>
-          </Modal>
-
+          <Loader loaderComp={loader} />
           <View style={styles.secondContainer}>
             <View style={styles.imageContainer}>
               <Image source={img.appLogo} style={styles.logoStyling} />

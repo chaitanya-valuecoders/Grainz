@@ -27,6 +27,7 @@ import {
 import moment from 'moment';
 import styles from '../style';
 import Modal from 'react-native-modal';
+import LoaderComp from '../../../../../components/Loader';
 
 import {translate} from '../../../../../utils/translations';
 
@@ -46,6 +47,7 @@ class ViewDraftOrders extends Component {
       orderDate: '',
       deliveryDate: '',
       placedByName: '',
+      loaderCompStatus: false,
     };
   }
 
@@ -141,6 +143,15 @@ class ViewDraftOrders extends Component {
   };
 
   deleteFun = () => {
+    this.setState(
+      {
+        loaderCompStatus: true,
+      },
+      () => this.deleteFunSec(),
+    );
+  };
+
+  deleteFunSec = () => {
     setTimeout(() => {
       Alert.alert('Grainz', 'Are you sure you want to delete this order?', [
         {
@@ -150,9 +161,16 @@ class ViewDraftOrders extends Component {
         {
           text: 'No',
           style: 'cancel',
+          onPress: () => this.closeLoaderComp(),
         },
       ]);
     }, 100);
+  };
+
+  closeLoaderComp = () => {
+    this.setState({
+      loaderCompStatus: false,
+    });
   };
 
   hitDeleteApi = () => {
@@ -160,6 +178,9 @@ class ViewDraftOrders extends Component {
     let payload = draftsOrderData;
     deleteOrderApi(productId, payload)
       .then(res => {
+        this.setState({
+          loaderCompStatus: false,
+        });
         Alert.alert('Grainz', 'Order deleted successfully', [
           {
             text: 'Okay',
@@ -188,6 +209,7 @@ class ViewDraftOrders extends Component {
       orderDate,
       deliveryDate,
       placedByName,
+      loaderCompStatus,
     } = this.state;
 
     return (
@@ -201,6 +223,7 @@ class ViewDraftOrders extends Component {
         ) : (
           <SubHeader {...this.props} buttons={buttonsSubHeader} index={0} />
         )}
+        <LoaderComp loaderComp={loaderCompStatus} />
         <ScrollView
           style={{marginBottom: hp('2%')}}
           showsVerticalScrollIndicator={false}>
