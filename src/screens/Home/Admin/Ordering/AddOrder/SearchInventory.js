@@ -32,7 +32,7 @@ import styles from '../style';
 
 import {translate} from '../../../../../utils/translations';
 
-class Search extends Component {
+class SearchInventory extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -47,7 +47,6 @@ class Search extends Component {
       catId: '',
       inventoryId: '',
       productId: '',
-      catName: '',
       finalBasketData: [],
       screenType: 'New',
       basketId: '',
@@ -114,6 +113,7 @@ class Search extends Component {
           basketId,
           navigateType,
           supplierName,
+          modalLoader: true,
         },
         () => this.getInsideCatFun(),
       );
@@ -121,31 +121,17 @@ class Search extends Component {
   }
 
   getInsideCatFun = () => {
-    const {searchType, searchData} = this.state;
-    if (searchType === 'Inventory') {
-      const finalArr = searchData;
-      finalArr.forEach(function (item) {
-        item.isSelected = false;
-        item.quantityProduct = '';
-        item.deltaNew = item.delta;
-      });
-
-      this.setState({
-        modalData: [...finalArr],
-        modalLoader: false,
-      });
-    } else {
-      const finalArr = searchData;
-      finalArr.forEach(function (item) {
-        item.isSelected = false;
-        item.quantityProduct = '';
-        item.deltaNew = item.delta;
-      });
-      this.setState({
-        modalData: [...finalArr],
-        modalLoader: false,
-      });
-    }
+    const {searchData} = this.state;
+    const finalArr = searchData;
+    finalArr.forEach(function (item) {
+      item.isSelected = false;
+      item.quantityProduct = '';
+      item.deltaNew = item.delta;
+    });
+    this.setState({
+      modalData: [...finalArr],
+      modalLoader: false,
+    });
   };
 
   myProfile = () => {
@@ -365,7 +351,6 @@ class Search extends Component {
       recipeLoader,
       modalData,
       modalLoader,
-      catName,
       actionModalStatus,
       finalBasketData,
       screenType,
@@ -392,7 +377,7 @@ class Search extends Component {
           <View style={styles.subContainer}>
             <View style={styles.firstContainer}>
               <View style={{flex: 1}}>
-                <Text style={styles.adminTextStyle}>{catName}</Text>
+                <Text style={styles.adminTextStyle}>Inventory</Text>
               </View>
               <TouchableOpacity
                 onPress={() => this.props.navigation.goBack()}
@@ -463,14 +448,6 @@ class Search extends Component {
                                 }}>
                                 <Text>Quantity</Text>
                               </View>
-
-                              {/* <View
-                                style={{
-                                  width: wp('30%'),
-                                  alignItems: 'center',
-                                }}>
-                                <Text>Action</Text>
-                              </View> */}
 
                               <View
                                 style={{
@@ -556,56 +533,6 @@ class Search extends Component {
                                         />
                                       </View>
 
-                                      {/* <TouchableOpacity
-                                        style={{
-                                          width: wp('30%'),
-                                          alignItems: 'center',
-                                          justifyContent: 'center',
-                                        }}
-                                        onPress={() =>
-                                          this.editQuantityFun(
-                                            index,
-                                            'isSelected',
-                                            item.isSelected,
-                                            item,
-                                          )
-                                        }>
-                                        <View
-                                          style={{
-                                            backgroundColor: '#86AC32',
-                                            padding: 5,
-                                            borderRadius: 6,
-                                          }}>
-                                          <View
-                                            style={{
-                                              backgroundColor: '#86AC32',
-                                              padding: 10,
-                                              borderRadius: 6,
-                                            }}>
-                                            {item.isSelected ? (
-                                              <Image
-                                                source={img.dashIcon}
-                                                style={{
-                                                  height: 18,
-                                                  width: 18,
-                                                  resizeMode: 'contain',
-                                                  tintColor: '#fff',
-                                                }}
-                                              />
-                                            ) : (
-                                              <Image
-                                                source={img.plusIcon}
-                                                style={{
-                                                  height: 22,
-                                                  width: 22,
-                                                  resizeMode: 'contain',
-                                                  tintColor: '#fff',
-                                                }}
-                                              />
-                                            )}
-                                          </View>
-                                        </View>
-                                      </TouchableOpacity> */}
                                       <View
                                         style={{
                                           width: wp('40%'),
@@ -776,4 +703,4 @@ const mapStateToProps = state => {
   };
 };
 
-export default connect(mapStateToProps, {UserTokenAction})(Search);
+export default connect(mapStateToProps, {UserTokenAction})(SearchInventory);

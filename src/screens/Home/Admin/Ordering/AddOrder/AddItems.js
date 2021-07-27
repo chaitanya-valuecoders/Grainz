@@ -377,14 +377,14 @@ class AddItems extends Component {
       navigateType,
       supplierName,
     } = this.state;
-    searchInventoryItemLApi(searchItemInventory)
+    searchInventoryItemLApi(supplierId, searchItemInventory)
       .then(res => {
         this.setState(
           {
             searchLoader: false,
           },
           () =>
-            this.props.navigation.navigate('SearchScreen', {
+            this.props.navigation.navigate('SearchInventoryScreen', {
               searchType: 'Inventory',
               searchData: res.data,
               supplierId,
@@ -430,7 +430,7 @@ class AddItems extends Component {
             searchLoader: false,
           },
           () =>
-            this.props.navigation.navigate('SearchScreen', {
+            this.props.navigation.navigate('SearchSupplierScreen', {
               searchType: 'Supplier',
               searchData: res.data,
               supplierId,
@@ -454,25 +454,6 @@ class AddItems extends Component {
         );
       });
   };
-
-  // filterData = text => {
-  //   const {inventoryStatus, SECTIONS_SEC_INVEN, SECTIONS_SEC_SUPP} = this.state;
-  //   const finalValue = inventoryStatus ? SECTIONS_SEC_INVEN : SECTIONS_SEC_SUPP;
-
-  //   //passing the inserted text in textinput
-  //   const newData = finalValue.filter(function (item) {
-  //     //applying filter for the inserted text in search bar
-  //     const itemData = item.title ? item.title.toUpperCase() : ''.toUpperCase();
-  //     const textData = text.toUpperCase();
-  //     return itemData.indexOf(textData) > -1;
-  //   });
-  //   this.setState({
-  //     //setting the filtered newData on datasource
-  //     //After setting the data it will automatically re-render the view
-  //     SECTIONS: newData,
-  //     searchItem: text,
-  //   });
-  // };
 
   inventoryFun = () => {
     this.setState(

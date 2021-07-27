@@ -982,10 +982,11 @@ export const viewHTMLApi = async id => {
   });
 };
 
-export const searchInventoryItemLApi = async searchText => {
+export const searchInventoryItemLApi = async (id, searchText) => {
   const token = await AsyncStorage.getItem('@appToken');
   return axios.get(
-    baseURL + `/Inventory/search inventories by name?Name=${searchText}`,
+    baseURL +
+      `/inventory/search inventory mappings by name and supplier?Name=${searchText}&SupplierId=${id}`,
     {
       headers: {
         Authorization: `Bearer ${token}`,
