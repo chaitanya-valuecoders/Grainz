@@ -189,9 +189,20 @@ class PendingDelivery extends Component {
   };
 
   viewFun = item => {
-    this.props.navigation.navigate('ViewPendingDeliveryScreen', {
-      item,
-    });
+    const {listId} = this.state;
+    if (listId === 2) {
+      this.props.navigation.navigate('ViewPendingDeliveryScreen', {
+        item,
+      });
+    } else if (listId === 3) {
+      this.props.navigation.navigate('ViewReviewOrderScreen', {
+        item,
+      });
+    } else if (listId === 4) {
+      this.props.navigation.navigate('ViewHistoryOrderScreen', {
+        item,
+      });
+    }
   };
 
   render() {

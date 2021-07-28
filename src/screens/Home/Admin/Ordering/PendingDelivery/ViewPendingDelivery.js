@@ -8,6 +8,7 @@ import {
   Alert,
   TextInput,
   ScrollView,
+  Switch,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {connect} from 'react-redux';
@@ -22,11 +23,15 @@ import {UserTokenAction} from '../../../../../redux/actions/UserTokenAction';
 import {
   getMyProfileApi,
   getOrderByIdApi,
+  processPendingOrderApi,
+  processPendingOrderItemApi,
 } from '../../../../../connectivity/api';
 import styles from '../style';
 import {translate} from '../../../../../utils/translations';
 import moment from 'moment';
 import CheckBox from '@react-native-community/checkbox';
+import DateTimePickerModal from 'react-native-modal-datetime-picker';
+import LoaderComp from '../../../../../components/Loader';
 
 class ViewPendingDelivery extends Component {
   constructor(props) {
@@ -40,6 +45,22 @@ class ViewPendingDelivery extends Component {
       pageData: '',
       finalOfferListArr: [],
       productId: '',
+      isDatePickerVisibleDeliveryDate: false,
+      finalDeliveryDate: '',
+      apiDeliveryDate: '',
+      isDatePickerVisibleArrivalDate: false,
+      finalArrivalDate: '',
+      apiArrivalDate: '',
+      pageInvoiceNumber: '',
+      pageDeliveryNoteReference: '',
+      pageAmbientTemp: '',
+      pageChilledTemp: '',
+      pageFrozenTemp: '',
+      pageNotes: '',
+      pageOrderItems: [],
+      finalApiData: [],
+      loaderCompStatus: false,
+      arrivalDataStatus: false,
     };
   }
 
@@ -88,6 +109,7 @@ class ViewPendingDelivery extends Component {
     this.setState(
       {
         productId: item.id,
+        arrivalDataStatus: false,
       },
       () => this.getOrderFun(),
     );
@@ -98,10 +120,25 @@ class ViewPendingDelivery extends Component {
     getOrderByIdApi(productId)
       .then(res => {
         console.log('res', res);
-
-        this.setState({
-          pageData: res.data,
-        });
+        const {data} = res;
+        this.setState(
+          {
+            pageData: data,
+            finalDeliveryDate: data.deliveryDate,
+            pageInvoiceNumber: data.invoiceNumber,
+            pageDeliveryNoteReference: data.deliveryNoteReference,
+            pageAmbientTemp: data.ambientTemp,
+            pageChilledTemp: data.chilledTemp,
+            pageFrozenTemp: data.frozenTemp,
+            pageNotes: data.notes,
+            apiDeliveryDate: data.deliveryDate,
+            pageOrderItems: data.orderItems,
+            apiArrivalDate: data.deliveredDate,
+            finalArrivalDate: data.deliveredDate,
+            loaderCompStatus: false,
+          },
+          () => this.createFinalData(),
+        );
       })
       .catch(err => {
         console.log('ERR MEP', err);
@@ -112,21 +149,357 @@ class ViewPendingDelivery extends Component {
       });
   };
 
+  createFinalData = () => {
+    const {pageOrderItems} = this.state;
+    let finalArray = pageOrderItems.map((item, index) => {
+      return {
+        arrivedDate: item.arrivedDate,
+        id: item.id,
+        inventoryId: item.inventoryId,
+        inventoryProductMappingId:
+          item.inventoryMapping && item.inventoryMapping.id,
+        isCorrect: item.isCorrect,
+        notes: item.notes,
+        orderValue: item.orderValue,
+        pricePaid: item.pricePaid,
+        quantityDelivered: item.quantityDelivered,
+        quantityInvoiced: item.quantityInvoiced,
+        quantityOrdered: item.quantityOrdered,
+        userQuantityDelivered: item.userQuantityDelivered,
+        userQuantityInvoiced: item.userQuantityInvoiced,
+      };
+    });
+
+    const result = finalArray;
+    this.setState({
+      finalApiData: [...result],
+    });
+  };
+
   myProfile = () => {
     this.props.navigation.navigate('MyProfile');
   };
 
-  onPressFun = item => {
-    alert('Work in Progress');
+  saveFun = () => {
+    this.setState(
+      {
+        loaderCompStatus: true,
+      },
+      () => this.hitProcessOrderApi(),
+    );
   };
 
-  saveFun = () => {
-    alert('save');
+  hitProcessOrderApi = () => {
+    const {
+      apiDeliveryDate,
+      apiArrivalDate,
+      pageInvoiceNumber,
+      pageDeliveryNoteReference,
+      pageAmbientTemp,
+      pageChilledTemp,
+      pageFrozenTemp,
+      pageNotes,
+      pageData,
+      finalApiData,
+      productId,
+    } = this.state;
+    let payload = {
+      ambientTemp: pageAmbientTemp,
+      chilledTemp: pageChilledTemp,
+      deliveredDate: apiArrivalDate,
+      deliveryDate: apiDeliveryDate,
+      deliveryNoteReference: pageDeliveryNoteReference,
+      frozenTemp: pageFrozenTemp,
+      id: productId,
+      invoiceNumber: pageInvoiceNumber,
+      isAuditComplete: pageData.isAuditComplete,
+      notes: pageNotes,
+      orderDate: pageData.orderDate,
+      orderItems: finalApiData,
+      orderReference: pageData.orderReference,
+      placedBy: pageData.placedByNAme,
+    };
+
+    console.log('payloadOrderProcess', payload);
+    processPendingOrderApi(payload)
+      .then(res => {
+        this.setState({
+          loaderCompStatus: false,
+        });
+        Alert.alert(`Grainz`, 'Order processed successfully', [
+          {
+            text: 'Okay',
+            onPress: () => this.navigateToOrderScreen(),
+          },
+        ]);
+      })
+      .catch(err => {
+        Alert.alert(`Error - ${err.response.status}`, 'Something went wrong', [
+          {
+            text: 'Okay',
+          },
+        ]);
+      });
+  };
+
+  navigateToOrderScreen = () => {
+    const {arrivalDataStatus} = this.state;
+    if (arrivalDataStatus) {
+      this.setState(
+        {
+          loaderCompStatus: true,
+        },
+        () => this.getOrderFun(),
+      );
+    } else {
+      this.props.navigation.navigate('OrderingAdminScreen');
+    }
+  };
+
+  deleteFun = item => {
+    Alert.alert(
+      `Grainz`,
+      'Are you sure you want to delete this order line item?',
+      [
+        {
+          text: 'Yes',
+          onPress: () =>
+            this.setState(
+              {
+                loaderCompStatus: true,
+              },
+              () => this.hitDeleteApi(item),
+            ),
+        },
+        {
+          text: 'No',
+        },
+      ],
+    );
+  };
+
+  hitDeleteApi = item => {
+    let payload = {
+      action: 'Delete',
+      id: item.id,
+      inventoryId: item.inventoryId,
+      inventoryProductMappingId:
+        item.inventoryMapping && item.inventoryMapping.id,
+      isCorrect: !item.isCorrect,
+      notes: item.notes,
+      orderId: item.orderId,
+      orderValue: item.orderValue,
+      position: item.position,
+      pricePaid: item.pricePaid,
+      quantityDelivered: item.quantityDelivered,
+      quantityInvoiced: item.quantityInvoiced,
+      quantityOrdered: item.quantityOrdered,
+      userQuantityDelivered: item.userQuantityDelivered,
+      userQuantityInvoiced: item.userQuantityInvoiced,
+    };
+    console.log('payloadDelete', payload);
+
+    processPendingOrderItemApi(payload)
+      .then(res => {
+        console.log('res', res);
+        this.setState({
+          loaderCompStatus: false,
+        });
+        Alert.alert(`Grainz`, 'Order line item deleted successfully', [
+          {
+            text: 'Okay',
+            onPress: () =>
+              this.setState(
+                {
+                  loaderCompStatus: true,
+                },
+
+                () => this.getOrderFun(),
+              ),
+          },
+        ]);
+      })
+      .catch(err => {
+        Alert.alert(`Error - ${err.response.status}`, 'Something went wrong', [
+          {
+            text: 'Okay',
+          },
+        ]);
+      });
+  };
+
+  showDatePickerDeliveryDate = () => {
+    this.setState({
+      isDatePickerVisibleDeliveryDate: true,
+    });
+  };
+
+  handleConfirmDeliveryDate = date => {
+    console.log('date', date);
+    let newdate = moment(date).format('MM/DD/YYYY');
+    let apiDeliveryDate = date.toISOString();
+    this.setState({
+      finalDeliveryDate: newdate,
+      apiDeliveryDate,
+    });
+    this.hideDatePickerDeliveryDate();
+  };
+
+  hideDatePickerDeliveryDate = () => {
+    this.setState({
+      isDatePickerVisibleDeliveryDate: false,
+    });
+  };
+
+  showDatePickerArrivalDate = () => {
+    this.setState({
+      isDatePickerVisibleArrivalDate: true,
+    });
+  };
+
+  handleConfirmArrivalDate = date => {
+    console.log('date', date);
+    let newdate = moment(date).format('MM/DD/YYYY');
+    let apiArrivalDate = date.toISOString();
+    this.hideDatePickerArrivalDate();
+    this.setState(
+      {
+        finalArrivalDate: newdate,
+        apiArrivalDate,
+        arrivalDataStatus: true,
+      },
+      () =>
+        setTimeout(() => {
+          this.editArrivalDateFun();
+        }, 300),
+    );
+  };
+
+  editArrivalDateFun = index => {
+    const {finalApiData, apiArrivalDate} = this.state;
+    const arrivedDate = apiArrivalDate;
+    let newArr = finalApiData.map((item, i) =>
+      index === i
+        ? {
+            ...item,
+            ['arrivedDate']: arrivedDate,
+          }
+        : {
+            ...item,
+            ['arrivedDate']: arrivedDate,
+          },
+    );
+    console.log('newArr', newArr);
+
+    this.setState(
+      {
+        finalApiData: [...newArr],
+      },
+      () => this.saveFun(),
+    );
+  };
+
+  hideDatePickerArrivalDate = () => {
+    this.setState({
+      isDatePickerVisibleArrivalDate: false,
+    });
+  };
+  updateCorrectStatus = item => {
+    this.setState(
+      {
+        loaderCompStatus: true,
+      },
+      () => this.updateCorrectStatusSec(item),
+    );
+  };
+
+  updateCorrectStatusSec = item => {
+    let payload = {
+      action: 'Update',
+      arrivedDate: item.arrivedDate,
+      id: item.id,
+      inventoryId: item.inventoryId,
+      inventoryProductMappingId:
+        item.inventoryMapping && item.inventoryMapping.id,
+      isCorrect: !item.isCorrect,
+      notes: item.notes,
+      orderId: item.orderId,
+      orderValue: item.orderValue,
+      position: item.position,
+      pricePaid: item.pricePaid,
+      quantityDelivered: item.quantityDelivered,
+      quantityInvoiced: item.quantityInvoiced,
+      quantityOrdered: item.quantityOrdered,
+      userQuantityDelivered: item.userQuantityDelivered,
+      userQuantityInvoiced: item.userQuantityInvoiced,
+    };
+    console.log('payloadUpdate', payload);
+    if (item.arrivedDate) {
+      processPendingOrderItemApi(payload)
+        .then(res => {
+          this.setState({
+            loaderCompStatus: false,
+          });
+          Alert.alert(`Grainz`, 'Correct status updated successfully', [
+            {
+              text: 'Okay',
+              onPress: () =>
+                this.setState(
+                  {
+                    loaderCompStatus: true,
+                  },
+
+                  () => this.getOrderFun(),
+                ),
+            },
+          ]);
+        })
+        .catch(err => {
+          Alert.alert(
+            `Error - ${err.response.status}`,
+            'Something went wrong',
+            [
+              {
+                text: 'Okay',
+              },
+            ],
+          );
+        });
+    } else {
+      Alert.alert(`Grainz`, 'Kildly fill arrived date first', [
+        {
+          text: 'Okay',
+          onPress: () => this.closeLoader(),
+        },
+      ]);
+    }
+  };
+
+  closeLoader = () => {
+    this.setState({
+      loaderCompStatus: false,
+    });
   };
 
   render() {
-    const {buttonsSubHeader, loader, managerName, pageData} = this.state;
-    console.log('pageDa', pageData && pageData.orderItems.length);
+    const {
+      buttonsSubHeader,
+      loader,
+      managerName,
+      pageData,
+      isDatePickerVisibleDeliveryDate,
+      finalDeliveryDate,
+      isDatePickerVisibleArrivalDate,
+      finalArrivalDate,
+      pageInvoiceNumber,
+      pageDeliveryNoteReference,
+      pageAmbientTemp,
+      pageChilledTemp,
+      pageFrozenTemp,
+      pageNotes,
+      pageOrderItems,
+      loaderCompStatus,
+    } = this.state;
 
     return (
       <View style={styles.container}>
@@ -139,7 +512,7 @@ class ViewPendingDelivery extends Component {
         ) : (
           <SubHeader {...this.props} buttons={buttonsSubHeader} index={0} />
         )}
-
+        <LoaderComp loaderComp={loaderCompStatus} />
         <View style={{...styles.subContainer, flex: 1}}>
           <View style={styles.firstContainer}>
             <View style={{flex: 1}}>
@@ -160,52 +533,10 @@ class ViewPendingDelivery extends Component {
                     <TextInput
                       editable={false}
                       placeholder="Order Date"
-                      value={moment(pageData.orderDate).format('L')}
-                      style={{
-                        padding: 14,
-                        justifyContent: 'space-between',
-                        elevation: 3,
-                        shadowOpacity: 2.0,
-                        shadowColor: 'rgba(0, 0, 0, 0.05)',
-                        shadowOffset: {
-                          width: 2,
-                          height: 2,
-                        },
-                        shadowRadius: 10,
-                        borderRadius: 5,
-                        backgroundColor: '#fff',
-                      }}
-                    />
-                  </View>
-                  <View style={{marginBottom: hp('3%')}}>
-                    <TextInput
-                      placeholder="Delivery date"
-                      value={moment(pageData.deliveryDate).format('L')}
-                      editable={false}
-                      style={{
-                        padding: 14,
-                        justifyContent: 'space-between',
-                        elevation: 3,
-                        shadowOpacity: 2.0,
-                        shadowColor: 'rgba(0, 0, 0, 0.05)',
-                        shadowOffset: {
-                          width: 2,
-                          height: 2,
-                        },
-                        shadowRadius: 10,
-                        borderRadius: 5,
-                        backgroundColor: '#fff',
-                      }}
-                    />
-                  </View>
-                  <View style={{marginBottom: hp('3%')}}>
-                    <TextInput
-                      placeholder="Arrived date"
                       value={
-                        pageData.deliveredDate &&
-                        moment(pageData.deliveredDate).format('L')
+                        pageData.orderDate &&
+                        moment(pageData.orderDate).format('L')
                       }
-                      editable={false}
                       style={{
                         padding: 14,
                         justifyContent: 'space-between',
@@ -218,10 +549,96 @@ class ViewPendingDelivery extends Component {
                         },
                         shadowRadius: 10,
                         borderRadius: 5,
-                        backgroundColor: '#fff',
+                        backgroundColor: '#E9ECEF',
+                        borderWidth: 0.2,
                       }}
                     />
                   </View>
+                  <View
+                    style={{
+                      marginBottom: hp('3%'),
+                    }}>
+                    <View style={{}}>
+                      <TouchableOpacity
+                        onPress={() => this.showDatePickerDeliveryDate()}
+                        style={{
+                          width: wp('90%'),
+                          padding: Platform.OS === 'ios' ? 15 : 5,
+                          flexDirection: 'row',
+                          justifyContent: 'space-between',
+                          backgroundColor: '#fff',
+                          borderRadius: 5,
+                        }}>
+                        <TextInput
+                          placeholder="Delivery Date"
+                          value={
+                            finalDeliveryDate &&
+                            moment(finalDeliveryDate).format('L')
+                          }
+                          editable={false}
+                        />
+                        <Image
+                          source={img.calenderIcon}
+                          style={{
+                            width: 20,
+                            height: 20,
+                            resizeMode: 'contain',
+                            marginTop: Platform.OS === 'android' ? 15 : 0,
+                            marginRight: Platform.OS === 'android' ? 15 : 0,
+                          }}
+                        />
+                      </TouchableOpacity>
+                      <DateTimePickerModal
+                        isVisible={isDatePickerVisibleDeliveryDate}
+                        mode={'date'}
+                        onConfirm={this.handleConfirmDeliveryDate}
+                        onCancel={this.hideDatePickerDeliveryDate}
+                      />
+                    </View>
+                  </View>
+                  <View
+                    style={{
+                      marginBottom: hp('3%'),
+                    }}>
+                    <View style={{}}>
+                      <TouchableOpacity
+                        onPress={() => this.showDatePickerArrivalDate()}
+                        style={{
+                          width: wp('90%'),
+                          padding: Platform.OS === 'ios' ? 15 : 5,
+                          flexDirection: 'row',
+                          justifyContent: 'space-between',
+                          backgroundColor: '#fff',
+                          borderRadius: 5,
+                        }}>
+                        <TextInput
+                          placeholder="Arrived Date"
+                          value={
+                            finalArrivalDate &&
+                            moment(finalArrivalDate).format('L')
+                          }
+                          editable={false}
+                        />
+                        <Image
+                          source={img.calenderIcon}
+                          style={{
+                            width: 20,
+                            height: 20,
+                            resizeMode: 'contain',
+                            marginTop: Platform.OS === 'android' ? 15 : 0,
+                            marginRight: Platform.OS === 'android' ? 15 : 0,
+                          }}
+                        />
+                      </TouchableOpacity>
+                      <DateTimePickerModal
+                        isVisible={isDatePickerVisibleArrivalDate}
+                        mode={'date'}
+                        onConfirm={this.handleConfirmArrivalDate}
+                        onCancel={this.hideDatePickerArrivalDate}
+                      />
+                    </View>
+                  </View>
+
                   <View style={{marginBottom: hp('3%')}}>
                     <TextInput
                       placeholder="Order reference"
@@ -239,15 +656,15 @@ class ViewPendingDelivery extends Component {
                         },
                         shadowRadius: 10,
                         borderRadius: 5,
-                        backgroundColor: '#fff',
+                        backgroundColor: '#E9ECEF',
+                        borderWidth: 0.2,
                       }}
                     />
                   </View>
                   <View style={{marginBottom: hp('3%')}}>
                     <TextInput
                       placeholder="Invoice number"
-                      value={pageData.invoiceNumber}
-                      editable={false}
+                      value={pageInvoiceNumber}
                       style={{
                         padding: 14,
                         justifyContent: 'space-between',
@@ -262,13 +679,17 @@ class ViewPendingDelivery extends Component {
                         borderRadius: 5,
                         backgroundColor: '#fff',
                       }}
+                      onChangeText={value =>
+                        this.setState({
+                          pageInvoiceNumber: value,
+                        })
+                      }
                     />
                   </View>
                   <View style={{marginBottom: hp('3%')}}>
                     <TextInput
                       placeholder="Delivery note reference"
-                      value={pageData.deliveryNoteReference}
-                      editable={false}
+                      value={pageDeliveryNoteReference}
                       style={{
                         padding: 14,
                         justifyContent: 'space-between',
@@ -283,13 +704,17 @@ class ViewPendingDelivery extends Component {
                         borderRadius: 5,
                         backgroundColor: '#fff',
                       }}
+                      onChangeText={value =>
+                        this.setState({
+                          pageDeliveryNoteReference: value,
+                        })
+                      }
                     />
                   </View>
                   <View style={{marginBottom: hp('3%')}}>
                     <TextInput
                       placeholder="Ambient Temperature"
-                      value={pageData.ambientTemp}
-                      editable={false}
+                      value={pageAmbientTemp && String(pageAmbientTemp)}
                       style={{
                         padding: 14,
                         justifyContent: 'space-between',
@@ -304,13 +729,17 @@ class ViewPendingDelivery extends Component {
                         borderRadius: 5,
                         backgroundColor: '#fff',
                       }}
+                      onChangeText={value =>
+                        this.setState({
+                          pageAmbientTemp: value,
+                        })
+                      }
                     />
                   </View>
                   <View style={{marginBottom: hp('3%')}}>
                     <TextInput
                       placeholder="Chilled Temperature"
-                      value={pageData.chilledTemp}
-                      editable={false}
+                      value={pageChilledTemp && String(pageChilledTemp)}
                       style={{
                         padding: 14,
                         justifyContent: 'space-between',
@@ -325,13 +754,17 @@ class ViewPendingDelivery extends Component {
                         borderRadius: 5,
                         backgroundColor: '#fff',
                       }}
+                      onChangeText={value =>
+                        this.setState({
+                          pageChilledTemp: value,
+                        })
+                      }
                     />
                   </View>
                   <View style={{marginBottom: hp('3%')}}>
                     <TextInput
                       placeholder="Frozen Temperature"
-                      value={pageData.frozenTemp}
-                      editable={false}
+                      value={pageFrozenTemp && String(pageFrozenTemp)}
                       style={{
                         padding: 14,
                         justifyContent: 'space-between',
@@ -346,13 +779,17 @@ class ViewPendingDelivery extends Component {
                         borderRadius: 5,
                         backgroundColor: '#fff',
                       }}
+                      onChangeText={value =>
+                        this.setState({
+                          pageFrozenTemp: value,
+                        })
+                      }
                     />
                   </View>
                   <View style={{marginBottom: hp('3%')}}>
                     <TextInput
                       placeholder="Notes"
-                      value={pageData.notes}
-                      editable={false}
+                      value={pageNotes}
                       style={{
                         padding: 14,
                         justifyContent: 'space-between',
@@ -367,6 +804,11 @@ class ViewPendingDelivery extends Component {
                         borderRadius: 5,
                         backgroundColor: '#fff',
                       }}
+                      onChangeText={value =>
+                        this.setState({
+                          pageNotes: value,
+                        })
+                      }
                     />
                   </View>
                   <View style={{marginBottom: hp('3%')}}>
@@ -386,7 +828,8 @@ class ViewPendingDelivery extends Component {
                         },
                         shadowRadius: 10,
                         borderRadius: 5,
-                        backgroundColor: '#fff',
+                        backgroundColor: '#E9ECEF',
+                        borderWidth: 0.2,
                       }}
                     />
                   </View>
@@ -406,7 +849,7 @@ class ViewPendingDelivery extends Component {
                       }}>
                       <View
                         style={{
-                          width: wp('30%'),
+                          width: wp('50%'),
                           alignItems: 'center',
                         }}>
                         <Text
@@ -457,7 +900,7 @@ class ViewPendingDelivery extends Component {
                             fontSize: 14,
                             fontFamily: 'Inter-SemiBold',
                           }}>
-                          $ HTVA
+                          € HTVA
                         </Text>
                       </View>
                       <View
@@ -491,9 +934,8 @@ class ViewPendingDelivery extends Component {
                       </View>
                     </View>
                     <View>
-                      {pageData && pageData.orderItems.length > 0
-                        ? pageData.orderItems.map((item, index) => {
-                            console.log('item', item);
+                      {pageData && pageOrderItems.length > 0
+                        ? pageOrderItems.map((item, index) => {
                             return (
                               <View
                                 key={index}
@@ -503,6 +945,31 @@ class ViewPendingDelivery extends Component {
                                   flexDirection: 'row',
                                   backgroundColor: '#fff',
                                 }}>
+                                <TouchableOpacity
+                                  onPress={() => alert('yo')}
+                                  style={{
+                                    width: wp('50%'),
+                                    alignItems: 'center',
+                                  }}>
+                                  <Text
+                                    style={{
+                                      color: '#161C27',
+                                      fontSize: 14,
+                                      fontFamily: 'Inter-SemiBold',
+                                      marginBottom: 8,
+                                    }}>
+                                    {item.inventoryMapping &&
+                                      item.inventoryMapping.inventoryName}
+                                  </Text>
+                                  <Text
+                                    style={{
+                                      color: '#161C27',
+                                      fontSize: 14,
+                                      fontFamily: 'Inter-Regular',
+                                    }}>
+                                    {item.productName}
+                                  </Text>
+                                </TouchableOpacity>
                                 <View
                                   style={{
                                     width: wp('30%'),
@@ -514,7 +981,31 @@ class ViewPendingDelivery extends Component {
                                       fontSize: 14,
                                       fontFamily: 'Inter-Regular',
                                     }}>
-                                    {item.productName}
+                                    {item.arrivedDate &&
+                                      moment(item.arrivedDate).format('L')}
+                                  </Text>
+                                </View>
+                                <View
+                                  style={{
+                                    width: wp('30%'),
+                                    alignItems: 'center',
+                                  }}>
+                                  <Text
+                                    style={{
+                                      color: '#161C27',
+                                      fontSize: 14,
+                                      fontFamily: 'Inter-SemiBold',
+                                      marginBottom: 8,
+                                    }}>
+                                    {item.grainzVolume} {item.grainzUnit}
+                                  </Text>
+                                  <Text
+                                    style={{
+                                      color: '#161C27',
+                                      fontSize: 14,
+                                      fontFamily: 'Inter-Regular',
+                                    }}>
+                                    {`${item.quantityOrdered} X ${item.packSize}/${item.unit}`}
                                   </Text>
                                 </View>
                                 <View
@@ -528,7 +1019,7 @@ class ViewPendingDelivery extends Component {
                                       fontSize: 14,
                                       fontFamily: 'Inter-Regular',
                                     }}>
-                                    {item.productName}
+                                    € {Number(item.orderValue).toFixed(2)}
                                   </Text>
                                 </View>
                                 <View
@@ -536,57 +1027,43 @@ class ViewPendingDelivery extends Component {
                                     width: wp('30%'),
                                     alignItems: 'center',
                                   }}>
-                                  <Text
-                                    style={{
-                                      color: '#161C27',
-                                      fontSize: 14,
-                                      fontFamily: 'Inter-Regular',
-                                    }}>
-                                    {item.productName}
-                                  </Text>
+                                  <Switch
+                                    style={{}}
+                                    trackColor={{
+                                      false: '#767577',
+                                      true: '#94C036',
+                                    }}
+                                    value={item.isCorrect}
+                                    onValueChange={() =>
+                                      this.updateCorrectStatus(item)
+                                    }
+                                    thumbColor="#fff"
+                                  />
                                 </View>
-                                <View
+                                <TouchableOpacity
+                                  onPress={() => this.deleteFun(item)}
                                   style={{
                                     width: wp('30%'),
                                     alignItems: 'center',
                                   }}>
-                                  <Text
+                                  <View
                                     style={{
-                                      color: '#161C27',
-                                      fontSize: 14,
-                                      fontFamily: 'Inter-Regular',
+                                      backgroundColor: 'red',
+                                      paddingHorizontal: 15,
+                                      paddingVertical: 10,
+                                      borderRadius: 5,
                                     }}>
-                                    {item.productName}
-                                  </Text>
-                                </View>
-                                <View
-                                  style={{
-                                    width: wp('30%'),
-                                    alignItems: 'center',
-                                  }}>
-                                  <Text
-                                    style={{
-                                      color: '#161C27',
-                                      fontSize: 14,
-                                      fontFamily: 'Inter-Regular',
-                                    }}>
-                                    {item.productName}
-                                  </Text>
-                                </View>
-                                <View
-                                  style={{
-                                    width: wp('30%'),
-                                    alignItems: 'center',
-                                  }}>
-                                  <Text
-                                    style={{
-                                      color: '#161C27',
-                                      fontSize: 14,
-                                      fontFamily: 'Inter-Regular',
-                                    }}>
-                                    {item.productName}
-                                  </Text>
-                                </View>
+                                    <Image
+                                      source={img.deleteIconNew}
+                                      style={{
+                                        width: 18,
+                                        height: 18,
+                                        tintColor: '#fff',
+                                        resizeMode: 'contain',
+                                      }}
+                                    />
+                                  </View>
+                                </TouchableOpacity>
                               </View>
                             );
                           })
@@ -594,6 +1071,43 @@ class ViewPendingDelivery extends Component {
                     </View>
                   </View>
                 </ScrollView>
+
+                <View>
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
+                      flex: 1,
+                      backgroundColor: '#FFFFFF',
+                      paddingVertical: hp('3%'),
+                      borderTopLeftRadius: 5,
+                      borderTopRightRadius: 5,
+                    }}>
+                    <View
+                      style={{
+                        flex: 1,
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                      }}></View>
+                    <View
+                      style={{
+                        flex: 1,
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                      }}>
+                      <Text style={{}}>Total HTVA</Text>
+                    </View>
+                    <View
+                      style={{
+                        flex: 1,
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                      }}>
+                      <Text> $ --</Text>
+                      {/* <Text> $ {Number(totalHTVAVal).toFixed(2)}</Text> */}
+                    </View>
+                  </View>
+                </View>
               </View>
               <View>
                 <View

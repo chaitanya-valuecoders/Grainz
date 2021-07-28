@@ -61,6 +61,8 @@ import PdfViewScreen from '../screens/Home/Admin/Ordering/AddOrder/PdfView';
 import SearchInventoryScreen from '../screens/Home/Admin/Ordering/AddOrder/SearchInventory';
 import SearchSupplierScreen from '../screens/Home/Admin/Ordering/AddOrder/SearchSupplier';
 import PdfViewDraftScreen from '../screens/Home/Admin/Ordering/DraftOrders/PdfViewDraft';
+import ViewReviewOrderScreen from '../screens/Home/Admin/Ordering/ReviewOrder/ViewReviewOrder';
+import ViewHistoryOrderScreen from '../screens/Home/Admin/Ordering/HistoryOrder/ViewHistoryOrder';
 
 const AppNav = createStackNavigator();
 
@@ -76,6 +78,14 @@ export default function AppNavFun() {
       <AppNav.Screen
         name="InventoryListOrderScreen"
         component={InventoryListOrderScreen}
+      />
+      <AppNav.Screen
+        name="ViewReviewOrderScreen"
+        component={ViewReviewOrderScreen}
+      />
+      <AppNav.Screen
+        name="ViewHistoryOrderScreen"
+        component={ViewHistoryOrderScreen}
       />
       <AppNav.Screen name="PdfViewDraftScreen" component={PdfViewDraftScreen} />
       <AppNav.Screen

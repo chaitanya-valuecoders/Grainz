@@ -1006,3 +1006,21 @@ export const searchSupplierItemLApi = async (id, searchText) => {
     },
   );
 };
+
+export const processPendingOrderApi = async payload => {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.post(baseURL + `/Order/process order`, payload, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+export const processPendingOrderItemApi = async payload => {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.post(baseURL + `/Order/process order item`, payload, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
