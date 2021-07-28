@@ -38,6 +38,7 @@ import RNPickerSelect from 'react-native-picker-select';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import {translate} from '../../../../../utils/translations';
 import Modal from 'react-native-modal';
+import LoaderComp from '../../../../../components/Loader';
 
 class EditDraftOrder extends Component {
   constructor(props) {
@@ -69,6 +70,7 @@ class EditDraftOrder extends Component {
       ccRecipientValue: '',
       mailTitleValue: '',
       mailModalVisible: false,
+      loaderCompStatus: false,
     };
   }
 
@@ -88,7 +90,16 @@ class EditDraftOrder extends Component {
       console.warn('ErrHome', e);
     }
   };
+
   sendFun = () => {
+    this.setState(
+      {
+        loaderCompStatus: true,
+      },
+      () => this.sendFunSec(),
+    );
+  };
+  sendFunSec = () => {
     const {
       apiDeliveryDate,
       apiOrderDate,
@@ -116,22 +127,19 @@ class EditDraftOrder extends Component {
       };
       updateDraftOrderNewApi(payload)
         .then(res => {
-          console.log('res', res);
-          Alert.alert('Grainz', 'Order added successfully', [
+          this.setState(
             {
-              text: 'okay',
-              onPress: () =>
-                this.setState({
-                  mailModalVisible: true,
-                  toRecipientValue:
-                    res.data && res.data.emailDetails.toRecipient,
-                  ccRecipientValue:
-                    res.data && res.data.emailDetails.ccRecipients,
-                  mailTitleValue: res.data && res.data.emailDetails.subject,
-                  mailMessageValue: res.data && res.data.emailDetails.text,
-                }),
+              loaderCompStatus: false,
             },
-          ]);
+            () =>
+              Alert.alert(`Grainz`, 'Draft updated successfully', [
+                {
+                  text: 'Okay',
+                  onPress: () => this.openMailModal(res),
+                },
+              ]),
+          );
+          console.log('res', res);
         })
         .catch(err => {
           Alert.alert(
@@ -145,8 +153,29 @@ class EditDraftOrder extends Component {
           );
         });
     } else {
-      alert('Please select all values');
+      Alert.alert(`Grainz`, 'Please select all values.', [
+        {
+          text: 'Okay',
+          onPress: () => this.closeLoaderComp(),
+        },
+      ]);
     }
+  };
+
+  openMailModal = res => {
+    Alert.alert('Grainz', 'Order added successfully', [
+      {
+        text: 'okay',
+        onPress: () =>
+          this.setState({
+            mailModalVisible: true,
+            toRecipientValue: res.data && res.data.emailDetails.toRecipient,
+            ccRecipientValue: res.data && res.data.emailDetails.ccRecipients,
+            mailTitleValue: res.data && res.data.emailDetails.subject,
+            mailMessageValue: res.data && res.data.emailDetails.text,
+          }),
+      },
+    ]);
   };
 
   updateDraftFun = () => {
@@ -172,7 +201,9 @@ class EditDraftOrder extends Component {
     console.log('payload', payload);
     updateDraftOrderNewApi(payload)
       .then(res => {
-        console.log('res', res);
+        this.setState({
+          loaderCompStatus: false,
+        });
         Alert.alert('Grainz', 'Order updated successfully', [
           {
             text: 'okay',
@@ -297,9 +328,19 @@ class EditDraftOrder extends Component {
         supplierValue,
       });
     } else if (item.id === 1) {
-      this.updateDraftFun();
+      this.setState(
+        {
+          loaderCompStatus: true,
+        },
+        this.updateDraftFun(),
+      );
     } else {
-      this.viewFun();
+      this.setState(
+        {
+          loaderCompStatus: true,
+        },
+        () => this.viewFun(),
+      );
     }
   };
 
@@ -332,10 +373,19 @@ class EditDraftOrder extends Component {
       updateDraftOrderNewApi(payload)
         .then(res => {
           console.log('res', res);
+          this.setState({
+            loaderCompStatus: false,
+          });
           Alert.alert('Grainz', 'Order updated successfully', [
             {
               text: 'okay',
-              onPress: () => this.viewFunSec(),
+              onPress: () =>
+                this.setState(
+                  {
+                    loaderCompStatus: true,
+                  },
+                  () => this.viewFunSec(),
+                ),
             },
           ]);
         })
@@ -351,7 +401,12 @@ class EditDraftOrder extends Component {
           );
         });
     } else {
-      alert('Please select all values');
+      Alert.alert(`Grainz`, 'Please select all values.', [
+        {
+          text: 'Okay',
+          onPress: () => this.closeLoaderComp(),
+        },
+      ]);
     }
   };
 
@@ -360,10 +415,12 @@ class EditDraftOrder extends Component {
     console.log('bas', basketId);
     viewHTMLApi(basketId)
       .then(res => {
-        console.log('res', res);
-        this.props.navigation.navigate('PdfViewScreen', {
-          htmlData: res.data,
-        });
+        this.setState(
+          {
+            loaderCompStatus: false,
+          },
+          () => this.navigateToPdfScreen(res),
+        );
       })
       .catch(err => {
         Alert.alert(`Error - ${err.response.status}`, 'Something went wrong', [
@@ -372,17 +429,34 @@ class EditDraftOrder extends Component {
           },
         ]);
       });
-    // viewShoppingBasketApi(basketId)
-    //   .then(res => {
-    //     console.log('res', res);
-    //   })
-    //   .catch(err => {
-    //     Alert.alert(`Error - ${err.response.status}`, 'Something went wrong', [
-    //       {
-    //         text: 'Okay',
-    //       },
-    //     ]);
-    //   });
+  };
+
+  closeLoaderComp = () => {
+    this.setState({
+      loaderCompStatus: false,
+    });
+  };
+
+  navigateToPdfScreen = res => {
+    const {
+      apiDeliveryDate,
+      apiOrderDate,
+      placedByValue,
+      supplierValue,
+      basketId,
+      draftsOrderData,
+      finalApiData,
+    } = this.state;
+    this.props.navigation.navigate('PdfViewDraftScreen', {
+      htmlData: res.data,
+      apiOrderDate,
+      placedByValue,
+      supplierValue,
+      finalApiData,
+      basketId,
+      apiDeliveryDate,
+      draftsOrderData,
+    });
   };
 
   showDatePickerOrderDate = () => {
@@ -589,6 +663,15 @@ class EditDraftOrder extends Component {
   };
 
   updateBasketFun = () => {
+    this.setState(
+      {
+        loaderCompStatus: true,
+      },
+      () => this.updateBasketFunSec(),
+    );
+  };
+
+  updateBasketFunSec = () => {
     const {supplierValue, basketId, finalApiData} = this.state;
     let payload = {
       supplierId: supplierValue,
@@ -602,6 +685,7 @@ class EditDraftOrder extends Component {
           {
             modalLoaderDrafts: true,
             editStatus: false,
+            loaderCompStatus: false,
           },
           () => this.getInventoryFun(),
         );
@@ -686,6 +770,7 @@ class EditDraftOrder extends Component {
       mailMessageValue,
       ccRecipientValue,
       mailTitleValue,
+      loaderCompStatus,
     } = this.state;
 
     console.log('finalApiData', finalApiData);
@@ -700,6 +785,7 @@ class EditDraftOrder extends Component {
         ) : (
           <SubHeader {...this.props} buttons={buttonsSubHeader} index={0} />
         )}
+        <LoaderComp loaderComp={loaderCompStatus} />
         <ScrollView
           style={{marginBottom: hp('2%')}}
           showsVerticalScrollIndicator={false}>

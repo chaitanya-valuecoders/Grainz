@@ -33,6 +33,7 @@ import Modal from 'react-native-modal';
 import styles from '../style';
 import Accordion from 'react-native-collapsible/Accordion';
 import {translate} from '../../../../../utils/translations';
+import LoaderComp from '../../../../../components/Loader';
 
 class SupplierList extends Component {
   constructor(props) {
@@ -53,6 +54,7 @@ class SupplierList extends Component {
       navigateType: '',
       supplierName: '',
       basketLoader: false,
+      loaderCompStatus: false,
     };
   }
 
@@ -233,10 +235,20 @@ class SupplierList extends Component {
             Alert.alert('Grainz', 'Would you like to unmap this product?', [
               {
                 text: 'Yes',
-                onPress: () => this.hitUnMapApi(),
+                onPress: () =>
+                  this.setState(
+                    {
+                      loaderCompStatus: true,
+                    },
+                    () => this.hitUnMapApi(),
+                  ),
               },
               {
                 text: 'No',
+                onPress: () =>
+                  this.setState({
+                    loaderCompStatus: false,
+                  }),
               },
             ]);
           }, 300),
@@ -251,7 +263,13 @@ class SupplierList extends Component {
             Alert.alert('Grainz', 'Would you like to map this product?', [
               {
                 text: 'Yes',
-                onPress: () => this.hitMapApi(),
+                onPress: () =>
+                  this.setState(
+                    {
+                      loaderCompStatus: true,
+                    },
+                    () => this.hitMapApi(),
+                  ),
               },
               {
                 text: 'No',
@@ -271,6 +289,9 @@ class SupplierList extends Component {
     console.log('payload', payload);
     unMapProductAdminApi(payload)
       .then(res => {
+        this.setState({
+          loaderCompStatus: false,
+        });
         Alert.alert('Grainz', 'Product unmapped successfully', [
           {
             text: 'Okay',
@@ -343,18 +364,26 @@ class SupplierList extends Component {
         modalData: [...newArr],
         finalBasketData: [...finalArr],
       });
-    } else {
-      Alert.alert('Grainz', 'Please map this product to an inventory item', [
-        {
-          text: 'Yes',
-          onPress: () => this.hitMapApi(),
-          style: 'default',
-        },
-        {
-          text: 'No',
-        },
-      ]);
     }
+  };
+
+  mapAlertShow = data => {
+    this.setState(
+      {
+        inventoryId: data.id,
+      },
+      () =>
+        Alert.alert('Grainz', 'Do you want to map this product?', [
+          {
+            text: 'Yes',
+            onPress: () => this.hitMapApi(),
+            style: 'default',
+          },
+          {
+            text: 'No',
+          },
+        ]),
+    );
   };
 
   addToBasketFun = () => {
@@ -405,7 +434,13 @@ class SupplierList extends Component {
             );
           });
       } else {
-        alert('Please select atleast one item');
+        Alert.alert('Grainz', 'Please select atleast one item', [
+          {
+            text: 'okay',
+            onPress: () => this.closeBasketLoader(),
+            style: 'default',
+          },
+        ]);
       }
     } else {
       let payload = {
@@ -446,9 +481,20 @@ class SupplierList extends Component {
             );
           });
       } else {
-        alert('Please select atleast one item');
+        Alert.alert('Grainz', 'Please select atleast one item', [
+          {
+            text: 'okay',
+            onPress: () => this.closeBasketLoader(),
+          },
+        ]);
       }
     }
+  };
+
+  closeBasketLoader = () => {
+    this.setState({
+      basketLoader: false,
+    });
   };
 
   navigateToEditDraft = res => {
@@ -623,6 +669,7 @@ class SupplierList extends Component {
       screenType,
       navigateType,
       basketLoader,
+      loaderCompStatus,
     } = this.state;
 
     // console.log('modalData', modalData);
@@ -641,6 +688,7 @@ class SupplierList extends Component {
         ) : (
           <SubHeader {...this.props} buttons={buttonsSubHeader} index={0} />
         )}
+        <LoaderComp loaderComp={loaderCompStatus} />
         <ScrollView
           style={{marginBottom: hp('2%')}}
           showsVerticalScrollIndicator={false}>
@@ -741,13 +789,7 @@ class SupplierList extends Component {
                                 }}>
                                 <Text>Quantity</Text>
                               </View>
-                              {/* <View
-                                style={{
-                                  width: wp('30%'),
-                                  alignItems: 'center',
-                                }}>
-                                <Text>Action</Text>
-                              </View> */}
+
                               <View
                                 style={{
                                   width: wp('30%'),
@@ -794,6 +836,7 @@ class SupplierList extends Component {
                             <View>
                               {modalData && modalData.length > 0 ? (
                                 modalData.map((item, index) => {
+                                  console.log('item', item);
                                   return (
                                     <View
                                       key={index}
@@ -812,70 +855,49 @@ class SupplierList extends Component {
                                           alignItems: 'center',
                                           justifyContent: 'center',
                                         }}>
-                                        <TextInput
-                                          placeholder="0"
-                                          keyboardType="number-pad"
-                                          value={item.Quantity}
-                                          style={{
-                                            borderWidth: 1,
-                                            borderRadius: 6,
-                                            padding: 10,
-                                            width: wp('22%'),
-                                          }}
-                                          onChangeText={value =>
-                                            this.editQuantityFun(
-                                              index,
-                                              'quantityProduct',
-                                              value,
-                                              item,
-                                            )
-                                          }
-                                        />
+                                        {item.isMapped ? (
+                                          <TextInput
+                                            placeholder="0"
+                                            keyboardType="number-pad"
+                                            value={item.Quantity}
+                                            style={{
+                                              borderWidth: 1,
+                                              borderRadius: 6,
+                                              padding: 10,
+                                              width: wp('22%'),
+                                            }}
+                                            onChangeText={value =>
+                                              this.editQuantityFun(
+                                                index,
+                                                'quantityProduct',
+                                                value,
+                                                item,
+                                              )
+                                            }
+                                          />
+                                        ) : (
+                                          <TouchableOpacity
+                                            onPress={() =>
+                                              this.mapAlertShow(item)
+                                            }
+                                            style={{
+                                              borderRadius: 6,
+                                              padding: 10,
+                                              width: wp('22%'),
+                                              backgroundColor: '#94C036',
+                                              alignItems: 'center',
+                                            }}>
+                                            <Text
+                                              style={{
+                                                color: '#fff',
+                                                fontFamily: 'Inter-Regular',
+                                              }}>
+                                              Map
+                                            </Text>
+                                          </TouchableOpacity>
+                                        )}
                                       </View>
-                                      {/* 
-                                      <TouchableOpacity
-                                        onPress={() =>
-                                          this.editQuantityFun(
-                                            index,
-                                            'isSelected',
-                                            item.isSelected,
-                                            item,
-                                          )
-                                        }
-                                        style={{
-                                          width: wp('30%'),
-                                          alignItems: 'center',
-                                          justifyContent: 'center',
-                                        }}>
-                                        <View
-                                          style={{
-                                            backgroundColor: '#86AC32',
-                                            padding: 10,
-                                            borderRadius: 6,
-                                          }}>
-                                          {item.isSelected ? (
-                                            <Image
-                                              source={img.dashIcon}
-                                              style={{
-                                                height: 18,
-                                                width: 18,
-                                                resizeMode: 'contain',
-                                                tintColor: '#fff',
-                                              }}
-                                            />
-                                          ) : (
-                                            <Image
-                                              source={img.plusIcon}
-                                              style={{
-                                                height: 25,
-                                                width: 25,
-                                                resizeMode: 'contain',
-                                                tintColor: '#fff',
-                                              }}
-                                            />
-                                          )}
-                                        </View>
-                                      </TouchableOpacity> */}
+
                                       <TouchableOpacity
                                         onPress={() =>
                                           this.props.navigation.navigate(

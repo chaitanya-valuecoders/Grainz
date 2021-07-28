@@ -52,6 +52,7 @@ class SearchInventory extends Component {
       basketId: '',
       navigateType: '',
       supplierName: '',
+      basketLoader: false,
     };
   }
 
@@ -113,7 +114,6 @@ class SearchInventory extends Component {
           basketId,
           navigateType,
           supplierName,
-          modalLoader: true,
         },
         () => this.getInsideCatFun(),
       );
@@ -121,6 +121,15 @@ class SearchInventory extends Component {
   }
 
   getInsideCatFun = () => {
+    this.setState(
+      {
+        modalLoader: true,
+      },
+      () => this.getInsideCatFunSec(),
+    );
+  };
+
+  getInsideCatFunSec = () => {
     const {searchData} = this.state;
     const finalArr = searchData;
     finalArr.forEach(function (item) {
@@ -128,10 +137,12 @@ class SearchInventory extends Component {
       item.quantityProduct = '';
       item.deltaNew = item.delta;
     });
-    this.setState({
-      modalData: [...finalArr],
-      modalLoader: false,
-    });
+    setTimeout(() => {
+      this.setState({
+        modalData: [...finalArr],
+        modalLoader: false,
+      });
+    }, 500);
   };
 
   myProfile = () => {
@@ -189,7 +200,8 @@ class SearchInventory extends Component {
         Alert.alert('Grainz', 'Product unmapped successfully', [
           {
             text: 'Okay',
-            onPress: () => this.getInsideCatFun(),
+            // onPress: () => this.getInsideCatFun(),
+            onPress: () => this.props.navigation.goBack(),
           },
         ]);
       })
@@ -260,6 +272,15 @@ class SearchInventory extends Component {
   };
 
   addToBasketFun = () => {
+    this.setState(
+      {
+        basketLoader: true,
+      },
+      () => this.addToBasketFunSec(),
+    );
+  };
+
+  addToBasketFunSec = () => {
     const {
       finalBasketData,
       supplierId,
@@ -278,14 +299,13 @@ class SearchInventory extends Component {
         console.log('Paylaod', payload);
         addBasketApi(payload)
           .then(res => {
+            this.setState(
+              {
+                basketLoader: false,
+              },
+              () => this.navigateToBasket(res),
+            );
             console.log('res', res);
-            this.props.navigation.navigate('BasketOrderScreen', {
-              finalData: res.data && res.data.id,
-              supplierId,
-              itemType: 'Inventory',
-              productId,
-              supplierName,
-            });
           })
           .catch(err => {
             Alert.alert(
@@ -299,7 +319,13 @@ class SearchInventory extends Component {
             );
           });
       } else {
-        alert('Please select atleast one item');
+        Alert.alert('Grainz', 'Please select atleast one item', [
+          {
+            text: 'okay',
+            onPress: () => this.closeBasketLoader(),
+            style: 'default',
+          },
+        ]);
       }
     } else {
       let payload = {
@@ -313,19 +339,19 @@ class SearchInventory extends Component {
           .then(res => {
             console.log('res', res);
             if (navigateType === 'EditDraft') {
-              this.props.navigation.navigate('EditDraftOrderScreen', {
-                productId,
-                basketId,
-                supplierName,
-              });
+              this.setState(
+                {
+                  basketLoader: false,
+                },
+                () => this.navigateToEditScreen(),
+              );
             } else {
-              this.props.navigation.navigate('BasketOrderScreen', {
-                finalData: res.data && res.data.id,
-                supplierId,
-                itemType: 'Inventory',
-                productId,
-                supplierName,
-              });
+              this.setState(
+                {
+                  basketLoader: false,
+                },
+                () => this.navigateToBasket(res),
+              );
             }
           })
           .catch(err => {
@@ -340,9 +366,41 @@ class SearchInventory extends Component {
             );
           });
       } else {
-        alert('Please select atleast one item');
+        Alert.alert('Grainz', 'Please select atleast one item', [
+          {
+            text: 'okay',
+            onPress: () => this.closeBasketLoader(),
+            style: 'default',
+          },
+        ]);
       }
     }
+  };
+
+  closeBasketLoader = () => {
+    this.setState({
+      basketLoader: false,
+    });
+  };
+
+  navigateToEditScreen = () => {
+    const {basketId, productId, supplierName} = this.state;
+    this.props.navigation.navigate('EditDraftOrderScreen', {
+      productId,
+      basketId,
+      supplierName,
+    });
+  };
+
+  navigateToBasket = res => {
+    const {supplierId, productId, supplierName} = this.state;
+    this.props.navigation.navigate('BasketOrderScreen', {
+      finalData: res.data && res.data.id,
+      supplierId,
+      itemType: 'Inventory',
+      productId,
+      supplierName,
+    });
   };
 
   render() {
@@ -355,6 +413,7 @@ class SearchInventory extends Component {
       finalBasketData,
       screenType,
       productId,
+      basketLoader,
     } = this.state;
 
     console.log('finalBasketData', finalBasketData);
@@ -387,32 +446,53 @@ class SearchInventory extends Component {
             </View>
           </View>
           <View style={{justifyContent: 'center', alignItems: 'center'}}>
-            <TouchableOpacity
-              onPress={() => this.addToBasketFun()}
-              style={{
-                height: hp('6%'),
-                width: wp('80%'),
-                backgroundColor: '#94C036',
-                justifyContent: 'center',
-                alignItems: 'center',
-                marginTop: hp('3%'),
-                borderRadius: 100,
-                marginBottom: hp('2%'),
-              }}>
+            {basketLoader ? (
               <View
                 style={{
+                  height: hp('6%'),
+                  width: wp('80%'),
+                  backgroundColor: '#94C036',
+                  justifyContent: 'center',
                   alignItems: 'center',
+                  marginTop: hp('3%'),
+                  borderRadius: 100,
+                  marginBottom: hp('2%'),
                 }}>
-                <Text
+                <View
                   style={{
-                    color: 'white',
-                    marginLeft: 10,
-                    fontFamily: 'Inter-SemiBold',
+                    alignItems: 'center',
                   }}>
-                  {screenType === 'New' ? 'Add to basket' : 'Update basket'}
-                </Text>
+                  <ActivityIndicator size="small" color="#fff" />
+                </View>
               </View>
-            </TouchableOpacity>
+            ) : (
+              <TouchableOpacity
+                onPress={() => this.addToBasketFun()}
+                style={{
+                  height: hp('6%'),
+                  width: wp('80%'),
+                  backgroundColor: '#94C036',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  marginTop: hp('3%'),
+                  borderRadius: 100,
+                  marginBottom: hp('2%'),
+                }}>
+                <View
+                  style={{
+                    alignItems: 'center',
+                  }}>
+                  <Text
+                    style={{
+                      color: 'white',
+                      marginLeft: 10,
+                      fontFamily: 'Inter-SemiBold',
+                    }}>
+                    {screenType === 'New' ? 'Add to basket' : 'Update basket'}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            )}
           </View>
 
           {recipeLoader ? (

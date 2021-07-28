@@ -26,12 +26,14 @@ import {
   lookupCategoriesApi,
   addBasketApi,
   updateBasketApi,
+  searchSupplierItemLApi,
 } from '../../../../../connectivity/api';
 import CheckBox from '@react-native-community/checkbox';
 import Modal from 'react-native-modal';
 import styles from '../style';
 import Accordion from 'react-native-collapsible/Accordion';
 import {translate} from '../../../../../utils/translations';
+import LoaderComp from '../../../../../components/Loader';
 
 class SearchSupplier extends Component {
   constructor(props) {
@@ -51,6 +53,9 @@ class SearchSupplier extends Component {
       basketId: '',
       navigateType: '',
       supplierName: '',
+      basketLoader: false,
+      searchItemSupplier: '',
+      loaderCompStatus: false,
     };
   }
 
@@ -100,6 +105,7 @@ class SearchSupplier extends Component {
       basketId,
       navigateType,
       supplierName,
+      searchItemSupplier,
     } = this.props.route && this.props.route.params;
     this.getData();
     this.createFirstData();
@@ -114,6 +120,7 @@ class SearchSupplier extends Component {
           navigateType,
           supplierName,
           modalLoader: true,
+          searchItemSupplier,
         },
         () => this.getInsideCatFun(),
       );
@@ -147,6 +154,44 @@ class SearchSupplier extends Component {
             text: 'Okay',
           },
         ]);
+      });
+  };
+
+  getLatestData = () => {
+    this.setState(
+      {
+        loaderCompStatus: true,
+        modalData: [],
+      },
+      () => this.hitSearchApiSupplier(),
+    );
+  };
+
+  hitSearchApiSupplier = () => {
+    const {supplierId, searchItemSupplier} = this.state;
+    searchSupplierItemLApi(supplierId, searchItemSupplier)
+      .then(res => {
+        const finalArr = res.data;
+        finalArr.forEach(function (item) {
+          item.isSelected = false;
+          item.quantityProduct = '';
+        });
+        this.setState({
+          modalData: [...finalArr],
+          loaderCompStatus: false,
+        });
+      })
+      .catch(err => {
+        Alert.alert(
+          `SuppError - ${err.response.status}`,
+          'Something went wrong',
+          [
+            {
+              text: 'Okay',
+              onPress: () => this.props.navigation.goBack(),
+            },
+          ],
+        );
       });
   };
 
@@ -254,7 +299,7 @@ class SearchSupplier extends Component {
         Alert.alert('Grainz', 'Product unmapped successfully', [
           {
             text: 'Okay',
-            onPress: () => this.getInsideCatFun(),
+            onPress: () => this.getLatestData(),
           },
         ]);
       })
@@ -280,64 +325,78 @@ class SearchSupplier extends Component {
     console.log('data', data);
     const {modalData, screenType} = this.state;
     const isSelectedValue = value !== '' ? true : false;
-    if (data.isMapped === true) {
-      let newArr = modalData.map((item, i) =>
-        index === i
-          ? {
-              ...item,
-              [type]: value,
-              ['isSelected']: isSelectedValue,
-            }
-          : item,
-      );
-      console.log('newArr', newArr);
+    let newArr = modalData.map((item, i) =>
+      index === i
+        ? {
+            ...item,
+            [type]: value,
+            ['isSelected']: isSelectedValue,
+          }
+        : item,
+    );
+    console.log('newArr', newArr);
 
-      var filteredArray = newArr.filter(function (itm) {
-        if (itm.quantityProduct !== '') {
-          return itm.isSelected === true;
-        }
-      });
+    var filteredArray = newArr.filter(function (itm) {
+      if (itm.quantityProduct !== '') {
+        return itm.isSelected === true;
+      }
+    });
 
-      console.log('filteredArray', filteredArray);
+    console.log('filteredArray', filteredArray);
 
-      const finalArr = [];
-      filteredArray.map(item => {
-        console.log('item', item);
-        finalArr.push({
-          inventoryId:
-            item.inventoryMapping && item.inventoryMapping.inventoryId,
-          inventoryProductMappingId:
-            item.inventoryMapping && item.inventoryMapping.id,
-          unitPrice: item.price,
-          quantity: Number(item.quantityProduct),
-          action:
-            screenType === 'New'
-              ? 'New'
-              : screenType === 'Update'
-              ? 'New'
-              : 'String',
-          value: Number(item.quantityProduct * item.price * item.packSize),
-        });
+    const finalArr = [];
+    filteredArray.map(item => {
+      console.log('item', item);
+      finalArr.push({
+        inventoryId: item.inventoryMapping && item.inventoryMapping.inventoryId,
+        inventoryProductMappingId:
+          item.inventoryMapping && item.inventoryMapping.id,
+        unitPrice: item.price,
+        quantity: Number(item.quantityProduct),
+        action:
+          screenType === 'New'
+            ? 'New'
+            : screenType === 'Update'
+            ? 'New'
+            : 'String',
+        value: Number(item.quantityProduct * item.price * item.packSize),
       });
-      this.setState({
-        modalData: [...newArr],
-        finalBasketData: [...finalArr],
-      });
-    } else {
-      Alert.alert('Grainz', 'Please map this product to an inventory item', [
-        {
-          text: 'Yes',
-          onPress: () => this.hitMapApi(),
-          style: 'default',
-        },
-        {
-          text: 'No',
-        },
-      ]);
-    }
+    });
+    this.setState({
+      modalData: [...newArr],
+      finalBasketData: [...finalArr],
+    });
+  };
+
+  mapAlertShow = data => {
+    this.setState(
+      {
+        inventoryId: data.id,
+      },
+      () =>
+        Alert.alert('Grainz', 'Do you want to map this product?', [
+          {
+            text: 'Yes',
+            onPress: () => this.hitMapApi(),
+            style: 'default',
+          },
+          {
+            text: 'No',
+          },
+        ]),
+    );
   };
 
   addToBasketFun = () => {
+    this.setState(
+      {
+        basketLoader: true,
+      },
+      () => this.addToBasketFunSec(),
+    );
+  };
+
+  addToBasketFunSec = () => {
     const {
       finalBasketData,
       supplierId,
@@ -357,12 +416,12 @@ class SearchSupplier extends Component {
         console.log('Payload', payload);
         addBasketApi(payload)
           .then(res => {
-            this.props.navigation.navigate('BasketOrderScreen', {
-              finalData: res.data && res.data.id,
-              supplierId,
-              itemType: 'Supplier',
-              supplierName,
-            });
+            this.setState(
+              {
+                basketLoader: false,
+              },
+              () => this.navigateToBasket(res),
+            );
           })
           .catch(err => {
             Alert.alert(
@@ -376,7 +435,13 @@ class SearchSupplier extends Component {
             );
           });
       } else {
-        alert('Please select atleast one item');
+        Alert.alert('Grainz', 'Please select atleast one item', [
+          {
+            text: 'okay',
+            onPress: () => this.closeBasketLoader(),
+            style: 'default',
+          },
+        ]);
       }
     } else {
       let payload = {
@@ -390,18 +455,19 @@ class SearchSupplier extends Component {
           .then(res => {
             console.log('res', res);
             if (navigateType === 'EditDraft') {
-              this.props.navigation.navigate('EditDraftOrderScreen', {
-                productId,
-                basketId,
-                supplierName,
-              });
+              this.setState(
+                {
+                  basketLoader: false,
+                },
+                () => this.navigateToEditScreen(res),
+              );
             } else {
-              this.props.navigation.navigate('BasketOrderScreen', {
-                finalData: res.data && res.data.id,
-                supplierId,
-                itemType: 'Supplier',
-                supplierName,
-              });
+              this.setState(
+                {
+                  basketLoader: false,
+                },
+                () => this.navigateToBasket(res),
+              );
             }
           })
           .catch(err => {
@@ -416,9 +482,40 @@ class SearchSupplier extends Component {
             );
           });
       } else {
-        alert('Please select atleast one item');
+        Alert.alert('Grainz', 'Please select atleast one item', [
+          {
+            text: 'okay',
+            onPress: () => this.closeBasketLoader(),
+            style: 'default',
+          },
+        ]);
       }
     }
+  };
+
+  navigateToEditScreen = res => {
+    const {basketId, productId, supplierName} = this.state;
+    this.props.navigation.navigate('EditDraftOrderScreen', {
+      productId,
+      basketId,
+      supplierName,
+    });
+  };
+
+  navigateToBasket = res => {
+    const {supplierId, supplierName} = this.state;
+    this.props.navigation.navigate('BasketOrderScreen', {
+      finalData: res.data && res.data.id,
+      supplierId,
+      itemType: 'Supplier',
+      supplierName,
+    });
+  };
+
+  closeBasketLoader = () => {
+    this.setState({
+      basketLoader: false,
+    });
   };
 
   _renderHeader = (section, index, isActive) => {
@@ -572,6 +669,8 @@ class SearchSupplier extends Component {
       finalBasketData,
       screenType,
       navigateType,
+      basketLoader,
+      loaderCompStatus,
     } = this.state;
 
     // console.log('modalData', modalData);
@@ -591,6 +690,7 @@ class SearchSupplier extends Component {
         ) : (
           <SubHeader {...this.props} buttons={buttonsSubHeader} index={0} />
         )}
+        <LoaderComp loaderComp={loaderCompStatus} />
         <ScrollView
           style={{marginBottom: hp('2%')}}
           showsVerticalScrollIndicator={false}>
@@ -607,32 +707,53 @@ class SearchSupplier extends Component {
             </View>
           </View>
           <View style={{justifyContent: 'center', alignItems: 'center'}}>
-            <TouchableOpacity
-              onPress={() => this.addToBasketFun()}
-              style={{
-                height: hp('6%'),
-                width: wp('80%'),
-                backgroundColor: '#94C036',
-                justifyContent: 'center',
-                alignItems: 'center',
-                marginTop: hp('3%'),
-                borderRadius: 100,
-                marginBottom: hp('2%'),
-              }}>
+            {basketLoader ? (
               <View
                 style={{
+                  height: hp('6%'),
+                  width: wp('80%'),
+                  backgroundColor: '#94C036',
+                  justifyContent: 'center',
                   alignItems: 'center',
+                  marginTop: hp('3%'),
+                  borderRadius: 100,
+                  marginBottom: hp('2%'),
                 }}>
-                <Text
+                <View
                   style={{
-                    color: 'white',
-                    marginLeft: 10,
-                    fontFamily: 'Inter-SemiBold',
+                    alignItems: 'center',
                   }}>
-                  {screenType === 'New' ? 'Add to basket' : 'Update basket'}
-                </Text>
+                  <ActivityIndicator size="small" color="#fff" />
+                </View>
               </View>
-            </TouchableOpacity>
+            ) : (
+              <TouchableOpacity
+                onPress={() => this.addToBasketFun()}
+                style={{
+                  height: hp('6%'),
+                  width: wp('80%'),
+                  backgroundColor: '#94C036',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  marginTop: hp('3%'),
+                  borderRadius: 100,
+                  marginBottom: hp('2%'),
+                }}>
+                <View
+                  style={{
+                    alignItems: 'center',
+                  }}>
+                  <Text
+                    style={{
+                      color: 'white',
+                      marginLeft: 10,
+                      fontFamily: 'Inter-SemiBold',
+                    }}>
+                    {screenType === 'New' ? 'Add to basket' : 'Update basket'}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            )}
           </View>
 
           {recipeLoader ? (
@@ -741,25 +862,47 @@ class SearchSupplier extends Component {
                                           alignItems: 'center',
                                           justifyContent: 'center',
                                         }}>
-                                        <TextInput
-                                          placeholder="0"
-                                          keyboardType="number-pad"
-                                          value={item.Quantity}
-                                          style={{
-                                            borderWidth: 1,
-                                            borderRadius: 6,
-                                            padding: 10,
-                                            width: wp('22%'),
-                                          }}
-                                          onChangeText={value =>
-                                            this.editQuantityFun(
-                                              index,
-                                              'quantityProduct',
-                                              value,
-                                              item,
-                                            )
-                                          }
-                                        />
+                                        {item.isMapped ? (
+                                          <TextInput
+                                            placeholder="0"
+                                            keyboardType="number-pad"
+                                            value={item.Quantity}
+                                            style={{
+                                              borderWidth: 1,
+                                              borderRadius: 6,
+                                              padding: 10,
+                                              width: wp('22%'),
+                                            }}
+                                            onChangeText={value =>
+                                              this.editQuantityFun(
+                                                index,
+                                                'quantityProduct',
+                                                value,
+                                                item,
+                                              )
+                                            }
+                                          />
+                                        ) : (
+                                          <TouchableOpacity
+                                            onPress={() =>
+                                              this.mapAlertShow(item)
+                                            }
+                                            style={{
+                                              borderRadius: 6,
+                                              padding: 10,
+                                              width: wp('22%'),
+                                              backgroundColor: '#94C036',
+                                              alignItems: 'center',
+                                            }}>
+                                            <Text
+                                              style={{
+                                                color: '#fff',
+                                                fontFamily: 'Inter-Regular',
+                                              }}>
+                                              Map
+                                            </Text>
+                                          </TouchableOpacity>
+                                        )}
                                       </View>
 
                                       <TouchableOpacity

@@ -333,7 +333,13 @@ class InventoryList extends Component {
             );
           });
       } else {
-        alert('Please select atleast one item');
+        Alert.alert('Grainz', 'Please select atleast one item', [
+          {
+            text: 'okay',
+            onPress: () => this.closeBasketLoader(),
+            style: 'default',
+          },
+        ]);
       }
     } else {
       let payload = {
@@ -374,9 +380,21 @@ class InventoryList extends Component {
             );
           });
       } else {
-        alert('Please select atleast one item');
+        Alert.alert('Grainz', 'Please select atleast one item', [
+          {
+            text: 'okay',
+            onPress: () => this.closeBasketLoader(),
+            style: 'default',
+          },
+        ]);
       }
     }
+  };
+
+  closeBasketLoader = () => {
+    this.setState({
+      basketLoader: false,
+    });
   };
 
   navigateToEditDraft = res => {

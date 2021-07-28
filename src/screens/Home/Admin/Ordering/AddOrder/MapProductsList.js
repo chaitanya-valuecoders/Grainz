@@ -23,7 +23,7 @@ import {
   lookupInsideCategoriesApi,
   mapProductAdminApi,
 } from '../../../../../connectivity/api';
-
+import LoaderComp from '../../../../../components/Loader';
 import styles from '../style';
 
 import {translate} from '../../../../../utils/translations';
@@ -42,6 +42,7 @@ class MapProductsList extends Component {
       modalDataBackup: [],
       modalData: [],
       productId: '',
+      loaderCompStatus: false,
     };
   }
 
@@ -106,7 +107,11 @@ class MapProductsList extends Component {
         });
       })
       .catch(err => {
-        console.warn('err', err);
+        Alert.alert(`Error - ${err.response.status}`, 'Something went wrong', [
+          {
+            text: 'Okay',
+          },
+        ]);
       });
   };
 
@@ -122,7 +127,13 @@ class MapProductsList extends Component {
     Alert.alert('Grainz', 'Would you like to map this product?', [
       {
         text: 'Yes',
-        onPress: () => this.hitMapApi(item),
+        onPress: () =>
+          this.setState(
+            {
+              loaderCompStatus: true,
+            },
+            () => this.hitMapApi(item),
+          ),
       },
       {
         text: 'No',
@@ -137,6 +148,9 @@ class MapProductsList extends Component {
     };
     mapProductAdminApi(payload)
       .then(res => {
+        this.setState({
+          loaderCompStatus: false,
+        });
         Alert.alert('Grainz', 'Product mapped successfully', [
           {
             text: 'Okay',
@@ -145,7 +159,11 @@ class MapProductsList extends Component {
         ]);
       })
       .catch(err => {
-        console.log('err', err);
+        Alert.alert(`Error - ${err.response.status}`, 'Something went wrong', [
+          {
+            text: 'Okay',
+          },
+        ]);
       });
     console.log('payload', payload);
   };
@@ -184,6 +202,7 @@ class MapProductsList extends Component {
       modalLoader,
       sectionName,
       searchItem,
+      loaderCompStatus,
     } = this.state;
 
     return (
@@ -197,7 +216,7 @@ class MapProductsList extends Component {
         ) : (
           <SubHeader {...this.props} buttons={buttonsSubHeader} index={0} />
         )}
-
+        <LoaderComp loaderComp={loaderCompStatus} />
         <ScrollView
           style={{marginBottom: hp('2%')}}
           showsVerticalScrollIndicator={false}>

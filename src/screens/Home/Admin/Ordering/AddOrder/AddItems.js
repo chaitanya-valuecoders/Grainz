@@ -438,6 +438,7 @@ class AddItems extends Component {
               basketId,
               navigateType,
               supplierName,
+              searchItemSupplier,
             }),
         );
       })

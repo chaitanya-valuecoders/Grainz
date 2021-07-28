@@ -26,6 +26,7 @@ import {
   viewShoppingBasketApi,
   downloadPDFApi,
   viewHTMLApi,
+  updateDraftOrderNewApi,
 } from '../../../../../connectivity/api';
 import styles from '../style';
 import {translate} from '../../../../../utils/translations';
@@ -38,7 +39,7 @@ import {
 } from 'react-native-responsive-screen';
 import LoaderComp from '../../../../../components/Loader';
 
-class PdfView extends Component {
+class PdfViewDraft extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -50,10 +51,9 @@ class PdfView extends Component {
       modalLoader: false,
       actionModalStatus: false,
       buttons: [],
-      apiDeliveryDate: '',
       apiOrderDate: '',
       placedByValue: '',
-      supplierId: '',
+      supplierValue: '',
       finalApiData: [],
       modalVisible: false,
       supplierValue: '',
@@ -81,6 +81,7 @@ class PdfView extends Component {
       mailTitleValue: '',
       supplierName: '',
       loaderCompStatus: false,
+      draftsOrderData: '',
     };
   }
 
@@ -124,19 +125,21 @@ class PdfView extends Component {
       htmlData,
       apiOrderDate,
       placedByValue,
-      supplierId,
+      supplierValue,
       finalApiData,
       basketId,
       apiDeliveryDate,
+      draftsOrderData,
     } = this.props.route && this.props.route.params;
     this.setState({
       htmlData,
       apiOrderDate,
       placedByValue,
-      supplierId,
+      supplierValue,
       finalApiData,
       basketId,
       apiDeliveryDate,
+      draftsOrderData,
     });
   }
 
@@ -195,40 +198,46 @@ class PdfView extends Component {
 
   sendFunSec = () => {
     const {
+      apiDeliveryDate,
       apiOrderDate,
       placedByValue,
-      supplierId,
-      finalApiData,
+      supplierValue,
       basketId,
-      apiDeliveryDate,
+      draftsOrderData,
+      finalApiData,
     } = this.state;
     if (
       apiOrderDate &&
       placedByValue &&
-      supplierId &&
+      supplierValue &&
       finalApiData &&
       apiDeliveryDate
     ) {
       let payload = {
         id: basketId,
-        supplierId: supplierId,
+        supplierId: supplierValue,
         orderDate: apiOrderDate,
         deliveryDate: apiDeliveryDate,
         placedBy: placedByValue,
+        totalValue: draftsOrderData.totalValue,
         shopingBasketItemList: finalApiData,
       };
-      addDraftApi(payload)
+      console.log('payload', payload);
+      updateDraftOrderNewApi(payload)
         .then(res => {
-          this.setState({
-            loaderCompStatus: false,
-          });
-          console.log('res', res);
-          Alert.alert('Grainz', 'Order added successfully', [
+          this.setState(
             {
-              text: 'okay',
-              onPress: () => this.openMailModal(res),
+              loaderCompStatus: false,
             },
-          ]);
+            () =>
+              Alert.alert(`Grainz`, 'Draft updated successfully', [
+                {
+                  text: 'Okay',
+                  onPress: () => this.openMailModal(res),
+                },
+              ]),
+          );
+          console.log('res', res);
         })
         .catch(err => {
           Alert.alert(
@@ -242,17 +251,16 @@ class PdfView extends Component {
           );
         });
     } else {
-      Alert.alert('Grainz', 'Please select atleast one item', [
+      Alert.alert(`Grainz`, 'Please select all values.', [
         {
-          text: 'okay',
-          onPress: () => this.closeLoader(),
-          style: 'default',
+          text: 'Okay',
+          onPress: () => this.closeLoaderComp(),
         },
       ]);
     }
   };
 
-  closeLoader = () => {
+  closeLoaderComp = () => {
     this.setState({
       loaderCompStatus: false,
     });
@@ -309,7 +317,6 @@ class PdfView extends Component {
         this.setState(
           {
             mailModalVisible: false,
-            loaderCompStatus: false,
           },
           () => this.props.navigation.navigate('OrderingAdminScreen'),
         );
@@ -369,7 +376,7 @@ class PdfView extends Component {
         <View style={styles.subContainer}>
           <View style={styles.firstContainer}>
             <View style={{flex: 1}}>
-              <Text style={styles.adminTextStyle}>Order Details</Text>
+              <Text style={styles.adminTextStyle}>Order Details - Edit</Text>
             </View>
             <TouchableOpacity
               onPress={() => this.props.navigation.navigate('HomeScreen')}
@@ -395,6 +402,162 @@ class PdfView extends Component {
               backgroundColor: '#F0F4FE',
             }}
           />
+          <Modal isVisible={mailModalVisible} backdropOpacity={0.35}>
+            <View
+              style={{
+                width: wp('80%'),
+                height: hp('65%'),
+                backgroundColor: '#F0F4FE',
+                alignSelf: 'center',
+                borderRadius: 6,
+              }}>
+              <View
+                style={{
+                  backgroundColor: '#87AF30',
+                  height: hp('6%'),
+                  flexDirection: 'row',
+                  borderTopRightRadius: 6,
+                  borderTopLeftRadius: 6,
+                }}>
+                <View
+                  style={{
+                    flex: 1,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}>
+                  <Text style={{fontSize: 16, color: '#fff'}}>Send Mail</Text>
+                </View>
+              </View>
+              <ScrollView showsVerticalScrollIndicator={false}>
+                <View
+                  style={{
+                    padding: hp('3%'),
+                  }}>
+                  <View style={{}}>
+                    <View style={{}}>
+                      <TextInput
+                        value={mailTitleValue}
+                        placeholder="Title"
+                        style={{
+                          padding: 15,
+                          width: '100%',
+                          backgroundColor: '#fff',
+                          borderRadius: 5,
+                        }}
+                        onChangeText={value =>
+                          this.setState({
+                            mailTitleValue: value,
+                          })
+                        }
+                      />
+                    </View>
+                    <View style={{marginTop: hp('3%')}}>
+                      <TextInput
+                        value={toRecipientValue}
+                        placeholder="To"
+                        style={{
+                          padding: 15,
+                          width: '100%',
+                          backgroundColor: '#fff',
+                          borderRadius: 5,
+                        }}
+                        onChangeText={value =>
+                          this.setState({
+                            toRecipientValue: value,
+                          })
+                        }
+                      />
+                    </View>
+                    <View style={{marginTop: hp('3%')}}>
+                      <TextInput
+                        value={ccRecipientValue}
+                        placeholder="CC"
+                        style={{
+                          padding: 15,
+                          width: '100%',
+                          backgroundColor: '#fff',
+                          borderRadius: 5,
+                        }}
+                        onChangeText={value =>
+                          this.setState({
+                            ccRecipientValue: value,
+                          })
+                        }
+                      />
+                    </View>
+
+                    <View style={{marginTop: hp('3%')}}>
+                      <TextInput
+                        value={mailMessageValue}
+                        placeholder="Message"
+                        style={{
+                          padding: 15,
+                          width: '100%',
+                          backgroundColor: '#fff',
+                          borderRadius: 5,
+                        }}
+                        onChangeText={value =>
+                          this.setState({
+                            mailMessageValue: value,
+                          })
+                        }
+                      />
+                    </View>
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        marginTop: hp('4%'),
+                      }}>
+                      <TouchableOpacity
+                        onPress={() => this.sendMailFun()}
+                        style={{
+                          width: wp('30%'),
+                          height: hp('5%'),
+                          alignSelf: 'flex-end',
+                          backgroundColor: '#94C036',
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                          borderRadius: 100,
+                        }}>
+                        <Text
+                          style={{
+                            color: '#fff',
+                            fontSize: 15,
+                            fontWeight: 'bold',
+                          }}>
+                          {translate('Confirm')}
+                        </Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        onPress={() => this.closeMailModal()}
+                        style={{
+                          width: wp('30%'),
+                          height: hp('5%'),
+                          alignSelf: 'flex-end',
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                          marginLeft: wp('2%'),
+                          borderRadius: 100,
+                          borderColor: '#482813',
+                          borderWidth: 1,
+                        }}>
+                        <Text
+                          style={{
+                            color: '#482813',
+                            fontSize: 15,
+                            fontWeight: 'bold',
+                          }}>
+                          {translate('Cancel')}
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                </View>
+              </ScrollView>
+            </View>
+          </Modal>
         </View>
         <View
           style={{
@@ -435,177 +598,6 @@ class PdfView extends Component {
             </TouchableOpacity>
           </View> */}
         </View>
-        <Modal isVisible={mailModalVisible} backdropOpacity={0.35}>
-          <View
-            style={{
-              width: wp('80%'),
-              height: hp('65%'),
-              backgroundColor: '#F0F4FE',
-              alignSelf: 'center',
-              borderRadius: 6,
-            }}>
-            <View
-              style={{
-                backgroundColor: '#87AF30',
-                height: hp('6%'),
-                flexDirection: 'row',
-                borderTopRightRadius: 6,
-                borderTopLeftRadius: 6,
-              }}>
-              <View
-                style={{
-                  flex: 1,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}>
-                <Text style={{fontSize: 16, color: '#fff'}}>Send Mail</Text>
-              </View>
-            </View>
-            <ScrollView showsVerticalScrollIndicator={false}>
-              <View
-                style={{
-                  padding: hp('3%'),
-                }}>
-                <View style={{}}>
-                  <View style={{}}>
-                    <TextInput
-                      value={mailTitleValue}
-                      placeholder="Title"
-                      style={{
-                        padding: 15,
-                        width: '100%',
-                        backgroundColor: '#fff',
-                        borderRadius: 5,
-                      }}
-                      onChangeText={value =>
-                        this.setState({
-                          mailTitleValue: value,
-                        })
-                      }
-                    />
-                  </View>
-                  <View style={{marginTop: hp('3%')}}>
-                    <TextInput
-                      value={toRecipientValue}
-                      placeholder="To"
-                      style={{
-                        padding: 15,
-                        width: '100%',
-                        backgroundColor: '#fff',
-                        borderRadius: 5,
-                      }}
-                      onChangeText={value =>
-                        this.setState({
-                          toRecipientValue: value,
-                        })
-                      }
-                    />
-                  </View>
-                  <View style={{marginTop: hp('3%')}}>
-                    <TextInput
-                      value={ccRecipientValue}
-                      placeholder="CC"
-                      style={{
-                        padding: 15,
-                        width: '100%',
-                        backgroundColor: '#fff',
-                        borderRadius: 5,
-                      }}
-                      onChangeText={value =>
-                        this.setState({
-                          ccRecipientValue: value,
-                        })
-                      }
-                    />
-                  </View>
-
-                  <View style={{marginTop: hp('3%')}}>
-                    <TextInput
-                      value={mailMessageValue}
-                      placeholder="Message"
-                      style={{
-                        padding: 15,
-                        width: '100%',
-                        backgroundColor: '#fff',
-                        borderRadius: 5,
-                      }}
-                      onChangeText={value =>
-                        this.setState({
-                          mailMessageValue: value,
-                        })
-                      }
-                    />
-                  </View>
-                  <View
-                    style={{
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      marginTop: hp('4%'),
-                    }}>
-                    {loaderCompStatus ? (
-                      <View
-                        style={{
-                          width: wp('30%'),
-                          height: hp('5%'),
-                          alignSelf: 'flex-end',
-                          backgroundColor: '#94C036',
-                          justifyContent: 'center',
-                          alignItems: 'center',
-                          borderRadius: 100,
-                        }}>
-                        <ActivityIndicator size="small" color="#fff" />
-                      </View>
-                    ) : (
-                      <TouchableOpacity
-                        onPress={() => this.sendMailFun()}
-                        style={{
-                          width: wp('30%'),
-                          height: hp('5%'),
-                          alignSelf: 'flex-end',
-                          backgroundColor: '#94C036',
-                          justifyContent: 'center',
-                          alignItems: 'center',
-                          borderRadius: 100,
-                        }}>
-                        <Text
-                          style={{
-                            color: '#fff',
-                            fontSize: 15,
-                            fontWeight: 'bold',
-                          }}>
-                          {translate('Confirm')}
-                        </Text>
-                      </TouchableOpacity>
-                    )}
-                    <TouchableOpacity
-                      onPress={() => this.closeMailModal()}
-                      style={{
-                        width: wp('30%'),
-                        height: hp('5%'),
-                        alignSelf: 'flex-end',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        marginLeft: wp('2%'),
-                        borderRadius: 100,
-                        borderColor: '#482813',
-                        borderWidth: 1,
-                      }}>
-                      <Text
-                        style={{
-                          color: '#482813',
-                          fontSize: 15,
-                          fontWeight: 'bold',
-                        }}>
-                        {translate('Cancel')}
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
-                </View>
-              </View>
-            </ScrollView>
-          </View>
-        </Modal>
       </View>
     );
   }
@@ -618,4 +610,4 @@ const mapStateToProps = state => {
   };
 };
 
-export default connect(mapStateToProps, {UserTokenAction})(PdfView);
+export default connect(mapStateToProps, {UserTokenAction})(PdfViewDraft);
