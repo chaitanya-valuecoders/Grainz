@@ -183,6 +183,7 @@ class Basket extends Component {
         Alert.alert(`Error - ${err.response.status}`, 'Something went wrong', [
           {
             text: 'Okay',
+            onPress: () => this.props.navigation.goBack(),
           },
         ]);
       });
@@ -324,6 +325,7 @@ class Basket extends Component {
             [
               {
                 text: 'Okay',
+                onPress: () => this.props.navigation.goBack(),
               },
             ],
           );
@@ -359,6 +361,7 @@ class Basket extends Component {
             },
             {
               text: 'No',
+              onPress: () => this.closeLoaderComp(),
             },
           ]);
         }, 100),
@@ -400,6 +403,7 @@ class Basket extends Component {
         Alert.alert(`Error - ${err.response.status}`, 'Something went wrong', [
           {
             text: 'Okay',
+            onPress: () => this.closeLoaderComp(),
           },
         ]);
       });
@@ -447,6 +451,7 @@ class Basket extends Component {
             [
               {
                 text: 'Okay',
+                onPress: () => this.closeLoaderComp(),
               },
             ],
           );
@@ -541,6 +546,7 @@ class Basket extends Component {
             [
               {
                 text: 'Okay',
+                onPress: () => this.closeLoaderComp(),
               },
             ],
           );
@@ -572,6 +578,7 @@ class Basket extends Component {
         Alert.alert(`Error - ${err.response.status}`, 'Something went wrong', [
           {
             text: 'Okay',
+            onPress: () => this.closeLoaderComp(),
           },
         ]);
       });
@@ -665,6 +672,7 @@ class Basket extends Component {
         Alert.alert(`Error - ${err.response.status}`, 'Something went wrong', [
           {
             text: 'Okay',
+            onPress: () => this.closeLoaderComp(),
           },
         ]);
       });
@@ -714,6 +722,7 @@ class Basket extends Component {
         Alert.alert(`Error - ${err.response.status}`, 'Something went wrong', [
           {
             text: 'Okay',
+            onPress: () => this.closeLoaderComp(),
           },
         ]);
       });

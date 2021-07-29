@@ -694,6 +694,7 @@ class EditDraftOrder extends Component {
         Alert.alert(`Error - ${err.response.status}`, 'Something went wrong', [
           {
             text: 'Okay',
+            onPress: () => this.props.navigation.goBack(),
           },
         ]);
       });
@@ -1151,7 +1152,8 @@ class EditDraftOrder extends Component {
                                         item.inventoryMapping.inventoryName}
                                     </Text>
                                     <Text style={{}}>
-                                      {item.inventoryMapping.productName}
+                                      {item.inventoryMapping &&
+                                        item.inventoryMapping.productName}
                                     </Text>
                                   </View>
                                   {editStatus ? (
