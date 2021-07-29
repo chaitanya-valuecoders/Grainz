@@ -85,12 +85,15 @@ class PendingDelivery extends Component {
   componentDidMount() {
     this.getData();
     const {listId} = this.props.route && this.props.route.params;
-    this.setState(
-      {
-        listId,
-      },
-      () => this.getFinalData(),
-    );
+    this.props.navigation.addListener('focus', () => {
+      this.setState(
+        {
+          listId,
+          modalLoaderDrafts: true,
+        },
+        () => this.getFinalData(),
+      );
+    });
   }
 
   getFinalData = () => {

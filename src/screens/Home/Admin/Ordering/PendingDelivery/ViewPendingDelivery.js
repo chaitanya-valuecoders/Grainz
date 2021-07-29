@@ -32,6 +32,7 @@ import moment from 'moment';
 import CheckBox from '@react-native-community/checkbox';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import LoaderComp from '../../../../../components/Loader';
+import TriStateToggleSwitch from 'rn-tri-toggle-switch';
 
 class ViewPendingDelivery extends Component {
   constructor(props) {
@@ -60,7 +61,19 @@ class ViewPendingDelivery extends Component {
       pageOrderItems: [],
       finalApiData: [],
       loaderCompStatus: false,
+      allSwitchStatus: false,
       arrivalDataStatus: false,
+      initialValueAllCorrect: 'null',
+      choicesProp: [
+        {
+          choiceCode: 'Y',
+          choiceText: 'Y',
+        },
+        {
+          choiceCode: 'N',
+          choiceText: 'N',
+        },
+      ],
     };
   }
 
@@ -110,6 +123,7 @@ class ViewPendingDelivery extends Component {
       {
         productId: item.id,
         arrivalDataStatus: false,
+        loaderCompStatus: true,
       },
       () => this.getOrderFun(),
     );
@@ -404,16 +418,23 @@ class ViewPendingDelivery extends Component {
       isDatePickerVisibleArrivalDate: false,
     });
   };
-  updateCorrectStatus = item => {
+  updateCorrectStatus = (item, value) => {
     this.setState(
       {
         loaderCompStatus: true,
       },
-      () => this.updateCorrectStatusSec(item),
+      () => this.updateCorrectStatusSec(item, value),
     );
   };
 
-  updateCorrectStatusSec = item => {
+  updateCorrectStatusSec = (item, value) => {
+    const finalValue =
+      value && value.choiceCode === 'Y'
+        ? 'true'
+        : value && value.choiceCode === 'N'
+        ? 'false'
+        : null;
+    console.log('finaV', finalValue);
     let payload = {
       action: 'Update',
       arrivedDate: item.arrivedDate,
@@ -421,7 +442,7 @@ class ViewPendingDelivery extends Component {
       inventoryId: item.inventoryId,
       inventoryProductMappingId:
         item.inventoryMapping && item.inventoryMapping.id,
-      isCorrect: !item.isCorrect,
+      isCorrect: finalValue,
       notes: item.notes,
       orderId: item.orderId,
       orderValue: item.orderValue,
@@ -476,9 +497,138 @@ class ViewPendingDelivery extends Component {
   };
 
   closeLoader = () => {
-    this.setState({
-      loaderCompStatus: false,
+    this.setState(
+      {
+        pageOrderItems: [],
+        allSwitchStatus: false,
+      },
+
+      () => this.getOrderFun(),
+    );
+  };
+
+  updateCorrectStatusForAll = value => {
+    this.setState(
+      {
+        loaderCompStatus: true,
+      },
+      () => this.createFinalDataForCorrect(value),
+    );
+  };
+
+  createFinalDataForCorrect = value => {
+    const {pageOrderItems} = this.state;
+    const finalValue =
+      value && value.choiceCode === 'Y'
+        ? true
+        : value && value.choiceCode === 'N'
+        ? false
+        : null;
+    let finalArray = pageOrderItems.map((item, index) => {
+      return {
+        arrivedDate: item.arrivedDate,
+        id: item.id,
+        inventoryId: item.inventoryId,
+        inventoryProductMappingId:
+          item.inventoryMapping && item.inventoryMapping.id,
+        isCorrect: finalValue,
+        notes: item.notes,
+        orderValue: item.orderValue,
+        pricePaid: item.pricePaid,
+        quantityDelivered: item.quantityDelivered,
+        quantityInvoiced: item.quantityInvoiced,
+        quantityOrdered: item.quantityOrdered,
+        userQuantityDelivered: item.userQuantityDelivered,
+        userQuantityInvoiced: item.userQuantityInvoiced,
+      };
     });
+
+    const result = finalArray;
+    this.setState(
+      {
+        finalApiData: [...result],
+        allSwitchStatus: true,
+      },
+      () => this.updateCorrectStatusForAllSec(value),
+    );
+  };
+
+  updateCorrectStatusForAllSec = value => {
+    const {
+      apiDeliveryDate,
+      apiArrivalDate,
+      pageInvoiceNumber,
+      pageDeliveryNoteReference,
+      pageAmbientTemp,
+      pageChilledTemp,
+      pageFrozenTemp,
+      pageNotes,
+      pageData,
+      finalApiData,
+      productId,
+    } = this.state;
+    let payload = {
+      ambientTemp: pageAmbientTemp,
+      chilledTemp: pageChilledTemp,
+      deliveredDate: apiArrivalDate,
+      deliveryDate: apiDeliveryDate,
+      deliveryNoteReference: pageDeliveryNoteReference,
+      frozenTemp: pageFrozenTemp,
+      id: productId,
+      invoiceNumber: pageInvoiceNumber,
+      isAuditComplete: pageData.isAuditComplete,
+      notes: pageNotes,
+      orderDate: pageData.orderDate,
+      orderItems: finalApiData,
+      orderReference: pageData.orderReference,
+      placedBy: pageData.placedByNAme,
+    };
+    const finalValue =
+      value && value.choiceCode === 'Y'
+        ? 'Y'
+        : value && value.choiceCode === 'N'
+        ? 'N'
+        : null;
+    console.log('payloadOrderProcessCorrect', payload);
+    if (apiArrivalDate) {
+      processPendingOrderApi(payload)
+        .then(res => {
+          this.setState(
+            {
+              loaderCompStatus: false,
+              arrivalDataStatus: true,
+              allSwitchStatus: false,
+              initialValueAllCorrect: finalValue,
+              pageOrderItems: [],
+            },
+            () =>
+              Alert.alert(`Grainz`, 'Order processed successfully', [
+                {
+                  text: 'Okay',
+                  onPress: () => this.navigateToOrderScreen(value),
+                },
+              ]),
+          );
+        })
+        .catch(err => {
+          Alert.alert(
+            `Error - ${err.response.status}`,
+            'Something went wrong',
+            [
+              {
+                text: 'Okay',
+              },
+            ],
+          );
+        });
+    } else {
+      Alert.alert(`Grainz`, 'Kildly fill arrived date first', [
+        {
+          text: 'Okay',
+          onPress: () => this.closeLoader(),
+        },
+      ]);
+    }
   };
 
   render() {
@@ -499,7 +649,12 @@ class ViewPendingDelivery extends Component {
       pageNotes,
       pageOrderItems,
       loaderCompStatus,
+      choicesProp,
+      allSwitchStatus,
+      initialValueAllCorrect,
     } = this.state;
+
+    console.log('initialValueAllCorrect', initialValueAllCorrect);
 
     return (
       <View style={styles.container}>
@@ -923,151 +1078,173 @@ class ViewPendingDelivery extends Component {
                           width: wp('30%'),
                           alignItems: 'center',
                         }}>
-                        <Text
-                          style={{
-                            color: '#161C27',
-                            fontSize: 14,
-                            fontFamily: 'Inter-SemiBold',
-                          }}>
-                          Action
-                        </Text>
+                        {allSwitchStatus ? (
+                          <ActivityIndicator size="small" color="grey" />
+                        ) : (
+                          <TriStateToggleSwitch
+                            initialValue={initialValueAllCorrect}
+                            width={80}
+                            height={30}
+                            selectedNoneBgColor={'#999999'}
+                            selectedLeftBgColor={'#75CF41'}
+                            selectedRightBgColor={'#D72E30'}
+                            fontColor={'#fff'}
+                            fontSize={12}
+                            circleBgColor={'white'}
+                            choices={choicesProp}
+                            onChange={value =>
+                              this.updateCorrectStatusForAll(value)
+                            }
+                          />
+                        )}
                       </View>
                     </View>
                     <View>
-                      {pageData && pageOrderItems.length > 0
-                        ? pageOrderItems.map((item, index) => {
-                            return (
-                              <View
-                                key={index}
+                      {pageData && pageOrderItems.length > 0 ? (
+                        pageOrderItems.map((item, index) => {
+                          return (
+                            <View
+                              key={index}
+                              style={{
+                                paddingVertical: 10,
+                                paddingHorizontal: 5,
+                                flexDirection: 'row',
+                                backgroundColor: '#fff',
+                              }}>
+                              <TouchableOpacity
+                                onPress={() => alert('yo')}
                                 style={{
-                                  paddingVertical: 10,
-                                  paddingHorizontal: 5,
-                                  flexDirection: 'row',
-                                  backgroundColor: '#fff',
+                                  width: wp('50%'),
+                                  alignItems: 'center',
                                 }}>
-                                <TouchableOpacity
-                                  onPress={() => alert('yo')}
+                                <Text
                                   style={{
-                                    width: wp('50%'),
-                                    alignItems: 'center',
+                                    color: '#161C27',
+                                    fontSize: 14,
+                                    fontFamily: 'Inter-SemiBold',
+                                    marginBottom: 8,
                                   }}>
-                                  <Text
-                                    style={{
-                                      color: '#161C27',
-                                      fontSize: 14,
-                                      fontFamily: 'Inter-SemiBold',
-                                      marginBottom: 8,
-                                    }}>
-                                    {item.inventoryMapping &&
-                                      item.inventoryMapping.inventoryName}
-                                  </Text>
-                                  <Text
-                                    style={{
-                                      color: '#161C27',
-                                      fontSize: 14,
-                                      fontFamily: 'Inter-Regular',
-                                    }}>
-                                    {item.productName}
-                                  </Text>
-                                </TouchableOpacity>
+                                  {item.inventoryMapping &&
+                                    item.inventoryMapping.inventoryName}
+                                </Text>
+                                <Text
+                                  style={{
+                                    color: '#161C27',
+                                    fontSize: 14,
+                                    fontFamily: 'Inter-Regular',
+                                  }}>
+                                  {item.productName}
+                                </Text>
+                              </TouchableOpacity>
+                              <View
+                                style={{
+                                  width: wp('30%'),
+                                  alignItems: 'center',
+                                }}>
+                                <Text
+                                  style={{
+                                    color: '#161C27',
+                                    fontSize: 14,
+                                    fontFamily: 'Inter-Regular',
+                                  }}>
+                                  {item.arrivedDate &&
+                                    moment(item.arrivedDate).format('L')}
+                                </Text>
+                              </View>
+                              <View
+                                style={{
+                                  width: wp('30%'),
+                                  alignItems: 'center',
+                                }}>
+                                <Text
+                                  style={{
+                                    color: '#161C27',
+                                    fontSize: 14,
+                                    fontFamily: 'Inter-SemiBold',
+                                    marginBottom: 8,
+                                  }}>
+                                  {item.grainzVolume} {item.grainzUnit}
+                                </Text>
+                                <Text
+                                  style={{
+                                    color: '#161C27',
+                                    fontSize: 14,
+                                    fontFamily: 'Inter-Regular',
+                                  }}>
+                                  {`${item.quantityOrdered} X ${item.packSize}/${item.unit}`}
+                                </Text>
+                              </View>
+                              <View
+                                style={{
+                                  width: wp('30%'),
+                                  alignItems: 'center',
+                                }}>
+                                <Text
+                                  style={{
+                                    color: '#161C27',
+                                    fontSize: 14,
+                                    fontFamily: 'Inter-Regular',
+                                  }}>
+                                  € {Number(item.orderValue).toFixed(2)}
+                                </Text>
+                              </View>
+                              <View
+                                style={{
+                                  width: wp('30%'),
+                                  alignItems: 'center',
+                                }}>
+                                <TriStateToggleSwitch
+                                  initialValue={
+                                    item.isCorrect === false
+                                      ? 'N'
+                                      : item.isCorrect === true
+                                      ? 'Y'
+                                      : 'Null'
+                                  }
+                                  width={80}
+                                  height={30}
+                                  selectedNoneBgColor={'#999999'}
+                                  selectedLeftBgColor={'#75CF41'}
+                                  selectedRightBgColor={'#D72E30'}
+                                  fontColor={'#fff'}
+                                  fontSize={12}
+                                  circleBgColor={'white'}
+                                  choices={choicesProp}
+                                  onChange={value =>
+                                    this.updateCorrectStatus(item, value)
+                                  }
+                                />
+                              </View>
+                              <TouchableOpacity
+                                onPress={() => this.deleteFun(item)}
+                                style={{
+                                  width: wp('30%'),
+                                  alignItems: 'center',
+                                }}>
                                 <View
                                   style={{
-                                    width: wp('30%'),
-                                    alignItems: 'center',
+                                    backgroundColor: 'red',
+                                    paddingHorizontal: 15,
+                                    paddingVertical: 10,
+                                    borderRadius: 5,
                                   }}>
-                                  <Text
+                                  <Image
+                                    source={img.deleteIconNew}
                                     style={{
-                                      color: '#161C27',
-                                      fontSize: 14,
-                                      fontFamily: 'Inter-Regular',
-                                    }}>
-                                    {item.arrivedDate &&
-                                      moment(item.arrivedDate).format('L')}
-                                  </Text>
-                                </View>
-                                <View
-                                  style={{
-                                    width: wp('30%'),
-                                    alignItems: 'center',
-                                  }}>
-                                  <Text
-                                    style={{
-                                      color: '#161C27',
-                                      fontSize: 14,
-                                      fontFamily: 'Inter-SemiBold',
-                                      marginBottom: 8,
-                                    }}>
-                                    {item.grainzVolume} {item.grainzUnit}
-                                  </Text>
-                                  <Text
-                                    style={{
-                                      color: '#161C27',
-                                      fontSize: 14,
-                                      fontFamily: 'Inter-Regular',
-                                    }}>
-                                    {`${item.quantityOrdered} X ${item.packSize}/${item.unit}`}
-                                  </Text>
-                                </View>
-                                <View
-                                  style={{
-                                    width: wp('30%'),
-                                    alignItems: 'center',
-                                  }}>
-                                  <Text
-                                    style={{
-                                      color: '#161C27',
-                                      fontSize: 14,
-                                      fontFamily: 'Inter-Regular',
-                                    }}>
-                                    € {Number(item.orderValue).toFixed(2)}
-                                  </Text>
-                                </View>
-                                <View
-                                  style={{
-                                    width: wp('30%'),
-                                    alignItems: 'center',
-                                  }}>
-                                  <Switch
-                                    style={{}}
-                                    trackColor={{
-                                      false: '#767577',
-                                      true: '#94C036',
+                                      width: 18,
+                                      height: 18,
+                                      tintColor: '#fff',
+                                      resizeMode: 'contain',
                                     }}
-                                    value={item.isCorrect}
-                                    onValueChange={() =>
-                                      this.updateCorrectStatus(item)
-                                    }
-                                    thumbColor="#fff"
                                   />
                                 </View>
-                                <TouchableOpacity
-                                  onPress={() => this.deleteFun(item)}
-                                  style={{
-                                    width: wp('30%'),
-                                    alignItems: 'center',
-                                  }}>
-                                  <View
-                                    style={{
-                                      backgroundColor: 'red',
-                                      paddingHorizontal: 15,
-                                      paddingVertical: 10,
-                                      borderRadius: 5,
-                                    }}>
-                                    <Image
-                                      source={img.deleteIconNew}
-                                      style={{
-                                        width: 18,
-                                        height: 18,
-                                        tintColor: '#fff',
-                                        resizeMode: 'contain',
-                                      }}
-                                    />
-                                  </View>
-                                </TouchableOpacity>
-                              </View>
-                            );
-                          })
-                        : null}
+                              </TouchableOpacity>
+                            </View>
+                          );
+                        })
+                      ) : (
+                        <ActivityIndicator size="small" color="grey" />
+                      )}
                     </View>
                   </View>
                 </ScrollView>
