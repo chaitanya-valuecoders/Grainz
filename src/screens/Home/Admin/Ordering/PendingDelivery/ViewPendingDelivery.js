@@ -75,6 +75,7 @@ class ViewPendingDelivery extends Component {
       modalNotes: '',
       modalData: '',
       initialValueAllCorrect: 'null',
+      isDatePickerArrivalDateSpecific: false,
       choicesProp: [
         {
           choiceCode: 'Y',
@@ -383,6 +384,12 @@ class ViewPendingDelivery extends Component {
     });
   };
 
+  showDatePickerArrivalDateSpecific = () => {
+    this.setState({
+      isDatePickerArrivalDateSpecific: true,
+    });
+  };
+
   handleConfirmArrivalDate = date => {
     console.log('date', date);
     let newdate = moment(date).format('MM/DD/YYYY');
@@ -423,6 +430,22 @@ class ViewPendingDelivery extends Component {
       },
       () => this.saveFun(),
     );
+  };
+
+  handleConfirmArrivalDateSpecific = date => {
+    console.log('date', date);
+    let newdate = moment(date).format('MM/DD/YYYY');
+    // let apiArrivalDate = date.toISOString();
+    this.hideDatePickerArrivalDateSpecific();
+    this.setState({
+      finalArrivalDateSpecific: newdate,
+    });
+  };
+
+  hideDatePickerArrivalDateSpecific = () => {
+    this.setState({
+      isDatePickerArrivalDateSpecific: false,
+    });
   };
 
   hideDatePickerArrivalDate = () => {
@@ -655,6 +678,7 @@ class ViewPendingDelivery extends Component {
       modalUserQuantityInvoiced: item.userQuantityInvoiced,
       modalPricePaid: item.pricePaid,
       modalNotes: item.notes,
+      finalArrivalDateSpecific: item.arrivedDate,
     });
   };
 
@@ -690,7 +714,7 @@ class ViewPendingDelivery extends Component {
 
   saveFunInventoryItemThird = () => {
     const {
-      apiArrivalDate,
+      finalArrivalDateSpecific,
       modalData,
       modalQuantityOrdered,
       modalOrderedInventoryVolume,
@@ -702,7 +726,7 @@ class ViewPendingDelivery extends Component {
       modalNotes,
     } = this.state;
     let payload = {
-      arrivedDate: apiArrivalDate,
+      arrivedDate: finalArrivalDateSpecific,
       id: modalData.id,
       notes: modalNotes,
       orderId: modalData.orderId,
@@ -774,6 +798,9 @@ class ViewPendingDelivery extends Component {
       modalUserQuantityInvoiced,
       modalPricePaid,
       modalNotes,
+      isDatePickerArrivalDateSpecific,
+      finalArrivalDateSpecific,
+      modalData,
     } = this.state;
 
     return (
@@ -1537,6 +1564,7 @@ class ViewPendingDelivery extends Component {
                             style={{
                               width: wp('30%'),
                               alignItems: 'center',
+                              justifyContent: 'center',
                             }}>
                             <Text
                               style={{
@@ -1628,7 +1656,7 @@ class ViewPendingDelivery extends Component {
                                   fontFamily: 'Inter-Regular',
                                   marginLeft: 5,
                                 }}>
-                                g
+                                {modalData && modalData.unit}
                               </Text>
                             </View>
                           </View>
@@ -1667,7 +1695,10 @@ class ViewPendingDelivery extends Component {
                                   padding: 8,
                                   width: 80,
                                 }}
-                                value={String(modalQuantityDelivered)}
+                                value={
+                                  modalQuantityDelivered &&
+                                  String(modalQuantityDelivered)
+                                }
                                 onChangeText={value =>
                                   this.setState({
                                     modalQuantityDelivered: value,
@@ -1679,12 +1710,17 @@ class ViewPendingDelivery extends Component {
                               style={{
                                 width: wp('30%'),
                                 alignItems: 'center',
+                                flexDirection: 'row',
+                                alignItems: 'center',
                               }}>
                               <TextInput
                                 placeholder="Volume"
-                                value={String(modalUserQuantityDelivered)}
+                                value={
+                                  modalUserQuantityDelivered &&
+                                  String(modalUserQuantityDelivered)
+                                }
                                 style={{
-                                  borderWidth: 1,
+                                  borderWidth: 0.5,
                                   borderRadius: 5,
                                   padding: 8,
                                   width: 80,
@@ -1695,6 +1731,13 @@ class ViewPendingDelivery extends Component {
                                   })
                                 }
                               />
+                              <Text
+                                style={{
+                                  fontFamily: 'Inter-Regular',
+                                  marginLeft: 5,
+                                }}>
+                                {modalData && modalData.unit}
+                              </Text>
                             </View>
                           </View>
                           <View
@@ -1728,12 +1771,15 @@ class ViewPendingDelivery extends Component {
                               <TextInput
                                 placeholder="Invoiced"
                                 style={{
-                                  borderWidth: 1,
+                                  borderWidth: 0.5,
                                   borderRadius: 5,
                                   padding: 8,
                                   width: 80,
                                 }}
-                                value={String(modalQuantityInvoiced)}
+                                value={
+                                  modalQuantityInvoiced &&
+                                  String(modalQuantityInvoiced)
+                                }
                                 onChangeText={value =>
                                   this.setState({
                                     modalQuantityInvoiced: value,
@@ -1745,22 +1791,34 @@ class ViewPendingDelivery extends Component {
                               style={{
                                 width: wp('30%'),
                                 alignItems: 'center',
+                                flexDirection: 'row',
+                                alignItems: 'center',
                               }}>
                               <TextInput
                                 placeholder="Volume"
                                 style={{
-                                  borderWidth: 1,
+                                  borderWidth: 0.5,
                                   borderRadius: 5,
                                   padding: 8,
                                   width: 80,
                                 }}
-                                value={String(modalUserQuantityInvoiced)}
+                                value={
+                                  modalUserQuantityInvoiced &&
+                                  String(modalUserQuantityInvoiced)
+                                }
                                 onChangeText={value =>
                                   this.setState({
                                     modalUserQuantityInvoiced: value,
                                   })
                                 }
                               />
+                              <Text
+                                style={{
+                                  fontFamily: 'Inter-Regular',
+                                  marginLeft: 5,
+                                }}>
+                                {modalData && modalData.unit}
+                              </Text>
                             </View>
                           </View>
                           <View
@@ -1793,12 +1851,12 @@ class ViewPendingDelivery extends Component {
                               <TextInput
                                 placeholder="Price"
                                 style={{
-                                  borderWidth: 1,
+                                  borderWidth: 0.5,
                                   borderRadius: 5,
                                   padding: 8,
                                   width: 100,
                                 }}
-                                value={String(modalPricePaid)}
+                                value={modalPricePaid && String(modalPricePaid)}
                                 onChangeText={value =>
                                   this.setState({
                                     modalPricePaid: value,
@@ -1814,7 +1872,7 @@ class ViewPendingDelivery extends Component {
                           </View>
                           <View
                             style={{
-                              paddingVertical: 10,
+                              paddingVertical: 8,
                               paddingHorizontal: 5,
                               flexDirection: 'row',
                               backgroundColor: '#fff',
@@ -1830,6 +1888,7 @@ class ViewPendingDelivery extends Component {
                                   color: '#161C27',
                                   fontSize: 14,
                                   fontFamily: 'Inter-SemiBold',
+                                  textAlign: 'center',
                                 }}>
                                 Arrived Date
                               </Text>
@@ -1846,7 +1905,7 @@ class ViewPendingDelivery extends Component {
                                 <View style={{}}>
                                   <TouchableOpacity
                                     onPress={() =>
-                                      this.showDatePickerArrivalDate()
+                                      this.showDatePickerArrivalDateSpecific()
                                     }
                                     style={{
                                       width: 120,
@@ -1854,15 +1913,15 @@ class ViewPendingDelivery extends Component {
                                       justifyContent: 'space-between',
                                       backgroundColor: '#E9ECEF',
                                       borderRadius: 5,
+                                      padding: 10,
+                                      marginTop: 5,
                                     }}>
-                                    <TextInput
-                                      placeholder="Arrived Date"
-                                      value={
-                                        finalArrivalDate &&
-                                        moment(finalArrivalDate).format('L')
-                                      }
-                                      editable={false}
-                                    />
+                                    <Text>
+                                      {finalArrivalDateSpecific &&
+                                        moment(finalArrivalDateSpecific).format(
+                                          'L',
+                                        )}
+                                    </Text>
                                     <Image
                                       source={img.calenderIcon}
                                       style={{
@@ -1877,10 +1936,14 @@ class ViewPendingDelivery extends Component {
                                     />
                                   </TouchableOpacity>
                                   <DateTimePickerModal
-                                    isVisible={isDatePickerVisibleArrivalDate}
+                                    isVisible={isDatePickerArrivalDateSpecific}
                                     mode={'date'}
-                                    onConfirm={this.handleConfirmArrivalDate}
-                                    onCancel={this.hideDatePickerArrivalDate}
+                                    onConfirm={
+                                      this.handleConfirmArrivalDateSpecific
+                                    }
+                                    onCancel={
+                                      this.hideDatePickerArrivalDateSpecific
+                                    }
                                   />
                                 </View>
                               </View>
@@ -1921,12 +1984,12 @@ class ViewPendingDelivery extends Component {
                               <TextInput
                                 placeholder="Notes"
                                 style={{
-                                  borderWidth: 1,
+                                  borderWidth: 0.5,
                                   borderRadius: 5,
                                   padding: 8,
                                   width: 100,
                                 }}
-                                value={String(modalNotes)}
+                                value={modalNotes && String(modalNotes)}
                                 onChangeText={value =>
                                   this.setState({
                                     modalNotes: value,

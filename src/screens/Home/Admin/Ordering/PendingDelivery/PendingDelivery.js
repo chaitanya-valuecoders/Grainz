@@ -198,13 +198,16 @@ class PendingDelivery extends Component {
         item,
       });
     } else if (listId === 3) {
-      this.props.navigation.navigate('ViewReviewOrderScreen', {
-        item,
-      });
+      alert('Work in progress');
+      // this.props.navigation.navigate('ViewReviewOrderScreen', {
+      //   item,
+      // });
     } else if (listId === 4) {
-      this.props.navigation.navigate('ViewHistoryOrderScreen', {
-        item,
-      });
+      alert('Work in progress');
+
+      // this.props.navigation.navigate('ViewHistoryOrderScreen', {
+      //   item,
+      // });
     }
   };
 

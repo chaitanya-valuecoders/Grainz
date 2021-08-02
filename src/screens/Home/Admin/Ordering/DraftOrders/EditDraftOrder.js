@@ -596,6 +596,9 @@ class EditDraftOrder extends Component {
 
   getInventoryFun = () => {
     const {productId, basketId} = this.state;
+    console.log('productId', productId);
+    console.log('basketId', basketId);
+
     getBasketApi(basketId)
       .then(res => {
         console.log('res', res);
@@ -618,7 +621,15 @@ class EditDraftOrder extends Component {
         );
       })
       .catch(err => {
-        console.warn('err', err);
+        Alert.alert(`Error - ${err.response.status}`, 'Something went wrong', [
+          {
+            text: 'Okay',
+            onPress: () =>
+              this.setState({
+                modalLoaderDrafts: false,
+              }),
+          },
+        ]);
       });
   };
 
