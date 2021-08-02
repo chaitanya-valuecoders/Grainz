@@ -906,11 +906,11 @@ class SearchSupplier extends Component {
                                       </View>
 
                                       <TouchableOpacity
-                                        onPress={() =>
-                                          this.props.navigation.navigate(
-                                            'OrderingThreeAdminScreen',
-                                          )
-                                        }
+                                        // onPress={() =>
+                                        //   this.props.navigation.navigate(
+                                        //     'OrderingThreeAdminScreen',
+                                        //   )
+                                        // }
                                         style={{
                                           width: wp('30%'),
                                           alignItems: 'center',
