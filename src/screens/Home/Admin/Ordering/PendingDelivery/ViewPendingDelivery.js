@@ -171,6 +171,7 @@ class ViewPendingDelivery extends Component {
         Alert.alert(`Error - ${err.response.status}`, 'Something went wrong', [
           {
             text: 'Okay',
+            onPress: () => this.props.navigation.goBack(),
           },
         ]);
       });
@@ -264,6 +265,7 @@ class ViewPendingDelivery extends Component {
         Alert.alert(`Error - ${err.response.status}`, 'Something went wrong', [
           {
             text: 'Okay',
+            onPress: () => this.props.navigation.goBack(),
           },
         ]);
       });
@@ -350,6 +352,7 @@ class ViewPendingDelivery extends Component {
         Alert.alert(`Error - ${err.response.status}`, 'Something went wrong', [
           {
             text: 'Okay',
+            onPress: () => this.props.navigation.goBack(),
           },
         ]);
       });
@@ -517,6 +520,7 @@ class ViewPendingDelivery extends Component {
             [
               {
                 text: 'Okay',
+                onPress: () => this.props.navigation.goBack(),
               },
             ],
           );
@@ -652,6 +656,7 @@ class ViewPendingDelivery extends Component {
             [
               {
                 text: 'Okay',
+                onPress: () => this.props.navigation.goBack(),
               },
             ],
           );
@@ -763,6 +768,7 @@ class ViewPendingDelivery extends Component {
         Alert.alert(`Error - ${err.response.status}`, 'Something went wrong', [
           {
             text: 'Okay',
+            onPress: () => this.props.navigation.goBack(),
           },
         ]);
       });
@@ -1164,7 +1170,7 @@ class ViewPendingDelivery extends Component {
                     <View
                       style={{
                         paddingVertical: 15,
-                        paddingHorizontal: 5,
+                        paddingHorizontal: 20,
                         flexDirection: 'row',
                         justifyContent: 'space-between',
                         backgroundColor: '#EFFBCF',
@@ -1173,64 +1179,8 @@ class ViewPendingDelivery extends Component {
                       }}>
                       <View
                         style={{
-                          width: wp('50%'),
-                          alignItems: 'center',
-                        }}>
-                        <Text
-                          style={{
-                            color: '#161C27',
-                            fontSize: 14,
-                            fontFamily: 'Inter-SemiBold',
-                          }}>
-                          Inventory item
-                        </Text>
-                      </View>
-                      <View
-                        style={{
                           width: wp('30%'),
-                          alignItems: 'center',
-                        }}>
-                        <Text
-                          style={{
-                            color: '#161C27',
-                            fontSize: 14,
-                            fontFamily: 'Inter-SemiBold',
-                          }}>
-                          Arrived date
-                        </Text>
-                      </View>
-                      <View
-                        style={{
-                          width: wp('30%'),
-                          alignItems: 'center',
-                        }}>
-                        <Text
-                          style={{
-                            color: '#161C27',
-                            fontSize: 14,
-                            fontFamily: 'Inter-SemiBold',
-                          }}>
-                          Quantity
-                        </Text>
-                      </View>
-                      <View
-                        style={{
-                          width: wp('30%'),
-                          alignItems: 'center',
-                        }}>
-                        <Text
-                          style={{
-                            color: '#161C27',
-                            fontSize: 14,
-                            fontFamily: 'Inter-SemiBold',
-                          }}>
-                          € HTVA
-                        </Text>
-                      </View>
-                      <View
-                        style={{
-                          width: wp('30%'),
-                          alignItems: 'center',
+                          justifyContent: 'center',
                         }}>
                         <Text
                           style={{
@@ -1241,7 +1191,6 @@ class ViewPendingDelivery extends Component {
                           Correct ?
                         </Text>
                       </View>
-
                       <View
                         style={{
                           width: wp('30%'),
@@ -1267,6 +1216,66 @@ class ViewPendingDelivery extends Component {
                           />
                         )}
                       </View>
+                      <View
+                        style={{
+                          width: wp('50%'),
+                          justifyContent: 'center',
+                          marginLeft: wp('5%'),
+                        }}>
+                        <Text
+                          style={{
+                            color: '#161C27',
+                            fontSize: 14,
+                            fontFamily: 'Inter-SemiBold',
+                          }}>
+                          Inventory item
+                        </Text>
+                      </View>
+                      <View
+                        style={{
+                          width: wp('30%'),
+                          marginLeft: wp('5%'),
+                          justifyContent: 'center',
+                        }}>
+                        <Text
+                          style={{
+                            color: '#161C27',
+                            fontSize: 14,
+                            fontFamily: 'Inter-SemiBold',
+                          }}>
+                          Arrived date
+                        </Text>
+                      </View>
+                      <View
+                        style={{
+                          width: wp('30%'),
+                          marginLeft: wp('5%'),
+                          justifyContent: 'center',
+                        }}>
+                        <Text
+                          style={{
+                            color: '#161C27',
+                            fontSize: 14,
+                            fontFamily: 'Inter-SemiBold',
+                          }}>
+                          Quantity
+                        </Text>
+                      </View>
+                      <View
+                        style={{
+                          width: wp('30%'),
+                          marginLeft: wp('5%'),
+                          justifyContent: 'center',
+                        }}>
+                        <Text
+                          style={{
+                            color: '#161C27',
+                            fontSize: 14,
+                            fontFamily: 'Inter-SemiBold',
+                          }}>
+                          € HTVA
+                        </Text>
+                      </View>
                     </View>
                     <View>
                       {pageData && pageOrderItems.length > 0 ? (
@@ -1276,91 +1285,15 @@ class ViewPendingDelivery extends Component {
                               key={index}
                               style={{
                                 paddingVertical: 10,
-                                paddingHorizontal: 5,
+                                paddingHorizontal: 20,
                                 flexDirection: 'row',
                                 backgroundColor: '#fff',
                               }}>
-                              <TouchableOpacity
-                                onPress={() => this.showEditModal(item, index)}
-                                style={{
-                                  width: wp('50%'),
-                                  alignItems: 'center',
-                                }}>
-                                <Text
-                                  style={{
-                                    color: '#161C27',
-                                    fontSize: 14,
-                                    fontFamily: 'Inter-SemiBold',
-                                    marginBottom: 8,
-                                  }}>
-                                  {item.inventoryMapping &&
-                                    item.inventoryMapping.inventoryName}
-                                </Text>
-                                <Text
-                                  style={{
-                                    color: '#161C27',
-                                    fontSize: 14,
-                                    fontFamily: 'Inter-Regular',
-                                  }}>
-                                  {item.productName}
-                                </Text>
-                              </TouchableOpacity>
                               <View
                                 style={{
                                   width: wp('30%'),
-                                  alignItems: 'center',
-                                }}>
-                                <Text
-                                  style={{
-                                    color: '#161C27',
-                                    fontSize: 14,
-                                    fontFamily: 'Inter-Regular',
-                                  }}>
-                                  {item.arrivedDate &&
-                                    moment(item.arrivedDate).format('L')}
-                                </Text>
-                              </View>
-                              <View
-                                style={{
-                                  width: wp('30%'),
-                                  alignItems: 'center',
-                                }}>
-                                <Text
-                                  style={{
-                                    color: '#161C27',
-                                    fontSize: 14,
-                                    fontFamily: 'Inter-SemiBold',
-                                    marginBottom: 8,
-                                  }}>
-                                  {item.grainzVolume} {item.grainzUnit}
-                                </Text>
-                                <Text
-                                  style={{
-                                    color: '#161C27',
-                                    fontSize: 14,
-                                    fontFamily: 'Inter-Regular',
-                                  }}>
-                                  {`${item.quantityOrdered} X ${item.packSize}/${item.unit}`}
-                                </Text>
-                              </View>
-                              <View
-                                style={{
-                                  width: wp('30%'),
-                                  alignItems: 'center',
-                                }}>
-                                <Text
-                                  style={{
-                                    color: '#161C27',
-                                    fontSize: 14,
-                                    fontFamily: 'Inter-Regular',
-                                  }}>
-                                  € {Number(item.orderValue).toFixed(2)}
-                                </Text>
-                              </View>
-                              <View
-                                style={{
-                                  width: wp('30%'),
-                                  alignItems: 'center',
+                                  justifyContent: 'flex-start',
+                                  alignItems: 'flex-start',
                                 }}>
                                 <TriStateToggleSwitch
                                   initialValue={
@@ -1408,6 +1341,83 @@ class ViewPendingDelivery extends Component {
                                   />
                                 </View>
                               </TouchableOpacity>
+                              <TouchableOpacity
+                                onPress={() => this.showEditModal(item, index)}
+                                style={{
+                                  width: wp('50%'),
+                                  marginLeft: wp('5%'),
+                                }}>
+                                <Text
+                                  style={{
+                                    color: '#161C27',
+                                    fontSize: 14,
+                                    fontFamily: 'Inter-SemiBold',
+                                    marginBottom: 8,
+                                  }}>
+                                  {item.inventoryMapping &&
+                                    item.inventoryMapping.inventoryName}
+                                </Text>
+                                <Text
+                                  style={{
+                                    color: '#161C27',
+                                    fontSize: 14,
+                                    fontFamily: 'Inter-Regular',
+                                  }}>
+                                  {item.productName}
+                                </Text>
+                              </TouchableOpacity>
+                              <View
+                                style={{
+                                  width: wp('30%'),
+                                  marginLeft: wp('5%'),
+                                }}>
+                                <Text
+                                  style={{
+                                    color: '#161C27',
+                                    fontSize: 14,
+                                    fontFamily: 'Inter-Regular',
+                                  }}>
+                                  {item.arrivedDate &&
+                                    moment(item.arrivedDate).format('L')}
+                                </Text>
+                              </View>
+                              <View
+                                style={{
+                                  width: wp('30%'),
+                                  marginLeft: wp('5%'),
+                                }}>
+                                <Text
+                                  style={{
+                                    color: '#161C27',
+                                    fontSize: 14,
+                                    fontFamily: 'Inter-SemiBold',
+                                    marginBottom: 8,
+                                  }}>
+                                  {item.grainzVolume} {item.grainzUnit}
+                                </Text>
+                                <Text
+                                  style={{
+                                    color: '#161C27',
+                                    fontSize: 14,
+                                    fontFamily: 'Inter-Regular',
+                                  }}>
+                                  {`${item.quantityOrdered} X ${item.packSize}/${item.unit}`}
+                                </Text>
+                              </View>
+                              <View
+                                style={{
+                                  width: wp('30%'),
+                                  marginLeft: wp('5%'),
+                                }}>
+                                <Text
+                                  style={{
+                                    color: '#161C27',
+                                    fontSize: 14,
+                                    fontFamily: 'Inter-Regular',
+                                  }}>
+                                  € {Number(item.orderValue).toFixed(2)}
+                                </Text>
+                              </View>
                             </View>
                           );
                         })
@@ -1428,18 +1438,18 @@ class ViewPendingDelivery extends Component {
                       paddingVertical: hp('3%'),
                       borderTopLeftRadius: 5,
                       borderTopRightRadius: 5,
+                      paddingHorizontal: 20,
                     }}>
                     <View
                       style={{
                         flex: 1,
                         justifyContent: 'center',
-                        alignItems: 'center',
                       }}></View>
                     <View
                       style={{
                         flex: 1,
                         justifyContent: 'center',
-                        alignItems: 'center',
+                        marginLeft: wp('5%'),
                       }}>
                       <Text style={{}}>Total HTVA</Text>
                     </View>
@@ -1447,7 +1457,7 @@ class ViewPendingDelivery extends Component {
                       style={{
                         flex: 1,
                         justifyContent: 'center',
-                        alignItems: 'center',
+                        marginLeft: wp('5%'),
                       }}>
                       <Text> $ --</Text>
                       {/* <Text> $ {Number(totalHTVAVal).toFixed(2)}</Text> */}

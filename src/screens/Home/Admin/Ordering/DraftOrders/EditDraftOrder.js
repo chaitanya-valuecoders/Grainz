@@ -328,12 +328,17 @@ class EditDraftOrder extends Component {
         supplierValue,
       });
     } else if (item.id === 1) {
-      this.setState(
-        {
-          loaderCompStatus: true,
-        },
-        this.updateDraftFun(),
-      );
+      const {editStatus} = this.state;
+      if (editStatus) {
+        this.updateBasketFun();
+      } else {
+        this.setState(
+          {
+            loaderCompStatus: true,
+          },
+          this.updateDraftFun(),
+        );
+      }
     } else {
       this.setState(
         {
@@ -1053,15 +1058,12 @@ class EditDraftOrder extends Component {
           {recipeLoader ? (
             <ActivityIndicator size="small" color="#94C036" />
           ) : (
-            <View style={{marginTop: hp('3%')}}>
+            <View style={{marginTop: hp('4%')}}>
               <ScrollView showsVerticalScrollIndicator={false}>
                 {modalLoaderDrafts ? (
                   <ActivityIndicator size="large" color="grey" />
                 ) : (
-                  <View
-                    style={{
-                      padding: hp('2%'),
-                    }}>
+                  <View style={{marginHorizontal: wp('4%')}}>
                     <ScrollView
                       horizontal
                       showsHorizontalScrollIndicator={false}>
@@ -1075,12 +1077,11 @@ class EditDraftOrder extends Component {
                             paddingVertical: hp('3%'),
                             borderTopLeftRadius: 5,
                             borderTopRightRadius: 5,
+                            paddingHorizontal: 20,
                           }}>
                           <View
                             style={{
                               width: wp('40%'),
-                              justifyContent: 'center',
-                              alignItems: 'center',
                             }}>
                             <Text
                               style={{
@@ -1094,7 +1095,7 @@ class EditDraftOrder extends Component {
                             style={{
                               width: wp('30%'),
                               justifyContent: 'center',
-                              alignItems: 'center',
+                              marginLeft: wp('5%'),
                             }}>
                             <Text
                               style={{
@@ -1108,7 +1109,7 @@ class EditDraftOrder extends Component {
                             style={{
                               width: wp('30%'),
                               justifyContent: 'center',
-                              alignItems: 'center',
+                              marginLeft: wp('5%'),
                             }}>
                             <Text
                               style={{
@@ -1122,16 +1123,8 @@ class EditDraftOrder extends Component {
                             style={{
                               width: wp('30%'),
                               justifyContent: 'center',
-                              alignItems: 'center',
-                            }}>
-                            <Text
-                              style={{
-                                color: '#161C27',
-                                fontFamily: 'Inter-SemiBold',
-                              }}>
-                              Action
-                            </Text>
-                          </View>
+                              marginLeft: wp('5%'),
+                            }}></View>
                         </View>
                         {inventoryData &&
                           inventoryData.map((item, index) => {
@@ -1147,12 +1140,12 @@ class EditDraftOrder extends Component {
                                     paddingVertical: hp('3%'),
                                     borderTopLeftRadius: 5,
                                     borderTopRightRadius: 5,
+                                    paddingHorizontal: 20,
                                   }}>
                                   <View
                                     style={{
                                       width: wp('40%'),
                                       justifyContent: 'center',
-                                      alignItems: 'center',
                                     }}>
                                     <Text
                                       style={{
@@ -1171,7 +1164,7 @@ class EditDraftOrder extends Component {
                                     <View
                                       style={{
                                         width: wp('30%'),
-                                        alignItems: 'center',
+                                        marginLeft: wp('5%'),
                                         justifyContent: 'center',
                                       }}>
                                       <TextInput
@@ -1197,7 +1190,7 @@ class EditDraftOrder extends Component {
                                       style={{
                                         width: wp('30%'),
                                         justifyContent: 'center',
-                                        alignItems: 'center',
+                                        marginLeft: wp('5%'),
                                       }}>
                                       <Text style={{marginBottom: 5}}>
                                         {item.calculatedQuantity.toFixed(2)}{' '}
@@ -1216,7 +1209,7 @@ class EditDraftOrder extends Component {
                                     style={{
                                       width: wp('30%'),
                                       justifyContent: 'center',
-                                      alignItems: 'center',
+                                      marginLeft: wp('5%'),
                                     }}>
                                     <Text>
                                       $ {Number(item.value).toFixed(2)}
@@ -1227,7 +1220,7 @@ class EditDraftOrder extends Component {
                                     style={{
                                       width: wp('30%'),
                                       justifyContent: 'center',
-                                      alignItems: 'center',
+                                      marginLeft: wp('5%'),
                                     }}>
                                     <Image
                                       source={img.threeDotsIcon}
@@ -1253,18 +1246,18 @@ class EditDraftOrder extends Component {
                               paddingVertical: hp('3%'),
                               borderTopLeftRadius: 5,
                               borderTopRightRadius: 5,
+                              paddingHorizontal: 20,
                             }}>
                             <View
                               style={{
-                                width: wp('30%'),
+                                width: wp('40%'),
                                 justifyContent: 'center',
-                                alignItems: 'center',
                               }}></View>
                             <View
                               style={{
                                 width: wp('30%'),
                                 justifyContent: 'center',
-                                alignItems: 'center',
+                                marginLeft: wp('5%'),
                               }}>
                               <Text style={{}}>Total HTVA</Text>
                             </View>
@@ -1272,10 +1265,9 @@ class EditDraftOrder extends Component {
                               style={{
                                 width: wp('30%'),
                                 justifyContent: 'center',
-                                alignItems: 'center',
+                                marginLeft: wp('5%'),
                               }}>
                               <Text>
-                                {' '}
                                 ${' '}
                                 {Number(draftsOrderData.totalValue).toFixed(2)}
                               </Text>
@@ -1284,7 +1276,7 @@ class EditDraftOrder extends Component {
                               style={{
                                 width: wp('30%'),
                                 justifyContent: 'center',
-                                alignItems: 'center',
+                                marginLeft: wp('5%'),
                               }}></View>
                           </View>
                         </View>
@@ -1295,35 +1287,6 @@ class EditDraftOrder extends Component {
               </ScrollView>
             </View>
           )}
-          {editStatus ? (
-            <View style={{justifyContent: 'center', alignItems: 'center'}}>
-              <TouchableOpacity
-                onPress={() => this.updateBasketFun()}
-                style={{
-                  height: hp('6%'),
-                  width: wp('80%'),
-                  backgroundColor: '#94C036',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  borderRadius: 100,
-                  marginTop: hp('2%'),
-                }}>
-                <View
-                  style={{
-                    alignItems: 'center',
-                  }}>
-                  <Text
-                    style={{
-                      color: 'white',
-                      marginLeft: 10,
-                      fontFamily: 'Inter-SemiBold',
-                    }}>
-                    {translate('Update')}
-                  </Text>
-                </View>
-              </TouchableOpacity>
-            </View>
-          ) : null}
           <View style={{marginVertical: hp('3%')}}>
             <FlatList
               data={buttons}

@@ -1054,7 +1054,7 @@ class Basket extends Component {
                           <View
                             style={{
                               paddingVertical: 15,
-                              paddingHorizontal: 5,
+                              paddingHorizontal: 20,
                               flexDirection: 'row',
                               justifyContent: 'space-between',
                               backgroundColor: '#EFFBCF',
@@ -1062,11 +1062,9 @@ class Basket extends Component {
                             <View
                               style={{
                                 width: wp('40%'),
-                                alignItems: 'center',
                               }}>
                               <Text
                                 style={{
-                                  textAlign: 'center',
                                   fontFamily: 'Inter-SemiBold',
                                 }}>
                                 Inventory item
@@ -1075,7 +1073,7 @@ class Basket extends Component {
                             <View
                               style={{
                                 width: wp('30%'),
-                                alignItems: 'center',
+                                marginLeft: wp('5%'),
                               }}>
                               <Text
                                 style={{
@@ -1087,7 +1085,7 @@ class Basket extends Component {
                             <View
                               style={{
                                 width: wp('30%'),
-                                alignItems: 'center',
+                                marginLeft: wp('5%'),
                               }}>
                               <Text
                                 style={{
@@ -1111,7 +1109,7 @@ class Basket extends Component {
                                     <View
                                       style={{
                                         paddingVertical: 10,
-                                        paddingHorizontal: 10,
+                                        paddingHorizontal: 20,
                                         flexDirection: 'row',
                                         backgroundColor:
                                           index % 2 === 0
@@ -1121,7 +1119,6 @@ class Basket extends Component {
                                       <View
                                         style={{
                                           width: wp('40%'),
-                                          alignItems: 'center',
                                           justifyContent: 'center',
                                         }}>
                                         <Text
@@ -1144,8 +1141,8 @@ class Basket extends Component {
                                         <View
                                           style={{
                                             width: wp('30%'),
-                                            alignItems: 'center',
                                             justifyContent: 'center',
+                                            marginLeft: wp('5%'),
                                           }}>
                                           <TextInput
                                             value={String(item.quantity)}
@@ -1170,7 +1167,7 @@ class Basket extends Component {
                                           style={{
                                             width: wp('30%'),
                                             justifyContent: 'center',
-                                            alignItems: 'center',
+                                            marginLeft: wp('5%'),
                                           }}>
                                           <Text
                                             style={{
@@ -1195,8 +1192,8 @@ class Basket extends Component {
                                       <View
                                         style={{
                                           width: wp('30%'),
-                                          alignItems: 'center',
                                           justifyContent: 'center',
+                                          marginLeft: wp('5%'),
                                         }}>
                                         <Text>
                                           $ {Number(item.value).toFixed(2)}
@@ -1207,7 +1204,6 @@ class Basket extends Component {
                                         onPress={() => this.actionFun(item)}
                                         style={{
                                           width: wp('30%'),
-                                          alignItems: 'center',
                                           justifyContent: 'center',
                                         }}>
                                         <Image
@@ -1233,7 +1229,7 @@ class Basket extends Component {
                             <View
                               style={{
                                 paddingVertical: 15,
-                                paddingHorizontal: 5,
+                                paddingHorizontal: 20,
                                 flexDirection: 'row',
                                 justifyContent: 'space-between',
                                 backgroundColor: '#FFFFFF',
@@ -1241,19 +1237,21 @@ class Basket extends Component {
                               <View
                                 style={{
                                   width: wp('40%'),
-                                  alignItems: 'center',
+                                  justifyContent: 'center',
                                 }}></View>
                               <View
                                 style={{
                                   width: wp('30%'),
-                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  marginLeft: wp('5%'),
                                 }}>
                                 <Text>Total HTVA</Text>
                               </View>
                               <View
                                 style={{
                                   width: wp('30%'),
-                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  marginLeft: wp('5%'),
                                 }}>
                                 <Text>
                                   {' '}
@@ -1264,7 +1262,6 @@ class Basket extends Component {
                               <View
                                 style={{
                                   width: wp('30%'),
-                                  alignItems: 'center',
                                 }}></View>
                             </View>
                           </View>

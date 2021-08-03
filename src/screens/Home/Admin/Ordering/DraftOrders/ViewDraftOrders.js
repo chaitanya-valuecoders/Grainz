@@ -389,17 +389,16 @@ class ViewDraftOrders extends Component {
                                 paddingVertical: hp('3%'),
                                 borderTopLeftRadius: 5,
                                 borderTopRightRadius: 5,
+                                paddingHorizontal: 20,
                               }}>
                               <View
                                 style={{
                                   width: wp('40%'),
-                                  alignItems: 'center',
                                 }}>
                                 <Text
                                   style={{
                                     color: '#161C27',
                                     fontFamily: 'Inter-SemiBold',
-                                    textAlign: 'center',
                                   }}>
                                   Inventory item
                                 </Text>
@@ -407,7 +406,7 @@ class ViewDraftOrders extends Component {
                               <View
                                 style={{
                                   width: wp('30%'),
-                                  alignItems: 'center',
+                                  marginLeft: wp('5%'),
                                 }}>
                                 <Text
                                   style={{
@@ -420,7 +419,7 @@ class ViewDraftOrders extends Component {
                               <View
                                 style={{
                                   width: wp('30%'),
-                                  alignItems: 'center',
+                                  marginLeft: wp('5%'),
                                 }}>
                                 <Text
                                   style={{
@@ -449,12 +448,12 @@ class ViewDraftOrders extends Component {
                                         paddingVertical: hp('3%'),
                                         borderTopLeftRadius: 5,
                                         borderTopRightRadius: 5,
-                                        paddingHorizontal: 10,
+                                        paddingHorizontal: 20,
                                       }}>
                                       <View
                                         style={{
                                           width: wp('40%'),
-                                          alignItems: 'center',
+
                                           justifyContent: 'center',
                                         }}>
                                         <Text
@@ -474,7 +473,7 @@ class ViewDraftOrders extends Component {
                                       <View
                                         style={{
                                           width: wp('30%'),
-                                          alignItems: 'center',
+                                          marginLeft: wp('5%'),
                                           justifyContent: 'center',
                                         }}>
                                         <Text style={{marginBottom: 5}}>
@@ -492,7 +491,7 @@ class ViewDraftOrders extends Component {
                                       <View
                                         style={{
                                           width: wp('30%'),
-                                          alignItems: 'center',
+                                          marginLeft: wp('5%'),
                                           justifyContent: 'center',
                                         }}>
                                         <Text>
@@ -529,7 +528,6 @@ class ViewDraftOrders extends Component {
                           style={{
                             flex: 1,
                             justifyContent: 'center',
-                            alignItems: 'center',
                           }}>
                           <Text style={{}}>Total HTVA</Text>
                         </View>
@@ -537,7 +535,7 @@ class ViewDraftOrders extends Component {
                           style={{
                             flex: 1,
                             justifyContent: 'center',
-                            alignItems: 'center',
+                            marginLeft: wp('5%'),
                           }}>
                           <Text> $ {Number(totalHTVAVal).toFixed(2)}</Text>
                         </View>
