@@ -74,7 +74,9 @@ class ViewPendingDelivery extends Component {
       modalPricePaid: '',
       modalNotes: '',
       modalData: '',
+      isCheckedStatus: false,
       initialValueAllCorrect: 'null',
+      isCheckedEditableStatus: true,
       isDatePickerArrivalDateSpecific: false,
       choicesProp: [
         {
@@ -199,8 +201,21 @@ class ViewPendingDelivery extends Component {
     });
 
     const result = finalArray;
+    this.setState(
+      {
+        finalApiData: [...result],
+      },
+      () => this.isCheckedEditableStatusFun(),
+    );
+  };
+
+  isCheckedEditableStatusFun = () => {
+    const {pageData} = this.state;
+    const finalStatus = pageData.orderItems.some((item, index) => {
+      return item.isCorrect === null;
+    });
     this.setState({
-      finalApiData: [...result],
+      isCheckedEditableStatus: finalStatus,
     });
   };
 
@@ -230,6 +245,7 @@ class ViewPendingDelivery extends Component {
       pageData,
       finalApiData,
       productId,
+      isCheckedStatus,
     } = this.state;
     let payload = {
       ambientTemp: pageAmbientTemp,
@@ -246,6 +262,7 @@ class ViewPendingDelivery extends Component {
       orderItems: finalApiData,
       orderReference: pageData.orderReference,
       placedBy: pageData.placedByNAme,
+      isChecked: isCheckedStatus,
     };
 
     console.log('payloadOrderProcess', payload);
@@ -807,6 +824,8 @@ class ViewPendingDelivery extends Component {
       isDatePickerArrivalDateSpecific,
       finalArrivalDateSpecific,
       modalData,
+      isCheckedStatus,
+      isCheckedEditableStatus,
     } = this.state;
 
     return (
@@ -1444,7 +1463,34 @@ class ViewPendingDelivery extends Component {
                       style={{
                         flex: 1,
                         justifyContent: 'center',
-                      }}></View>
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                      }}>
+                      <View
+                        style={{
+                          borderRadius: 100,
+                          backgroundColor: isCheckedEditableStatus
+                            ? '#D6D6D6'
+                            : '#fff',
+                        }}>
+                        <CheckBox
+                          disabled={isCheckedEditableStatus}
+                          value={isCheckedStatus}
+                          onValueChange={() =>
+                            this.setState({isCheckedStatus: !isCheckedStatus})
+                          }
+                          style={{
+                            height: 20,
+                            width: 20,
+                          }}
+                        />
+                      </View>
+                      <Text
+                        style={{fontFamily: 'Inter-Regular', marginLeft: 10}}>
+                        {' '}
+                        Checked ?
+                      </Text>
+                    </View>
                     <View
                       style={{
                         flex: 1,

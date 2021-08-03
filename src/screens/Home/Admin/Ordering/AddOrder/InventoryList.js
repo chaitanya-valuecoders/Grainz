@@ -692,7 +692,7 @@ class InventoryList extends Component {
                             <View
                               style={{
                                 paddingVertical: 15,
-                                paddingHorizontal: 5,
+                                paddingHorizontal: 20,
                                 flexDirection: 'row',
                                 justifyContent: 'space-between',
                                 backgroundColor: '#EFFBCF',
@@ -700,7 +700,6 @@ class InventoryList extends Component {
                               <View
                                 style={{
                                   width: wp('30%'),
-                                  alignItems: 'center',
                                 }}>
                                 <Text>Quantity</Text>
                               </View>
@@ -708,7 +707,7 @@ class InventoryList extends Component {
                               <View
                                 style={{
                                   width: wp('40%'),
-                                  alignItems: 'center',
+                                  marginLeft: wp('5%'),
                                 }}>
                                 <Text>Name</Text>
                               </View>
@@ -716,35 +715,35 @@ class InventoryList extends Component {
                               <View
                                 style={{
                                   width: wp('30%'),
-                                  alignItems: 'center',
+                                  marginLeft: wp('5%'),
                                 }}>
                                 <Text>Product Name</Text>
                               </View>
                               <View
                                 style={{
                                   width: wp('30%'),
-                                  alignItems: 'center',
+                                  marginLeft: wp('5%'),
                                 }}>
                                 <Text>Stock</Text>
                               </View>
                               <View
                                 style={{
                                   width: wp('30%'),
-                                  alignItems: 'center',
+                                  marginLeft: wp('5%'),
                                 }}>
                                 <Text>Price</Text>
                               </View>
                               <View
                                 style={{
                                   width: wp('30%'),
-                                  alignItems: 'center',
+                                  marginLeft: wp('5%'),
                                 }}>
                                 <Text>In stock ?</Text>
                               </View>
                               <View
                                 style={{
                                   width: wp('30%'),
-                                  alignItems: 'center',
+                                  marginLeft: wp('5%'),
                                 }}></View>
                             </View>
                             <View>
@@ -755,7 +754,7 @@ class InventoryList extends Component {
                                       key={index}
                                       style={{
                                         paddingVertical: 10,
-                                        paddingHorizontal: 5,
+                                        paddingHorizontal: 20,
                                         flexDirection: 'row',
                                         backgroundColor:
                                           index % 2 === 0
@@ -765,7 +764,7 @@ class InventoryList extends Component {
                                       <View
                                         style={{
                                           width: wp('30%'),
-                                          alignItems: 'center',
+
                                           justifyContent: 'center',
                                         }}>
                                         <TextInput
@@ -793,7 +792,7 @@ class InventoryList extends Component {
                                         onPress={() => this.openModalFun(item)}
                                         style={{
                                           width: wp('40%'),
-                                          alignItems: 'center',
+                                          marginLeft: wp('5%'),
                                           justifyContent: 'center',
                                         }}>
                                         <Text>{item.name}</Text>
@@ -812,7 +811,7 @@ class InventoryList extends Component {
                                       <View
                                         style={{
                                           width: wp('30%'),
-                                          alignItems: 'center',
+                                          marginLeft: wp('5%'),
                                           justifyContent: 'center',
                                         }}>
                                         <Text>{item.productName}</Text>
@@ -820,7 +819,7 @@ class InventoryList extends Component {
                                       <View
                                         style={{
                                           width: wp('30%'),
-                                          alignItems: 'center',
+                                          marginLeft: wp('5%'),
                                           justifyContent: 'center',
                                         }}>
                                         <Text>
@@ -830,7 +829,7 @@ class InventoryList extends Component {
                                       <View
                                         style={{
                                           width: wp('30%'),
-                                          alignItems: 'center',
+                                          marginLeft: wp('5%'),
                                           justifyContent: 'center',
                                         }}>
                                         <Text>
@@ -843,7 +842,7 @@ class InventoryList extends Component {
                                         style={{
                                           width: wp('30%'),
                                           justifyContent: 'center',
-                                          alignItems: 'center',
+                                          marginLeft: wp('5%'),
                                         }}>
                                         <CheckBox
                                           disabled={true}
@@ -861,7 +860,7 @@ class InventoryList extends Component {
                                         onPress={() => this.actionFun(item)}
                                         style={{
                                           width: wp('30%'),
-                                          alignItems: 'center',
+                                          marginLeft: wp('5%'),
                                           justifyContent: 'center',
                                         }}>
                                         <Image

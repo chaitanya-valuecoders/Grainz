@@ -170,6 +170,7 @@ class SearchInventory extends Component {
       actionModalStatus: true,
       inventoryId: data.id,
       productId: data.productId,
+      pageData: data,
     });
   };
 
@@ -676,7 +677,7 @@ class SearchInventory extends Component {
                             <View
                               style={{
                                 paddingVertical: 15,
-                                paddingHorizontal: 5,
+                                paddingHorizontal: 20,
                                 flexDirection: 'row',
                                 justifyContent: 'space-between',
                                 backgroundColor: '#EFFBCF',
@@ -684,7 +685,6 @@ class SearchInventory extends Component {
                               <View
                                 style={{
                                   width: wp('30%'),
-                                  alignItems: 'center',
                                 }}>
                                 <Text>Quantity</Text>
                               </View>
@@ -692,7 +692,7 @@ class SearchInventory extends Component {
                               <View
                                 style={{
                                   width: wp('40%'),
-                                  alignItems: 'center',
+                                  marginLeft: wp('5%'),
                                 }}>
                                 <Text>Name</Text>
                               </View>
@@ -700,35 +700,33 @@ class SearchInventory extends Component {
                               <View
                                 style={{
                                   width: wp('30%'),
-                                  alignItems: 'center',
+                                  marginLeft: wp('5%'),
                                 }}>
                                 <Text>Product Name</Text>
                               </View>
                               <View
                                 style={{
                                   width: wp('30%'),
-                                  alignItems: 'center',
+                                  marginLeft: wp('5%'),
                                 }}>
                                 <Text>Stock</Text>
                               </View>
                               <View
                                 style={{
                                   width: wp('30%'),
-                                  alignItems: 'center',
                                 }}>
                                 <Text>Price</Text>
                               </View>
                               <View
                                 style={{
                                   width: wp('30%'),
-                                  alignItems: 'center',
                                 }}>
                                 <Text>In stock ?</Text>
                               </View>
                               <View
                                 style={{
                                   width: wp('30%'),
-                                  alignItems: 'center',
+                                  marginLeft: wp('5%'),
                                 }}></View>
                             </View>
                             <View>
@@ -739,7 +737,7 @@ class SearchInventory extends Component {
                                       key={index}
                                       style={{
                                         paddingVertical: 10,
-                                        paddingHorizontal: 5,
+                                        paddingHorizontal: 20,
                                         flexDirection: 'row',
                                         backgroundColor:
                                           index % 2 === 0
@@ -749,7 +747,7 @@ class SearchInventory extends Component {
                                       <View
                                         style={{
                                           width: wp('30%'),
-                                          alignItems: 'center',
+
                                           justifyContent: 'center',
                                         }}>
                                         <TextInput
@@ -777,7 +775,7 @@ class SearchInventory extends Component {
                                         onPress={() => this.openModalFun(item)}
                                         style={{
                                           width: wp('40%'),
-                                          alignItems: 'center',
+                                          marginLeft: wp('5%'),
                                           justifyContent: 'center',
                                         }}>
                                         <Text>{item.name}</Text>
@@ -798,7 +796,7 @@ class SearchInventory extends Component {
                                       <View
                                         style={{
                                           width: wp('30%'),
-                                          alignItems: 'center',
+                                          marginLeft: wp('5%'),
                                           justifyContent: 'center',
                                         }}>
                                         <Text>{item.productName}</Text>
@@ -806,7 +804,7 @@ class SearchInventory extends Component {
                                       <View
                                         style={{
                                           width: wp('30%'),
-                                          alignItems: 'center',
+                                          marginLeft: wp('5%'),
                                           justifyContent: 'center',
                                         }}>
                                         <Text>
@@ -816,7 +814,6 @@ class SearchInventory extends Component {
                                       <View
                                         style={{
                                           width: wp('30%'),
-                                          alignItems: 'center',
                                           justifyContent: 'center',
                                         }}>
                                         <Text>
@@ -829,7 +826,6 @@ class SearchInventory extends Component {
                                         style={{
                                           width: wp('30%'),
                                           justifyContent: 'center',
-                                          alignItems: 'center',
                                         }}>
                                         <CheckBox
                                           disabled={true}
@@ -847,7 +843,7 @@ class SearchInventory extends Component {
                                         onPress={() => this.actionFun(item)}
                                         style={{
                                           width: wp('30%'),
-                                          alignItems: 'center',
+                                          marginLeft: wp('5%'),
                                           justifyContent: 'center',
                                         }}>
                                         <Image

@@ -74,7 +74,9 @@ class ViewReviewOrder extends Component {
       modalPricePaid: '',
       modalNotes: '',
       modalData: '',
+      isAuditStatus: false,
       initialValueAllCorrect: 'null',
+      isCheckedEditableStatus: true,
       isDatePickerArrivalDateSpecific: false,
       choicesProp: [
         {
@@ -204,6 +206,16 @@ class ViewReviewOrder extends Component {
     });
   };
 
+  // isCheckedEditableStatusFun = () => {
+  //   const {pageData} = this.state;
+  //   const finalStatus = pageData.orderItems.some((item, index) => {
+  //     return item.isCorrect === null;
+  //   });
+  //   this.setState({
+  //     isCheckedEditableStatus: finalStatus,
+  //   });
+  // };
+
   myProfile = () => {
     this.props.navigation.navigate('MyProfile');
   };
@@ -230,6 +242,7 @@ class ViewReviewOrder extends Component {
       pageData,
       finalApiData,
       productId,
+      isAuditStatus,
     } = this.state;
     let payload = {
       ambientTemp: pageAmbientTemp,
@@ -240,12 +253,13 @@ class ViewReviewOrder extends Component {
       frozenTemp: pageFrozenTemp,
       id: productId,
       invoiceNumber: pageInvoiceNumber,
-      isAuditComplete: pageData.isAuditComplete,
+      isAuditComplete: isAuditStatus,
       notes: pageNotes,
       orderDate: pageData.orderDate,
       orderItems: finalApiData,
       orderReference: pageData.orderReference,
       placedBy: pageData.placedByNAme,
+      isChecked: true,
     };
 
     console.log('payloadOrderProcess', payload);
@@ -807,6 +821,8 @@ class ViewReviewOrder extends Component {
       isDatePickerArrivalDateSpecific,
       finalArrivalDateSpecific,
       modalData,
+      isAuditStatus,
+      isCheckedEditableStatus,
     } = this.state;
 
     return (
@@ -1444,7 +1460,38 @@ class ViewReviewOrder extends Component {
                       style={{
                         flex: 1,
                         justifyContent: 'center',
-                      }}></View>
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                      }}>
+                      <View
+                        style={{
+                          borderRadius: 100,
+                          // backgroundColor: isCheckedEditableStatus
+                          //   ? '#D6D6D6'
+                          //   : '#fff',
+                        }}>
+                        <CheckBox
+                          // disabled={isCheckedEditableStatus}
+                          value={isAuditStatus}
+                          onValueChange={() =>
+                            this.setState({isAuditStatus: !isAuditStatus})
+                          }
+                          style={{
+                            height: 20,
+                            width: 20,
+                          }}
+                        />
+                      </View>
+                      <Text
+                        style={{
+                          fontFamily: 'Inter-Regular',
+                          marginLeft: 10,
+                          textAlign: 'center',
+                        }}>
+                        {' '}
+                        Audit Complete ?
+                      </Text>
+                    </View>
                     <View
                       style={{
                         flex: 1,

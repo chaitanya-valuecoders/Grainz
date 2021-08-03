@@ -74,6 +74,7 @@ class ViewHistoryOrder extends Component {
       modalPricePaid: '',
       modalNotes: '',
       modalData: '',
+      isCheckedStatus: false,
       initialValueAllCorrect: 'null',
       isDatePickerArrivalDateSpecific: false,
       choicesProp: [
@@ -162,6 +163,7 @@ class ViewHistoryOrder extends Component {
             apiArrivalDate: data.deliveredDate,
             finalArrivalDate: data.deliveredDate,
             loaderCompStatus: false,
+            isCheckedStatus: data.isAuditComplete,
           },
           () => this.createFinalData(),
         );
@@ -807,6 +809,7 @@ class ViewHistoryOrder extends Component {
       isDatePickerArrivalDateSpecific,
       finalArrivalDateSpecific,
       modalData,
+      isCheckedStatus,
     } = this.state;
 
     return (
@@ -1444,7 +1447,33 @@ class ViewHistoryOrder extends Component {
                       style={{
                         flex: 1,
                         justifyContent: 'center',
-                      }}></View>
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                      }}>
+                      <View
+                        style={{
+                          borderRadius: 100,
+                          backgroundColor: '#D6D6D6',
+                        }}>
+                        <CheckBox
+                          disabled={true}
+                          // disabled={isCheckedEditableStatus}
+                          value={isCheckedStatus}
+                          // onValueChange={() =>
+                          //   this.setState({isCheckedStatus: !isCheckedStatus})
+                          // }
+                          style={{
+                            height: 20,
+                            width: 20,
+                          }}
+                        />
+                      </View>
+                      <Text
+                        style={{fontFamily: 'Inter-Regular', marginLeft: 10}}>
+                        {' '}
+                        Audit Complete ?
+                      </Text>
+                    </View>
                     <View
                       style={{
                         flex: 1,

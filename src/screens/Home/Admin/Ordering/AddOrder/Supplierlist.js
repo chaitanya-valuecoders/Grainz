@@ -219,6 +219,7 @@ class SupplierList extends Component {
       inventoryId: data.id,
       productId: data.inventoryMapping && data.inventoryMapping.productId,
       mapStatus: data.isMapped,
+      pageData: data,
     });
   };
 
@@ -675,7 +676,7 @@ class SupplierList extends Component {
     } = this.state;
     let payload = {
       discount: discountPriceValue,
-      id: pageData.inventoryProductMappingId,
+      id: pageData.inventoryMapping && pageData.inventoryMapping.id,
       privatePrice: privatePriceValue,
       userDefinedQuantity: userDefinedQuantity,
       userDefinedUnit: userDefinedUnit,
@@ -782,22 +783,35 @@ class SupplierList extends Component {
   };
 
   openModalFun = item => {
-    const priceFinal = item.productPrice * item.packSize;
-    const finalDiscountVal = priceFinal * (item.discount / 100);
+    const priceFinal =
+      item.inventoryMapping &&
+      item.inventoryMapping.productPrice * item.packSize;
+    const finalDiscountVal =
+      priceFinal *
+      (item.inventoryMapping && item.inventoryMapping.discount / 100);
 
     const finalPriceCal = priceFinal - finalDiscountVal;
     console.log('finalPriceCal', finalPriceCal);
     let finalPrice =
-      item && item.discount ? finalPriceCal : item.price * item.packSize;
+      item.inventoryMapping && item.inventoryMapping.discount
+        ? finalPriceCal
+        : item.price * item.packSize;
     this.setState({
       orderingThreeModal: true,
       priceFinal: finalPrice,
-      priceFinalBackup: item.productPrice * item.packSize,
-      userDefinedQuantity: item.userDefinedQuantity,
+      priceFinalBackup:
+        item.inventoryMapping &&
+        item.inventoryMapping.productPrice * item.packSize,
+      userDefinedQuantity:
+        item.inventoryMapping && item.inventoryMapping.userDefinedQuantity,
       pageData: item,
-      userDefinedUnit: item.userDefinedUnit,
-      privatePriceValue: item.privatePrice,
-      discountPriceValue: item.discount,
+      userDefinedUnit:
+        item.inventoryMapping && item.inventoryMapping.userDefinedUnit,
+      privatePriceValue:
+        item.inventoryMapping && item.inventoryMapping.privatePrice,
+      discountPriceValue:
+        item.inventoryMapping && item.inventoryMapping.discount,
+      mapStatus: item.isMapped,
     });
   };
 
@@ -833,7 +847,7 @@ class SupplierList extends Component {
     } = this.state;
 
     // console.log('modalData', modalData);
-    console.log('finalBasketData', finalBasketData);
+    console.log('pageData', pageData);
 
     console.log('navigateType', navigateType);
 
@@ -937,7 +951,7 @@ class SupplierList extends Component {
                             <View
                               style={{
                                 paddingVertical: 15,
-                                paddingHorizontal: 5,
+                                paddingHorizontal: 20,
                                 flexDirection: 'row',
                                 justifyContent: 'space-between',
                                 backgroundColor: '#EFFBCF',
@@ -945,64 +959,59 @@ class SupplierList extends Component {
                               <View
                                 style={{
                                   width: wp('30%'),
-                                  alignItems: 'center',
                                 }}>
                                 <Text>Quantity</Text>
                               </View>
 
                               <View
                                 style={{
-                                  width: wp('30%'),
-                                  alignItems: 'center',
+                                  width: wp('40%'),
+                                  marginLeft: wp('5%'),
                                 }}>
                                 <Text>Name</Text>
                               </View>
                               <View
                                 style={{
                                   width: wp('30%'),
-                                  alignItems: 'center',
+                                  marginLeft: wp('5%'),
                                 }}>
                                 <Text>Code</Text>
                               </View>
                               <View
                                 style={{
                                   width: wp('30%'),
-                                  alignItems: 'center',
                                 }}>
                                 <Text>Stock</Text>
                               </View>
                               <View
                                 style={{
                                   width: wp('30%'),
-                                  alignItems: 'center',
+                                  marginLeft: wp('5%'),
                                 }}>
                                 <Text>Price</Text>
                               </View>
                               <View
                                 style={{
                                   width: wp('30%'),
-                                  alignItems: 'center',
+                                  marginLeft: wp('5%'),
                                 }}>
-                                <Text style={{textAlign: 'center'}}>
-                                  In Stock?
-                                </Text>
+                                <Text style={{}}>In Stock?</Text>
                               </View>
                               <View
                                 style={{
                                   width: wp('30%'),
-                                  alignItems: 'center',
+                                  marginLeft: wp('5%'),
                                 }}></View>
                             </View>
                             <View>
                               {modalData && modalData.length > 0 ? (
                                 modalData.map((item, index) => {
-                                  console.log('item', item);
                                   return (
                                     <View
                                       key={index}
                                       style={{
                                         paddingVertical: 10,
-                                        paddingHorizontal: 5,
+                                        paddingHorizontal: 20,
                                         flexDirection: 'row',
                                         backgroundColor:
                                           index % 2 === 0
@@ -1012,7 +1021,7 @@ class SupplierList extends Component {
                                       <View
                                         style={{
                                           width: wp('30%'),
-                                          alignItems: 'center',
+
                                           justifyContent: 'center',
                                         }}>
                                         {item.isMapped ? (
@@ -1062,28 +1071,32 @@ class SupplierList extends Component {
                                         onPress={() => this.openModalFun(item)}
                                         style={{
                                           width: wp('40%'),
-                                          alignItems: 'center',
-                                          justifyContent: 'center',
-                                        }}
-                                        style={{
-                                          width: wp('30%'),
-                                          alignItems: 'center',
+                                          marginLeft: wp('5%'),
                                           justifyContent: 'center',
                                         }}>
-                                        <Text>{item.name}</Text>
+                                        <Text
+                                          style={{
+                                            fontFamily: item.isMapped
+                                              ? 'Inter-SemiBold'
+                                              : 'Inter-Regular',
+                                            color: item.isMapped
+                                              ? 'black'
+                                              : 'grey',
+                                          }}>
+                                          {item.name}
+                                        </Text>
                                       </TouchableOpacity>
                                       <View
                                         style={{
                                           width: wp('30%'),
+                                          marginLeft: wp('5%'),
                                           justifyContent: 'center',
-                                          alignItems: 'center',
                                         }}>
                                         <Text>{item.code}</Text>
                                       </View>
                                       <View
                                         style={{
                                           width: wp('30%'),
-                                          alignItems: 'center',
                                           justifyContent: 'center',
                                         }}>
                                         <Text>
@@ -1093,7 +1106,7 @@ class SupplierList extends Component {
                                       <View
                                         style={{
                                           width: wp('30%'),
-                                          alignItems: 'center',
+                                          marginLeft: wp('5%'),
                                           justifyContent: 'center',
                                         }}>
                                         <Text>
@@ -1104,7 +1117,7 @@ class SupplierList extends Component {
                                       <View
                                         style={{
                                           width: wp('30%'),
-                                          alignItems: 'center',
+                                          marginLeft: wp('5%'),
                                           justifyContent: 'center',
                                         }}>
                                         <CheckBox
@@ -1123,7 +1136,7 @@ class SupplierList extends Component {
                                         onPress={() => this.actionFun(item)}
                                         style={{
                                           width: wp('30%'),
-                                          alignItems: 'center',
+                                          marginLeft: wp('5%'),
                                           justifyContent: 'center',
                                         }}>
                                         <Image
@@ -1233,7 +1246,7 @@ class SupplierList extends Component {
             <View
               style={{
                 width: wp('80%'),
-                height: hp('23%'),
+                height: mapStatus ? hp('23%') : hp('19%'),
                 backgroundColor: '#fff',
                 alignSelf: 'center',
                 borderRadius: 14,
@@ -1257,25 +1270,27 @@ class SupplierList extends Component {
                   </Text>
                 </View>
               </TouchableOpacity>
-              <TouchableOpacity
-                style={{flex: 1, justifyContent: 'center'}}
-                onPress={() => this.viewInventoryFun()}>
-                <View
-                  style={{
-                    paddingHorizontal: wp('8%'),
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                  }}>
-                  <Text
+              {mapStatus ? (
+                <TouchableOpacity
+                  style={{flex: 1, justifyContent: 'center'}}
+                  onPress={() => this.viewInventoryFun()}>
+                  <View
                     style={{
-                      color: '#161C27',
-                      fontFamily: 'Inter-Regular',
-                      fontSize: 18,
+                      paddingHorizontal: wp('8%'),
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
                     }}>
-                    View Inventory
-                  </Text>
-                </View>
-              </TouchableOpacity>
+                    <Text
+                      style={{
+                        color: '#161C27',
+                        fontFamily: 'Inter-Regular',
+                        fontSize: 18,
+                      }}>
+                      View Inventory
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              ) : null}
               <TouchableOpacity
                 onPress={() => this.setModalVisibleFalse(false)}
                 style={{
@@ -1412,7 +1427,7 @@ class SupplierList extends Component {
                         />
                       </View>
                     </View>
-                    {/* <View
+                    <View
                       style={{
                         marginTop: hp('3%'),
                       }}>
@@ -1428,7 +1443,7 @@ class SupplierList extends Component {
                       <View style={{}}>
                         <TextInput
                           editable={false}
-                          value={pageData.productCode}
+                          value={pageData.code}
                           placeholder="Product Code"
                           style={{
                             padding: 10,
@@ -1438,7 +1453,7 @@ class SupplierList extends Component {
                           }}
                         />
                       </View>
-                    </View> */}
+                    </View>
                     <View
                       style={{
                         marginTop: hp('3%'),
@@ -1454,7 +1469,7 @@ class SupplierList extends Component {
                       </View>
                       <View style={{}}>
                         <TextInput
-                          value={pageData.productName}
+                          value={pageData.name}
                           editable={false}
                           placeholder="Product Name"
                           style={{
@@ -1509,9 +1524,9 @@ class SupplierList extends Component {
                       <View style={{}}>
                         <TextInput
                           value={
-                            String(pageData.productPrice) +
+                            String(pageData.price) +
                             ' / ' +
-                            String(pageData.productUnit)
+                            String(pageData.unit)
                           }
                           editable={false}
                           placeholder="Price"
@@ -1540,7 +1555,8 @@ class SupplierList extends Component {
                       </View>
                       <View style={{}}>
                         <TextInput
-                          value={`€ ${Number(priceFinal).toFixed(2)}`}
+                          value={'0 g'}
+                          // value={`€ ${Number(priceFinal).toFixed(2)}`}
                           editable={false}
                           placeholder="Price"
                           style={{
@@ -1567,7 +1583,10 @@ class SupplierList extends Component {
                       </View>
                       <View style={{}}>
                         <TextInput
-                          value={pageData.name}
+                          value={
+                            pageData.inventoryMapping &&
+                            pageData.inventoryMapping.inventoryName
+                          }
                           editable={false}
                           placeholder="Inventory Item"
                           style={{
@@ -1594,7 +1613,10 @@ class SupplierList extends Component {
                       </View>
                       <View style={{}}>
                         <TextInput
-                          value={pageData.unit}
+                          value={
+                            pageData.inventoryMapping &&
+                            pageData.inventoryMapping.inventoryUnit
+                          }
                           editable={false}
                           placeholder="Inventory Unit"
                           style={{
@@ -1606,33 +1628,7 @@ class SupplierList extends Component {
                         />
                       </View>
                     </View>
-                    <View
-                      style={{
-                        marginTop: hp('3%'),
-                      }}>
-                      <View
-                        style={{
-                          marginBottom: hp('2%'),
-                        }}>
-                        <Text
-                          style={{fontFamily: 'Inter-Regular', fontSize: 15}}>
-                          Delta :{' '}
-                        </Text>
-                      </View>
-                      <View style={{}}>
-                        <TextInput
-                          value={String(pageData.delta)}
-                          editable={false}
-                          placeholder="Delta"
-                          style={{
-                            padding: 10,
-                            width: wp('70%'),
-                            borderRadius: 5,
-                            backgroundColor: '#fff',
-                          }}
-                        />
-                      </View>
-                    </View>
+
                     <View
                       style={{
                         marginTop: hp('3%'),
@@ -1648,7 +1644,8 @@ class SupplierList extends Component {
                       </View>
                       <View style={{}}>
                         <TextInput
-                          value={String(pageData.delta)}
+                          value={'0 g'}
+                          // value={String(pageData.delta)}
                           editable={false}
                           placeholder="This order"
                           style={{
@@ -1675,7 +1672,8 @@ class SupplierList extends Component {
                       </View>
                       <View style={{}}>
                         <TextInput
-                          value={String(pageData.delta)}
+                          // value={String(pageData.delta)}
+                          value={'0 g'}
                           editable={false}
                           placeholder="Current Level"
                           style={{
@@ -1702,7 +1700,8 @@ class SupplierList extends Component {
                       </View>
                       <View style={{}}>
                         <TextInput
-                          value={String(pageData.delta)}
+                          // value={String(pageData.delta)}
+                          value={'0 g'}
                           editable={false}
                           placeholder="On Order"
                           style={{
@@ -1729,7 +1728,8 @@ class SupplierList extends Component {
                       </View>
                       <View style={{}}>
                         <TextInput
-                          value={String(pageData.reorderLevel)}
+                          // value={String(pageData.reorderLevel)}
+                          value={'0 g'}
                           editable={false}
                           placeholder="Target"
                           style={{
@@ -1869,7 +1869,7 @@ class SupplierList extends Component {
                         />
                       </View>
                     </View>
-                    {/* <View
+                    <View
                       style={{
                         marginTop: hp('3%'),
                       }}>
@@ -1885,7 +1885,7 @@ class SupplierList extends Component {
                       <View style={{}}>
                         <TextInput
                           editable={false}
-                          value={pageData.productCode}
+                          value={pageData.code}
                           placeholder="Product Code"
                           style={{
                             padding: 10,
@@ -1895,7 +1895,7 @@ class SupplierList extends Component {
                           }}
                         />
                       </View>
-                    </View> */}
+                    </View>
                     <View
                       style={{
                         marginTop: hp('3%'),
@@ -1911,7 +1911,7 @@ class SupplierList extends Component {
                       </View>
                       <View style={{}}>
                         <TextInput
-                          value={pageData.productName}
+                          value={pageData.name}
                           editable={false}
                           placeholder="Product Name"
                           style={{
@@ -1966,9 +1966,9 @@ class SupplierList extends Component {
                       <View style={{}}>
                         <TextInput
                           value={
-                            String(pageData.productPrice) +
+                            Number(pageData.price).toFixed(2) +
                             ' / ' +
-                            String(pageData.productUnit)
+                            String(pageData.unit)
                           }
                           editable={false}
                           placeholder="List Price"
@@ -1982,366 +1982,404 @@ class SupplierList extends Component {
                       </View>
                     </View>
 
-                    <View
-                      style={{
-                        marginTop: hp('3%'),
-                      }}>
-                      <View
-                        style={{
-                          marginBottom: hp('2%'),
-                        }}>
-                        <Text
-                          style={{fontFamily: 'Inter-Regular', fontSize: 15}}>
-                          Inventory Item:{' '}
-                        </Text>
-                      </View>
-                      <View style={{}}>
-                        <TextInput
-                          value={pageData.name}
-                          editable={false}
-                          placeholder="Inventory Item"
-                          style={{
-                            padding: 10,
-                            width: wp('70%'),
-                            borderRadius: 5,
-                            backgroundColor: '#fff',
-                          }}
-                        />
-                      </View>
-                    </View>
-                    <View
-                      style={{
-                        marginTop: hp('3%'),
-                      }}>
-                      <View
-                        style={{
-                          marginBottom: hp('2%'),
-                        }}>
-                        <Text
-                          style={{fontFamily: 'Inter-Regular', fontSize: 15}}>
-                          Inventory Unit (default):{' '}
-                        </Text>
-                      </View>
-                      <View style={{}}>
-                        <TextInput
-                          value={pageData.unit}
-                          editable={false}
-                          placeholder="Inventory Unit"
-                          style={{
-                            padding: 10,
-                            width: wp('70%'),
-                            borderRadius: 5,
-                            backgroundColor: '#fff',
-                          }}
-                        />
-                      </View>
-                    </View>
-                    <View
-                      style={{
-                        marginTop: hp('3%'),
-                      }}>
-                      <View
-                        style={{
-                          marginBottom: hp('2%'),
-                        }}>
-                        <Text
-                          style={{fontFamily: 'Inter-Regular', fontSize: 15}}>
-                          Price:{' '}
-                        </Text>
-                      </View>
-                      <View style={{}}>
-                        <TextInput
-                          value={`€ ${Number(priceFinal).toFixed(2)}`}
-                          editable={false}
-                          placeholder="Price"
-                          style={{
-                            padding: 10,
-                            width: wp('70%'),
-                            borderRadius: 5,
-                            backgroundColor: '#fff',
-                          }}
-                        />
-                      </View>
-                    </View>
-                  </View>
-                  <View>
-                    <View
-                      style={{
-                        marginTop: hp('3%'),
-                      }}>
-                      <View
-                        style={{
-                          width: wp('30%'),
-                          flexDirection: 'row',
-                          alignItems: 'center',
-                          marginBottom: hp('2%'),
-                        }}>
-                        <View style={{}}>
-                          <CheckBox
-                            value={privatePrice}
-                            onValueChange={() =>
-                              this.setState({
-                                privatePrice: !privatePrice,
-                                discountPrice: false,
-                                priceFinal: this.state.priceFinalBackup,
-                                discountPriceValue: '',
-                              })
-                            }
-                            style={{
-                              backgroundColor: '#E9ECEF',
-                              height: 20,
-                              width: 20,
-                            }}
-                          />
-                        </View>
-                        <Text style={{marginLeft: 10}}>Private price: </Text>
-                      </View>
-                      <View
-                        style={{flexDirection: 'row', alignItems: 'center'}}>
-                        <Text style={{marginRight: 5}}>€ </Text>
-                        <TextInput
-                          value={String(privatePriceValue)}
-                          editable={privatePrice ? true : false}
-                          keyboardType="number-pad"
-                          style={{
-                            padding: 10,
-                            width: wp('45%'),
-                            borderRadius: 5,
-                            backgroundColor: privatePrice ? '#fff' : '#E9ECEF',
-                          }}
-                          onChangeText={value => this.changePriceFun(value)}
-                        />
-                        <Text style={{marginLeft: 5}}>STK</Text>
-                      </View>
-                    </View>
-                    <View
-                      style={{
-                        marginTop: hp('3%'),
-                      }}>
-                      <View
-                        style={{
-                          width: wp('30%'),
-                          flexDirection: 'row',
-                          alignItems: 'center',
-                          marginBottom: hp('2%'),
-                        }}>
-                        <View style={{}}>
-                          <CheckBox
-                            value={discountPrice}
-                            onValueChange={() =>
-                              this.setState({
-                                discountPrice: !discountPrice,
-                                privatePrice: false,
-                                privatePriceValue: '',
-                                priceFinal: this.state.priceFinalBackup,
-                              })
-                            }
-                            style={{
-                              backgroundColor: '#E9ECEF',
-                              height: 20,
-                              width: 20,
-                            }}
-                          />
-                        </View>
-                        <Text style={{marginLeft: 10}}>Discount: </Text>
-                      </View>
-                      <View
-                        style={{flexDirection: 'row', alignItems: 'center'}}>
-                        <TextInput
-                          value={String(discountPriceValue)}
-                          editable={discountPrice ? true : false}
-                          keyboardType="number-pad"
-                          style={{
-                            padding: 10,
-                            width: wp('50%'),
-                            borderRadius: 5,
-                            backgroundColor: discountPrice ? '#fff' : '#E9ECEF',
-                          }}
-                          onChangeText={value => this.changeDiscountFun(value)}
-                        />
-                        <Text style={{marginLeft: 5}}>%</Text>
-                      </View>
-                    </View>
-                  </View>
-                  <View>
-                    <ScrollView
-                      horizontal
-                      showsHorizontalScrollIndicator={false}>
+                    {mapStatus ? (
                       <View>
                         <View
-                          style={{flexDirection: 'row', marginTop: hp('3%')}}>
-                          <View style={{width: wp('40%')}}>
-                            <Text>Order * 1</Text>
+                          style={{
+                            marginTop: hp('3%'),
+                          }}>
+                          <View
+                            style={{
+                              marginBottom: hp('2%'),
+                            }}>
+                            <Text
+                              style={{
+                                fontFamily: 'Inter-Regular',
+                                fontSize: 15,
+                              }}>
+                              Inventory Item:{' '}
+                            </Text>
                           </View>
-                          <View style={{width: wp('40%')}}>
-                            <Text>Quantity</Text>
-                          </View>
-                          <View style={{width: wp('40%')}}>
-                            <Text>Unit</Text>
+                          <View style={{}}>
+                            <TextInput
+                              value={
+                                pageData.inventoryMapping &&
+                                pageData.inventoryMapping.inventoryName
+                              }
+                              editable={false}
+                              placeholder="Inventory Item"
+                              style={{
+                                padding: 10,
+                                width: wp('70%'),
+                                borderRadius: 5,
+                                backgroundColor: '#fff',
+                              }}
+                            />
                           </View>
                         </View>
+                        <View
+                          style={{
+                            marginTop: hp('3%'),
+                          }}>
+                          <View
+                            style={{
+                              marginBottom: hp('2%'),
+                            }}>
+                            <Text
+                              style={{
+                                fontFamily: 'Inter-Regular',
+                                fontSize: 15,
+                              }}>
+                              Inventory Unit (default):{' '}
+                            </Text>
+                          </View>
+                          <View style={{}}>
+                            <TextInput
+                              value={
+                                pageData.inventoryMapping &&
+                                pageData.inventoryMapping.inventoryUnit
+                              }
+                              editable={false}
+                              placeholder="Inventory Unit"
+                              style={{
+                                padding: 10,
+                                width: wp('70%'),
+                                borderRadius: 5,
+                                backgroundColor: '#fff',
+                              }}
+                            />
+                          </View>
+                        </View>
+                        <View
+                          style={{
+                            marginTop: hp('3%'),
+                          }}>
+                          <View
+                            style={{
+                              marginBottom: hp('2%'),
+                            }}>
+                            <Text
+                              style={{
+                                fontFamily: 'Inter-Regular',
+                                fontSize: 15,
+                              }}>
+                              Price:{' '}
+                            </Text>
+                          </View>
+                          <View style={{}}>
+                            <TextInput
+                              value={`€ ${Number(priceFinal).toFixed(2)}`}
+                              editable={false}
+                              placeholder="Price"
+                              style={{
+                                padding: 10,
+                                width: wp('70%'),
+                                borderRadius: 5,
+                                backgroundColor: '#fff',
+                              }}
+                            />
+                          </View>
+                        </View>
+                      </View>
+                    ) : null}
+                  </View>
+                  {mapStatus ? (
+                    <View>
+                      <View
+                        style={{
+                          marginTop: hp('3%'),
+                        }}>
+                        <View
+                          style={{
+                            width: wp('30%'),
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            marginBottom: hp('2%'),
+                          }}>
+                          <View style={{}}>
+                            <CheckBox
+                              value={privatePrice}
+                              onValueChange={() =>
+                                this.setState({
+                                  privatePrice: !privatePrice,
+                                  discountPrice: false,
+                                  priceFinal: this.state.priceFinalBackup,
+                                  discountPriceValue: '',
+                                })
+                              }
+                              style={{
+                                backgroundColor: '#E9ECEF',
+                                height: 20,
+                                width: 20,
+                              }}
+                            />
+                          </View>
+                          <Text style={{marginLeft: 10}}>Private price: </Text>
+                        </View>
+                        <View
+                          style={{flexDirection: 'row', alignItems: 'center'}}>
+                          <Text style={{marginRight: 5}}>€ </Text>
+                          <TextInput
+                            value={
+                              privatePriceValue && String(privatePriceValue)
+                            }
+                            editable={privatePrice ? true : false}
+                            keyboardType="number-pad"
+                            style={{
+                              padding: 10,
+                              width: wp('45%'),
+                              borderRadius: 5,
+                              backgroundColor: privatePrice
+                                ? '#fff'
+                                : '#E9ECEF',
+                            }}
+                            onChangeText={value => this.changePriceFun(value)}
+                          />
+                          <Text style={{marginLeft: 5}}>STK</Text>
+                        </View>
+                      </View>
+                      <View
+                        style={{
+                          marginTop: hp('3%'),
+                        }}>
+                        <View
+                          style={{
+                            width: wp('30%'),
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            marginBottom: hp('2%'),
+                          }}>
+                          <View style={{}}>
+                            <CheckBox
+                              value={discountPrice}
+                              onValueChange={() =>
+                                this.setState({
+                                  discountPrice: !discountPrice,
+                                  privatePrice: false,
+                                  privatePriceValue: '',
+                                  priceFinal: this.state.priceFinalBackup,
+                                })
+                              }
+                              style={{
+                                backgroundColor: '#E9ECEF',
+                                height: 20,
+                                width: 20,
+                              }}
+                            />
+                          </View>
+                          <Text style={{marginLeft: 10}}>Discount: </Text>
+                        </View>
+                        <View
+                          style={{flexDirection: 'row', alignItems: 'center'}}>
+                          <TextInput
+                            value={
+                              discountPriceValue && String(discountPriceValue)
+                            }
+                            editable={discountPrice ? true : false}
+                            keyboardType="number-pad"
+                            style={{
+                              padding: 10,
+                              width: wp('50%'),
+                              borderRadius: 5,
+                              backgroundColor: discountPrice
+                                ? '#fff'
+                                : '#E9ECEF',
+                            }}
+                            onChangeText={value =>
+                              this.changeDiscountFun(value)
+                            }
+                          />
+                          <Text style={{marginLeft: 5}}>%</Text>
+                        </View>
+                      </View>
+                    </View>
+                  ) : null}
+                  {mapStatus ? (
+                    <View>
+                      <ScrollView
+                        horizontal
+                        showsHorizontalScrollIndicator={false}>
                         <View>
                           <View
-                            style={{
-                              flexDirection: 'row',
-                              alignItems: 'center',
-                              marginTop: hp('3%'),
-                            }}>
-                            <View
-                              style={{
-                                width: wp('40%'),
-                              }}>
-                              <Text>Grainz suggested: </Text>
+                            style={{flexDirection: 'row', marginTop: hp('3%')}}>
+                            <View style={{width: wp('40%')}}>
+                              <Text>Order * 1</Text>
                             </View>
-                            <View
-                              style={{
-                                flexDirection: 'row',
-                                alignItems: 'center',
-                                width: wp('40%'),
-                              }}>
-                              <TextInput
-                                value={String(pageData.grainzVolume)}
-                                editable={false}
-                                style={{
-                                  padding: 10,
-                                  width: wp('25%'),
-                                  borderRadius: 5,
-                                  backgroundColor: '#fff',
-                                }}
-                              />
+                            <View style={{width: wp('40%')}}>
+                              <Text>Quantity</Text>
                             </View>
-                            <View
-                              style={{
-                                flexDirection: 'row',
-                                alignItems: 'center',
-                                width: wp('40%'),
-                              }}>
-                              <TextInput
-                                value={pageData.grainzUnit}
-                                editable={false}
-                                style={{
-                                  padding: 10,
-                                  width: wp('25%'),
-                                  borderRadius: 5,
-                                  backgroundColor: '#fff',
-                                }}
-                              />
+                            <View style={{width: wp('40%')}}>
+                              <Text>Unit</Text>
                             </View>
                           </View>
-                          <View
-                            style={{
-                              flexDirection: 'row',
-                              alignItems: 'center',
-                              marginTop: hp('3%'),
-                            }}>
+                          <View>
                             <View
                               style={{
-                                width: wp('40%'),
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                                marginTop: hp('3%'),
                               }}>
-                              <Text>User Defined: </Text>
+                              <View
+                                style={{
+                                  width: wp('40%'),
+                                }}>
+                                <Text>Grainz suggested: </Text>
+                              </View>
+                              <View
+                                style={{
+                                  flexDirection: 'row',
+                                  alignItems: 'center',
+                                  width: wp('40%'),
+                                }}>
+                                <TextInput
+                                  value={String(pageData.grainzVolume)}
+                                  editable={false}
+                                  style={{
+                                    padding: 10,
+                                    width: wp('25%'),
+                                    borderRadius: 5,
+                                    backgroundColor: '#fff',
+                                  }}
+                                />
+                              </View>
+                              <View
+                                style={{
+                                  flexDirection: 'row',
+                                  alignItems: 'center',
+                                  width: wp('40%'),
+                                }}>
+                                <TextInput
+                                  value={pageData.grainzUnit}
+                                  editable={false}
+                                  style={{
+                                    padding: 10,
+                                    width: wp('25%'),
+                                    borderRadius: 5,
+                                    backgroundColor: '#fff',
+                                  }}
+                                />
+                              </View>
                             </View>
                             <View
                               style={{
                                 flexDirection: 'row',
                                 alignItems: 'center',
-                                width: wp('40%'),
+                                marginTop: hp('3%'),
                               }}>
-                              <TextInput
-                                value={String(userDefinedQuantity)}
+                              <View
                                 style={{
-                                  padding: 10,
-                                  width: wp('25%'),
-                                  borderRadius: 5,
-                                  backgroundColor: '#fff',
-                                }}
-                                onChangeText={value =>
-                                  this.setState({
-                                    userDefinedQuantity: value,
-                                  })
-                                }
-                              />
-                            </View>
-                            <View
-                              style={{
-                                flexDirection: 'row',
-                                alignItems: 'center',
-                                width: wp('40%'),
-                              }}>
-                              <TextInput
-                                value={userDefinedUnit}
-                                // editable={false}
+                                  width: wp('40%'),
+                                }}>
+                                <Text>User Defined: </Text>
+                              </View>
+                              <View
                                 style={{
-                                  borderRadius: 5,
-                                  backgroundColor: '#fff',
-                                  padding: 10,
-                                  width: wp('25%'),
-                                }}
-                                onChangeText={value =>
-                                  this.setState({
-                                    userDefinedUnit: value,
-                                  })
-                                }
-                              />
+                                  flexDirection: 'row',
+                                  alignItems: 'center',
+                                  width: wp('40%'),
+                                }}>
+                                <TextInput
+                                  value={
+                                    userDefinedQuantity &&
+                                    String(userDefinedQuantity)
+                                  }
+                                  style={{
+                                    padding: 10,
+                                    width: wp('25%'),
+                                    borderRadius: 5,
+                                    backgroundColor: '#fff',
+                                  }}
+                                  onChangeText={value =>
+                                    this.setState({
+                                      userDefinedQuantity: value,
+                                    })
+                                  }
+                                />
+                              </View>
+                              <View
+                                style={{
+                                  flexDirection: 'row',
+                                  alignItems: 'center',
+                                  width: wp('40%'),
+                                }}>
+                                <TextInput
+                                  value={userDefinedUnit && userDefinedUnit}
+                                  // editable={false}
+                                  style={{
+                                    borderRadius: 5,
+                                    backgroundColor: '#fff',
+                                    padding: 10,
+                                    width: wp('25%'),
+                                  }}
+                                  onChangeText={value =>
+                                    this.setState({
+                                      userDefinedUnit: value,
+                                    })
+                                  }
+                                />
+                              </View>
                             </View>
                           </View>
                         </View>
-                      </View>
-                    </ScrollView>
-                  </View>
+                      </ScrollView>
+                    </View>
+                  ) : null}
                 </View>
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    marginHorizontal: wp('10%'),
-                  }}>
-                  <View style={{}}>
-                    <TouchableOpacity
-                      onPress={() =>
-                        this.setState({
-                          orderingThreeModal: false,
-                          pageData: '',
-                          priceFinal: '',
-                          priceFinalBackup: '',
-                          userDefinedQuantity: '',
-                          userDefinedUnit: '',
-                        })
-                      }
-                      style={{
-                        height: hp('6%'),
-                        width: wp('25%'),
-                        backgroundColor: '#E7943B',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        marginTop: 20,
-                        borderRadius: 5,
-                      }}>
-                      <View style={{}}>
-                        <Text style={{color: 'white'}}>Cancel</Text>
-                      </View>
-                    </TouchableOpacity>
+                {mapStatus ? (
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      marginHorizontal: wp('10%'),
+                    }}>
+                    <View style={{}}>
+                      <TouchableOpacity
+                        onPress={() =>
+                          this.setState({
+                            orderingThreeModal: false,
+                            pageData: '',
+                            priceFinal: '',
+                            priceFinalBackup: '',
+                            userDefinedQuantity: '',
+                            userDefinedUnit: '',
+                          })
+                        }
+                        style={{
+                          height: hp('6%'),
+                          width: wp('25%'),
+                          backgroundColor: '#E7943B',
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                          marginTop: 20,
+                          borderRadius: 5,
+                        }}>
+                        <View style={{}}>
+                          <Text style={{color: 'white'}}>Cancel</Text>
+                        </View>
+                      </TouchableOpacity>
+                    </View>
+                    <View style={{}}>
+                      <TouchableOpacity
+                        onPress={() => this.saveProductConfigFun()}
+                        style={{
+                          height: hp('6%'),
+                          width: wp('25%'),
+                          backgroundColor: '#94C036',
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                          marginTop: 20,
+                          borderRadius: 5,
+                        }}>
+                        <View style={{}}>
+                          <Text style={{color: 'white', marginLeft: 5}}>
+                            Save
+                          </Text>
+                        </View>
+                      </TouchableOpacity>
+                    </View>
                   </View>
-                  <View style={{}}>
-                    <TouchableOpacity
-                      onPress={() => this.saveProductConfigFun()}
-                      style={{
-                        height: hp('6%'),
-                        width: wp('25%'),
-                        backgroundColor: '#94C036',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        marginTop: 20,
-                        borderRadius: 5,
-                      }}>
-                      <View style={{}}>
-                        <Text style={{color: 'white', marginLeft: 5}}>
-                          Save
-                        </Text>
-                      </View>
-                    </TouchableOpacity>
-                  </View>
-                </View>
+                ) : null}
               </ScrollView>
             </View>
           </Modal>

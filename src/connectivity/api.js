@@ -996,6 +996,9 @@ export const searchInventoryItemLApi = async (id, searchText) => {
 };
 
 export const searchSupplierItemLApi = async (id, searchText) => {
+  console.log('id', id);
+  console.log('searchText', searchText);
+
   const token = await AsyncStorage.getItem('@appToken');
   return axios.get(
     baseURL + `/Product/Search products?Search=${searchText}&SupplierId=${id}`,
