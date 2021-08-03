@@ -818,7 +818,7 @@ class ViewPendingDelivery extends Component {
         <View style={{...styles.subContainer, flex: 1}}>
           <View style={styles.firstContainer}>
             <View style={{flex: 1}}>
-              <Text style={styles.adminTextStyle}>{pageData.supplierName}</Text>
+              <Text style={styles.adminTextStyle}>Pending Order</Text>
             </View>
             <TouchableOpacity
               onPress={() => this.props.navigation.goBack()}
@@ -831,6 +831,28 @@ class ViewPendingDelivery extends Component {
             <ScrollView style={{}} showsVerticalScrollIndicator={false}>
               <View style={{padding: hp('3%')}}>
                 <View style={{}}>
+                  <View style={{marginBottom: hp('3%')}}>
+                    <TextInput
+                      editable={false}
+                      placeholder="Supplier"
+                      value={pageData.supplierName}
+                      style={{
+                        padding: 14,
+                        justifyContent: 'space-between',
+                        elevation: 3,
+                        shadowOpacity: 2.0,
+                        shadowColor: 'rgba(0, 0, 0, 0.05)',
+                        shadowOffset: {
+                          width: 2,
+                          height: 2,
+                        },
+                        shadowRadius: 10,
+                        borderRadius: 5,
+                        backgroundColor: '#E9ECEF',
+                        borderWidth: 0.2,
+                      }}
+                    />
+                  </View>
                   <View style={{marginBottom: hp('3%')}}>
                     <TextInput
                       editable={false}
