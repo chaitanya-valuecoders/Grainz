@@ -168,13 +168,14 @@ class Basket extends Component {
     console.log('basketId', basketId);
     getBasketApi(basketId)
       .then(res => {
-        console.log('res', res);
+        console.log('resGetBasket', res);
         this.setState(
           {
             modalData: res.data && res.data.shopingBasketItemList,
             modalLoader: false,
             totalHTVAVal: res.data && res.data.totalValue,
             placedByValue: res.data && res.data.placedBy,
+            loaderCompStatus: false,
           },
           () => this.createApiData(),
         );
@@ -301,22 +302,14 @@ class Basket extends Component {
       addDraftApi(payload)
         .then(res => {
           console.log('res', res);
-          Alert.alert('Grainz', 'Order added successfully', [
-            {
-              text: 'okay',
-              onPress: () =>
-                this.setState({
-                  mailModalVisible: true,
-                  loaderCompStatus: false,
-                  toRecipientValue:
-                    res.data && res.data.emailDetails.toRecipient,
-                  ccRecipientValue:
-                    res.data && res.data.emailDetails.ccRecipients,
-                  mailTitleValue: res.data && res.data.emailDetails.subject,
-                  mailMessageValue: res.data && res.data.emailDetails.text,
-                }),
-            },
-          ]);
+          this.setState({
+            mailModalVisible: true,
+            loaderCompStatus: false,
+            toRecipientValue: res.data && res.data.emailDetails.toRecipient,
+            ccRecipientValue: res.data && res.data.emailDetails.ccRecipients,
+            mailTitleValue: res.data && res.data.emailDetails.subject,
+            mailMessageValue: res.data && res.data.emailDetails.text,
+          });
         })
         .catch(err => {
           Alert.alert(
@@ -432,17 +425,12 @@ class Basket extends Component {
     if (apiOrderDate && placedByValue && supplierId && finalApiData) {
       addDraftApi(payload)
         .then(res => {
-          this.setState({
-            loaderCompStatus: false,
-          });
-          console.log('res', res);
-          Alert.alert('Grainz', 'Order added successfully', [
+          this.setState(
             {
-              text: 'okay',
-              onPress: () =>
-                this.props.navigation.navigate('OrderingAdminScreen'),
+              loaderCompStatus: false,
             },
-          ]);
+            () => this.props.navigation.navigate('OrderingAdminScreen'),
+          );
         })
         .catch(err => {
           Alert.alert(
@@ -484,7 +472,7 @@ class Basket extends Component {
         {
           loaderCompStatus: true,
         },
-        () => this.saveDraftFun(),
+        () => this.saveAndUpdateFun(),
       );
     } else {
       this.setState(
@@ -493,6 +481,15 @@ class Basket extends Component {
         },
         () => this.viewFun(),
       );
+    }
+  };
+
+  saveAndUpdateFun = () => {
+    const {editStatus} = this.state;
+    if (editStatus) {
+      this.updateBasketFun();
+    } else {
+      this.saveDraftFun();
     }
   };
 
@@ -523,21 +520,7 @@ class Basket extends Component {
     ) {
       addDraftApi(payload)
         .then(res => {
-          this.setState({
-            loaderCompStatus: false,
-          });
-          Alert.alert('Grainz', 'Order added successfully', [
-            {
-              text: 'okay',
-              onPress: () =>
-                this.setState(
-                  {
-                    loaderCompStatus: true,
-                  },
-                  () => this.viewFunSec(),
-                ),
-            },
-          ]);
+          this.viewFunSec();
         })
         .catch(err => {
           Alert.alert(
@@ -659,13 +642,13 @@ class Basket extends Component {
     };
     updateBasketApi(payload)
       .then(res => {
-        console.log('res', res);
+        console.log('resUpdateBasket', res);
         this.setState(
           {
             modalLoader: true,
             editStatus: false,
           },
-          () => this.getBasketDataFun(),
+          () => this.saveDraftFun(),
         );
       })
       .catch(err => {
@@ -1056,7 +1039,6 @@ class Basket extends Component {
                               paddingVertical: 15,
                               paddingHorizontal: 20,
                               flexDirection: 'row',
-                              justifyContent: 'space-between',
                               backgroundColor: '#EFFBCF',
                             }}>
                             <View
@@ -1094,12 +1076,6 @@ class Basket extends Component {
                                 HTVA ($)
                               </Text>
                             </View>
-
-                            <View
-                              style={{
-                                width: wp('30%'),
-                                alignItems: 'center',
-                              }}></View>
                           </View>
                           <View>
                             {modalData && modalData.length > 0 ? (
@@ -1163,7 +1139,10 @@ class Basket extends Component {
                                           />
                                         </View>
                                       ) : (
-                                        <View
+                                        <TouchableOpacity
+                                          onLongPress={() =>
+                                            this.actionFun(item)
+                                          }
                                           style={{
                                             width: wp('30%'),
                                             justifyContent: 'center',
@@ -1186,7 +1165,7 @@ class Basket extends Component {
                                             item.inventoryMapping &&
                                             item.inventoryMapping.productUnit
                                           }`}</Text>
-                                        </View>
+                                        </TouchableOpacity>
                                       )}
 
                                       <View
@@ -1199,22 +1178,6 @@ class Basket extends Component {
                                           $ {Number(item.value).toFixed(2)}
                                         </Text>
                                       </View>
-
-                                      <TouchableOpacity
-                                        onPress={() => this.actionFun(item)}
-                                        style={{
-                                          width: wp('30%'),
-                                          justifyContent: 'center',
-                                        }}>
-                                        <Image
-                                          source={img.threeDotsIcon}
-                                          style={{
-                                            height: 15,
-                                            width: 15,
-                                            resizeMode: 'contain',
-                                          }}
-                                        />
-                                      </TouchableOpacity>
                                     </View>
                                   </View>
                                 );
@@ -1258,11 +1221,6 @@ class Basket extends Component {
                                   $ {Number(totalHTVAVal).toFixed(2)}
                                 </Text>
                               </View>
-
-                              <View
-                                style={{
-                                  width: wp('30%'),
-                                }}></View>
                             </View>
                           </View>
                         </View>
@@ -1273,35 +1231,6 @@ class Basket extends Component {
               )}
             </View>
           )}
-          {editStatus ? (
-            <View style={{justifyContent: 'center', alignItems: 'center'}}>
-              <TouchableOpacity
-                onPress={() => this.updateBasketFun()}
-                style={{
-                  height: hp('6%'),
-                  width: wp('80%'),
-                  backgroundColor: '#94C036',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  borderRadius: 100,
-                  marginTop: hp('2%'),
-                }}>
-                <View
-                  style={{
-                    alignItems: 'center',
-                  }}>
-                  <Text
-                    style={{
-                      color: 'white',
-                      marginLeft: 10,
-                      fontFamily: 'Inter-SemiBold',
-                    }}>
-                    {translate('Update')}
-                  </Text>
-                </View>
-              </TouchableOpacity>
-            </View>
-          ) : null}
           <View style={{marginVertical: hp('3%')}}>
             <FlatList
               horizontal
@@ -1547,7 +1476,7 @@ class Basket extends Component {
                             fontSize: 15,
                             fontWeight: 'bold',
                           }}>
-                          {translate('Cancel')}
+                          {translate('Close')}
                         </Text>
                       </TouchableOpacity>
                     </View>
@@ -1603,7 +1532,7 @@ class Basket extends Component {
                   }}>
                   <Text
                     style={{
-                      color: '#94C01F',
+                      color: 'red',
                       fontFamily: 'Inter-Regular',
                       fontSize: 18,
                     }}>
@@ -1615,6 +1544,7 @@ class Basket extends Component {
                       height: 15,
                       width: 15,
                       resizeMode: 'contain',
+                      tintColor: 'red',
                     }}
                   />
                 </View>
@@ -1633,7 +1563,7 @@ class Basket extends Component {
                       fontFamily: 'Inter-Regular',
                       fontSize: 18,
                     }}>
-                    Cancel
+                    Close
                   </Text>
                 </View>
               </TouchableOpacity>

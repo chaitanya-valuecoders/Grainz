@@ -229,13 +229,7 @@ class PdfViewDraft extends Component {
             {
               loaderCompStatus: false,
             },
-            () =>
-              Alert.alert(`Grainz`, 'Draft updated successfully', [
-                {
-                  text: 'Okay',
-                  onPress: () => this.openMailModal(res),
-                },
-              ]),
+            () => this.openMailModal(res),
           );
           console.log('res', res);
         })

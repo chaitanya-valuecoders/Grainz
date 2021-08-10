@@ -166,38 +166,26 @@ class SearchInventory extends Component {
   };
 
   actionFun = data => {
-    this.setState({
-      actionModalStatus: true,
-      inventoryId: data.id,
-      productId: data.productId,
-      pageData: data,
-    });
-  };
-
-  setModalVisibleFalse = visible => {
-    this.setState({
-      actionModalStatus: visible,
-    });
+    this.setState(
+      {
+        inventoryId: data.id,
+        productId: data.productId,
+        pageData: data,
+      },
+      () => this.unMapInventoryFun(),
+    );
   };
 
   unMapInventoryFun = () => {
-    this.setState(
+    Alert.alert('Grainz', 'Would you like to unmap this product?', [
       {
-        actionModalStatus: false,
+        text: 'Yes',
+        onPress: () => this.hitUnMapApi(),
       },
-      () =>
-        setTimeout(() => {
-          Alert.alert('Grainz', 'Would you like to unmap this product?', [
-            {
-              text: 'Yes',
-              onPress: () => this.hitUnMapApi(),
-            },
-            {
-              text: 'No',
-            },
-          ]);
-        }, 300),
-    );
+      {
+        text: 'No',
+      },
+    ]);
   };
 
   hitUnMapApi = () => {
@@ -453,15 +441,12 @@ class SearchInventory extends Component {
       });
   };
 
-  viewInventoryFun = () => {
+  viewInventoryFun = data => {
     this.setState(
       {
-        actionModalStatus: false,
+        pageData: data,
       },
-      () =>
-        setTimeout(() => {
-          this.openViewModal();
-        }, 300),
+      () => this.openViewModal(),
     );
   };
 
@@ -558,7 +543,6 @@ class SearchInventory extends Component {
       recipeLoader,
       modalData,
       modalLoader,
-      actionModalStatus,
       finalBasketData,
       screenType,
       productId,
@@ -772,7 +756,9 @@ class SearchInventory extends Component {
                                       </View>
 
                                       <TouchableOpacity
-                                        onPress={() => this.openModalFun(item)}
+                                        onPress={() =>
+                                          this.viewInventoryFun(item)
+                                        }
                                         style={{
                                           width: wp('40%'),
                                           marginLeft: wp('5%'),
@@ -793,14 +779,15 @@ class SearchInventory extends Component {
                                         )}
                                       </TouchableOpacity>
 
-                                      <View
+                                      <TouchableOpacity
+                                        onPress={() => this.openModalFun(item)}
                                         style={{
                                           width: wp('30%'),
                                           marginLeft: wp('5%'),
                                           justifyContent: 'center',
                                         }}>
                                         <Text>{item.productName}</Text>
-                                      </View>
+                                      </TouchableOpacity>
                                       <View
                                         style={{
                                           width: wp('30%'),
@@ -846,14 +833,22 @@ class SearchInventory extends Component {
                                           marginLeft: wp('5%'),
                                           justifyContent: 'center',
                                         }}>
-                                        <Image
-                                          source={img.threeDotsIcon}
+                                        <View
                                           style={{
-                                            height: 15,
-                                            width: 15,
-                                            resizeMode: 'contain',
-                                          }}
-                                        />
+                                            backgroundColor: '#94C036',
+                                            padding: 10,
+                                            alignItems: 'center',
+                                            borderRadius: 5,
+                                          }}>
+                                          <Text
+                                            style={{
+                                              fontFamily: 'Inter-Regular',
+                                              fontSize: 15,
+                                              color: '#fff',
+                                            }}>
+                                            UnMap
+                                          </Text>
+                                        </View>
                                       </TouchableOpacity>
                                     </View>
                                   );
@@ -879,73 +874,6 @@ class SearchInventory extends Component {
               </ScrollView>
             </View>
           )}
-          <Modal isVisible={actionModalStatus} backdropOpacity={0.35}>
-            <View
-              style={{
-                width: wp('80%'),
-                height: hp('23%'),
-                backgroundColor: '#fff',
-                alignSelf: 'center',
-                borderRadius: 14,
-              }}>
-              <TouchableOpacity
-                style={{flex: 1, justifyContent: 'center'}}
-                onPress={() => this.unMapInventoryFun()}>
-                <View
-                  style={{
-                    paddingHorizontal: wp('8%'),
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                  }}>
-                  <Text
-                    style={{
-                      color: '#161C27',
-                      fontFamily: 'Inter-Regular',
-                      fontSize: 18,
-                    }}>
-                    Unmap Inventory
-                  </Text>
-                </View>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={{flex: 1, justifyContent: 'center'}}
-                onPress={() => this.viewInventoryFun()}>
-                <View
-                  style={{
-                    paddingHorizontal: wp('8%'),
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                  }}>
-                  <Text
-                    style={{
-                      color: '#161C27',
-                      fontFamily: 'Inter-Regular',
-                      fontSize: 18,
-                    }}>
-                    View Inventory
-                  </Text>
-                </View>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => this.setModalVisibleFalse(false)}
-                style={{
-                  flex: 1,
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                }}>
-                <View style={{}}>
-                  <Text
-                    style={{
-                      color: '#161C27',
-                      fontFamily: 'Inter-Regular',
-                      fontSize: 18,
-                    }}>
-                    Cancel
-                  </Text>
-                </View>
-              </TouchableOpacity>
-            </View>
-          </Modal>
           <Modal isVisible={orderingThreeModal} backdropOpacity={0.35}>
             <View
               style={{

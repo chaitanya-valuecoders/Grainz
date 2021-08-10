@@ -45,7 +45,6 @@ class SupplierList extends Component {
       recipeLoader: false,
       buttonsSubHeader: [],
       modalLoader: false,
-      actionModalStatus: false,
       mapStatus: '',
       finalBasketData: [],
       supplierId: '',
@@ -214,18 +213,28 @@ class SupplierList extends Component {
 
   actionFun = data => {
     console.log('data', data);
-    this.setState({
-      actionModalStatus: true,
-      inventoryId: data.id,
-      productId: data.inventoryMapping && data.inventoryMapping.productId,
-      mapStatus: data.isMapped,
-      pageData: data,
-    });
+    this.setState(
+      {
+        inventoryId: data.id,
+        productId: data.inventoryMapping && data.inventoryMapping.productId,
+        mapStatus: data.isMapped,
+        pageData: data,
+      },
+      () => this.selectMapOrUnmap(),
+    );
+  };
+
+  selectMapOrUnmap = () => {
+    const {mapStatus} = this.state;
+    if (mapStatus) {
+      this.unMapInventoryFun();
+    } else {
+      this.mapInventoryFun();
+    }
   };
 
   setModalVisibleFalse = visible => {
     this.setState({
-      actionModalStatus: visible,
       mapModalStatus: visible,
     });
   };
@@ -236,61 +245,44 @@ class SupplierList extends Component {
     });
   };
 
+  mapInventoryFun = () => {
+    Alert.alert('Grainz', 'Would you like to map this product?', [
+      {
+        text: 'Yes',
+        onPress: () =>
+          this.setState(
+            {
+              loaderCompStatus: true,
+            },
+            () => this.hitMapApi(),
+          ),
+      },
+      {
+        text: 'No',
+      },
+    ]);
+  };
+
   unMapInventoryFun = () => {
-    const {mapStatus} = this.state;
-    if (mapStatus) {
-      this.setState(
-        {
-          actionModalStatus: false,
-        },
-        () =>
-          setTimeout(() => {
-            Alert.alert('Grainz', 'Would you like to unmap this product?', [
-              {
-                text: 'Yes',
-                onPress: () =>
-                  this.setState(
-                    {
-                      loaderCompStatus: true,
-                    },
-                    () => this.hitUnMapApi(),
-                  ),
-              },
-              {
-                text: 'No',
-                onPress: () =>
-                  this.setState({
-                    loaderCompStatus: false,
-                  }),
-              },
-            ]);
-          }, 300),
-      );
-    } else {
-      this.setState(
-        {
-          actionModalStatus: false,
-        },
-        () =>
-          setTimeout(() => {
-            Alert.alert('Grainz', 'Would you like to map this product?', [
-              {
-                text: 'Yes',
-                onPress: () =>
-                  this.setState(
-                    {
-                      loaderCompStatus: true,
-                    },
-                    () => this.hitMapApi(),
-                  ),
-              },
-              {
-                text: 'No',
-              },
-            ]);
-          }, 300),
-      );
-    }
+    Alert.alert('Grainz', 'Would you like to unmap this product?', [
+      {
+        text: 'Yes',
+        onPress: () =>
+          this.setState(
+            {
+              loaderCompStatus: true,
+            },
+            () => this.hitUnMapApi(),
+          ),
+      },
+      {
+        text: 'No',
+        onPress: () =>
+          this.setState({
+            loaderCompStatus: false,
+          }),
+      },
+    ]);
   };
 
   hitUnMapApi = () => {
@@ -703,24 +695,6 @@ class SupplierList extends Component {
       });
   };
 
-  viewInventoryFun = () => {
-    this.setState(
-      {
-        actionModalStatus: false,
-      },
-      () =>
-        setTimeout(() => {
-          this.openViewModal();
-        }, 300),
-    );
-  };
-
-  openViewModal = () => {
-    this.setState({
-      viewModalStatus: true,
-    });
-  };
-
   changeDiscountFun = value => {
     const {priceFinalBackup} = this.state;
     this.setState(
@@ -821,7 +795,6 @@ class SupplierList extends Component {
       recipeLoader,
       modalData,
       modalLoader,
-      actionModalStatus,
       mapStatus,
       mapModalStatus,
       SECTIONS,
@@ -834,7 +807,6 @@ class SupplierList extends Component {
       loaderCompStatus,
       orderingThreeModal,
       pageData,
-      viewModalStatus,
       todayDate,
       supplierName,
       priceFinal,
@@ -1132,22 +1104,57 @@ class SupplierList extends Component {
                                           }}
                                         />
                                       </View>
-                                      <TouchableOpacity
-                                        onPress={() => this.actionFun(item)}
-                                        style={{
-                                          width: wp('30%'),
-                                          marginLeft: wp('5%'),
-                                          justifyContent: 'center',
-                                        }}>
-                                        <Image
-                                          source={img.threeDotsIcon}
+                                      {item.isMapped ? (
+                                        <TouchableOpacity
+                                          onPress={() => this.actionFun(item)}
                                           style={{
-                                            height: 15,
-                                            width: 15,
-                                            resizeMode: 'contain',
-                                          }}
-                                        />
-                                      </TouchableOpacity>
+                                            width: wp('30%'),
+                                            marginLeft: wp('5%'),
+                                            justifyContent: 'center',
+                                          }}>
+                                          <View
+                                            style={{
+                                              backgroundColor: '#94C036',
+                                              padding: 10,
+                                              alignItems: 'center',
+                                              borderRadius: 5,
+                                            }}>
+                                            <Text
+                                              style={{
+                                                fontFamily: 'Inter-Regular',
+                                                fontSize: 15,
+                                                color: '#fff',
+                                              }}>
+                                              UnMap
+                                            </Text>
+                                          </View>
+                                        </TouchableOpacity>
+                                      ) : (
+                                        <TouchableOpacity
+                                          onPress={() => this.actionFun(item)}
+                                          style={{
+                                            width: wp('30%'),
+                                            marginLeft: wp('5%'),
+                                            justifyContent: 'center',
+                                          }}>
+                                          <View
+                                            style={{
+                                              backgroundColor: '#94C036',
+                                              padding: 10,
+                                              alignItems: 'center',
+                                              borderRadius: 5,
+                                            }}>
+                                            <Text
+                                              style={{
+                                                fontFamily: 'Inter-Regular',
+                                                fontSize: 15,
+                                                color: '#fff',
+                                              }}>
+                                              Map
+                                            </Text>
+                                          </View>
+                                        </TouchableOpacity>
+                                      )}
                                     </View>
                                   );
                                 })
@@ -1240,540 +1247,6 @@ class SupplierList extends Component {
                   </View>
                 </ScrollView>
               )}
-            </View>
-          </Modal>
-          <Modal isVisible={actionModalStatus} backdropOpacity={0.35}>
-            <View
-              style={{
-                width: wp('80%'),
-                height: mapStatus ? hp('23%') : hp('19%'),
-                backgroundColor: '#fff',
-                alignSelf: 'center',
-                borderRadius: 14,
-              }}>
-              <TouchableOpacity
-                style={{flex: 1, justifyContent: 'center'}}
-                onPress={() => this.unMapInventoryFun()}>
-                <View
-                  style={{
-                    paddingHorizontal: wp('8%'),
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                  }}>
-                  <Text
-                    style={{
-                      color: '#161C27',
-                      fontFamily: 'Inter-Regular',
-                      fontSize: 18,
-                    }}>
-                    {mapStatus ? 'Unmap Inventory' : 'Map Inventory'}
-                  </Text>
-                </View>
-              </TouchableOpacity>
-              {mapStatus ? (
-                <TouchableOpacity
-                  style={{flex: 1, justifyContent: 'center'}}
-                  onPress={() => this.viewInventoryFun()}>
-                  <View
-                    style={{
-                      paddingHorizontal: wp('8%'),
-                      flexDirection: 'row',
-                      justifyContent: 'space-between',
-                    }}>
-                    <Text
-                      style={{
-                        color: '#161C27',
-                        fontFamily: 'Inter-Regular',
-                        fontSize: 18,
-                      }}>
-                      View Inventory
-                    </Text>
-                  </View>
-                </TouchableOpacity>
-              ) : null}
-              <TouchableOpacity
-                onPress={() => this.setModalVisibleFalse(false)}
-                style={{
-                  flex: 1,
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                }}>
-                <View style={{}}>
-                  <Text
-                    style={{
-                      color: '#161C27',
-                      fontFamily: 'Inter-Regular',
-                      fontSize: 18,
-                    }}>
-                    Cancel
-                  </Text>
-                </View>
-              </TouchableOpacity>
-            </View>
-          </Modal>
-          <Modal isVisible={viewModalStatus} backdropOpacity={0.35}>
-            <View
-              style={{
-                width: wp('80%'),
-                height: hp('75%'),
-                backgroundColor: '#F0F4FE',
-                alignSelf: 'center',
-                borderRadius: 14,
-              }}>
-              <View
-                style={{
-                  backgroundColor: '#7EA52D',
-                  height: hp('6%'),
-                  flexDirection: 'row',
-                  borderTopLeftRadius: 6,
-                  borderTopRightRadius: 6,
-                }}>
-                <View
-                  style={{
-                    flex: 3,
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}>
-                  <Text
-                    style={{
-                      fontSize: 16,
-                      color: '#fff',
-                      fontFamily: 'Inter-Regular',
-                    }}>
-                    {translate('Order Line Item')}
-                  </Text>
-                </View>
-                <View
-                  style={{
-                    flex: 1,
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}>
-                  <TouchableOpacity
-                    onPress={() =>
-                      this.setState({
-                        viewModalStatus: false,
-                        pageData: '',
-                      })
-                    }>
-                    <Image
-                      source={img.cancelIcon}
-                      style={{
-                        height: 22,
-                        width: 22,
-                        tintColor: 'white',
-                        resizeMode: 'contain',
-                      }}
-                    />
-                  </TouchableOpacity>
-                </View>
-              </View>
-              <ScrollView
-                style={{marginBottom: hp('5%')}}
-                showsVerticalScrollIndicator={false}>
-                <View style={{marginTop: hp('3%'), marginHorizontal: wp('5%')}}>
-                  <View>
-                    <View
-                      style={{
-                        marginTop: hp('3%'),
-                      }}>
-                      <View
-                        style={{
-                          marginBottom: hp('2%'),
-                        }}>
-                        <Text
-                          style={{fontFamily: 'Inter-Regular', fontSize: 15}}>
-                          Date :
-                        </Text>
-                      </View>
-                      <View style={{}}>
-                        <TextInput
-                          editable={false}
-                          value={moment(todayDate).format('L')}
-                          placeholder="Date"
-                          style={{
-                            padding: 10,
-                            width: wp('70%'),
-                            borderRadius: 5,
-                            backgroundColor: '#fff',
-                          }}
-                        />
-                      </View>
-                    </View>
-                    <View
-                      style={{
-                        marginTop: hp('3%'),
-                      }}>
-                      <View
-                        style={{
-                          marginBottom: hp('2%'),
-                        }}>
-                        <Text
-                          style={{fontFamily: 'Inter-Regular', fontSize: 15}}>
-                          Supplier :
-                        </Text>
-                      </View>
-                      <View style={{}}>
-                        <TextInput
-                          editable={false}
-                          value={supplierName}
-                          placeholder="Supplier"
-                          style={{
-                            padding: 10,
-                            width: wp('70%'),
-                            borderRadius: 5,
-                            backgroundColor: '#fff',
-                          }}
-                        />
-                      </View>
-                    </View>
-                    <View
-                      style={{
-                        marginTop: hp('3%'),
-                      }}>
-                      <View
-                        style={{
-                          marginBottom: hp('2%'),
-                        }}>
-                        <Text
-                          style={{fontFamily: 'Inter-Regular', fontSize: 15}}>
-                          Product Code :{' '}
-                        </Text>
-                      </View>
-                      <View style={{}}>
-                        <TextInput
-                          editable={false}
-                          value={pageData.code}
-                          placeholder="Product Code"
-                          style={{
-                            padding: 10,
-                            width: wp('70%'),
-                            borderRadius: 5,
-                            backgroundColor: '#fff',
-                          }}
-                        />
-                      </View>
-                    </View>
-                    <View
-                      style={{
-                        marginTop: hp('3%'),
-                      }}>
-                      <View
-                        style={{
-                          marginBottom: hp('2%'),
-                        }}>
-                        <Text
-                          style={{fontFamily: 'Inter-Regular', fontSize: 15}}>
-                          Product Name :{' '}
-                        </Text>
-                      </View>
-                      <View style={{}}>
-                        <TextInput
-                          value={pageData.name}
-                          editable={false}
-                          placeholder="Product Name"
-                          style={{
-                            padding: 10,
-                            width: wp('70%'),
-                            borderRadius: 5,
-                            backgroundColor: '#fff',
-                          }}
-                        />
-                      </View>
-                    </View>
-                    <View
-                      style={{
-                        marginTop: hp('3%'),
-                      }}>
-                      <View
-                        style={{
-                          marginBottom: hp('2%'),
-                        }}>
-                        <Text
-                          style={{fontFamily: 'Inter-Regular', fontSize: 15}}>
-                          Pack Size:{' '}
-                        </Text>
-                      </View>
-                      <View style={{}}>
-                        <TextInput
-                          value={String(pageData.packSize)}
-                          editable={false}
-                          placeholder="Pack Size"
-                          style={{
-                            padding: 10,
-                            width: wp('70%'),
-                            borderRadius: 5,
-                            backgroundColor: '#fff',
-                          }}
-                        />
-                      </View>
-                    </View>
-                    <View
-                      style={{
-                        marginTop: hp('3%'),
-                      }}>
-                      <View
-                        style={{
-                          marginBottom: hp('2%'),
-                        }}>
-                        <Text
-                          style={{fontFamily: 'Inter-Regular', fontSize: 15}}>
-                          Price :{' '}
-                        </Text>
-                      </View>
-                      <View style={{}}>
-                        <TextInput
-                          value={
-                            String(pageData.price) +
-                            ' / ' +
-                            String(pageData.unit)
-                          }
-                          editable={false}
-                          placeholder="Price"
-                          style={{
-                            padding: 10,
-                            width: wp('70%'),
-                            borderRadius: 5,
-                            backgroundColor: '#fff',
-                          }}
-                        />
-                      </View>
-                    </View>
-
-                    <View
-                      style={{
-                        marginTop: hp('3%'),
-                      }}>
-                      <View
-                        style={{
-                          marginBottom: hp('2%'),
-                        }}>
-                        <Text
-                          style={{fontFamily: 'Inter-Regular', fontSize: 15}}>
-                          Order value :{' '}
-                        </Text>
-                      </View>
-                      <View style={{}}>
-                        <TextInput
-                          value={'0 g'}
-                          // value={`€ ${Number(priceFinal).toFixed(2)}`}
-                          editable={false}
-                          placeholder="Price"
-                          style={{
-                            padding: 10,
-                            width: wp('70%'),
-                            borderRadius: 5,
-                            backgroundColor: '#fff',
-                          }}
-                        />
-                      </View>
-                    </View>
-                    <View
-                      style={{
-                        marginTop: hp('3%'),
-                      }}>
-                      <View
-                        style={{
-                          marginBottom: hp('2%'),
-                        }}>
-                        <Text
-                          style={{fontFamily: 'Inter-Regular', fontSize: 15}}>
-                          Inventory Item:{' '}
-                        </Text>
-                      </View>
-                      <View style={{}}>
-                        <TextInput
-                          value={
-                            pageData.inventoryMapping &&
-                            pageData.inventoryMapping.inventoryName
-                          }
-                          editable={false}
-                          placeholder="Inventory Item"
-                          style={{
-                            padding: 10,
-                            width: wp('70%'),
-                            borderRadius: 5,
-                            backgroundColor: '#fff',
-                          }}
-                        />
-                      </View>
-                    </View>
-                    <View
-                      style={{
-                        marginTop: hp('3%'),
-                      }}>
-                      <View
-                        style={{
-                          marginBottom: hp('2%'),
-                        }}>
-                        <Text
-                          style={{fontFamily: 'Inter-Regular', fontSize: 15}}>
-                          Inventory Unit (default):{' '}
-                        </Text>
-                      </View>
-                      <View style={{}}>
-                        <TextInput
-                          value={
-                            pageData.inventoryMapping &&
-                            pageData.inventoryMapping.inventoryUnit
-                          }
-                          editable={false}
-                          placeholder="Inventory Unit"
-                          style={{
-                            padding: 10,
-                            width: wp('70%'),
-                            borderRadius: 5,
-                            backgroundColor: '#fff',
-                          }}
-                        />
-                      </View>
-                    </View>
-
-                    <View
-                      style={{
-                        marginTop: hp('3%'),
-                      }}>
-                      <View
-                        style={{
-                          marginBottom: hp('2%'),
-                        }}>
-                        <Text
-                          style={{fontFamily: 'Inter-Regular', fontSize: 15}}>
-                          This order :{' '}
-                        </Text>
-                      </View>
-                      <View style={{}}>
-                        <TextInput
-                          value={'0 g'}
-                          // value={String(pageData.delta)}
-                          editable={false}
-                          placeholder="This order"
-                          style={{
-                            padding: 10,
-                            width: wp('70%'),
-                            borderRadius: 5,
-                            backgroundColor: '#fff',
-                          }}
-                        />
-                      </View>
-                    </View>
-                    <View
-                      style={{
-                        marginTop: hp('3%'),
-                      }}>
-                      <View
-                        style={{
-                          marginBottom: hp('2%'),
-                        }}>
-                        <Text
-                          style={{fontFamily: 'Inter-Regular', fontSize: 15}}>
-                          Current Level :{' '}
-                        </Text>
-                      </View>
-                      <View style={{}}>
-                        <TextInput
-                          // value={String(pageData.delta)}
-                          value={'0 g'}
-                          editable={false}
-                          placeholder="Current Level"
-                          style={{
-                            padding: 10,
-                            width: wp('70%'),
-                            borderRadius: 5,
-                            backgroundColor: '#fff',
-                          }}
-                        />
-                      </View>
-                    </View>
-                    <View
-                      style={{
-                        marginTop: hp('3%'),
-                      }}>
-                      <View
-                        style={{
-                          marginBottom: hp('2%'),
-                        }}>
-                        <Text
-                          style={{fontFamily: 'Inter-Regular', fontSize: 15}}>
-                          On Order :
-                        </Text>
-                      </View>
-                      <View style={{}}>
-                        <TextInput
-                          // value={String(pageData.delta)}
-                          value={'0 g'}
-                          editable={false}
-                          placeholder="On Order"
-                          style={{
-                            padding: 10,
-                            width: wp('70%'),
-                            borderRadius: 5,
-                            backgroundColor: '#fff',
-                          }}
-                        />
-                      </View>
-                    </View>
-                    <View
-                      style={{
-                        marginTop: hp('3%'),
-                      }}>
-                      <View
-                        style={{
-                          marginBottom: hp('2%'),
-                        }}>
-                        <Text
-                          style={{fontFamily: 'Inter-Regular', fontSize: 15}}>
-                          Target :
-                        </Text>
-                      </View>
-                      <View style={{}}>
-                        <TextInput
-                          // value={String(pageData.reorderLevel)}
-                          value={'0 g'}
-                          editable={false}
-                          placeholder="Target"
-                          style={{
-                            padding: 10,
-                            width: wp('70%'),
-                            borderRadius: 5,
-                            backgroundColor: '#fff',
-                          }}
-                        />
-                      </View>
-                    </View>
-                  </View>
-                </View>
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    marginHorizontal: wp('10%'),
-                    justifyContent: 'center',
-                  }}>
-                  <View style={{}}>
-                    <TouchableOpacity
-                      onPress={() =>
-                        this.setState({
-                          viewModalStatus: false,
-                          pageData: '',
-                        })
-                      }
-                      style={{
-                        height: hp('6%'),
-                        width: wp('25%'),
-                        backgroundColor: '#E7943B',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        marginTop: 20,
-                        borderRadius: 5,
-                      }}>
-                      <View style={{}}>
-                        <Text style={{color: 'white'}}>Close</Text>
-                      </View>
-                    </TouchableOpacity>
-                  </View>
-                </View>
-              </ScrollView>
             </View>
           </Modal>
           <Modal isVisible={orderingThreeModal} backdropOpacity={0.35}>

@@ -64,7 +64,7 @@ class EditDraftOrder extends Component {
       inventoryData: [],
       basketId: '',
       finalArrData: [],
-      editStatus: true,
+      editStatus: false,
       toRecipientValue: '',
       mailMessageValue: '',
       ccRecipientValue: '',
@@ -131,13 +131,7 @@ class EditDraftOrder extends Component {
             {
               loaderCompStatus: false,
             },
-            () =>
-              Alert.alert(`Grainz`, 'Draft updated successfully', [
-                {
-                  text: 'Okay',
-                  onPress: () => this.openMailModal(res),
-                },
-              ]),
+            () => this.openMailModal(res),
           );
           console.log('res', res);
         })
@@ -163,19 +157,13 @@ class EditDraftOrder extends Component {
   };
 
   openMailModal = res => {
-    Alert.alert('Grainz', 'Order added successfully', [
-      {
-        text: 'okay',
-        onPress: () =>
-          this.setState({
-            mailModalVisible: true,
-            toRecipientValue: res.data && res.data.emailDetails.toRecipient,
-            ccRecipientValue: res.data && res.data.emailDetails.ccRecipients,
-            mailTitleValue: res.data && res.data.emailDetails.subject,
-            mailMessageValue: res.data && res.data.emailDetails.text,
-          }),
-      },
-    ]);
+    this.setState({
+      mailModalVisible: true,
+      toRecipientValue: res.data && res.data.emailDetails.toRecipient,
+      ccRecipientValue: res.data && res.data.emailDetails.ccRecipients,
+      mailTitleValue: res.data && res.data.emailDetails.subject,
+      mailMessageValue: res.data && res.data.emailDetails.text,
+    });
   };
 
   updateDraftFun = () => {
@@ -204,11 +192,6 @@ class EditDraftOrder extends Component {
         this.setState({
           loaderCompStatus: false,
         });
-        Alert.alert('Grainz', 'Order updated successfully', [
-          {
-            text: 'okay',
-          },
-        ]);
       })
       .catch(err => {
         Alert.alert(`Error - ${err.response.status}`, 'Something went wrong', [
@@ -378,21 +361,7 @@ class EditDraftOrder extends Component {
       updateDraftOrderNewApi(payload)
         .then(res => {
           console.log('res', res);
-          this.setState({
-            loaderCompStatus: false,
-          });
-          Alert.alert('Grainz', 'Order updated successfully', [
-            {
-              text: 'okay',
-              onPress: () =>
-                this.setState(
-                  {
-                    loaderCompStatus: true,
-                  },
-                  () => this.viewFunSec(),
-                ),
-            },
-          ]);
+          this.viewFunSec();
         })
         .catch(err => {
           Alert.alert(
@@ -813,7 +782,7 @@ class EditDraftOrder extends Component {
               </View>
               <TouchableOpacity
                 onPress={() =>
-                  this.props.navigation.navigate('ViewDraftOrdersScreen')
+                  this.props.navigation.navigate('OrderingAdminScreen')
                 }
                 style={styles.goBackContainer}>
                 <Text style={styles.goBackTextStyle}>Go Back</Text>
@@ -1119,12 +1088,6 @@ class EditDraftOrder extends Component {
                               HTVA $
                             </Text>
                           </View>
-                          <View
-                            style={{
-                              width: wp('30%'),
-                              justifyContent: 'center',
-                              marginLeft: wp('5%'),
-                            }}></View>
                         </View>
                         {inventoryData &&
                           inventoryData.map((item, index) => {
@@ -1186,7 +1149,10 @@ class EditDraftOrder extends Component {
                                       />
                                     </View>
                                   ) : (
-                                    <View
+                                    <TouchableOpacity
+                                      onLongPress={() =>
+                                        this.actionFun(item, index)
+                                      }
                                       style={{
                                         width: wp('30%'),
                                         justifyContent: 'center',
@@ -1203,7 +1169,7 @@ class EditDraftOrder extends Component {
                                         item.inventoryMapping &&
                                         item.inventoryMapping.productUnit
                                       }`}</Text>
-                                    </View>
+                                    </TouchableOpacity>
                                   )}
                                   <View
                                     style={{
@@ -1215,22 +1181,6 @@ class EditDraftOrder extends Component {
                                       $ {Number(item.value).toFixed(2)}
                                     </Text>
                                   </View>
-                                  <TouchableOpacity
-                                    onPress={() => this.actionFun(item, index)}
-                                    style={{
-                                      width: wp('30%'),
-                                      justifyContent: 'center',
-                                      marginLeft: wp('5%'),
-                                    }}>
-                                    <Image
-                                      source={img.threeDotsIcon}
-                                      style={{
-                                        height: 15,
-                                        width: 15,
-                                        resizeMode: 'contain',
-                                      }}
-                                    />
-                                  </TouchableOpacity>
                                 </View>
                               </View>
                             );
@@ -1272,12 +1222,6 @@ class EditDraftOrder extends Component {
                                 {Number(draftsOrderData.totalValue).toFixed(2)}
                               </Text>
                             </View>
-                            <View
-                              style={{
-                                width: wp('30%'),
-                                justifyContent: 'center',
-                                marginLeft: wp('5%'),
-                              }}></View>
                           </View>
                         </View>
                       </View>
@@ -1571,7 +1515,7 @@ class EditDraftOrder extends Component {
                   }}>
                   <Text
                     style={{
-                      color: '#161C27',
+                      color: 'red',
                       fontFamily: 'Inter-Regular',
                       fontSize: 18,
                     }}>
@@ -1583,6 +1527,7 @@ class EditDraftOrder extends Component {
                       height: 15,
                       width: 15,
                       resizeMode: 'contain',
+                      tintColor: 'red',
                     }}
                   />
                 </View>
@@ -1601,7 +1546,7 @@ class EditDraftOrder extends Component {
                       fontFamily: 'Inter-Regular',
                       fontSize: 18,
                     }}>
-                    Cancel
+                    Close
                   </Text>
                 </View>
               </TouchableOpacity>

@@ -715,7 +715,7 @@ class ViewReviewOrder extends Component {
       () =>
         setTimeout(() => {
           this.saveFunInventoryItemSec();
-        }, 300),
+        }, 500),
     );
   };
 
@@ -747,6 +747,10 @@ class ViewReviewOrder extends Component {
     let payload = {
       arrivedDate: finalArrivalDateSpecific,
       id: modalData.id,
+      inventoryId: modalData.inventoryId,
+      inventoryProductMappingId:
+        modalData.inventoryMapping && modalData.inventoryMapping.id,
+      isCorrect: modalData.isCorrect,
       notes: modalNotes,
       orderId: modalData.orderId,
       orderedInventoryVolume: modalOrderedInventoryVolume,
@@ -1196,21 +1200,7 @@ class ViewReviewOrder extends Component {
                       <View
                         style={{
                           width: wp('30%'),
-                          justifyContent: 'center',
-                        }}>
-                        <Text
-                          style={{
-                            color: '#161C27',
-                            fontSize: 14,
-                            fontFamily: 'Inter-SemiBold',
-                          }}>
-                          Correct ?
-                        </Text>
-                      </View>
-                      <View
-                        style={{
-                          width: wp('30%'),
-                          alignItems: 'center',
+                          alignItems: 'flex-start',
                         }}>
                         {allSwitchStatus ? (
                           <ActivityIndicator size="small" color="grey" />
@@ -1292,6 +1282,12 @@ class ViewReviewOrder extends Component {
                           € HTVA
                         </Text>
                       </View>
+                      <View
+                        style={{
+                          width: wp('30%'),
+                          justifyContent: 'center',
+                          marginLeft: wp('5%'),
+                        }}></View>
                     </View>
                     <View>
                       {pageData && pageOrderItems.length > 0 ? (
@@ -1333,30 +1329,7 @@ class ViewReviewOrder extends Component {
                                   }
                                 />
                               </View>
-                              <TouchableOpacity
-                                onPress={() => this.deleteFun(item)}
-                                style={{
-                                  width: wp('30%'),
-                                  alignItems: 'center',
-                                }}>
-                                <View
-                                  style={{
-                                    backgroundColor: 'red',
-                                    paddingHorizontal: 15,
-                                    paddingVertical: 10,
-                                    borderRadius: 5,
-                                  }}>
-                                  <Image
-                                    source={img.deleteIconNew}
-                                    style={{
-                                      width: 18,
-                                      height: 18,
-                                      tintColor: '#fff',
-                                      resizeMode: 'contain',
-                                    }}
-                                  />
-                                </View>
-                              </TouchableOpacity>
+
                               <TouchableOpacity
                                 onPress={() => this.showEditModal(item, index)}
                                 style={{
@@ -1434,6 +1407,30 @@ class ViewReviewOrder extends Component {
                                   € {Number(item.orderValue).toFixed(2)}
                                 </Text>
                               </View>
+                              <TouchableOpacity
+                                onPress={() => this.deleteFun(item)}
+                                style={{
+                                  width: wp('30%'),
+                                  alignItems: 'center',
+                                }}>
+                                <View
+                                  style={{
+                                    backgroundColor: 'red',
+                                    paddingHorizontal: 15,
+                                    paddingVertical: 10,
+                                    borderRadius: 5,
+                                  }}>
+                                  <Image
+                                    source={img.deleteIconNew}
+                                    style={{
+                                      width: 18,
+                                      height: 18,
+                                      tintColor: '#fff',
+                                      resizeMode: 'contain',
+                                    }}
+                                  />
+                                </View>
+                              </TouchableOpacity>
                             </View>
                           );
                         })
@@ -1781,6 +1778,8 @@ class ViewReviewOrder extends Component {
                                 onChangeText={value =>
                                   this.setState({
                                     modalQuantityDelivered: value,
+                                    modalUserQuantityDelivered:
+                                      value * modalOrderedInventoryVolume,
                                   })
                                 }
                               />
@@ -1862,6 +1861,8 @@ class ViewReviewOrder extends Component {
                                 onChangeText={value =>
                                   this.setState({
                                     modalQuantityInvoiced: value,
+                                    modalUserQuantityInvoiced:
+                                      value * modalOrderedInventoryVolume,
                                   })
                                 }
                               />
@@ -2059,14 +2060,17 @@ class ViewReviewOrder extends Component {
                               style={{
                                 width: wp('30%'),
                                 alignItems: 'center',
+                                marginLeft: wp('5%'),
                               }}>
                               <TextInput
                                 placeholder="Notes"
+                                multiline
                                 style={{
                                   borderWidth: 0.5,
                                   borderRadius: 5,
                                   padding: 8,
-                                  width: 100,
+                                  width: 150,
+                                  height: 100,
                                 }}
                                 value={modalNotes && String(modalNotes)}
                                 onChangeText={value =>
@@ -2133,7 +2137,7 @@ class ViewReviewOrder extends Component {
                               fontSize: 15,
                               fontWeight: 'bold',
                             }}>
-                            {translate('Cancel')}
+                            {translate('Close')}
                           </Text>
                         </TouchableOpacity>
                       </View>

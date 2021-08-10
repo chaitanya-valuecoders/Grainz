@@ -24,7 +24,6 @@ import {
   getInventoryBySupplierIdApi,
   getSupplierCatalogApi,
   searchInventoryItemLApi,
-  searchSupplierItemLApi,
 } from '../../../../../connectivity/api';
 import Accordion from 'react-native-collapsible/Accordion';
 import styles from '../style';
@@ -410,7 +409,10 @@ class AddItems extends Component {
       {
         searchLoader: true,
       },
-      () => this.hitSearchApiSupplier(),
+      () =>
+        setTimeout(() => {
+          this.hitSearchApiSupplier();
+        }, 300),
     );
   };
 
@@ -423,37 +425,21 @@ class AddItems extends Component {
       navigateType,
       supplierName,
     } = this.state;
-    searchSupplierItemLApi(supplierId, searchItemSupplier)
-      .then(res => {
-        this.setState(
-          {
-            searchLoader: false,
-          },
-          () =>
-            this.props.navigation.navigate('SearchSupplierScreen', {
-              searchType: 'Supplier',
-              searchData: res.data,
-              supplierId,
-              screenType,
-              basketId,
-              navigateType,
-              supplierName,
-              searchItemSupplier,
-            }),
-        );
-      })
-      .catch(err => {
-        Alert.alert(
-          `SuppError - ${err.response.status}`,
-          'Something went wrong',
-          [
-            {
-              text: 'Okay',
-              onPress: () => this.props.navigation.goBack(),
-            },
-          ],
-        );
-      });
+    this.setState(
+      {
+        searchLoader: false,
+      },
+      () =>
+        this.props.navigation.navigate('SearchSupplierScreen', {
+          searchType: 'Supplier',
+          supplierId,
+          screenType,
+          basketId,
+          navigateType,
+          supplierName,
+          searchItemSupplier,
+        }),
+    );
   };
 
   inventoryFun = () => {

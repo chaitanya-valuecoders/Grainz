@@ -718,7 +718,7 @@ class ViewPendingDelivery extends Component {
       () =>
         setTimeout(() => {
           this.saveFunInventoryItemSec();
-        }, 300),
+        }, 500),
     );
   };
 
@@ -750,6 +750,10 @@ class ViewPendingDelivery extends Component {
     let payload = {
       arrivedDate: finalArrivalDateSpecific,
       id: modalData.id,
+      inventoryId: modalData.inventoryId,
+      inventoryProductMappingId:
+        modalData.inventoryMapping && modalData.inventoryMapping.id,
+      isCorrect: modalData.isCorrect,
       notes: modalNotes,
       orderId: modalData.orderId,
       orderedInventoryVolume: modalOrderedInventoryVolume,
@@ -827,6 +831,7 @@ class ViewPendingDelivery extends Component {
       isCheckedStatus,
       isCheckedEditableStatus,
     } = this.state;
+    console.log('modalData', modalData);
 
     return (
       <View style={styles.container}>
@@ -1199,21 +1204,7 @@ class ViewPendingDelivery extends Component {
                       <View
                         style={{
                           width: wp('30%'),
-                          justifyContent: 'center',
-                        }}>
-                        <Text
-                          style={{
-                            color: '#161C27',
-                            fontSize: 14,
-                            fontFamily: 'Inter-SemiBold',
-                          }}>
-                          Correct ?
-                        </Text>
-                      </View>
-                      <View
-                        style={{
-                          width: wp('30%'),
-                          alignItems: 'center',
+                          alignItems: 'flex-start',
                         }}>
                         {allSwitchStatus ? (
                           <ActivityIndicator size="small" color="grey" />
@@ -1235,6 +1226,7 @@ class ViewPendingDelivery extends Component {
                           />
                         )}
                       </View>
+
                       <View
                         style={{
                           width: wp('50%'),
@@ -1295,6 +1287,22 @@ class ViewPendingDelivery extends Component {
                           € HTVA
                         </Text>
                       </View>
+
+                      <View
+                        style={{
+                          width: wp('30%'),
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                        }}>
+                        <Text
+                          style={{
+                            color: '#161C27',
+                            fontSize: 14,
+                            fontFamily: 'Inter-SemiBold',
+                          }}>
+                          Action
+                        </Text>
+                      </View>
                     </View>
                     <View>
                       {pageData && pageOrderItems.length > 0 ? (
@@ -1336,30 +1344,7 @@ class ViewPendingDelivery extends Component {
                                   }
                                 />
                               </View>
-                              <TouchableOpacity
-                                onPress={() => this.deleteFun(item)}
-                                style={{
-                                  width: wp('30%'),
-                                  alignItems: 'center',
-                                }}>
-                                <View
-                                  style={{
-                                    backgroundColor: 'red',
-                                    paddingHorizontal: 15,
-                                    paddingVertical: 10,
-                                    borderRadius: 5,
-                                  }}>
-                                  <Image
-                                    source={img.deleteIconNew}
-                                    style={{
-                                      width: 18,
-                                      height: 18,
-                                      tintColor: '#fff',
-                                      resizeMode: 'contain',
-                                    }}
-                                  />
-                                </View>
-                              </TouchableOpacity>
+
                               <TouchableOpacity
                                 onPress={() => this.showEditModal(item, index)}
                                 style={{
@@ -1437,6 +1422,30 @@ class ViewPendingDelivery extends Component {
                                   € {Number(item.orderValue).toFixed(2)}
                                 </Text>
                               </View>
+                              <TouchableOpacity
+                                onPress={() => this.deleteFun(item)}
+                                style={{
+                                  width: wp('30%'),
+                                  alignItems: 'center',
+                                }}>
+                                <View
+                                  style={{
+                                    backgroundColor: 'red',
+                                    paddingHorizontal: 15,
+                                    paddingVertical: 10,
+                                    borderRadius: 5,
+                                  }}>
+                                  <Image
+                                    source={img.deleteIconNew}
+                                    style={{
+                                      width: 18,
+                                      height: 18,
+                                      tintColor: '#fff',
+                                      resizeMode: 'contain',
+                                    }}
+                                  />
+                                </View>
+                              </TouchableOpacity>
                             </View>
                           );
                         })
@@ -1461,7 +1470,7 @@ class ViewPendingDelivery extends Component {
                     }}>
                     <View
                       style={{
-                        flex: 1,
+                        flex: 1.2,
                         justifyContent: 'center',
                         flexDirection: 'row',
                         alignItems: 'center',
@@ -1780,6 +1789,8 @@ class ViewPendingDelivery extends Component {
                                 onChangeText={value =>
                                   this.setState({
                                     modalQuantityDelivered: value,
+                                    modalUserQuantityDelivered:
+                                      value * modalOrderedInventoryVolume,
                                   })
                                 }
                               />
@@ -1861,6 +1872,8 @@ class ViewPendingDelivery extends Component {
                                 onChangeText={value =>
                                   this.setState({
                                     modalQuantityInvoiced: value,
+                                    modalUserQuantityInvoiced:
+                                      value * modalOrderedInventoryVolume,
                                   })
                                 }
                               />
@@ -2058,14 +2071,17 @@ class ViewPendingDelivery extends Component {
                               style={{
                                 width: wp('30%'),
                                 alignItems: 'center',
+                                marginLeft: wp('5%'),
                               }}>
                               <TextInput
                                 placeholder="Notes"
+                                multiline
                                 style={{
                                   borderWidth: 0.5,
                                   borderRadius: 5,
                                   padding: 8,
-                                  width: 100,
+                                  width: 150,
+                                  height: 100,
                                 }}
                                 value={modalNotes && String(modalNotes)}
                                 onChangeText={value =>
@@ -2132,7 +2148,7 @@ class ViewPendingDelivery extends Component {
                               fontSize: 15,
                               fontWeight: 'bold',
                             }}>
-                            {translate('Cancel')}
+                            {translate('Close')}
                           </Text>
                         </TouchableOpacity>
                       </View>

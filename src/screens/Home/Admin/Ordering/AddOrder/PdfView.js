@@ -219,16 +219,12 @@ class PdfView extends Component {
       };
       addDraftApi(payload)
         .then(res => {
-          this.setState({
-            loaderCompStatus: false,
-          });
-          console.log('res', res);
-          Alert.alert('Grainz', 'Order added successfully', [
+          this.setState(
             {
-              text: 'okay',
-              onPress: () => this.openMailModal(res),
+              loaderCompStatus: false,
             },
-          ]);
+            () => this.openMailModal(res),
+          );
         })
         .catch(err => {
           Alert.alert(

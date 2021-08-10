@@ -260,14 +260,23 @@ class DraftOrder extends Component {
                         return (
                           <View>
                             <TouchableOpacity
+                              // onPress={() =>
+                              //   this.props.navigation.navigate(
+                              //     'ViewDraftOrdersScreen',
+                              //     {
+                              //       supplierName: item.supplierName,
+                              //       productId: item.id,
+                              //       basketId: item.shopingBasketId,
+                              //       placedByName: item.placedByNAme,
+                              //     },
+                              //   )
+                              // }
                               onPress={() =>
                                 this.props.navigation.navigate(
-                                  'ViewDraftOrdersScreen',
+                                  'EditDraftOrderScreen',
                                   {
-                                    supplierName: item.supplierName,
                                     productId: item.id,
                                     basketId: item.shopingBasketId,
-                                    placedByName: item.placedByNAme,
                                   },
                                 )
                               }
