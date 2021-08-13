@@ -47,6 +47,8 @@ import ViewMenuItemsScreen from '../screens/Home/Setup/MenuItem/ViewMenuItems';
 import ViewEventAdminScreen from '../screens/Home/Admin/Events/ViewEvent';
 import EditEventAdminScreen from '../screens/Home/Admin/Events/EditEvent';
 import EditStockScreen from '../screens/StockTake/EditStock';
+import NewStockScreen from '../screens/StockTake/NewStock';
+import HistoryStockScreen from '../screens/StockTake/HistoryStock';
 import AddBuilderMepScreen from '../screens/Mep/AddBuilder';
 import ViewRecipeMepScreen from '../screens/Mep/ViewRecipe';
 import ViewInventoryMepScreen from '../screens/MepAdvance/ViewInventory';
@@ -75,6 +77,8 @@ export default function AppNavFun() {
       <AppNav.Screen name="ManualLogScreen" component={ManualLogScreen} />
       <AppNav.Screen name="MyProfile" component={MyProfile} />
       <AppNav.Screen name="StockTakeScreen" component={StockTakeScreen} />
+      <AppNav.Screen name="NewStockScreen" component={NewStockScreen} />
+      <AppNav.Screen name="HistoryStockScreen" component={HistoryStockScreen} />
       <AppNav.Screen
         name="InventoryListOrderScreen"
         component={InventoryListOrderScreen}

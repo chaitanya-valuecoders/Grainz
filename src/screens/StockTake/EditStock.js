@@ -22,6 +22,8 @@ import {UserTokenAction} from '../../redux/actions/UserTokenAction';
 import {getMyProfileApi, addStockTakeApi} from '../../connectivity/api';
 import RNPickerSelect from 'react-native-picker-select';
 import styles from './style';
+import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
+import LoaderComp from '../../components/Loader';
 
 import {translate} from '../../utils/translations';
 
@@ -40,7 +42,9 @@ class EditStock extends Component {
       inventoryId: '',
       pageDate: '',
       pageData: '',
-      departmentData: '',
+      departmentId: '',
+      categoryId: '',
+      loaderCompStatus: false,
     };
   }
 
@@ -83,8 +87,14 @@ class EditStock extends Component {
 
   componentDidMount() {
     this.getData();
-    const {item, pageDate, inventoryId, departmentData} =
+    const {item, pageDate, inventoryId, departmentId, categoryId} =
       this.props.route && this.props.route.params;
+    console.log('item', item);
+    console.log('pageDate', pageDate);
+    console.log('inventoryId', inventoryId);
+    console.log('departmentId', departmentId);
+    console.log('categoryId', categoryId);
+
     let finalUnitData = item.units.map((item, index) => {
       return {
         label: item.name,
@@ -100,7 +110,8 @@ class EditStock extends Component {
         unitData: [...finalUnitData],
         pageDate,
         inventoryId,
-        departmentData,
+        departmentId,
+        categoryId,
       });
     } else {
       let finalModalData =
@@ -130,7 +141,8 @@ class EditStock extends Component {
         pageDate,
         inventoryId,
         pageData: item,
-        departmentData,
+        departmentId,
+        categoryId,
       });
     }
   }
@@ -173,6 +185,15 @@ class EditStock extends Component {
   };
 
   deleteFun = (item, index) => {
+    this.setState(
+      {
+        loaderCompStatus: true,
+      },
+      () => this.deleteFunSec(item, index),
+    );
+  };
+
+  deleteFunSec = (item, index) => {
     let payload = [
       {
         action: 'Delete',
@@ -213,7 +234,7 @@ class EditStock extends Component {
   removeFromList = index => {
     let temp = this.state.modalData;
     temp.splice(index, 1);
-    this.setState({modalData: temp});
+    this.setState({modalData: temp, loaderCompStatus: false});
   };
 
   editOfferItemsFun = (index, type, value) => {
@@ -260,6 +281,15 @@ class EditStock extends Component {
   };
 
   saveFun = () => {
+    this.setState(
+      {
+        loaderCompStatus: true,
+      },
+      () => this.saveFunSec(),
+    );
+  };
+
+  saveFunSec = () => {
     const {modalData} = this.state;
     let payload = modalData;
     addStockTakeApi(payload)
@@ -270,6 +300,7 @@ class EditStock extends Component {
             onPress: () =>
               this.setState({
                 editableStatus: false,
+                loaderCompStatus: false,
               }),
           },
         ]);
@@ -288,6 +319,7 @@ class EditStock extends Component {
       modalLoader,
       unitData,
       editableStatus,
+      loaderCompStatus,
     } = this.state;
     return (
       <View style={styles.container}>
@@ -300,7 +332,8 @@ class EditStock extends Component {
         ) : (
           <SubHeader {...this.props} buttons={buttonsSubHeader} index={0} />
         )}
-        <ScrollView showsVerticalScrollIndicator={false}>
+        <LoaderComp loaderComp={loaderCompStatus} />
+        <KeyboardAwareScrollView showsVerticalScrollIndicator={false}>
           <View style={styles.subContainer}>
             <View style={styles.firstContainer}>
               <View style={styles.flex}>
@@ -378,8 +411,9 @@ class EditStock extends Component {
                                         }}>
                                         <TextInput
                                           editable={editableStatus}
+                                          returnKeyType="done"
                                           style={{
-                                            paddingVertical: 10,
+                                            paddingVertical: 8,
                                             borderColor: '#00000033',
                                             borderWidth: 1,
                                             width: wp('20%'),
@@ -388,8 +422,8 @@ class EditStock extends Component {
                                               ? '#fff'
                                               : '#E9ECEF',
                                           }}
-                                          multiline={true}
                                           numberOfLines={1}
+                                          keyboardType="numeric"
                                           onChangeText={value => {
                                             this.editOfferItemsFun(
                                               index,
@@ -592,7 +626,7 @@ class EditStock extends Component {
               </View>
             </View>
           ) : null}
-        </ScrollView>
+        </KeyboardAwareScrollView>
       </View>
     );
   }

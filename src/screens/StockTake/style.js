@@ -18,6 +18,7 @@ const styles = StyleSheet.create({
   },
   subContainer: {
     marginTop: hp('2%'),
+    flex: 1,
   },
   firstContainer: {
     flexDirection: 'row',
@@ -105,13 +106,14 @@ const styles = StyleSheet.create({
     marginLeft: wp('2%'),
     fontFamily: 'Inter-Regular',
   },
-  renderContentContainer: {backgroundColor: '#fff', height: hp('30%')},
+  renderContentContainer: {backgroundColor: '#fff', marginVertical: hp('3%')},
   renderContentSubContainer: {
     flexDirection: 'row',
     paddingBottom: 15,
     marginHorizontal: wp('5%'),
   },
-  boxSize: {width: wp('40%'), justifyContent: 'center'},
+  boxSize: {width: wp('40%'), justifyContent: 'center', paddingTop: 10},
+  boxSizeSec: {width: wp('40%'), justifyContent: 'center'},
   boxTextHeadingStyling: {
     fontSize: 14,
     color: '#161C27',
