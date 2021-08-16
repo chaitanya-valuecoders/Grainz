@@ -161,6 +161,7 @@ class NewStock extends Component {
       topValueStatus: false,
     });
   };
+  //
 
   getDataFun = () => {
     const {departmentName, categoryName, topValue, pageDate, topValueStatus} =
