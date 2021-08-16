@@ -14,13 +14,18 @@ import img from '../../constants/images';
 import SubHeader from '../../components/SubHeader';
 import Header from '../../components/Header';
 import {UserTokenAction} from '../../redux/actions/UserTokenAction';
-import {getMyProfileApi, getStockDataApi} from '../../connectivity/api';
+import {
+  getMyProfileApi,
+  getStockDataApi,
+  getNewTopStockTakeApi,
+} from '../../connectivity/api';
 import styles from './style';
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
 import {translate} from '../../utils/translations';
+import moment from 'moment';
 
 class StockScreen extends Component {
   constructor(props) {
@@ -35,6 +40,7 @@ class StockScreen extends Component {
       topValue: '',
       categoryLoader: true,
       catArray: [],
+      topValueStatus: true,
     };
   }
 
@@ -76,7 +82,7 @@ class StockScreen extends Component {
 
   componentDidMount() {
     this.getData();
-    const {departmentId, categoryId, pageDate, topValue} =
+    const {departmentId, categoryId, pageDate, topValue, topValueStatus} =
       this.props.route && this.props.route.params;
     this.props.navigation.addListener('focus', () => {
       this.setState(
@@ -86,14 +92,40 @@ class StockScreen extends Component {
           pageDate,
           topValue,
           categoryLoader: true,
+          topValueStatus,
         },
-        () => this.getStockDataFun(),
+        () => this.getFinalData(),
       );
     });
   }
 
+  getFinalData = () => {
+    const {topValueStatus} = this.state;
+    if (topValueStatus) {
+      this.getTopDataFun();
+    } else {
+      this.getStockDataFun();
+    }
+  };
+
+  getTopDataFun = () => {
+    const {departmentId, topValue, pageDate} = this.state;
+    let newdate = moment(pageDate).format('MM/DD/YYYY');
+    getNewTopStockTakeApi(departmentId, newdate, topValue)
+      .then(res => {
+        this.setState({
+          catArray: res.data,
+          categoryLoader: false,
+        });
+      })
+      .catch(err => {
+        console.log('ERR', err);
+      });
+  };
+
   getStockDataFun = () => {
     const {departmentId, categoryId, pageDate} = this.state;
+    console.log('Date', pageDate);
     getStockDataApi(departmentId, categoryId, pageDate)
       .then(res => {
         this.setState({

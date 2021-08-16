@@ -50,7 +50,7 @@ class NewStock extends Component {
       departmentName: '',
       topValueStatus: true,
       categoriesStatus: false,
-      topValue: '0',
+      topValue: '50',
       departmentArr: [],
       categoryArr: [],
       pageDate: todayDate,
@@ -163,16 +163,32 @@ class NewStock extends Component {
   };
 
   getDataFun = () => {
-    const {departmentName, categoryName, topValue, pageDate} = this.state;
-    if (departmentName && categoryName) {
-      this.props.navigation.navigate('StockScreen', {
-        departmentId: departmentName,
-        categoryId: categoryName,
-        topValue,
-        pageDate,
-      });
+    const {departmentName, categoryName, topValue, pageDate, topValueStatus} =
+      this.state;
+    if (departmentName) {
+      if (topValueStatus) {
+        this.props.navigation.navigate('StockScreen', {
+          departmentId: departmentName,
+          categoryId: categoryName,
+          topValue,
+          pageDate,
+          topValueStatus,
+        });
+      } else {
+        if (categoryName) {
+          this.props.navigation.navigate('StockScreen', {
+            departmentId: departmentName,
+            categoryId: categoryName,
+            topValue,
+            pageDate,
+            topValueStatus,
+          });
+        } else {
+          alert('Please select category first');
+        }
+      }
     } else {
-      alert('Select Department or Category First');
+      alert('Please select department first');
     }
   };
 
@@ -190,6 +206,8 @@ class NewStock extends Component {
       departmentArr,
       categoryArr,
     } = this.state;
+
+    console.log('topValueStatus', topValueStatus);
 
     return (
       <View style={styles.container}>
@@ -450,6 +468,7 @@ class NewStock extends Component {
                       width: '70%',
                     }}>
                     <RNPickerSelect
+                      disabled={categoriesStatus ? false : true}
                       placeholder={{
                         label: 'Categories*',
                         value: null,
