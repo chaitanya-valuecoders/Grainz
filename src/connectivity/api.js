@@ -354,6 +354,17 @@ export async function getPreviousStockDatesApi(id) {
   });
 }
 
+export async function getPreviousStockDatesDataApi(date) {
+  let url =
+    baseURL + `/StockTake/stock take list by date?StockTakeDate=${date}`;
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.get(url, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+}
+
 export const updateStockTakeApi = async payload => {
   const token = await AsyncStorage.getItem('@appToken');
   return axios.get(baseURL + '/StockTake/update stocktake', payload, {

@@ -150,6 +150,7 @@ class StockScreen extends Component {
       inventoryId: item.inventoryId,
       departmentId,
       categoryId,
+      screenType: 'New',
     });
   };
 

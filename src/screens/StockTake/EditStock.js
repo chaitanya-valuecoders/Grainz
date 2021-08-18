@@ -45,6 +45,7 @@ class EditStock extends Component {
       departmentId: '',
       categoryId: '',
       loaderCompStatus: false,
+      screenType: '',
     };
   }
 
@@ -87,13 +88,8 @@ class EditStock extends Component {
 
   componentDidMount() {
     this.getData();
-    const {item, pageDate, inventoryId, departmentId, categoryId} =
+    const {item, pageDate, inventoryId, departmentId, categoryId, screenType} =
       this.props.route && this.props.route.params;
-    console.log('item', item);
-    console.log('pageDate', pageDate);
-    console.log('inventoryId', inventoryId);
-    console.log('departmentId', departmentId);
-    console.log('categoryId', categoryId);
 
     let finalUnitData = item.units.map((item, index) => {
       return {
@@ -112,6 +108,7 @@ class EditStock extends Component {
         inventoryId,
         departmentId,
         categoryId,
+        screenType,
       });
     } else {
       let finalModalData =
@@ -143,6 +140,7 @@ class EditStock extends Component {
         pageData: item,
         departmentId,
         categoryId,
+        screenType,
       });
     }
   }
@@ -320,6 +318,7 @@ class EditStock extends Component {
       unitData,
       editableStatus,
       loaderCompStatus,
+      screenType,
     } = this.state;
     return (
       <View style={styles.container}>
@@ -346,14 +345,16 @@ class EditStock extends Component {
               </TouchableOpacity>
             </View>
           </View>
-          <TouchableOpacity
-            onPress={() => this.addDataInArrFun()}
-            style={styles.addContainer}>
-            <View style={styles.addSubContainer}>
-              <Image source={img.addIcon} style={styles.addImageStyling} />
-              <Text style={styles.addTextStyling}>Add Line</Text>
-            </View>
-          </TouchableOpacity>
+          {screenType === 'New' ? (
+            <TouchableOpacity
+              onPress={() => this.addDataInArrFun()}
+              style={styles.addContainer}>
+              <View style={styles.addSubContainer}>
+                <Image source={img.addIcon} style={styles.addImageStyling} />
+                <Text style={styles.addTextStyling}>Add Line</Text>
+              </View>
+            </TouchableOpacity>
+          ) : null}
           {recipeLoader ? (
             <ActivityIndicator size="small" color="#94C036" />
           ) : (
