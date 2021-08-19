@@ -387,9 +387,11 @@ class EditStock extends Component {
                               <View style={styles.headingSubContainer}>
                                 <Text>Name</Text>
                               </View>
-                              <View style={styles.headingSubContainer}>
-                                <Text>Action</Text>
-                              </View>
+                              {screenType === 'New' ? (
+                                <View style={styles.headingSubContainer}>
+                                  <Text>Action</Text>
+                                </View>
+                              ) : null}
                             </View>
                             <View>
                               {modalData && modalData.length > 0 ? (
@@ -535,24 +537,26 @@ class EditStock extends Component {
                                         }}>
                                         <Text>{item.createdBy}</Text>
                                       </View>
-                                      <TouchableOpacity
-                                        onPress={() =>
-                                          this.actionFun(item, index)
-                                        }
-                                        style={{
-                                          width: wp('30%'),
-                                          alignItems: 'center',
-                                          paddingVertical: 10,
-                                        }}>
-                                        <Image
-                                          source={img.threeDotsIcon}
+                                      {screenType === 'New' ? (
+                                        <TouchableOpacity
+                                          onPress={() =>
+                                            this.actionFun(item, index)
+                                          }
                                           style={{
-                                            height: 15,
-                                            width: 15,
-                                            resizeMode: 'contain',
-                                          }}
-                                        />
-                                      </TouchableOpacity>
+                                            width: wp('30%'),
+                                            alignItems: 'center',
+                                            paddingVertical: 10,
+                                          }}>
+                                          <Image
+                                            source={img.threeDotsIcon}
+                                            style={{
+                                              height: 15,
+                                              width: 15,
+                                              resizeMode: 'contain',
+                                            }}
+                                          />
+                                        </TouchableOpacity>
+                                      ) : null}
                                     </View>
                                   );
                                 })

@@ -300,23 +300,23 @@ class HistoryData extends Component {
         ) : (
           <SubHeader {...this.props} buttons={buttonsSubHeader} />
         )}
-        <View style={styles.subContainer}>
-          <View style={styles.firstContainer}>
-            <View style={styles.flex}>
-              <Text style={styles.adminTextStyle}>
-                {translate('Stock Take')}
-              </Text>
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          style={{marginBottom: hp('2%')}}>
+          <View style={styles.subContainer}>
+            <View style={styles.firstContainer}>
+              <View style={styles.flex}>
+                <Text style={styles.adminTextStyle}>
+                  {translate('Stock Take')}
+                </Text>
+              </View>
+              <TouchableOpacity
+                onPress={() => this.props.navigation.goBack()}
+                style={styles.goBackContainer}>
+                <Text style={styles.goBackTextStyle}>Go Back</Text>
+              </TouchableOpacity>
             </View>
-            <TouchableOpacity
-              onPress={() => this.props.navigation.goBack()}
-              style={styles.goBackContainer}>
-              <Text style={styles.goBackTextStyle}>Go Back</Text>
-            </TouchableOpacity>
-          </View>
 
-          <ScrollView
-            showsVerticalScrollIndicator={false}
-            style={{marginBottom: hp('2%')}}>
             {categoryLoader ? (
               <ActivityIndicator color="#94C036" size="large" />
             ) : (
@@ -331,8 +331,8 @@ class HistoryData extends Component {
                 />
               </View>
             )}
-          </ScrollView>
-        </View>
+          </View>
+        </ScrollView>
       </View>
     );
   }
