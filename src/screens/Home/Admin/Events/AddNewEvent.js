@@ -1364,7 +1364,6 @@ class AddNewEvent extends Component {
                     </View>
                   </View>
                 </ScrollView>
-
                 <View style={{justifyContent: 'center', alignItems: 'center'}}>
                   <TouchableOpacity
                     onPress={() => this.addDataInArrFun()}

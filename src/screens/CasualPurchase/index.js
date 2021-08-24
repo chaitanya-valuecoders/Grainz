@@ -4,34 +4,41 @@ import {
   Text,
   TouchableOpacity,
   Image,
-  ScrollView,
   ActivityIndicator,
-  Pressable,
+  FlatList,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {connect} from 'react-redux';
 import img from '../../constants/images';
 import SubHeader from '../../components/SubHeader';
 import Header from '../../components/Header';
-import moment from 'moment';
 import {UserTokenAction} from '../../redux/actions/UserTokenAction';
-import {getMyProfileApi, getCasualPurchasesApi} from '../../connectivity/api';
-import {translate} from '../../utils/translations';
+import {getMyProfileApi} from '../../connectivity/api';
 import styles from './style';
+
+import {translate} from '../../utils/translations';
 
 class index extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      buttons: [
+        {
+          id: 0,
+          name: 'New',
+        },
+        {
+          id: 1,
+          name: 'View',
+        },
+      ],
       token: '',
-      casualPurchases: [],
-      casualListLoader: false,
-      recipeLoader: true,
       buttonsSubHeader: [],
+      loader: true,
     };
   }
 
-  getProfileDataFun = async () => {
+  getData = async () => {
     try {
       const value = await AsyncStorage.getItem('@appToken');
       if (value !== null) {
@@ -51,7 +58,7 @@ class index extends Component {
     getMyProfileApi()
       .then(res => {
         this.setState({
-          recipeLoader: false,
+          loader: false,
           buttonsSubHeader: [
             {name: translate('ADMIN')},
             {name: translate('Setup')},
@@ -60,166 +67,93 @@ class index extends Component {
         });
       })
       .catch(err => {
-        console.warn('ERr', err);
+        console.warn('ERr', err.response);
+        this.setState({
+          loader: false,
+        });
       });
   };
 
-  getCasualPurchasesData() {
-    this.setState(
-      {
-        casualListLoader: true,
-      },
-      () =>
-        getCasualPurchasesApi()
-          .then(res => {
-            this.setState({casualPurchases: res.data, casualListLoader: false});
-          })
-          .catch(err => {
-            this.setState({casualListLoader: false});
-            console.warn('errR', err);
-          }),
-    );
-  }
+  removeToken = async () => {
+    await AsyncStorage.removeItem('@appToken');
+    this.props.UserTokenAction(null);
+  };
 
   componentDidMount() {
-    this.props.navigation.addListener('focus', () => {
-      this.getCasualPurchasesData();
-    });
-    this.getProfileDataFun();
+    this.getData();
   }
 
-  myProfileFun = () => {
+  myProfile = () => {
     this.props.navigation.navigate('MyProfile');
   };
 
-  newCasualPurchase() {
-    this.props.navigation.navigate('AddPurchaseScreen');
-  }
-
-  navigateToEditFun(order) {
-    this.props.navigation.navigate('EditPurchase', {
-      orderData: order,
-    });
-  }
+  onPressFun = item => {
+    if (item.name === 'New') {
+      this.props.navigation.navigate('AddPurchaseScreen');
+    } else if (item.name === 'View') {
+      this.props.navigation.navigate('ViewPurchaseScreen');
+    }
+  };
 
   render() {
-    const {casualPurchases, casualListLoader, buttonsSubHeader, recipeLoader} =
-      this.state;
+    const {buttons, buttonsSubHeader, loader} = this.state;
+
     return (
       <View style={styles.container}>
         <Header
-          logoutFun={this.myProfileFun}
+          logoutFun={this.myProfile}
           logoFun={() => this.props.navigation.navigate('HomeScreen')}
         />
-        {recipeLoader ? (
+        {loader ? (
           <ActivityIndicator size="small" color="#94C036" />
         ) : (
           <SubHeader {...this.props} buttons={buttonsSubHeader} />
         )}
-        <ScrollView
-          ref={ref => {
-            this.scrollListReftop = ref;
-          }}>
-          <View>
-            <View style={styles.subContainer}>
-              <View style={styles.firstContainer}>
-                <View style={styles.flex}>
-                  <Text style={styles.adminTextStyle}>
-                    {translate('Casual purchase')}
-                  </Text>
-                </View>
-                <TouchableOpacity
-                  onPress={() => this.props.navigation.goBack()}
-                  style={styles.goBackContainer}>
-                  <Text style={styles.goBackTextStyle}>Go Back</Text>
-                </TouchableOpacity>
-              </View>
+        <View style={styles.subContainer}>
+          <View style={styles.firstContainer}>
+            <View style={styles.flex}>
+              <Text style={styles.adminTextStyle}>
+                {translate('Casual purchase')}
+              </Text>
             </View>
-            <View style={{}}>
-              <View>
+            <TouchableOpacity
+              onPress={() => this.props.navigation.goBack()}
+              style={styles.goBackContainer}>
+              <Text style={styles.goBackTextStyle}>Go Back</Text>
+            </TouchableOpacity>
+          </View>
+
+          <FlatList
+            data={buttons}
+            renderItem={({item}) => (
+              <View style={styles.itemContainer}>
                 <TouchableOpacity
-                  onPress={() => this.newCasualPurchase()}
-                  style={styles.addNewContainer}>
-                  <View style={styles.addNewSubContainer}>
+                  onPress={() => this.onPressFun(item)}
+                  style={styles.tileContainer}>
+                  <View style={styles.tileImageContainer}>
                     <Image
-                      source={img.addIcon}
-                      style={styles.addImageStyling}
+                      source={
+                        item.name === 'New'
+                          ? img.addIconNew
+                          : item.name === 'View'
+                          ? img.inventoryIcon
+                          : null
+                      }
+                      style={styles.tileImageStyling}
                     />
-                    <Text style={styles.addTextStyling}>Add New</Text>
+                  </View>
+                  <View style={styles.tileTextContainer}>
+                    <Text style={styles.tileTextStyling} numberOfLines={1}>
+                      {item.name}
+                    </Text>
                   </View>
                 </TouchableOpacity>
               </View>
-            </View>
-          </View>
-          <View>
-            <View style={styles.listHeading}>
-              <View style={styles.listSubHeading}>
-                <Text style={styles.listTextStyling}>{translate('Date')}</Text>
-                <Pressable>
-                  <Image
-                    style={styles.listImageStyling}
-                    source={img.doubleArrowIconNew}
-                  />
-                </Pressable>
-              </View>
-              <View style={styles.listSubHeading}>
-                <Text style={styles.listTextStyling}>
-                  {translate('Supplier')}
-                </Text>
-                <Pressable>
-                  <Image
-                    style={styles.listImageStyling}
-                    source={img.doubleArrowIconNew}
-                  />
-                </Pressable>
-              </View>
-              <View style={styles.listSubHeading}>
-                <Text style={styles.listTextStyling}>
-                  $ {translate('Total')} HTVA
-                </Text>
-                <Pressable>
-                  <Image
-                    style={styles.listImageStyling}
-                    source={img.doubleArrowIconNew}
-                  />
-                </Pressable>
-              </View>
-            </View>
-            {casualListLoader ? (
-              <ActivityIndicator color="grey" size="large" />
-            ) : (
-              casualPurchases.map((item, index) => {
-                const date = moment(item.orderDate).format('MM/DD/YYYY');
-                const price = Math.round(item.htva);
-                return (
-                  <View
-                    style={{
-                      ...styles.listDataHeadingContainer,
-                      backgroundColor: index % 2 === 0 ? '#FFFFFF' : '#F7F8F5',
-                    }}>
-                    <TouchableOpacity
-                      style={styles.listDataHeadingSubContainer}
-                      onPress={() => this.navigateToEditFun(item)}>
-                      <View style={styles.listDataContainer}>
-                        <Text style={styles.listDataTextStyling}>{date}</Text>
-                      </View>
-                      <View style={styles.listDataContainer}>
-                        <Text style={styles.listDataTextStyling}>
-                          {item.supplierName}
-                        </Text>
-                      </View>
-                      <View style={styles.listDataContainer}>
-                        <Text style={styles.listDataTextStyling}>
-                          $ {price}
-                        </Text>
-                      </View>
-                    </TouchableOpacity>
-                  </View>
-                );
-              })
             )}
-          </View>
-        </ScrollView>
+            keyExtractor={item => item.id}
+            numColumns={3}
+          />
+        </View>
       </View>
     );
   }

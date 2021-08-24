@@ -107,5 +107,32 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter-Regular',
     color: '#151B26',
   },
+  tileContainer: {
+    backgroundColor: '#fff',
+    flex: 1,
+    margin: 10,
+    borderRadius: 8,
+    padding: 10,
+  },
+  tileImageContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  tileImageStyling: {
+    height: 40,
+    width: 40,
+    resizeMode: 'contain',
+  },
+  tileTextContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  tileTextStyling: {
+    fontSize: 13,
+    textAlign: 'center',
+    fontFamily: 'Inter-Regular',
+  },
 });
 export default styles;

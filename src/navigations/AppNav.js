@@ -53,6 +53,7 @@ import AddBuilderMepScreen from '../screens/Mep/AddBuilder';
 import ViewRecipeMepScreen from '../screens/Mep/ViewRecipe';
 import ViewInventoryMepScreen from '../screens/MepAdvance/ViewInventory';
 import AddPurchaseScreen from '../screens/CasualPurchase/AddPurchase';
+import ViewPurchaseScreen from '../screens/CasualPurchase/ViewPurchase';
 import AddItemsOrderScreen from '../screens/Home/Admin/Ordering/AddOrder/AddItems';
 import InventoryListOrderScreen from '../screens/Home/Admin/Ordering/AddOrder/InventoryList';
 import SupplierlistOrderScreen from '../screens/Home/Admin/Ordering/AddOrder/Supplierlist';
@@ -133,6 +134,7 @@ export default function AppNavFun() {
         component={ViewPendingDeliveryScreen}
       />
       <AppNav.Screen name="AddPurchaseScreen" component={AddPurchaseScreen} />
+      <AppNav.Screen name="ViewPurchaseScreen" component={ViewPurchaseScreen} />
       <AppNav.Screen
         name="AddBuilderMepScreen"
         component={AddBuilderMepScreen}
