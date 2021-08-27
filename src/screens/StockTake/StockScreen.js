@@ -120,7 +120,6 @@ class StockScreen extends Component {
         });
         this.setState({
           categoryArr: finalUsersList,
-          categoryId: finalUsersList[0].value,
         });
       })
       .catch(err => {
