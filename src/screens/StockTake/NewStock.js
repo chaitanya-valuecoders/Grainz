@@ -48,8 +48,8 @@ class NewStock extends Component {
       startDateValue: todayDate,
       endDateValue: endDate,
       departmentName: '',
-      topValueStatus: true,
-      categoriesStatus: false,
+      topValueStatus: false,
+      categoriesStatus: true,
       topValue: '50',
       departmentArr: [],
       categoryArr: [],
@@ -107,6 +107,13 @@ class NewStock extends Component {
             value: item.id,
           };
         });
+        let finalUsersListSec = res.data.map((item, index) => {
+          if (item.isSelected) {
+            this.setState({
+              departmentName: item.id,
+            });
+          }
+        });
         this.setState({
           departmentArr: finalUsersList,
         });
@@ -148,12 +155,6 @@ class NewStock extends Component {
     );
   };
 
-  selectCategoryFun = value => {
-    this.setState({
-      categoryName: value,
-    });
-  };
-
   categoryStatusFun = () => {
     const {departmentName, categoriesStatus} = this.state;
     this.setState({
@@ -164,29 +165,22 @@ class NewStock extends Component {
   //
 
   getDataFun = () => {
-    const {departmentName, categoryName, topValue, pageDate, topValueStatus} =
-      this.state;
+    const {departmentName, topValue, pageDate, topValueStatus} = this.state;
     if (departmentName) {
       if (topValueStatus) {
         this.props.navigation.navigate('StockScreen', {
           departmentId: departmentName,
-          categoryId: categoryName,
           topValue,
           pageDate,
           topValueStatus,
         });
       } else {
-        if (categoryName) {
-          this.props.navigation.navigate('StockScreen', {
-            departmentId: departmentName,
-            categoryId: categoryName,
-            topValue,
-            pageDate,
-            topValueStatus,
-          });
-        } else {
-          alert('Please select category first');
-        }
+        this.props.navigation.navigate('StockScreen', {
+          departmentId: departmentName,
+          topValue,
+          pageDate,
+          topValueStatus,
+        });
       }
     } else {
       alert('Please select department first');
@@ -203,12 +197,9 @@ class NewStock extends Component {
       topValueStatus,
       categoriesStatus,
       topValue,
-      categoryName,
       departmentArr,
       categoryArr,
     } = this.state;
-
-    console.log('topValueStatus', topValueStatus);
 
     return (
       <View style={styles.container}>
@@ -306,7 +297,6 @@ class NewStock extends Component {
                 borderRadius: 10,
                 backgroundColor: '#fff',
                 marginHorizontal: wp('5%'),
-                marginVertical: hp('2%'),
               }}>
               <View
                 style={{
@@ -372,6 +362,31 @@ class NewStock extends Component {
                 style={{
                   flexDirection: 'row',
                   flex: 1,
+                  alignItems: 'center',
+                }}>
+                <CheckBox
+                  value={categoriesStatus}
+                  style={{
+                    height: 20,
+                    width: 20,
+                  }}
+                  onValueChange={() => this.categoryStatusFun()}
+                />
+                <Text
+                  style={{
+                    fontFamily: 'Inter-Regular',
+                    fontSize: 15,
+                    color: '#151B26',
+                    marginLeft: wp('3%'),
+                  }}>
+                  {translate('Categories')}
+                </Text>
+              </View>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  flex: 1,
+                  alignItems: 'center',
                 }}>
                 <CheckBox
                   value={topValueStatus}
@@ -395,129 +410,31 @@ class NewStock extends Component {
                   }}>
                   {translate('Top')}
                 </Text>
-              </View>
-              <View
-                style={{
-                  flexDirection: 'row',
-                  flex: 1,
-                }}>
-                <CheckBox
-                  value={categoriesStatus}
-                  style={{
-                    height: 20,
-                    width: 20,
-                  }}
-                  onValueChange={() => this.categoryStatusFun()}
-                />
-                <Text
-                  style={{
-                    fontFamily: 'Inter-Regular',
-                    fontSize: 15,
-                    color: '#151B26',
-                    marginLeft: wp('3%'),
-                  }}>
-                  {translate('Categories')}
-                </Text>
-              </View>
-            </View>
-            <View
-              style={{
-                flexDirection: 'row',
-                marginVertical: hp('2%'),
-                marginHorizontal: wp('5%'),
-              }}>
-              <View
-                style={{
-                  flexDirection: 'row',
-                  flex: 1,
-                }}>
-                <TextInput
-                  placeholder="0"
-                  value={topValue}
-                  style={{
-                    borderWidth: 1,
-                    width: '70%',
-                    paddingVertical: 8,
-                    paddingLeft: 5,
-                    borderRadius: 5,
-                    borderColor: 'grey',
-                  }}
-                  returnKeyType="done"
-                  keyboardType="numeric"
-                  onChangeText={value =>
-                    this.setState({
-                      topValue: value,
-                    })
-                  }
-                />
-              </View>
-              <View
-                style={{
-                  flexDirection: 'row',
-                  flex: 1,
-                }}>
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    borderRadius: 5,
-                    backgroundColor: '#fff',
-                  }}>
-                  <View
+                {topValueStatus ? (
+                  <TextInput
+                    placeholder="0"
+                    value={topValue}
+                    editable={topValueStatus}
                     style={{
-                      alignSelf: 'center',
-                      justifyContent: 'center',
-                      width: '70%',
-                    }}>
-                    <RNPickerSelect
-                      disabled={categoriesStatus ? false : true}
-                      placeholder={{
-                        label: 'Categories*',
-                        value: null,
-                        color: 'black',
-                      }}
-                      onValueChange={value => {
-                        this.selectCategoryFun(value);
-                      }}
-                      style={{
-                        inputIOS: {
-                          fontSize: 14,
-                          paddingHorizontal: '5%',
-                          color: '#161C27',
-                          width: '100%',
-                          alignSelf: 'center',
-                        },
-                        inputAndroid: {
-                          fontSize: 14,
-                          paddingHorizontal: '3%',
-                          color: '#161C27',
-                          width: '100%',
-                          alignSelf: 'center',
-                        },
-                        iconContainer: {
-                          top: '40%',
-                        },
-                      }}
-                      items={categoryArr}
-                      value={categoryName}
-                      useNativeAndroidPickerStyle={false}
-                    />
-                  </View>
-                  <View style={{}}>
-                    <Image
-                      source={img.arrowDownIcon}
-                      resizeMode="contain"
-                      style={{
-                        height: 15,
-                        width: 15,
-                        resizeMode: 'contain',
-                        marginTop: Platform.OS === 'ios' ? 8 : 15,
-                        marginLeft: 20,
-                      }}
-                    />
-                  </View>
-                </View>
+                      width: '58%',
+                      paddingVertical: 8,
+                      paddingLeft: 5,
+                      borderRadius: 5,
+                      backgroundColor: '#fff',
+                      marginLeft: wp('3%'),
+                    }}
+                    returnKeyType="done"
+                    keyboardType="numeric"
+                    onChangeText={value =>
+                      this.setState({
+                        topValue: value,
+                      })
+                    }
+                  />
+                ) : null}
               </View>
             </View>
+
             <TouchableOpacity
               onPress={() => this.getDataFun()}
               style={{
@@ -527,8 +444,9 @@ class NewStock extends Component {
                 justifyContent: 'center',
                 alignItems: 'center',
                 borderRadius: 100,
-                marginTop: hp('2%'),
-                alignSelf: 'center',
+                marginTop: hp('1%'),
+                alignSelf: 'flex-end',
+                marginRight: wp('5%'),
               }}>
               <Text
                 style={{

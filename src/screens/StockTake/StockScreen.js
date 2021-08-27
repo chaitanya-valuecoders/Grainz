@@ -18,6 +18,7 @@ import {
   getMyProfileApi,
   getStockDataApi,
   getNewTopStockTakeApi,
+  lookupInventoryApi,
 } from '../../connectivity/api';
 import styles from './style';
 import {
@@ -26,6 +27,7 @@ import {
 } from 'react-native-responsive-screen';
 import {translate} from '../../utils/translations';
 import moment from 'moment';
+import RNPickerSelect from 'react-native-picker-select';
 
 class StockScreen extends Component {
   constructor(props) {
@@ -41,6 +43,11 @@ class StockScreen extends Component {
       categoryLoader: true,
       catArray: [],
       topValueStatus: true,
+      categoryArr: [],
+      expandStatus: false,
+      selectedIndex: '',
+      modalLoader: false,
+      modalData: [],
     };
   }
 
@@ -82,29 +89,53 @@ class StockScreen extends Component {
 
   componentDidMount() {
     this.getData();
-    const {departmentId, categoryId, pageDate, topValue, topValueStatus} =
+
+    const {departmentId, pageDate, topValue, topValueStatus} =
       this.props.route && this.props.route.params;
+    console.log('departmentId', departmentId);
+    this.getCategoryData(departmentId);
     this.props.navigation.addListener('focus', () => {
       this.setState(
         {
           departmentId,
-          categoryId,
           pageDate,
           topValue,
-          categoryLoader: true,
           topValueStatus,
+          categoryLoader: true,
         },
         () => this.getFinalData(),
       );
     });
   }
 
+  getCategoryData = departmentId => {
+    lookupInventoryApi(departmentId)
+      .then(res => {
+        console.log('res', res);
+        let finalUsersList = res.data.map((item, index) => {
+          return {
+            label: item.name,
+            value: item.id,
+          };
+        });
+        this.setState({
+          categoryArr: finalUsersList,
+          categoryId: finalUsersList[0].value,
+        });
+      })
+      .catch(err => {
+        console.log('ERR MEP', err);
+      });
+  };
+
   getFinalData = () => {
-    const {topValueStatus} = this.state;
+    const {topValueStatus, categoryId} = this.state;
     if (topValueStatus) {
       this.getTopDataFun();
     } else {
-      this.getStockDataFun();
+      if (categoryId) {
+        this.getStockDataFun();
+      }
     }
   };
 
@@ -154,9 +185,48 @@ class StockScreen extends Component {
     });
   };
 
+  selectCategoryFun = value => {
+    console.log('value', value);
+    this.setState(
+      {
+        categoryId: value,
+        catArray: [],
+        categoryLoader: true,
+      },
+      () => this.getStockDataFun(),
+    );
+  };
+
+  expandScreenFun = (item, index) => {
+    const {selectedIndex, expandStatus} = this.state;
+    if (index === selectedIndex) {
+      this.setState({
+        expandStatus: !expandStatus,
+        selectedIndex: index,
+      });
+    } else {
+      this.setState({
+        expandStatus: true,
+        selectedIndex: index,
+      });
+    }
+  };
+
   render() {
-    const {buttonsSubHeader, loader, categoryLoader, catArray} = this.state;
-    console.log('catArray', catArray);
+    const {
+      buttonsSubHeader,
+      loader,
+      categoryLoader,
+      catArray,
+      categoryArr,
+      categoryId,
+      topValueStatus,
+      expandStatus,
+      selectedIndex,
+      modalLoader,
+      modalData,
+    } = this.state;
+    console.log('selectedIndex', selectedIndex);
 
     return (
       <View style={styles.container}>
@@ -182,29 +252,94 @@ class StockScreen extends Component {
               <Text style={styles.goBackTextStyle}>Go Back</Text>
             </TouchableOpacity>
           </View>
+          {topValueStatus === false ? (
+            <View
+              style={{
+                flexDirection: 'row',
+                borderRadius: 10,
+                backgroundColor: '#fff',
+                marginHorizontal: wp('5%'),
+                marginTop: hp('3%'),
+                marginBottom: hp('2%'),
+              }}>
+              <View
+                style={{
+                  alignSelf: 'center',
+                  justifyContent: 'center',
+                  width: wp('80%'),
+                  height: hp('7%'),
+                }}>
+                <RNPickerSelect
+                  placeholder={{
+                    label: 'Categories*',
+                    value: null,
+                    color: 'black',
+                  }}
+                  onValueChange={value => {
+                    this.selectCategoryFun(value);
+                  }}
+                  style={{
+                    inputIOS: {
+                      fontSize: 14,
+                      paddingHorizontal: '5%',
+                      color: '#161C27',
+                      width: '100%',
+                      alignSelf: 'center',
+                      paddingVertical: 15,
+                    },
+                    inputAndroid: {
+                      fontSize: 14,
+                      paddingHorizontal: '3%',
+                      color: '#161C27',
+                      width: '100%',
+                      alignSelf: 'center',
+                    },
+                    iconContainer: {
+                      top: '40%',
+                    },
+                  }}
+                  items={categoryArr}
+                  value={categoryId}
+                  useNativeAndroidPickerStyle={false}
+                />
+              </View>
+              <View style={{marginRight: wp('5%')}}>
+                <Image
+                  source={img.arrowDownIcon}
+                  resizeMode="contain"
+                  style={{
+                    height: 18,
+                    width: 18,
+                    resizeMode: 'contain',
+                    marginTop: Platform.OS === 'ios' ? 12 : 15,
+                  }}
+                />
+              </View>
+            </View>
+          ) : null}
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             <View style={styles.renderContentContainer}>
               <View style={styles.renderContentSubContainer}>
                 <View style={styles.boxSize}>
                   <Text style={styles.boxTextHeadingStyling}>Name</Text>
                 </View>
-                <View style={{...styles.boxSize, marginLeft: wp('2%')}}>
-                  <Text style={styles.boxTextHeadingStyling}>System says</Text>
-                </View>
                 <View
                   style={{
                     ...styles.boxSize,
-                    marginLeft: wp('2%'),
+                    marginLeft: wp('3%'),
                   }}>
                   <Text style={styles.boxTextHeadingStyling}>Stock Take</Text>
                 </View>
                 <View
                   style={{
-                    width: wp('10%'),
+                    width: wp('12%'),
                   }}></View>
                 <View style={{...styles.boxSize, marginLeft: wp('2%')}}>
-                  <Text style={styles.boxTextHeadingStyling}>Correction</Text>
+                  <Text style={styles.boxTextHeadingStyling}>System says</Text>
                 </View>
+                {/* <View style={{...styles.boxSize, marginLeft: wp('2%')}}>
+                  <Text style={styles.boxTextHeadingStyling}>Correction</Text>
+                </View> */}
               </View>
               {categoryLoader ? (
                 <ActivityIndicator size="large" color="#94C036" />
@@ -213,72 +348,354 @@ class StockScreen extends Component {
                   {catArray && catArray.length > 0 ? (
                     catArray.map((item, index) => {
                       return (
-                        <View
-                          key={index}
-                          style={styles.renderHeaderContentContainer}>
+                        <View>
                           <View
-                            style={{
-                              flexDirection: 'row',
-                            }}>
-                            <View style={styles.boxSizeSec}>
-                              <Text style={styles.boxTextDataStyling}>
-                                {item.name && item.name}
-                              </Text>
-                            </View>
+                            key={index}
+                            style={styles.renderHeaderContentContainer}>
                             <View
                               style={{
-                                ...styles.boxSizeSec,
-                                marginLeft: wp('2%'),
-                              }}>
-                              <Text
-                                style={styles.boxTextDataStyling}
-                                numberOfLines={1}>
-                                {item.systemSays && item.systemSays.toFixed(2)}{' '}
-                                {item.unit}
-                              </Text>
-                            </View>
-                            <TouchableOpacity
-                              onPress={() => this.editUnitsFun(item)}
-                              style={{
-                                ...styles.boxSizeSec,
-                                marginLeft: wp('2%'),
                                 flexDirection: 'row',
-                                alignItems: 'center',
-                                backgroundColor: item.quantity
-                                  ? '#E9ECEF'
-                                  : '#FDF851',
-                                paddingVertical: 10,
                               }}>
-                              <Text style={styles.boxTextDataStyling}>
-                                {item.quantity}
-                              </Text>
-                            </TouchableOpacity>
-                            <View
-                              style={{
-                                width: wp('10%'),
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                              }}>
-                              <Text
-                                style={{
-                                  fontSize: 14,
-                                  color: '#161C27',
-                                  fontFamily: 'Inter-Regular',
-                                }}>
-                                {item.unit}
-                              </Text>
-                            </View>
+                              <View
+                                style={styles.boxSizeSec}
+                                // onPress={() =>
+                                //   this.expandScreenFun(item, index)
+                                // }
+                              >
+                                <Text style={styles.boxTextDataStyling}>
+                                  {item.name && item.name}
+                                </Text>
+                                {item.stockTakeLastUpdate ? (
+                                  <Text
+                                    style={{
+                                      fontSize: 12,
+                                      color: '#161C27',
+                                      fontFamily: 'Inter-Regular',
+                                      marginTop: hp('2%'),
+                                    }}>
+                                    {moment(item.stockTakeLastUpdate).format(
+                                      'MM/DD/YYYY',
+                                    )}
+                                  </Text>
+                                ) : null}
+                              </View>
 
-                            <View
-                              style={{
-                                ...styles.boxSizeSec,
-                                marginLeft: wp('2%'),
-                              }}>
-                              <Text style={styles.boxTextDataStyling}>
-                                {item.correction}
-                              </Text>
+                              <TouchableOpacity
+                                onPress={() => this.editUnitsFun(item)}
+                                style={{
+                                  ...styles.boxSizeSec,
+                                  marginLeft: wp('3%'),
+                                  flexDirection: 'row',
+                                  alignItems: 'center',
+                                  backgroundColor: item.quantity
+                                    ? '#E9ECEF'
+                                    : '#FDF851',
+                                  height: 35,
+                                  alignSelf: 'center',
+                                }}>
+                                <Text style={styles.boxTextDataStyling}>
+                                  {item.quantity}
+                                </Text>
+                              </TouchableOpacity>
+                              <View
+                                style={{
+                                  width: wp('12%'),
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                }}>
+                                <Text
+                                  style={{
+                                    fontSize: 14,
+                                    color: '#161C27',
+                                    fontFamily: 'Inter-Regular',
+                                  }}>
+                                  {item.unit}
+                                </Text>
+                              </View>
+
+                              <View
+                                style={{
+                                  ...styles.boxSizeSec,
+                                  marginLeft: wp('2%'),
+                                }}>
+                                <Text
+                                  style={styles.boxTextDataStyling}
+                                  numberOfLines={1}>
+                                  {item.systemSays &&
+                                    item.systemSays.toFixed(2)}{' '}
+                                  {item.unit}
+                                </Text>
+                                {item.correction ? (
+                                  <Text
+                                    style={{
+                                      fontSize: 12,
+                                      color: '#161C27',
+                                      fontFamily: 'Inter-Regular',
+                                      marginTop: hp('2%'),
+                                    }}>
+                                    ({item.correction})
+                                  </Text>
+                                ) : null}
+                              </View>
                             </View>
                           </View>
+                          {/* {expandStatus && index === selectedIndex ? (
+                            <View>
+                              <ScrollView>
+                                {modalLoader ? (
+                                  <ActivityIndicator
+                                    size="large"
+                                    color="grey"
+                                  />
+                                ) : (
+                                  <View style={styles.paddingContainer}>
+                                    <ScrollView
+                                      horizontal
+                                      showsHorizontalScrollIndicator={false}>
+                                      <View>
+                                        <ScrollView
+                                          horizontal
+                                          showsHorizontalScrollIndicator={
+                                            false
+                                          }>
+                                          <View>
+                                            <View
+                                              style={
+                                                styles.headingEditContainer
+                                              }>
+                                              <View
+                                                style={
+                                                  styles.headingSubContainer
+                                                }>
+                                                <Text
+                                                  style={{textAlign: 'center'}}>
+                                                  Quantity
+                                                </Text>
+                                              </View>
+                                              <View
+                                                style={
+                                                  styles.headingSubContainer
+                                                }>
+                                                <Text>Unit</Text>
+                                              </View>
+                                              <View
+                                                style={
+                                                  styles.headingSubContainer
+                                                }>
+                                                <Text>Inventory</Text>
+                                              </View>
+                                              <View
+                                                style={
+                                                  styles.headingSubContainer
+                                                }>
+                                                <Text>Name</Text>
+                                              </View>
+                                             
+                                            </View>
+                                            <View>
+                                              {modalData &&
+                                              modalData.length > 0 ? (
+                                                modalData.map((item, index) => {
+                                                  return (
+                                                    <View
+                                                      style={{
+                                                        paddingVertical: 15,
+                                                        paddingHorizontal: 5,
+                                                        flexDirection: 'row',
+                                                        backgroundColor:
+                                                          index % 2 === 0
+                                                            ? '#FFFFFF'
+                                                            : '#F7F8F5',
+                                                      }}>
+                                                      <View
+                                                        style={{
+                                                          width: wp('30%'),
+                                                          alignItems: 'center',
+                                                        }}>
+                                                        <TextInput
+                                                          editable={
+                                                            editableStatus
+                                                          }
+                                                          returnKeyType="done"
+                                                          style={{
+                                                            paddingVertical: 8,
+                                                            borderColor:
+                                                              '#00000033',
+                                                            borderWidth: 1,
+                                                            width: wp('20%'),
+                                                            paddingLeft: 10,
+                                                            backgroundColor:
+                                                              editableStatus
+                                                                ? '#fff'
+                                                                : '#E9ECEF',
+                                                          }}
+                                                          numberOfLines={1}
+                                                          keyboardType="numeric"
+                                                          onChangeText={value => {
+                                                            this.editOfferItemsFun(
+                                                              index,
+                                                              'quantity',
+                                                              value,
+                                                            );
+                                                          }}
+                                                          value={item.quantity}
+                                                        />
+                                                      </View>
+                                                      <View
+                                                        style={{
+                                                          width: wp('30%'),
+                                                          alignItems: 'center',
+                                                        }}>
+                                                        <View
+                                                          style={{
+                                                            flexDirection:
+                                                              'row',
+                                                            width: wp('25%'),
+                                                            backgroundColor:
+                                                              '#fff',
+                                                            justifyContent:
+                                                              'space-between',
+                                                            borderWidth: 1,
+                                                            paddingVertical: 8,
+                                                            borderColor:
+                                                              '#00000033',
+                                                            backgroundColor:
+                                                              editableStatus
+                                                                ? '#fff'
+                                                                : '#E9ECEF',
+                                                          }}>
+                                                          <View
+                                                            style={{
+                                                              width: wp('20%'),
+                                                              alignSelf:
+                                                                'center',
+                                                              justifyContent:
+                                                                'center',
+                                                            }}>
+                                                            <RNPickerSelect
+                                                              placeholder={{
+                                                                label: 'Unit*',
+                                                                value: null,
+                                                                color: 'black',
+                                                              }}
+                                                              placeholderTextColor="red"
+                                                              disabled={
+                                                                !editableStatus
+                                                              }
+                                                              onValueChange={value => {
+                                                                this.editOfferItemsFun(
+                                                                  index,
+                                                                  'unitId',
+                                                                  value,
+                                                                );
+                                                              }}
+                                                              style={{
+                                                                inputIOS: {
+                                                                  fontSize: 14,
+                                                                  paddingHorizontal:
+                                                                    '3%',
+                                                                  color:
+                                                                    '#161C27',
+                                                                  width: '100%',
+                                                                  alignSelf:
+                                                                    'center',
+                                                                },
+                                                                inputAndroid: {
+                                                                  fontSize: 14,
+                                                                  paddingHorizontal:
+                                                                    '3%',
+                                                                  color:
+                                                                    '#161C27',
+                                                                  width: '100%',
+                                                                  alignSelf:
+                                                                    'center',
+                                                                },
+                                                                iconContainer: {
+                                                                  top: '40%',
+                                                                },
+                                                              }}
+                                                              items={unitData}
+                                                              value={
+                                                                item.unitId
+                                                              }
+                                                              useNativeAndroidPickerStyle={
+                                                                false
+                                                              }
+                                                            />
+                                                          </View>
+                                                          <View
+                                                            style={{
+                                                              marginRight:
+                                                                wp('5%'),
+                                                            }}>
+                                                            <Image
+                                                              source={
+                                                                img.arrowDownIcon
+                                                              }
+                                                              resizeMode="contain"
+                                                              style={{
+                                                                height: 10,
+                                                                width: 10,
+                                                                resizeMode:
+                                                                  'contain',
+                                                                marginTop:
+                                                                  Platform.OS ===
+                                                                  'ios'
+                                                                    ? 3
+                                                                    : 15,
+                                                              }}
+                                                            />
+                                                          </View>
+                                                        </View>
+                                                      </View>
+                                                      <View
+                                                        style={{
+                                                          width: wp('30%'),
+                                                          alignItems: 'center',
+                                                          paddingVertical: 10,
+                                                        }}>
+                                                        <Text>
+                                                          {item.quantity *
+                                                            item.converter}{' '}
+                                                          ml
+                                                        </Text>
+                                                      </View>
+                                                      <View
+                                                        style={{
+                                                          width: wp('30%'),
+                                                          alignItems: 'center',
+                                                          paddingVertical: 10,
+                                                        }}>
+                                                        <Text>
+                                                          {item.createdBy}
+                                                        </Text>
+                                                      </View>
+                                                     
+                                                    </View>
+                                                  );
+                                                })
+                                              ) : (
+                                                <View
+                                                  style={{marginTop: hp('3%')}}>
+                                                  <Text
+                                                    style={{
+                                                      color: 'red',
+                                                      fontSize: 20,
+                                                    }}>
+                                                    No data available
+                                                  </Text>
+                                                </View>
+                                              )}
+                                            </View>
+                                          </View>
+                                        </ScrollView>
+                                      </View>
+                                    </ScrollView>
+                                  </View>
+                                )}
+                              </ScrollView>
+                            </View>
+                          ) : null} */}
                         </View>
                       );
                     })

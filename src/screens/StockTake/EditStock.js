@@ -8,6 +8,7 @@ import {
   Image,
   Alert,
   TextInput,
+  FlatList,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {connect} from 'react-redux';
@@ -38,7 +39,6 @@ class EditStock extends Component {
       sectionName: '',
       modalLoader: true,
       unitData: [],
-      editableStatus: false,
       inventoryId: '',
       pageDate: '',
       pageData: '',
@@ -46,6 +46,8 @@ class EditStock extends Component {
       categoryId: '',
       loaderCompStatus: false,
       screenType: '',
+      deleteStatus: false,
+      saveStatus: false,
     };
   }
 
@@ -91,6 +93,7 @@ class EditStock extends Component {
     const {item, pageDate, inventoryId, departmentId, categoryId, screenType} =
       this.props.route && this.props.route.params;
 
+    console.log('item', item);
     let finalUnitData = item.units.map((item, index) => {
       return {
         label: item.name,
@@ -98,17 +101,45 @@ class EditStock extends Component {
       };
     });
     if (item.updateStockTakeItems === null) {
+      let finalModalData =
+        item.units &&
+        item.units.map((item, index) => {
+          return {
+            action: 'New',
+            // convertor: item.converter,
+            id: null,
+            inventoryId: item.inventoryId,
+            isDefault: item.isDefault,
+            quantity: '',
+            recipeId: null,
+            stockTakeDate: pageDate,
+            unit: item.name,
+            unitId: item.id,
+            createdBy: '',
+            converter: item.converter,
+          };
+        });
+
+      // finalModalData.sort(item => {
+      //   if (item.isDefault === true) {
+      //     return 0;
+      //   }
+      // });
+
+      console.log('final', finalModalData);
       this.setState({
         sectionName: 'Test',
         finalName: item.name,
-        modalData: [],
+        modalData: [...finalModalData],
         modalLoader: false,
         unitData: [...finalUnitData],
         pageDate,
         inventoryId,
+        pageData: item,
         departmentId,
         categoryId,
         screenType,
+        deleteStatus: false,
       });
     } else {
       let finalModalData =
@@ -129,10 +160,53 @@ class EditStock extends Component {
             stockTakeInventoryId: item.stockTakeInventoryId,
           };
         });
+      let unitData =
+        item.units &&
+        item.units.map((item, index) => {
+          return {
+            action: 'New',
+            // convertor: item.converter,
+            id: null,
+            inventoryId: item.inventoryId,
+            isDefault: item.isDefault,
+            quantity: '',
+            recipeId: null,
+            stockTakeDate: pageDate,
+            unit: item.name,
+            unitId: item.id,
+            createdBy: '',
+            converter: item.converter,
+          };
+        });
+
+      const arr1 = finalModalData;
+      const arr2 = unitData;
+
+      console.log('arr1', arr1);
+
+      console.log('arr2', arr2);
+
+      function comparer(otherArray) {
+        return function (current) {
+          return (
+            otherArray.filter(function (other) {
+              return other.unitId == current.unitId;
+            }).length == 0
+          );
+        };
+      }
+
+      var onlyInA = arr1.filter(comparer(arr2));
+      var onlyInB = arr2.filter(comparer(arr1));
+
+      const result = onlyInA.concat(onlyInB);
+
+      console.log('result', result);
+
       this.setState({
         sectionName: 'Test',
         finalName: item.name,
-        modalData: [...finalModalData],
+        modalData: [...arr1, ...result],
         modalLoader: false,
         unitData: [...finalUnitData],
         pageDate,
@@ -141,6 +215,7 @@ class EditStock extends Component {
         departmentId,
         categoryId,
         screenType,
+        deleteStatus: true,
       });
     }
   }
@@ -151,22 +226,6 @@ class EditStock extends Component {
 
   onPressFun = () => {
     this.props.navigation.goBack();
-  };
-
-  actionFun = (data, index) => {
-    Alert.alert('Grainz', 'Choose your option?', [
-      {
-        text: 'Edit',
-        onPress: () =>
-          this.setState({
-            editableStatus: true,
-          }),
-      },
-      {
-        text: 'Delete',
-        onPress: () => this.deleteQuantityFun(data, index),
-      },
-    ]);
   };
 
   deleteQuantityFun = (item, index) => {
@@ -211,18 +270,30 @@ class EditStock extends Component {
     if (item.action === 'Update') {
       addStockTakeApi(payload)
         .then(res => {
-          this.setState({
-            isModalVisible: false,
-          });
-          Alert.alert('Grainz', 'Stock trade deleted successfully', [
+          this.setState(
             {
-              text: 'Okay',
-              onPress: () => this.removeFromList(index),
+              isModalVisible: false,
             },
-          ]);
+            () => this.removeFromList(index),
+          );
+          // Alert.alert('Grainz', 'Stock trade deleted successfully', [
+          //   {
+          //     text: 'Okay',
+          //     onPress: () => this.removeFromList(index),
+          //   },
+          // ]);
         })
-        .catch(error => {
-          console.warn('DELETEerror', error.response);
+        .catch(err => {
+          Alert.alert(
+            `Error - ${err.response.status}`,
+            'Something went wrong',
+            [
+              {
+                text: 'Okay',
+                onPress: () => this.props.navigation.goBack(),
+              },
+            ],
+          );
         });
     } else {
       this.removeFromList(index);
@@ -232,49 +303,25 @@ class EditStock extends Component {
   removeFromList = index => {
     let temp = this.state.modalData;
     temp.splice(index, 1);
-    this.setState({modalData: temp, loaderCompStatus: false});
+    this.setState({modalData: temp, loaderCompStatus: false}, () =>
+      this.props.navigation.goBack(),
+    );
   };
 
   editOfferItemsFun = (index, type, value) => {
+    console.log('value', value);
     const {modalData} = this.state;
     let newArr = modalData.map((item, i) =>
       index === i
         ? {
             ...item,
             [type]: value,
-            ['unit']: 'ml',
-            ['createdBy']: 'Nick Balfour',
-            ['convertor']: 1,
           }
         : item,
     );
     this.setState({
       modalData: [...newArr],
-    });
-  };
-
-  addDataInArrFun = () => {
-    let objSec = {};
-    let newlist = [];
-    const {modalData, pageDate, inventoryId} = this.state;
-    objSec = {
-      action: 'New',
-      convertor: 1,
-      id: null,
-      inventoryId: inventoryId,
-      isDefault: true,
-      quantity: '',
-      recipeId: null,
-      stockTakeDate: pageDate,
-      unit: '',
-      unitId: '',
-      createdBy: '',
-      converter: '',
-    };
-    newlist.push(objSec);
-    this.setState({
-      modalData: [...modalData, ...newlist],
-      editableStatus: true,
+      saveStatus: value ? true : false,
     });
   };
 
@@ -289,22 +336,47 @@ class EditStock extends Component {
 
   saveFunSec = () => {
     const {modalData} = this.state;
-    let payload = modalData;
+
+    const finalArr = modalData.map((item, index) => {
+      if (item.quantity) {
+        return item;
+      }
+    });
+
+    const finalArrSec = finalArr.filter(function (element) {
+      return element !== undefined;
+    });
+
+    console.log('finalArrSec', finalArrSec);
+
+    let payload = finalArrSec;
+    console.log('paylaod', payload);
     addStockTakeApi(payload)
       .then(res => {
-        Alert.alert('Grainz', 'Stock trade added successfully', [
+        this.setState(
+          {
+            loaderCompStatus: false,
+          },
+          () => this.props.navigation.goBack(),
+        );
+
+        // Alert.alert('Grainz', 'Stock trade added successfully', [
+        //   {
+        //     text: 'Okay',
+        //     onPress: () =>
+        //       this.setState({
+        //         loaderCompStatus: false,
+        //       }),
+        //   },
+        // ]);
+      })
+      .catch(err => {
+        Alert.alert(`Error - ${err.response.status}`, 'Something went wrong', [
           {
             text: 'Okay',
-            onPress: () =>
-              this.setState({
-                editableStatus: false,
-                loaderCompStatus: false,
-              }),
+            onPress: () => this.props.navigation.goBack(),
           },
         ]);
-      })
-      .catch(error => {
-        console.warn('Adderror', error.response);
       });
   };
 
@@ -316,10 +388,13 @@ class EditStock extends Component {
       finalName,
       modalLoader,
       unitData,
-      editableStatus,
       loaderCompStatus,
       screenType,
+      deleteStatus,
+      saveStatus,
     } = this.state;
+
+    console.log('modalData', modalData);
     return (
       <View style={styles.container}>
         <Header
@@ -345,16 +420,7 @@ class EditStock extends Component {
               </TouchableOpacity>
             </View>
           </View>
-          {screenType === 'New' ? (
-            <TouchableOpacity
-              onPress={() => this.addDataInArrFun()}
-              style={styles.addContainer}>
-              <View style={styles.addSubContainer}>
-                <Image source={img.addIcon} style={styles.addImageStyling} />
-                <Text style={styles.addTextStyling}>Add Line</Text>
-              </View>
-            </TouchableOpacity>
-          ) : null}
+
           {recipeLoader ? (
             <ActivityIndicator size="small" color="#94C036" />
           ) : (
@@ -381,17 +447,12 @@ class EditStock extends Component {
                               <View style={styles.headingSubContainer}>
                                 <Text>Unit</Text>
                               </View>
+
                               <View style={styles.headingSubContainer}>
-                                <Text>Inventory</Text>
-                              </View>
-                              <View style={styles.headingSubContainer}>
-                                <Text>Name</Text>
-                              </View>
-                              {screenType === 'New' ? (
-                                <View style={styles.headingSubContainer}>
+                                {screenType === 'New' && deleteStatus ? (
                                   <Text>Action</Text>
-                                </View>
-                              ) : null}
+                                ) : null}
+                              </View>
                             </View>
                             <View>
                               {modalData && modalData.length > 0 ? (
@@ -413,7 +474,6 @@ class EditStock extends Component {
                                           alignItems: 'center',
                                         }}>
                                         <TextInput
-                                          editable={editableStatus}
                                           returnKeyType="done"
                                           style={{
                                             paddingVertical: 8,
@@ -421,9 +481,10 @@ class EditStock extends Component {
                                             borderWidth: 1,
                                             width: wp('20%'),
                                             paddingLeft: 10,
-                                            backgroundColor: editableStatus
-                                              ? '#fff'
-                                              : '#E9ECEF',
+                                            backgroundColor: '#fff',
+                                            // backgroundColor: editableStatus
+                                            //   ? '#fff'
+                                            //   : '#E9ECEF',
                                           }}
                                           numberOfLines={1}
                                           keyboardType="numeric"
@@ -442,105 +503,27 @@ class EditStock extends Component {
                                           width: wp('30%'),
                                           alignItems: 'center',
                                         }}>
-                                        <View
+                                        <TextInput
+                                          editable={false}
+                                          returnKeyType="done"
                                           style={{
-                                            flexDirection: 'row',
-                                            width: wp('25%'),
-                                            backgroundColor: '#fff',
-                                            justifyContent: 'space-between',
-                                            borderWidth: 1,
                                             paddingVertical: 8,
                                             borderColor: '#00000033',
-                                            backgroundColor: editableStatus
-                                              ? '#fff'
-                                              : '#E9ECEF',
-                                          }}>
-                                          <View
-                                            style={{
-                                              width: wp('20%'),
-                                              alignSelf: 'center',
-                                              justifyContent: 'center',
-                                            }}>
-                                            <RNPickerSelect
-                                              placeholder={{
-                                                label: 'Unit*',
-                                                value: null,
-                                                color: 'black',
-                                              }}
-                                              placeholderTextColor="red"
-                                              disabled={!editableStatus}
-                                              onValueChange={value => {
-                                                this.editOfferItemsFun(
-                                                  index,
-                                                  'unitId',
-                                                  value,
-                                                );
-                                              }}
-                                              style={{
-                                                inputIOS: {
-                                                  fontSize: 14,
-                                                  paddingHorizontal: '3%',
-                                                  color: '#161C27',
-                                                  width: '100%',
-                                                  alignSelf: 'center',
-                                                },
-                                                inputAndroid: {
-                                                  fontSize: 14,
-                                                  paddingHorizontal: '3%',
-                                                  color: '#161C27',
-                                                  width: '100%',
-                                                  alignSelf: 'center',
-                                                },
-                                                iconContainer: {
-                                                  top: '40%',
-                                                },
-                                              }}
-                                              items={unitData}
-                                              value={item.unitId}
-                                              useNativeAndroidPickerStyle={
-                                                false
-                                              }
-                                            />
-                                          </View>
-                                          <View style={{marginRight: wp('5%')}}>
-                                            <Image
-                                              source={img.arrowDownIcon}
-                                              resizeMode="contain"
-                                              style={{
-                                                height: 10,
-                                                width: 10,
-                                                resizeMode: 'contain',
-                                                marginTop:
-                                                  Platform.OS === 'ios'
-                                                    ? 3
-                                                    : 15,
-                                              }}
-                                            />
-                                          </View>
-                                        </View>
+                                            borderWidth: 1,
+                                            width: wp('20%'),
+                                            paddingLeft: 10,
+                                            backgroundColor: '#E9ECEF',
+                                          }}
+                                          numberOfLines={1}
+                                          keyboardType="numeric"
+                                          value={item.unit}
+                                        />
                                       </View>
-                                      <View
-                                        style={{
-                                          width: wp('30%'),
-                                          alignItems: 'center',
-                                          paddingVertical: 10,
-                                        }}>
-                                        <Text>
-                                          {item.quantity * item.converter} ml
-                                        </Text>
-                                      </View>
-                                      <View
-                                        style={{
-                                          width: wp('30%'),
-                                          alignItems: 'center',
-                                          paddingVertical: 10,
-                                        }}>
-                                        <Text>{item.createdBy}</Text>
-                                      </View>
-                                      {screenType === 'New' ? (
+
+                                      {screenType === 'New' && deleteStatus ? (
                                         <TouchableOpacity
                                           onPress={() =>
-                                            this.actionFun(item, index)
+                                            this.deleteQuantityFun(item, index)
                                           }
                                           style={{
                                             width: wp('30%'),
@@ -548,11 +531,12 @@ class EditStock extends Component {
                                             paddingVertical: 10,
                                           }}>
                                           <Image
-                                            source={img.threeDotsIcon}
+                                            source={img.deleteIconNew}
                                             style={{
-                                              height: 15,
-                                              width: 15,
+                                              height: 18,
+                                              width: 18,
                                               resizeMode: 'contain',
+                                              tintColor: 'red',
                                             }}
                                           />
                                         </TouchableOpacity>
@@ -577,7 +561,7 @@ class EditStock extends Component {
               </ScrollView>
             </View>
           )}
-          {editableStatus ? (
+          {saveStatus ? (
             <View>
               <View
                 style={{
@@ -606,28 +590,28 @@ class EditStock extends Component {
                     {translate('Save')}
                   </Text>
                 </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={() => this.props.navigation.goBack()}
+                {/* <TouchableOpacity
+                onPress={() => this.props.navigation.goBack()}
+                style={{
+                  width: wp('30%'),
+                  height: hp('5%'),
+                  alignSelf: 'flex-end',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  marginLeft: wp('2%'),
+                  borderRadius: 100,
+                  borderWidth: 1,
+                  borderColor: '#482813',
+                }}>
+                <Text
                   style={{
-                    width: wp('30%'),
-                    height: hp('5%'),
-                    alignSelf: 'flex-end',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    marginLeft: wp('2%'),
-                    borderRadius: 100,
-                    borderWidth: 1,
-                    borderColor: '#482813',
+                    color: '#482813',
+                    fontSize: 15,
+                    fontWeight: 'bold',
                   }}>
-                  <Text
-                    style={{
-                      color: '#482813',
-                      fontSize: 15,
-                      fontWeight: 'bold',
-                    }}>
-                    {translate('Cancel')}
-                  </Text>
-                </TouchableOpacity>
+                  {translate('Cancel')}
+                </Text>
+              </TouchableOpacity> */}
               </View>
             </View>
           ) : null}

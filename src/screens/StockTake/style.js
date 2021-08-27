@@ -112,8 +112,8 @@ const styles = StyleSheet.create({
     paddingBottom: 15,
     marginHorizontal: wp('5%'),
   },
-  boxSize: {width: wp('40%'), justifyContent: 'center', paddingTop: 10},
-  boxSizeSec: {width: wp('40%'), justifyContent: 'center'},
+  boxSize: {width: wp('25%'), justifyContent: 'center', paddingTop: 10},
+  boxSizeSec: {width: wp('25%'), justifyContent: 'center'},
   boxTextHeadingStyling: {
     fontSize: 14,
     color: '#161C27',
