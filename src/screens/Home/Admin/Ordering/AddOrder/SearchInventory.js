@@ -65,6 +65,8 @@ class SearchInventory extends Component {
       discountPriceValue: '',
       priceFinalBackup: '',
       userDefinedUnit: '',
+      modalDataBackUp: [],
+      listLoader: false,
     };
   }
 
@@ -152,6 +154,7 @@ class SearchInventory extends Component {
     setTimeout(() => {
       this.setState({
         modalData: [...finalArr],
+        modalDataBackUp: [...finalArr],
         modalLoader: false,
       });
     }, 500);
@@ -215,20 +218,35 @@ class SearchInventory extends Component {
       });
   };
 
-  editQuantityFun = (index, type, value, data) => {
+  editQuantityFun = (index, type, data, valueType) => {
     this.setState(
       {
         inventoryId: data.id,
       },
-      () => this.editQuantityFunSec(index, type, value, data),
+      () => this.editQuantityFunSec(index, type, data, valueType),
     );
   };
 
-  editQuantityFunSec = (index, type, value, data) => {
+  editQuantityFunSec = (index, type, data, valueType) => {
+    if (valueType === 'add') {
+      this.editQuantityFunThird(index, type, data, valueType);
+    } else {
+      if (data.quantityProduct > 0) {
+        this.editQuantityFunThird(index, type, data, valueType);
+      }
+    }
+  };
+
+  editQuantityFunThird = (index, type, data, valueType) => {
     // console.log('index', index, type, 'type', 'val', value);
+    const valueSec =
+      data.quantityProduct === '' ? Number(0) : Number(data.quantityProduct);
+    const valueMinus = valueSec - Number(1);
+    const valueAdd = Number(1) + valueSec;
+    const value = valueType === 'add' ? valueAdd : valueMinus;
     const {modalData, screenType} = this.state;
     const deltaOriginal = Number(data.delta);
-    const isSelectedValue = value !== '' ? true : false;
+    const isSelectedValue = value !== '' && value > 0 ? true : false;
     const newDeltaVal =
       value !== ''
         ? Number(data.delta) - Number(value) * Number(data.volume)
@@ -320,7 +338,7 @@ class SearchInventory extends Component {
             );
           });
       } else {
-        Alert.alert('Grainz', 'Please select atleast one item', [
+        Alert.alert('Grainz', 'Please add atleast one item', [
           {
             text: 'okay',
             onPress: () => this.closeBasketLoader(),
@@ -367,7 +385,7 @@ class SearchInventory extends Component {
             );
           });
       } else {
-        Alert.alert('Grainz', 'Please select atleast one item', [
+        Alert.alert('Grainz', 'Please add atleast one item', [
           {
             text: 'okay',
             onPress: () => this.closeBasketLoader(),
@@ -537,6 +555,36 @@ class SearchInventory extends Component {
     });
   };
 
+  searchFun = txt => {
+    this.setState(
+      {
+        searchItem: txt,
+        listLoader: true,
+      },
+      () =>
+        setTimeout(() => {
+          this.filterData(txt);
+        }, 200),
+    );
+  };
+
+  filterData = text => {
+    //passing the inserted text in textinput
+    const newData = this.state.modalDataBackUp.filter(function (item) {
+      //applying filter for the inserted text in search bar
+      const itemData = item.name ? item.name.toUpperCase() : ''.toUpperCase();
+      const textData = text.toUpperCase();
+      return itemData.indexOf(textData) > -1;
+    });
+    this.setState({
+      //setting the filtered newData on datasource
+      //After setting the data it will automatically re-render the view
+      modalData: newData,
+      searchItem: text,
+      listLoader: false,
+    });
+  };
+
   render() {
     const {
       buttonsSubHeader,
@@ -559,6 +607,8 @@ class SearchInventory extends Component {
       userDefinedQuantity,
       discountPriceValue,
       userDefinedUnit,
+      searchItem,
+      listLoader,
     } = this.state;
 
     console.log('finalBasketData', finalBasketData);
@@ -590,57 +640,94 @@ class SearchInventory extends Component {
               </TouchableOpacity>
             </View>
           </View>
-          <View style={{justifyContent: 'center', alignItems: 'center'}}>
-            {basketLoader ? (
-              <View
+          {modalLoader ? null : (
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                borderWidth: 1,
+                borderColor: '#E2E8F0',
+                height: hp('7%'),
+                width: wp('90%'),
+                borderRadius: 100,
+                backgroundColor: '#fff',
+                alignSelf: 'center',
+                justifyContent: 'space-between',
+                marginVertical: hp('2%'),
+              }}>
+              <TextInput
+                placeholder="Search"
+                value={searchItem}
                 style={{
-                  height: hp('6%'),
-                  width: wp('80%'),
-                  backgroundColor: '#94C036',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  marginTop: hp('3%'),
-                  borderRadius: 100,
-                  marginBottom: hp('2%'),
-                }}>
+                  padding: 15,
+                  width: wp('75%'),
+                }}
+                onChangeText={value => this.searchFun(value)}
+              />
+              <Image
+                style={{
+                  height: 18,
+                  width: 18,
+                  resizeMode: 'contain',
+                  marginRight: wp('5%'),
+                }}
+                source={img.searchIcon}
+              />
+            </View>
+          )}
+          {searchItem ? (
+            <View style={{justifyContent: 'center', alignItems: 'center'}}>
+              {basketLoader ? (
                 <View
                   style={{
+                    height: hp('6%'),
+                    width: wp('80%'),
+                    backgroundColor: '#94C036',
+                    justifyContent: 'center',
                     alignItems: 'center',
+                    marginTop: hp('3%'),
+                    borderRadius: 100,
+                    marginBottom: hp('2%'),
                   }}>
-                  <ActivityIndicator size="small" color="#fff" />
-                </View>
-              </View>
-            ) : (
-              <TouchableOpacity
-                onPress={() => this.addToBasketFun()}
-                style={{
-                  height: hp('6%'),
-                  width: wp('80%'),
-                  backgroundColor: '#94C036',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  marginTop: hp('3%'),
-                  borderRadius: 100,
-                  marginBottom: hp('2%'),
-                }}>
-                <View
-                  style={{
-                    alignItems: 'center',
-                  }}>
-                  <Text
+                  <View
                     style={{
-                      color: 'white',
-                      marginLeft: 10,
-                      fontFamily: 'Inter-SemiBold',
+                      alignItems: 'center',
                     }}>
-                    {screenType === 'New' ? 'Add to basket' : 'Update basket'}
-                  </Text>
+                    <ActivityIndicator size="small" color="#fff" />
+                  </View>
                 </View>
-              </TouchableOpacity>
-            )}
-          </View>
+              ) : (
+                <TouchableOpacity
+                  onPress={() => this.addToBasketFun()}
+                  style={{
+                    height: hp('6%'),
+                    width: wp('80%'),
+                    backgroundColor: '#94C036',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    marginTop: hp('3%'),
+                    borderRadius: 100,
+                    marginBottom: hp('2%'),
+                  }}>
+                  <View
+                    style={{
+                      alignItems: 'center',
+                    }}>
+                    <Text
+                      style={{
+                        color: 'white',
+                        marginLeft: 10,
+                        fontFamily: 'Inter-SemiBold',
+                      }}>
+                      {screenType === 'New' ? 'Add to basket' : 'Update basket'}
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              )}
+            </View>
+          ) : null}
 
-          {recipeLoader ? (
+          {listLoader ? (
             <ActivityIndicator size="small" color="#94C036" />
           ) : (
             <View style={{}}>
@@ -652,223 +739,296 @@ class SearchInventory extends Component {
                     style={{
                       padding: hp('2%'),
                     }}>
-                    <ScrollView
-                      horizontal
-                      showsHorizontalScrollIndicator={false}>
-                      <View>
-                        <View style={{marginTop: hp('2%')}}>
-                          <View>
-                            <View
-                              style={{
-                                paddingVertical: 15,
-                                paddingHorizontal: 20,
-                                flexDirection: 'row',
-                                justifyContent: 'space-between',
-                                backgroundColor: '#EFFBCF',
-                              }}>
-                              <View
-                                style={{
-                                  width: wp('30%'),
-                                }}>
-                                <Text>Quantity</Text>
-                              </View>
-
-                              <View
-                                style={{
-                                  width: wp('40%'),
-                                  marginLeft: wp('5%'),
-                                }}>
-                                <Text>Name</Text>
-                              </View>
-
-                              <View
-                                style={{
-                                  width: wp('30%'),
-                                  marginLeft: wp('5%'),
-                                }}>
-                                <Text>Product Name</Text>
-                              </View>
-                              <View
-                                style={{
-                                  width: wp('30%'),
-                                  marginLeft: wp('5%'),
-                                }}>
-                                <Text>Stock</Text>
-                              </View>
-                              <View
-                                style={{
-                                  width: wp('30%'),
-                                }}>
-                                <Text>Price</Text>
-                              </View>
-                              <View
-                                style={{
-                                  width: wp('30%'),
-                                }}>
-                                <Text>In stock ?</Text>
-                              </View>
-                              <View
-                                style={{
-                                  width: wp('30%'),
-                                  marginLeft: wp('5%'),
-                                }}></View>
-                            </View>
+                    {searchItem ? (
+                      <ScrollView
+                        horizontal
+                        showsHorizontalScrollIndicator={false}>
+                        <View>
+                          <View style={{marginTop: hp('2%')}}>
                             <View>
-                              {modalData.length > 0 ? (
-                                modalData.map((item, index) => {
-                                  return (
-                                    <View
-                                      key={index}
-                                      style={{
-                                        paddingVertical: 10,
-                                        paddingHorizontal: 20,
-                                        flexDirection: 'row',
-                                        backgroundColor:
-                                          index % 2 === 0
-                                            ? '#FFFFFF'
-                                            : '#F7F8F5',
-                                      }}>
-                                      <View
-                                        style={{
-                                          width: wp('30%'),
+                              <View
+                                style={{
+                                  paddingVertical: 15,
+                                  paddingHorizontal: 20,
+                                  flexDirection: 'row',
+                                  justifyContent: 'space-between',
+                                  backgroundColor: '#EFFBCF',
+                                }}>
+                                <View
+                                  style={{
+                                    width: wp('40%'),
+                                  }}>
+                                  <Text>Quantity</Text>
+                                </View>
 
-                                          justifyContent: 'center',
-                                        }}>
-                                        <TextInput
-                                          placeholder="0"
-                                          keyboardType="number-pad"
-                                          value={item.Quantity}
-                                          style={{
-                                            borderWidth: 1,
-                                            borderRadius: 6,
-                                            padding: 10,
-                                            width: wp('22%'),
-                                          }}
-                                          onChangeText={value =>
-                                            this.editQuantityFun(
-                                              index,
-                                              'quantityProduct',
-                                              value,
-                                              item,
-                                            )
-                                          }
-                                        />
-                                      </View>
+                                {/* <View
+                            style={{
+                              width: wp('40%'),
+                              marginLeft: wp('5%'),
+                            }}>
+                            <Text>Name</Text>
+                          </View> */}
 
-                                      <TouchableOpacity
-                                        onPress={() =>
-                                          this.viewInventoryFun(item)
-                                        }
-                                        style={{
-                                          width: wp('40%'),
-                                          marginLeft: wp('5%'),
-                                          justifyContent: 'center',
-                                        }}>
-                                        <Text>{item.name}</Text>
-                                        {item.deltaNew > 0 ? (
-                                          <Text style={{color: 'red'}}>
-                                            ( Δ{' '}
-                                            {Number(item.deltaNew).toFixed(0)}{' '}
-                                            {item.unit} )
-                                          </Text>
-                                        ) : (
-                                          <Text style={{color: 'black'}}>
-                                            {/* ( Δ {item.deltaNew} {item.unit} ) */}
-                                            ( Δ 0 {item.unit} )
-                                          </Text>
-                                        )}
-                                      </TouchableOpacity>
-
-                                      <TouchableOpacity
-                                        onPress={() => this.openModalFun(item)}
-                                        style={{
-                                          width: wp('30%'),
-                                          marginLeft: wp('5%'),
-                                          justifyContent: 'center',
-                                        }}>
-                                        <Text>{item.productName}</Text>
-                                      </TouchableOpacity>
+                                <View
+                                  style={{
+                                    width: wp('30%'),
+                                    marginLeft: wp('5%'),
+                                  }}>
+                                  <Text>Product Name</Text>
+                                </View>
+                                {/* <View
+                            style={{
+                              width: wp('30%'),
+                              marginLeft: wp('5%'),
+                            }}>
+                            <Text>Stock</Text>
+                          </View> */}
+                                <View
+                                  style={{
+                                    width: wp('30%'),
+                                    marginLeft: wp('5%'),
+                                  }}>
+                                  <Text>Price</Text>
+                                </View>
+                                {/* <View
+                            style={{
+                              width: wp('30%'),
+                            }}>
+                            <Text>In stock ?</Text>
+                          </View> */}
+                                {/* <View
+                            style={{
+                              width: wp('30%'),
+                              marginLeft: wp('5%'),
+                            }}></View> */}
+                              </View>
+                              <View>
+                                {modalData.length > 0 ? (
+                                  modalData.map((item, index) => {
+                                    return (
                                       <View
+                                        key={index}
                                         style={{
-                                          width: wp('30%'),
-                                          marginLeft: wp('5%'),
-                                          justifyContent: 'center',
-                                        }}>
-                                        <Text>
-                                          {item.volume} {item.unit}
-                                        </Text>
-                                      </View>
-                                      <View
-                                        style={{
-                                          width: wp('30%'),
-                                          justifyContent: 'center',
-                                        }}>
-                                        <Text>
-                                          {item.comparePrice} /{' '}
-                                          {item.compareUnit}
-                                        </Text>
-                                      </View>
-
-                                      <View
-                                        style={{
-                                          width: wp('30%'),
-                                          justifyContent: 'center',
-                                        }}>
-                                        <CheckBox
-                                          disabled={true}
-                                          value={item.isInStock}
-                                          // onValueChange={() =>
-                                          //   this.setState({htvaIsSelected: !htvaIsSelected})
-                                          // }
-                                          style={{
-                                            height: 20,
-                                            width: 20,
-                                          }}
-                                        />
-                                      </View>
-                                      <TouchableOpacity
-                                        onPress={() => this.actionFun(item)}
-                                        style={{
-                                          width: wp('30%'),
-                                          marginLeft: wp('5%'),
-                                          justifyContent: 'center',
+                                          paddingVertical: 10,
+                                          paddingHorizontal: 20,
+                                          flexDirection: 'row',
+                                          backgroundColor:
+                                            index % 2 === 0
+                                              ? '#FFFFFF'
+                                              : '#F7F8F5',
                                         }}>
                                         <View
                                           style={{
-                                            backgroundColor: '#94C036',
-                                            padding: 10,
+                                            width: wp('40%'),
+                                            flexDirection: 'row',
                                             alignItems: 'center',
-                                            borderRadius: 5,
+                                            justifyContent: 'flex-start',
                                           }}>
-                                          <Text
+                                          <TouchableOpacity
+                                            onPress={() =>
+                                              this.editQuantityFun(
+                                                index,
+                                                'quantityProduct',
+                                                item,
+                                                'minus',
+                                              )
+                                            }
                                             style={{
-                                              fontFamily: 'Inter-Regular',
-                                              fontSize: 15,
-                                              color: '#fff',
+                                              backgroundColor: '#ED3833',
+                                              width: 30,
+                                              padding: 10,
+                                              alignItems: 'center',
+                                              marginRight: 2,
+                                              borderRadius: 5,
                                             }}>
-                                            UnMap
+                                            <Text
+                                              style={{
+                                                color: '#fff',
+                                              }}>
+                                              -
+                                            </Text>
+                                          </TouchableOpacity>
+                                          <TextInput
+                                            placeholder="0"
+                                            editable={false}
+                                            keyboardType="number-pad"
+                                            value={String(item.quantityProduct)}
+                                            style={{
+                                              borderWidth: 1,
+                                              borderRadius: 5,
+                                              padding: 10,
+                                              width: wp('15%'),
+                                            }}
+                                            // onChangeText={value =>
+                                            //   this.editQuantityFun(
+                                            //     index,
+                                            //     'quantityProduct',
+                                            //     value,
+                                            //     item,
+                                            //   )
+                                            // }
+                                          />
+                                          <TouchableOpacity
+                                            onPress={() =>
+                                              this.editQuantityFun(
+                                                index,
+                                                'quantityProduct',
+                                                item,
+                                                'add',
+                                              )
+                                            }
+                                            style={{
+                                              backgroundColor: '#94C036',
+                                              width: 30,
+                                              padding: 10,
+                                              alignItems: 'center',
+                                              marginLeft: 2,
+                                              borderRadius: 5,
+                                            }}>
+                                            <Text
+                                              style={{
+                                                color: '#fff',
+                                              }}>
+                                              +
+                                            </Text>
+                                          </TouchableOpacity>
+                                        </View>
+
+                                        {/* <TouchableOpacity
+                                    onPress={() =>
+                                      this.viewInventoryFun(item)
+                                    }
+                                    style={{
+                                      width: wp('40%'),
+                                      marginLeft: wp('5%'),
+                                      justifyContent: 'center',
+                                    }}>
+                                    <Text>{item.name}</Text>
+                                    {item.deltaNew > 0 ? (
+                                      <Text style={{color: 'red'}}>
+                                        ( Δ{' '}
+                                        {Number(item.deltaNew).toFixed(0)}{' '}
+                                        {item.unit} )
+                                      </Text>
+                                    ) : (
+                                      <Text style={{color: 'black'}}>
+                                        ( Δ 0 {item.unit} )
+                                      </Text>
+                                    )}
+                                  </TouchableOpacity> */}
+
+                                        <TouchableOpacity
+                                          onPress={() =>
+                                            this.openModalFun(item)
+                                          }
+                                          style={{
+                                            width: wp('30%'),
+                                            marginLeft: wp('5%'),
+                                            justifyContent: 'center',
+                                          }}>
+                                          <Text>{item.productName}</Text>
+                                          {item.deltaNew > 0 ? (
+                                            <Text
+                                              style={{
+                                                color: 'red',
+                                                marginTop: 5,
+                                              }}>
+                                              ( Δ {item.deltaNew.toFixed(2)}{' '}
+                                              {item.unit} )
+                                            </Text>
+                                          ) : (
+                                            <Text
+                                              style={{
+                                                color: 'black',
+                                                marginTop: 5,
+                                              }}>
+                                              ( Δ 0 {item.unit} )
+                                            </Text>
+                                          )}
+                                        </TouchableOpacity>
+                                        {/* <View
+                                    style={{
+                                      width: wp('30%'),
+                                      marginLeft: wp('5%'),
+                                      justifyContent: 'center',
+                                    }}>
+                                    <Text>
+                                      {item.volume} {item.unit}
+                                    </Text>
+                                  </View> */}
+                                        <View
+                                          style={{
+                                            width: wp('30%'),
+                                            justifyContent: 'center',
+                                            marginLeft: wp('5%'),
+                                          }}>
+                                          <Text>
+                                            {item.comparePrice} /{' '}
+                                            {item.compareUnit}
                                           </Text>
                                         </View>
-                                      </TouchableOpacity>
-                                    </View>
-                                  );
-                                })
-                              ) : (
-                                <View style={{marginTop: hp('3%')}}>
-                                  <Text
+
+                                        {/* <View
                                     style={{
-                                      color: 'red',
-                                      fontSize: 20,
+                                      width: wp('30%'),
+                                      justifyContent: 'center',
                                     }}>
-                                    No data available
-                                  </Text>
-                                </View>
-                              )}
+                                    <CheckBox
+                                      disabled={true}
+                                      value={item.isInStock}
+                                      // onValueChange={() =>
+                                      //   this.setState({htvaIsSelected: !htvaIsSelected})
+                                      // }
+                                      style={{
+                                        height: 20,
+                                        width: 20,
+                                      }}
+                                    />
+                                  </View> */}
+                                        {/* <TouchableOpacity
+                                    onPress={() => this.actionFun(item)}
+                                    style={{
+                                      width: wp('30%'),
+                                      marginLeft: wp('5%'),
+                                      justifyContent: 'center',
+                                    }}>
+                                    <View
+                                      style={{
+                                        backgroundColor: '#94C036',
+                                        padding: 10,
+                                        alignItems: 'center',
+                                        borderRadius: 5,
+                                      }}>
+                                      <Text
+                                        style={{
+                                          fontFamily: 'Inter-Regular',
+                                          fontSize: 15,
+                                          color: '#fff',
+                                        }}>
+                                        UnMap
+                                      </Text>
+                                    </View>
+                                  </TouchableOpacity> */}
+                                      </View>
+                                    );
+                                  })
+                                ) : (
+                                  <View style={{marginTop: hp('3%')}}>
+                                    <Text
+                                      style={{
+                                        color: 'red',
+                                        fontSize: 20,
+                                      }}>
+                                      No data available
+                                    </Text>
+                                  </View>
+                                )}
+                              </View>
                             </View>
                           </View>
                         </View>
-                      </View>
-                    </ScrollView>
+                      </ScrollView>
+                    ) : null}
                   </View>
                 )}
               </ScrollView>

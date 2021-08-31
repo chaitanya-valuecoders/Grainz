@@ -313,19 +313,35 @@ class SupplierList extends Component {
       });
   };
 
-  editQuantityFun = (index, type, value, data) => {
+  editQuantityFun = (index, type, data, valueType) => {
     this.setState(
       {
         inventoryId: data.id,
       },
-      () => this.editQuantityFunSec(index, type, value, data),
+      () => this.editQuantityFunSec(index, type, data, valueType),
     );
   };
 
-  editQuantityFunSec = (index, type, value, data) => {
+  editQuantityFunSec = (index, type, data, valueType) => {
+    if (valueType === 'add') {
+      this.editQuantityFunThird(index, type, data, valueType);
+    } else {
+      if (data.quantityProduct > 0) {
+        this.editQuantityFunThird(index, type, data, valueType);
+      }
+    }
+  };
+
+  editQuantityFunThird = (index, type, data, valueType) => {
     console.log('data', data);
+
+    const valueSec =
+      data.quantityProduct === '' ? Number(0) : Number(data.quantityProduct);
+    const valueMinus = valueSec - Number(1);
+    const valueAdd = Number(1) + valueSec;
+    const value = valueType === 'add' ? valueAdd : valueMinus;
     const {modalData, screenType} = this.state;
-    const isSelectedValue = value !== '' ? true : false;
+    const isSelectedValue = value !== '' && value > 0 ? true : false;
     if (data.isMapped === true) {
       let newArr = modalData.map((item, i) =>
         index === i
@@ -439,7 +455,7 @@ class SupplierList extends Component {
             );
           });
       } else {
-        Alert.alert('Grainz', 'Please select atleast one item', [
+        Alert.alert('Grainz', 'Please add atleast one item', [
           {
             text: 'okay',
             onPress: () => this.closeBasketLoader(),
@@ -486,7 +502,7 @@ class SupplierList extends Component {
             );
           });
       } else {
-        Alert.alert('Grainz', 'Please select atleast one item', [
+        Alert.alert('Grainz', 'Please add atleast one item', [
           {
             text: 'okay',
             onPress: () => this.closeBasketLoader(),
@@ -930,7 +946,7 @@ class SupplierList extends Component {
                               }}>
                               <View
                                 style={{
-                                  width: wp('30%'),
+                                  width: wp('40%'),
                                 }}>
                                 <Text>Quantity</Text>
                               </View>
@@ -942,7 +958,7 @@ class SupplierList extends Component {
                                 }}>
                                 <Text>Name</Text>
                               </View>
-                              <View
+                              {/* <View
                                 style={{
                                   width: wp('30%'),
                                   marginLeft: wp('5%'),
@@ -954,7 +970,7 @@ class SupplierList extends Component {
                                   width: wp('30%'),
                                 }}>
                                 <Text>Stock</Text>
-                              </View>
+                              </View> */}
                               <View
                                 style={{
                                   width: wp('30%'),
@@ -962,13 +978,13 @@ class SupplierList extends Component {
                                 }}>
                                 <Text>Price</Text>
                               </View>
-                              <View
+                              {/* <View
                                 style={{
                                   width: wp('30%'),
                                   marginLeft: wp('5%'),
                                 }}>
                                 <Text style={{}}>In Stock?</Text>
-                              </View>
+                              </View> */}
                               <View
                                 style={{
                                   width: wp('30%'),
@@ -992,29 +1008,57 @@ class SupplierList extends Component {
                                       }}>
                                       <View
                                         style={{
-                                          width: wp('30%'),
-
-                                          justifyContent: 'center',
+                                          width: wp('40%'),
+                                          flexDirection: 'row',
+                                          alignItems: 'center',
+                                          justifyContent: 'flex-start',
                                         }}>
+                                        {item.isMapped ? (
+                                          <TouchableOpacity
+                                            onPress={() =>
+                                              this.editQuantityFun(
+                                                index,
+                                                'quantityProduct',
+                                                item,
+                                                'minus',
+                                              )
+                                            }
+                                            style={{
+                                              backgroundColor: '#ED3833',
+                                              width: 30,
+                                              padding: 10,
+                                              alignItems: 'center',
+                                              marginRight: 2,
+                                              borderRadius: 5,
+                                            }}>
+                                            <Text
+                                              style={{
+                                                color: '#fff',
+                                              }}>
+                                              -
+                                            </Text>
+                                          </TouchableOpacity>
+                                        ) : null}
                                         {item.isMapped ? (
                                           <TextInput
                                             placeholder="0"
+                                            editable={false}
                                             keyboardType="number-pad"
-                                            value={item.Quantity}
+                                            value={String(item.quantityProduct)}
                                             style={{
                                               borderWidth: 1,
                                               borderRadius: 6,
                                               padding: 10,
-                                              width: wp('22%'),
+                                              width: wp('15%'),
                                             }}
-                                            onChangeText={value =>
-                                              this.editQuantityFun(
-                                                index,
-                                                'quantityProduct',
-                                                value,
-                                                item,
-                                              )
-                                            }
+                                            // onChangeText={value =>
+                                            //   this.editQuantityFun(
+                                            //     index,
+                                            //     'quantityProduct',
+                                            //     value,
+                                            //     item,
+                                            //   )
+                                            // }
                                           />
                                         ) : (
                                           <TouchableOpacity
@@ -1037,6 +1081,33 @@ class SupplierList extends Component {
                                             </Text>
                                           </TouchableOpacity>
                                         )}
+
+                                        {item.isMapped ? (
+                                          <TouchableOpacity
+                                            onPress={() =>
+                                              this.editQuantityFun(
+                                                index,
+                                                'quantityProduct',
+                                                item,
+                                                'add',
+                                              )
+                                            }
+                                            style={{
+                                              backgroundColor: '#94C036',
+                                              width: 30,
+                                              padding: 10,
+                                              alignItems: 'center',
+                                              marginLeft: 2,
+                                              borderRadius: 5,
+                                            }}>
+                                            <Text
+                                              style={{
+                                                color: '#fff',
+                                              }}>
+                                              +
+                                            </Text>
+                                          </TouchableOpacity>
+                                        ) : null}
                                       </View>
 
                                       <TouchableOpacity
@@ -1058,7 +1129,7 @@ class SupplierList extends Component {
                                           {item.name}
                                         </Text>
                                       </TouchableOpacity>
-                                      <View
+                                      {/* <View
                                         style={{
                                           width: wp('30%'),
                                           marginLeft: wp('5%'),
@@ -1074,7 +1145,7 @@ class SupplierList extends Component {
                                         <Text>
                                           {item.grainzVolume} {item.unit}
                                         </Text>
-                                      </View>
+                                      </View> */}
                                       <View
                                         style={{
                                           width: wp('30%'),
@@ -1086,7 +1157,7 @@ class SupplierList extends Component {
                                           {item.unit}
                                         </Text>
                                       </View>
-                                      <View
+                                      {/* <View
                                         style={{
                                           width: wp('30%'),
                                           marginLeft: wp('5%'),
@@ -1103,7 +1174,7 @@ class SupplierList extends Component {
                                             width: 20,
                                           }}
                                         />
-                                      </View>
+                                      </View> */}
                                       {item.isMapped ? (
                                         <TouchableOpacity
                                           onPress={() => this.actionFun(item)}

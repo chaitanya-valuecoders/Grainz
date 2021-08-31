@@ -1237,7 +1237,7 @@ class ViewReviewOrder extends Component {
                           Inventory item
                         </Text>
                       </View>
-                      <View
+                      {/* <View
                         style={{
                           width: wp('30%'),
                           marginLeft: wp('5%'),
@@ -1251,7 +1251,7 @@ class ViewReviewOrder extends Component {
                           }}>
                           Arrived date
                         </Text>
-                      </View>
+                      </View> */}
                       <View
                         style={{
                           width: wp('30%'),
@@ -1355,7 +1355,7 @@ class ViewReviewOrder extends Component {
                                   {item.productName}
                                 </Text>
                               </TouchableOpacity>
-                              <View
+                              {/* <View
                                 style={{
                                   width: wp('30%'),
                                   marginLeft: wp('5%'),
@@ -1369,7 +1369,7 @@ class ViewReviewOrder extends Component {
                                   {item.arrivedDate &&
                                     moment(item.arrivedDate).format('L')}
                                 </Text>
-                              </View>
+                              </View> */}
                               <View
                                 style={{
                                   width: wp('30%'),
