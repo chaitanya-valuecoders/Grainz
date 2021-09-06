@@ -72,7 +72,7 @@ const AppNav = createStackNavigator();
 
 export default function AppNavFun() {
   return (
-    <AppNav.Navigator headerMode="none">
+    <AppNav.Navigator headerMode="none" initialRouteName="HomeScreen">
       <AppNav.Screen name="HomeScreen" component={HomeScreen} />
       <AppNav.Screen name="MepScreen" component={MepScreen} />
       <AppNav.Screen name="MepAdvanceScreen" component={MepAdvanceScreen} />

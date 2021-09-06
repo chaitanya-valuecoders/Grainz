@@ -42,6 +42,9 @@ class PendingDelivery extends Component {
       deliveryPendingDataBackup: [],
       listId: '',
       type: '',
+      arrangeStatusSupplier: 0,
+      arrangeStatusDate: 0,
+      arrangeStatusHTVA: 0,
     };
   }
 
@@ -208,6 +211,169 @@ class PendingDelivery extends Component {
     }
   };
 
+  arrangeListSupplierFun = funType => {
+    // if(
+    //   funType === 'SUPPLIER'
+    // ) {
+
+    // } else if (funType === 'DATE') {
+
+    // } else if(funType === '')
+    this.setState(
+      {
+        arrangeStatusSupplier: Number(1) + this.state.arrangeStatusSupplier,
+      },
+      () => this.arrangeListSupplierFunSec(),
+    );
+  };
+
+  arrangeListSupplierFunSec = () => {
+    const {arrangeStatusSupplier} = this.state;
+    if (arrangeStatusSupplier % 2 == 0) {
+      this.ascendingOrderSupplierFun();
+    } else {
+      this.descendingOrderSupplierFun();
+    }
+  };
+
+  ascendingOrderSupplierFun = () => {
+    const {deliveryPendingData} = this.state;
+    const finalData = deliveryPendingData.reverse();
+
+    this.setState({
+      deliveryPendingData: finalData,
+    });
+  };
+
+  descendingOrderSupplierFun = () => {
+    const {deliveryPendingData} = this.state;
+    // deliveryPendingData.sort();
+    function dynamicSort(property) {
+      var sortOrder = 1;
+      if (property[0] === '-') {
+        sortOrder = -1;
+        property = property.substr(1);
+      }
+      return function (a, b) {
+        /* next line works with strings and numbers,
+         * and you may want to customize it to your needs
+         */
+        var result =
+          a[property] < b[property] ? -1 : a[property] > b[property] ? 1 : 0;
+        return result * sortOrder;
+      };
+    }
+
+    const finalData = deliveryPendingData.sort(dynamicSort('supplierName'));
+    console.log('supplierName', finalData);
+
+    this.setState({
+      deliveryPendingData: finalData,
+    });
+  };
+
+  arrangeListDateFun = () => {
+    this.setState(
+      {
+        arrangeStatusDate: Number(1) + this.state.arrangeStatusDate,
+      },
+      () => this.arrangeListDateFunSec(),
+    );
+  };
+
+  arrangeListDateFunSec = () => {
+    const {arrangeStatusDate} = this.state;
+    if (arrangeStatusDate % 2 == 0) {
+      this.ascendingOrderDateFun();
+    } else {
+      this.descendingOrderDateFun();
+    }
+  };
+
+  ascendingOrderDateFun = () => {
+    const {deliveryPendingData} = this.state;
+    const finalData = deliveryPendingData.reverse();
+    this.setState({
+      deliveryPendingData: finalData,
+    });
+  };
+
+  descendingOrderDateFun = () => {
+    const {deliveryPendingData} = this.state;
+    // deliveryPendingData.sort();
+    function dynamicSort(property) {
+      var sortOrder = 1;
+      if (property[0] === '-') {
+        sortOrder = -1;
+        property = property.substr(1);
+      }
+      return function (a, b) {
+        /* next line works with strings and numbers,
+         * and you may want to customize it to your needs
+         */
+        var result =
+          a[property] < b[property] ? -1 : a[property] > b[property] ? 1 : 0;
+        return result * sortOrder;
+      };
+    }
+    const finalData = deliveryPendingData.sort(dynamicSort('deliveryDate'));
+    console.log('date', finalData);
+    this.setState({
+      deliveryPendingData: finalData,
+    });
+  };
+
+  arrangeListHTVAFun = () => {
+    this.setState(
+      {
+        arrangeStatusHTVA: Number(1) + this.state.arrangeStatusHTVA,
+      },
+      () => this.arrangeListHTVAFunSec(),
+    );
+  };
+
+  arrangeListHTVAFunSec = () => {
+    const {arrangeStatusHTVA} = this.state;
+    if (arrangeStatusHTVA % 2 == 0) {
+      this.ascendingOrderHTVAFun();
+    } else {
+      this.descendingOrderHTVAFun();
+    }
+  };
+
+  ascendingOrderHTVAFun = () => {
+    const {deliveryPendingData} = this.state;
+    const finalData = deliveryPendingData.reverse();
+    this.setState({
+      deliveryPendingData: finalData,
+    });
+  };
+
+  descendingOrderHTVAFun = () => {
+    const {deliveryPendingData} = this.state;
+    // deliveryPendingData.sort();
+    function dynamicSort(property) {
+      var sortOrder = 1;
+      if (property[0] === '-') {
+        sortOrder = -1;
+        property = property.substr(1);
+      }
+      return function (a, b) {
+        /* next line works with strings and numbers,
+         * and you may want to customize it to your needs
+         */
+        var result =
+          a[property] < b[property] ? -1 : a[property] > b[property] ? 1 : 0;
+        return result * sortOrder;
+      };
+    }
+    const finalData = deliveryPendingData.sort(dynamicSort('htva'));
+    console.log('htva', finalData);
+    this.setState({
+      deliveryPendingData: finalData,
+    });
+  };
+
   render() {
     const {
       buttonsSubHeader,
@@ -332,6 +498,8 @@ class PendingDelivery extends Component {
                             style={{
                               width: wp('30%'),
                               alignItems: 'center',
+                              flexDirection: 'row',
+                              justifyContent: 'center',
                             }}>
                             <Text
                               style={{
@@ -340,11 +508,27 @@ class PendingDelivery extends Component {
                               }}>
                               Supplier
                             </Text>
+                            <TouchableOpacity
+                              onPress={() =>
+                                this.arrangeListSupplierFun('SUPPLIER')
+                              }>
+                              <Image
+                                style={{
+                                  width: 13,
+                                  height: 13,
+                                  resizeMode: 'contain',
+                                  marginLeft: 5,
+                                }}
+                                source={img.doubleArrowIconNew}
+                              />
+                            </TouchableOpacity>
                           </View>
                           <View
                             style={{
                               width: wp('30%'),
                               alignItems: 'center',
+                              flexDirection: 'row',
+                              justifyContent: 'center',
                             }}>
                             <Text
                               style={{
@@ -353,11 +537,25 @@ class PendingDelivery extends Component {
                               }}>
                               {listId === 2 ? 'Delivery date' : 'Order date'}
                             </Text>
+                            <TouchableOpacity
+                              onPress={() => this.arrangeListDateFun('DATE')}>
+                              <Image
+                                style={{
+                                  width: 13,
+                                  height: 13,
+                                  resizeMode: 'contain',
+                                  marginLeft: 5,
+                                }}
+                                source={img.doubleArrowIconNew}
+                              />
+                            </TouchableOpacity>
                           </View>
                           <View
                             style={{
                               width: wp('30%'),
                               alignItems: 'center',
+                              flexDirection: 'row',
+                              justifyContent: 'center',
                             }}>
                             <Text
                               style={{
@@ -366,6 +564,18 @@ class PendingDelivery extends Component {
                               }}>
                               Total HTVA
                             </Text>
+                            <TouchableOpacity
+                              onPress={() => this.arrangeListHTVAFun('HTVA')}>
+                              <Image
+                                style={{
+                                  width: 13,
+                                  height: 13,
+                                  resizeMode: 'contain',
+                                  marginLeft: 5,
+                                }}
+                                source={img.doubleArrowIconNew}
+                              />
+                            </TouchableOpacity>
                           </View>
                         </View>
                         <View>
@@ -405,12 +615,16 @@ class PendingDelivery extends Component {
                                       <Text>
                                         {type === 'Pending'
                                           ? moment(item.deliveryDate).format(
-                                              'L',
+                                              'DD/MM/YY',
                                             )
                                           : type === 'Review'
-                                          ? moment(item.orderDate).format('L')
+                                          ? moment(item.orderDate).format(
+                                              'DD/MM/YY',
+                                            )
                                           : type === 'History'
-                                          ? moment(item.orderDate).format('L')
+                                          ? moment(item.orderDate).format(
+                                              'DD/MM/YY',
+                                            )
                                           : null}
                                       </Text>
                                     </View>

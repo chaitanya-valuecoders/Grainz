@@ -845,6 +845,14 @@ class ViewHistoryOrder extends Component {
               <View style={{padding: hp('3%')}}>
                 <View style={{}}>
                   <View style={{marginBottom: hp('3%')}}>
+                    <Text
+                      style={{
+                        marginBottom: hp('3%'),
+                        fontFamily: 'Inter-Regular',
+                        marginLeft: 5,
+                      }}>
+                      Supplier :
+                    </Text>
                     <TextInput
                       editable={false}
                       placeholder="Supplier"
@@ -867,6 +875,14 @@ class ViewHistoryOrder extends Component {
                     />
                   </View>
                   <View style={{marginBottom: hp('3%')}}>
+                    <Text
+                      style={{
+                        marginBottom: hp('3%'),
+                        fontFamily: 'Inter-Regular',
+                        marginLeft: 5,
+                      }}>
+                      Order Date :
+                    </Text>
                     <TextInput
                       editable={false}
                       placeholder="Order Date"
@@ -895,6 +911,14 @@ class ViewHistoryOrder extends Component {
                     style={{
                       marginBottom: hp('3%'),
                     }}>
+                    <Text
+                      style={{
+                        marginBottom: hp('3%'),
+                        fontFamily: 'Inter-Regular',
+                        marginLeft: 5,
+                      }}>
+                      Delivery Date :
+                    </Text>
                     <View style={{}}>
                       <TouchableOpacity
                         onPress={() => this.showDatePickerDeliveryDate()}
@@ -937,6 +961,14 @@ class ViewHistoryOrder extends Component {
                     style={{
                       marginBottom: hp('3%'),
                     }}>
+                    <Text
+                      style={{
+                        marginBottom: hp('3%'),
+                        fontFamily: 'Inter-Regular',
+                        marginLeft: 5,
+                      }}>
+                      Arrived Date :
+                    </Text>
                     <View style={{}}>
                       <TouchableOpacity
                         onPress={() => this.showDatePickerArrivalDate()}
@@ -977,6 +1009,14 @@ class ViewHistoryOrder extends Component {
                   </View>
 
                   <View style={{marginBottom: hp('3%')}}>
+                    <Text
+                      style={{
+                        marginBottom: hp('3%'),
+                        fontFamily: 'Inter-Regular',
+                        marginLeft: 5,
+                      }}>
+                      Order reference :
+                    </Text>
                     <TextInput
                       placeholder="Order reference"
                       value={pageData.orderReference}
@@ -999,6 +1039,14 @@ class ViewHistoryOrder extends Component {
                     />
                   </View>
                   <View style={{marginBottom: hp('3%')}}>
+                    <Text
+                      style={{
+                        marginBottom: hp('3%'),
+                        fontFamily: 'Inter-Regular',
+                        marginLeft: 5,
+                      }}>
+                      Invoice number :
+                    </Text>
                     <TextInput
                       placeholder="Invoice number"
                       value={pageInvoiceNumber}
@@ -1024,6 +1072,14 @@ class ViewHistoryOrder extends Component {
                     />
                   </View>
                   <View style={{marginBottom: hp('3%')}}>
+                    <Text
+                      style={{
+                        marginBottom: hp('3%'),
+                        fontFamily: 'Inter-Regular',
+                        marginLeft: 5,
+                      }}>
+                      Delivery note reference :
+                    </Text>
                     <TextInput
                       placeholder="Delivery note reference"
                       value={pageDeliveryNoteReference}
@@ -1049,6 +1105,14 @@ class ViewHistoryOrder extends Component {
                     />
                   </View>
                   <View style={{marginBottom: hp('3%')}}>
+                    <Text
+                      style={{
+                        marginBottom: hp('3%'),
+                        fontFamily: 'Inter-Regular',
+                        marginLeft: 5,
+                      }}>
+                      Ambient Temperature :
+                    </Text>
                     <TextInput
                       placeholder="Ambient Temperature"
                       value={pageAmbientTemp && String(pageAmbientTemp)}
@@ -1074,6 +1138,14 @@ class ViewHistoryOrder extends Component {
                     />
                   </View>
                   <View style={{marginBottom: hp('3%')}}>
+                    <Text
+                      style={{
+                        marginBottom: hp('3%'),
+                        fontFamily: 'Inter-Regular',
+                        marginLeft: 5,
+                      }}>
+                      Chilled Temperature :
+                    </Text>
                     <TextInput
                       placeholder="Chilled Temperature"
                       value={pageChilledTemp && String(pageChilledTemp)}
@@ -1099,6 +1171,14 @@ class ViewHistoryOrder extends Component {
                     />
                   </View>
                   <View style={{marginBottom: hp('3%')}}>
+                    <Text
+                      style={{
+                        marginBottom: hp('3%'),
+                        fontFamily: 'Inter-Regular',
+                        marginLeft: 5,
+                      }}>
+                      Frozen Temperature :
+                    </Text>
                     <TextInput
                       placeholder="Frozen Temperature"
                       value={pageFrozenTemp && String(pageFrozenTemp)}
@@ -1124,6 +1204,14 @@ class ViewHistoryOrder extends Component {
                     />
                   </View>
                   <View style={{marginBottom: hp('3%')}}>
+                    <Text
+                      style={{
+                        marginBottom: hp('3%'),
+                        fontFamily: 'Inter-Regular',
+                        marginLeft: 5,
+                      }}>
+                      Notes :
+                    </Text>
                     <TextInput
                       placeholder="Notes"
                       value={pageNotes}
@@ -1149,6 +1237,14 @@ class ViewHistoryOrder extends Component {
                     />
                   </View>
                   <View style={{marginBottom: hp('3%')}}>
+                    <Text
+                      style={{
+                        marginBottom: hp('3%'),
+                        fontFamily: 'Inter-Regular',
+                        marginLeft: 5,
+                      }}>
+                      Placed by :
+                    </Text>
                     <TextInput
                       placeholder="Placed by"
                       value={pageData.placedByNAme}
