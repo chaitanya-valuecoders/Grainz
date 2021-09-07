@@ -295,11 +295,11 @@ class HistoryData extends Component {
           logoutFun={this.myProfile}
           logoFun={() => this.props.navigation.navigate('HomeScreen')}
         />
-        {loader ? (
+        {/* {loader ? (
           <ActivityIndicator size="small" color="#94C036" />
         ) : (
           <SubHeader {...this.props} buttons={buttonsSubHeader} />
-        )}
+        )} */}
         <ScrollView
           showsVerticalScrollIndicator={false}
           style={{marginBottom: hp('2%')}}>

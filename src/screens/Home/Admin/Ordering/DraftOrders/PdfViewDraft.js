@@ -361,11 +361,11 @@ class PdfViewDraft extends Component {
           logoutFun={this.myProfile}
           logoFun={() => this.props.navigation.navigate('HomeScreen')}
         />
-        {recipeLoader ? (
+        {/* {recipeLoader ? (
           <ActivityIndicator size="small" color="#94C036" />
         ) : (
           <SubHeader {...this.props} buttons={buttonsSubHeader} index={0} />
-        )}
+        )} */}
         <LoaderComp loaderComp={loaderCompStatus} />
         <View style={styles.subContainer}>
           <View style={styles.firstContainer}>

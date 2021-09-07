@@ -104,11 +104,11 @@ class index extends Component {
           logoutFun={this.myProfile}
           logoFun={() => this.props.navigation.navigate('HomeScreen')}
         />
-        {loader ? (
+        {/* {loader ? (
           <ActivityIndicator size="small" color="#94C036" />
         ) : (
           <SubHeader {...this.props} buttons={buttonsSubHeader} />
-        )}
+        )} */}
         <View style={styles.subContainer}>
           <View style={styles.firstContainer}>
             <View style={styles.flex}>

@@ -14,9 +14,18 @@ import img from '../../constants/images';
 import SubHeader from '../../components/SubHeader';
 import Header from '../../components/Header';
 import {UserTokenAction} from '../../redux/actions/UserTokenAction';
-import {getMyProfileApi} from '../../connectivity/api';
+import {
+  getMyProfileApi,
+  getUserLocation,
+  setCurrentLocation,
+} from '../../connectivity/api';
+import {
+  widthPercentageToDP as wp,
+  heightPercentageToDP as hp,
+} from 'react-native-responsive-screen';
 import {translate} from '../../utils/translations';
 import styles from './style';
+import RNPickerSelect from 'react-native-picker-select';
 
 class index extends Component {
   constructor(props) {
@@ -29,6 +38,8 @@ class index extends Component {
       jobTitle: '',
       pageLoader: true,
       buttonsSubHeader: [],
+      locationArr: [],
+      finalLocation: '',
     };
   }
 
@@ -60,7 +71,46 @@ class index extends Component {
 
   componentDidMount() {
     this.getProfileData();
+    this.getUserLocationFun();
   }
+
+  getUserLocationFun = () => {
+    getUserLocation()
+      .then(res => {
+        let finalUsersList = res.data.map((item, index) => {
+          return {
+            label: item.name,
+            value: item.id,
+          };
+        });
+
+        let defaultUser = res.data.map((item, index) => {
+          if (item.isDefault === true) {
+            return item.id;
+          }
+        });
+        let finalData = defaultUser.filter(function (element) {
+          return element !== undefined;
+        });
+        this.setState({
+          locationArr: finalUsersList,
+          finalLocation: finalData[0],
+        });
+      })
+      .catch(err => {
+        console.warn('ERr', err);
+      });
+  };
+
+  setCurrentLocFun = id => {
+    setCurrentLocation(id)
+      .then(res => {
+        console.log('res', res);
+      })
+      .catch(err => {
+        console.warn('ERr', err);
+      });
+  };
 
   removeToken = async () => {
     await AsyncStorage.removeItem('@appToken');
@@ -69,6 +119,20 @@ class index extends Component {
 
   myProfile = () => {
     this.props.navigation.navigate('MyProfile');
+  };
+
+  setLocationFun = value => {
+    if (value) {
+      this.setState(
+        {
+          finalLocation: value,
+        },
+        () =>
+          setTimeout(() => {
+            this.setCurrentLocFun(value);
+          }, 300),
+      );
+    }
   };
 
   render() {
@@ -80,6 +144,8 @@ class index extends Component {
       firstName,
       lastName,
       buttonsSubHeader,
+      locationArr,
+      finalLocation,
     } = this.state;
     return (
       <View style={styles.container}>
@@ -87,11 +153,11 @@ class index extends Component {
           logoutFun={this.myProfile}
           logoFun={() => this.props.navigation.navigate('HomeScreen')}
         />
-        {pageLoader ? (
+        {/* {pageLoader ? (
           <ActivityIndicator size="small" color="#94C036" />
         ) : (
           <SubHeader {...this.props} buttons={buttonsSubHeader} />
-        )}
+        )} */}
         <ScrollView style={styles.subContainer}>
           {pageLoader ? (
             <ActivityIndicator color="#94C036" size="large" />
@@ -108,6 +174,7 @@ class index extends Component {
                     value={firstName}
                     placeholder={translate('First name')}
                     style={styles.textInputStyling}
+                    editable={false}
                   />
                 </View>
               </View>
@@ -122,6 +189,7 @@ class index extends Component {
                     value={lastName}
                     placeholder={translate('Last name')}
                     style={styles.textInputStyling}
+                    editable={false}
                   />
                 </View>
               </View>
@@ -134,6 +202,7 @@ class index extends Component {
                     value={jobTitle}
                     placeholder={translate('job')}
                     style={styles.textInputStyling}
+                    editable={false}
                   />
                 </View>
               </View>
@@ -148,6 +217,7 @@ class index extends Component {
                     value={phoneNumber}
                     placeholder={translate('Mobile phone')}
                     style={styles.textInputStyling}
+                    editable={false}
                   />
                 </View>
               </View>
@@ -160,7 +230,81 @@ class index extends Component {
                     value={email}
                     placeholder={translate('Email')}
                     style={styles.textInputStyling}
+                    editable={false}
                   />
+                </View>
+              </View>
+              <View style={styles.dataContainer}>
+                <View style={styles.dataFirstContainer}>
+                  <Text style={styles.textStyling}>
+                    {translate('Location')}
+                  </Text>
+                </View>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    backgroundColor: '#fff',
+                    borderRadius: 5,
+                    justifyContent: 'space-between',
+                    borderWidth: 0.5,
+                    borderColor: 'grey',
+                    flex: 3,
+                    height: hp('6%'),
+                    alignSelf: 'center',
+                  }}>
+                  <View
+                    style={{
+                      alignSelf: 'center',
+                      justifyContent: 'center',
+                      flex: 3,
+                    }}>
+                    <RNPickerSelect
+                      placeholder={{
+                        label: 'Please select location*',
+                        value: null,
+                        color: 'black',
+                      }}
+                      placeholderTextColor="red"
+                      onValueChange={value => {
+                        this.setLocationFun(value);
+                      }}
+                      style={{
+                        inputIOS: {
+                          fontSize: 14,
+                          paddingHorizontal: '3%',
+                          color: '#161C27',
+                          width: '100%',
+                          alignSelf: 'center',
+                        },
+                        inputAndroid: {
+                          fontSize: 14,
+                          paddingHorizontal: '3%',
+                          color: '#161C27',
+                          width: '100%',
+                          alignSelf: 'center',
+                          paddingVertical: 6,
+                        },
+                        iconContainer: {
+                          top: '40%',
+                        },
+                      }}
+                      items={locationArr}
+                      value={finalLocation}
+                      useNativeAndroidPickerStyle={false}
+                    />
+                  </View>
+                  <View style={{marginRight: wp('5%')}}>
+                    <Image
+                      source={img.arrowDownIcon}
+                      resizeMode="contain"
+                      style={{
+                        height: 15,
+                        width: 15,
+                        resizeMode: 'contain',
+                        marginTop: Platform.OS === 'ios' ? 13 : 13,
+                      }}
+                    />
+                  </View>
                 </View>
               </View>
               <View style={styles.dataContainer}>

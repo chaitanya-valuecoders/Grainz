@@ -107,11 +107,11 @@ class ViewPurchase extends Component {
           logoutFun={this.myProfileFun}
           logoFun={() => this.props.navigation.navigate('HomeScreen')}
         />
-        {recipeLoader ? (
+        {/* {recipeLoader ? (
           <ActivityIndicator size="small" color="#94C036" />
         ) : (
           <SubHeader {...this.props} buttons={buttonsSubHeader} />
-        )}
+        )} */}
         <ScrollView
           ref={ref => {
             this.scrollListReftop = ref;

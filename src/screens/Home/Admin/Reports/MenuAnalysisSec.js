@@ -95,11 +95,11 @@ class MenuAnalysisSec extends Component {
           logoutFun={this.myProfile}
           logoFun={() => this.props.navigation.navigate('HomeScreen')}
         />
-        {recipeLoader ? (
+        {/* {recipeLoader ? (
           <ActivityIndicator size="small" color="#94C036" />
         ) : (
           <SubHeader {...this.props} buttons={buttonsSubHeader} index={0} />
-        )}
+        )} */}
         <ScrollView style={{}} showsVerticalScrollIndicator={false}>
           <View style={styles.subContainer}>
             <View style={styles.firstContainer}>

@@ -307,11 +307,11 @@ class index extends Component {
           logoutFun={this.myProfile}
           logoFun={() => this.props.navigation.navigate('HomeScreen')}
         />
-        {recipeLoader ? (
+        {/* {recipeLoader ? (
           <ActivityIndicator color="#94C036" size="small" />
         ) : (
           <SubHeader {...this.props} buttons={buttonsSubHeader} index={1} />
-        )}
+        )} */}
         <ScrollView
           style={{marginBottom: hp('2%')}}
           showsVerticalScrollIndicator={false}>

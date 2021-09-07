@@ -22,11 +22,12 @@ const styles = StyleSheet.create({
   dataSecondContainer: {flex: 3, justifyContent: 'center'},
   textStyling: {fontFamily: 'Inter-SemiBold', fontSize: 14},
   textInputStyling: {
-    borderWidth: 1,
+    borderWidth: 0.5,
     paddingVertical: '5%',
     borderColor: 'grey',
     paddingLeft: wp('2%'),
     borderRadius: 6,
+    backgroundColor: '#fff',
   },
   logOutIconStyling: {
     width: 20,

@@ -1038,3 +1038,25 @@ export const processPendingOrderItemApi = async payload => {
     },
   });
 };
+
+export const getUserLocation = async () => {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.get(baseURL + `/Location/get user locations`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+export const setCurrentLocation = async id => {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.post(
+    baseURL + `/Location/set current location?Id=${id}`,
+    {},
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  );
+};

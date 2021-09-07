@@ -493,11 +493,11 @@ class AddNewEvent extends Component {
           logoutFun={this.myProfile}
           logoFun={() => this.props.navigation.navigate('HomeScreen')}
         />
-        {loader ? (
+        {/* {loader ? (
           <ActivityIndicator size="small" color="#98C13E" />
         ) : (
           <SubHeader {...this.props} buttons={buttonsSubHeader} index={0} />
-        )}
+        )} */}
 
         <View style={{...styles.subContainer, flex: 1}}>
           <View style={styles.firstContainer}>

@@ -524,11 +524,11 @@ class AddItems extends Component {
           logoutFun={this.myProfile}
           logoFun={() => this.props.navigation.navigate('HomeScreen')}
         />
-        {recipeLoader ? (
+        {/* {recipeLoader ? (
           <ActivityIndicator color="#94C036" size="small" />
         ) : (
           <SubHeader {...this.props} buttons={buttonsSubHeader} index={0} />
-        )}
+        )} */}
         <ScrollView
           style={{marginBottom: hp('5%')}}
           showsVerticalScrollIndicator={false}>
