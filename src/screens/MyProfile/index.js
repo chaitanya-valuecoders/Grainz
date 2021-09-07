@@ -77,6 +77,7 @@ class index extends Component {
   getUserLocationFun = () => {
     getUserLocation()
       .then(res => {
+        console.log('res', res);
         let finalUsersList = res.data.map((item, index) => {
           return {
             label: item.name,
@@ -85,7 +86,7 @@ class index extends Component {
         });
 
         let defaultUser = res.data.map((item, index) => {
-          if (item.isDefault === true) {
+          if (item.isCurrent === true) {
             return item.id;
           }
         });
@@ -105,7 +106,7 @@ class index extends Component {
   setCurrentLocFun = id => {
     setCurrentLocation(id)
       .then(res => {
-        console.log('res', res);
+        console.log('resSET', res);
       })
       .catch(err => {
         console.warn('ERr', err);

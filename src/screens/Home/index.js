@@ -53,11 +53,13 @@ class index extends Component {
           loader: false,
           buttons: [
             {
+              id: 0,
               name: translate('Stock Take'),
               icon: img.stokeTakeIcon,
               screen: 'StockTakeScreen',
             },
             {
+              id: 1,
               name: translate('Mise-en-Place'),
               icon: img.miscIcon,
               screen: 'MepScreen',
@@ -74,6 +76,7 @@ class index extends Component {
             //   screen: 'MenuItemsScreen',
             // },
             {
+              id: 2,
               name: translate('Manual Log small'),
               icon: img.ManualIcon,
               screen: 'ManualLogScreen',
@@ -84,14 +87,22 @@ class index extends Component {
             //   screen: 'DeliveriesScreen',
             // },
             {
+              id: 4,
               name: translate('Casual purchase'),
               icon: img.CasualIcon,
               screen: 'CasualPurchaseScreen',
             },
             {
+              id: 5,
               name: translate('Ordering'),
               icon: img.orderingIcon,
               screen: 'OrderingAdminScreen',
+            },
+            {
+              id: 6,
+              name: translate('Dashboard'),
+              icon: img.dashboardIcon,
+              screen: 'DashboardScreen',
             },
             // {name: translate('Events'), icon: img.addIcon, screen: 'EventsScreen'},
           ],
@@ -156,30 +167,40 @@ class index extends Component {
         ) : (
           <SubHeader {...this.props} buttons={buttonsSubHeader} />
         )} */}
-        <View style={styles.subContainer}>
-          <FlatList
-            data={buttons}
-            renderItem={({item}) => (
-              <View style={styles.itemContainer}>
-                <TouchableOpacity
-                  onPress={() => this.onPressFun(item)}
-                  style={styles.tileContainer}>
-                  <View style={styles.tileImageContainer}>
-                    <Image source={item.icon} style={styles.tileImageStyling} />
-                  </View>
-                  <View style={styles.tileTextContainer}>
-                    <Text style={styles.tileTextStyling} numberOfLines={1}>
-                      {' '}
-                      {item.name}
-                    </Text>
-                  </View>
-                </TouchableOpacity>
-              </View>
-            )}
-            keyExtractor={item => item.id}
-            numColumns={3}
-          />
-        </View>
+        {loader ? (
+          <ActivityIndicator size="large" color="grey" />
+        ) : (
+          <View style={styles.subContainer}>
+            <FlatList
+              data={buttons}
+              renderItem={({item}) => (
+                <View style={styles.itemContainer}>
+                  <TouchableOpacity
+                    onPress={() => this.onPressFun(item)}
+                    style={styles.tileContainer}>
+                    <View style={styles.tileImageContainer}>
+                      <Image
+                        source={item.icon}
+                        style={{
+                          ...styles.tileImageStyling,
+                          tintColor: item.id === 6 ? 'red' : null,
+                        }}
+                      />
+                    </View>
+                    <View style={styles.tileTextContainer}>
+                      <Text style={styles.tileTextStyling} numberOfLines={1}>
+                        {' '}
+                        {item.name}
+                      </Text>
+                    </View>
+                  </TouchableOpacity>
+                </View>
+              )}
+              keyExtractor={item => item.id}
+              numColumns={3}
+            />
+          </View>
+        )}
       </View>
     );
   }

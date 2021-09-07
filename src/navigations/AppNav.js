@@ -67,6 +67,7 @@ import PdfViewDraftScreen from '../screens/Home/Admin/Ordering/DraftOrders/PdfVi
 import ViewReviewOrderScreen from '../screens/Home/Admin/Ordering/ReviewOrder/ViewReviewOrder';
 import ViewHistoryOrderScreen from '../screens/Home/Admin/Ordering/HistoryOrder/ViewHistoryOrder';
 import HistroyDataScreen from '../screens/StockTake/HistroyData';
+import DashboardScreen from '../screens/Dashboard';
 
 const AppNav = createStackNavigator();
 
@@ -74,6 +75,7 @@ export default function AppNavFun() {
   return (
     <AppNav.Navigator headerMode="none" initialRouteName="HomeScreen">
       <AppNav.Screen name="HomeScreen" component={HomeScreen} />
+      <AppNav.Screen name="DashboardScreen" component={DashboardScreen} />
       <AppNav.Screen name="MepScreen" component={MepScreen} />
       <AppNav.Screen name="MepAdvanceScreen" component={MepAdvanceScreen} />
       <AppNav.Screen name="ManualLogScreen" component={ManualLogScreen} />
