@@ -2,25 +2,12 @@ import axios from 'axios';
 import url from './Environment.json';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// let baseURL = url['STAGING'].BaseURL;
-let baseURL = url['DEV'].BaseURL;
-
-export const loginApi = payload => {
-  return axios.post(
-    'https://grainzwebapid.azurewebsites.net/connect/token',
-    payload,
-    {
-      headers: {
-        Accept: '*/*',
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-    },
-  );
-};
+let baseURL = url['STAGING'].BaseURL;
+// let baseURL = url['DEV'].BaseURL;
 
 // export const loginApi = payload => {
 //   return axios.post(
-//     'https://grainzwebapiq.azurewebsites.net/connect/token',
+//     'https://grainzwebapid.azurewebsites.net/connect/token',
 //     payload,
 //     {
 //       headers: {
@@ -30,6 +17,19 @@ export const loginApi = payload => {
 //     },
 //   );
 // };
+
+export const loginApi = payload => {
+  return axios.post(
+    'https://grainzwebapiq.azurewebsites.net/connect/token',
+    payload,
+    {
+      headers: {
+        Accept: '*/*',
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+    },
+  );
+};
 
 export async function getMyProfileApi() {
   const token = await AsyncStorage.getItem('@appToken');
@@ -1039,7 +1039,7 @@ export const processPendingOrderItemApi = async payload => {
   });
 };
 
-export const getUserLocation = async () => {
+export const getUserLocationApi = async () => {
   const token = await AsyncStorage.getItem('@appToken');
   return axios.get(baseURL + `/Location/get user locations`, {
     headers: {
@@ -1059,4 +1059,22 @@ export const setCurrentLocation = async id => {
       },
     },
   );
+};
+
+export const getCurrentUserApi = async () => {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.get(baseURL + `/User/get current user`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+export const revenuePostReportApi = async payload => {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.post(baseURL + `/Report/Revenue cost report`, payload, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
 };
