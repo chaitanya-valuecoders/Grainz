@@ -50,7 +50,6 @@ class index extends Component {
     getMyProfileApi()
       .then(res => {
         this.setState({
-          loader: false,
           buttons: [
             {
               id: 0,
@@ -111,6 +110,7 @@ class index extends Component {
             {name: translate('Setup')},
             {name: translate('INBOX')},
           ],
+          loader: false,
         });
       })
       .catch(err => {

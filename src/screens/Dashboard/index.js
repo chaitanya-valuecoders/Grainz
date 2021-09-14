@@ -10,6 +10,7 @@ import {
   Alert,
   FlatList,
   Platform,
+  Dimensions,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {connect} from 'react-redux';
@@ -32,6 +33,8 @@ import styles from './style';
 import RNPickerSelect from 'react-native-picker-select';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import {translate} from '../../utils/translations';
+import {StackedBarChart} from 'react-native-chart-kit';
+import PureChart from 'react-native-pure-chart';
 
 class index extends Component {
   constructor(props) {
@@ -53,6 +56,45 @@ class index extends Component {
       apiFirstDate: '',
       finalSecondDate: '',
       apiSecondDate: '',
+      showMap: false,
+      sampleData: [
+        {
+          seriesName: 'series1',
+          data: [
+            {x: 'A', y: 30},
+            {x: 'B', y: 60},
+            {x: 'C', y: 70},
+            {x: 'D', y: 80},
+          ],
+          color: 'red',
+        },
+        {
+          seriesName: 'series2',
+          data: [
+            {x: 'A', y: 30},
+            {x: 'B', y: 60},
+            {x: 'C', y: 70},
+            {x: 'D', y: 80},
+          ],
+          color: 'yellow',
+        },
+      ],
+      mapData: {
+        labels: ['Test1', 'Test2'],
+        legend: ['L1', 'L2', 'L3'],
+        data: [
+          [60, 60, 60],
+          [30, 30, 60],
+        ],
+        barColors: ['#dfe4ea', '#ced6e0', '#a4b0be'],
+      },
+      screenWidth: Dimensions.get('window').width,
+      chartConfig: {
+        color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+        strokeWidth: 2, // optional, default 3
+        barPercentage: 0.5,
+        useShadowColorFromDataset: false, // optional
+      },
     };
   }
 
@@ -169,6 +211,7 @@ class index extends Component {
         this.setState({
           locationList: finalLocationList,
           recipeLoader: false,
+          showMap: true,
         });
       })
       .catch(err => {
@@ -270,9 +313,15 @@ class index extends Component {
       locationList,
       revenueData,
       viewValue,
+      chartConfig,
+      mapData,
+      screenWidth,
+      showMap,
+      sampleData,
     } = this.state;
 
     const {currentMonthRevenueCosts, previousDayRevenueCosts} = revenueData;
+
     return (
       <View style={styles.container}>
         <Header
@@ -297,7 +346,10 @@ class index extends Component {
               <TouchableOpacity
                 onPress={() => this.props.navigation.goBack()}
                 style={styles.goBackContainer}>
-                <Text style={styles.goBackTextStyle}>Go Back</Text>
+                <Text style={styles.goBackTextStyle}>
+                  {' '}
+                  {translate('Go Back')}
+                </Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -960,6 +1012,49 @@ class index extends Component {
               </ScrollView>
             </View>
           )}
+          {/* {showMap ? (
+            <View
+              style={{
+                marginHorizontal: wp('5%'),
+                marginTop: hp('5%'),
+              }}>
+              <StackedBarChart
+                style={{
+                  marginLeft: 10,
+                }}
+                data={{
+                  labels: [
+                    'Test1',
+                    'Test2',
+                    'Test3',
+                    'Test4',
+                    'Test5',
+                    'Test6',
+                  ],
+                  legend: ['L1', 'L2', 'L3', 'L4', 'L5'],
+                  data: [
+                    [60, 60, 60, 80, 100],
+                    [30, 30, 60, 80, 100],
+                    [30, 30, 60, 80, 100],
+                    [30, 30, 60, 80, 100],
+                    [30, 30, 60, 80, 100],
+                    [30, 30, 60, 80, 100],
+                  ],
+                  barColors: ['red', 'pink', 'orange', 'blue', 'grey'],
+                }}
+                width={320}
+                height={320}
+                chartConfig={chartConfig}
+              />
+            </View>
+          ) : null} */}
+          <View
+            style={{
+              marginHorizontal: wp('5%'),
+              marginTop: hp('5%'),
+            }}>
+            <PureChart data={sampleData} type="bar" />
+          </View>
         </ScrollView>
       </View>
     );

@@ -16,7 +16,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   dataFirstContainer: {
-    flex: 1,
+    flex: 1.5,
     justifyContent: 'center',
   },
   dataSecondContainer: {flex: 3, justifyContent: 'center'},

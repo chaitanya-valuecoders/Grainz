@@ -130,6 +130,10 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
 
+    dexOptions {
+       javaMaxHeapSize "3g"
+    }
+
     defaultConfig {
         applicationId "com.grainz"
         minSdkVersion rootProject.ext.minSdkVersion

@@ -16,7 +16,7 @@ import Header from '../../components/Header';
 import {UserTokenAction} from '../../redux/actions/UserTokenAction';
 import {
   getMyProfileApi,
-  getUserLocation,
+  getUserLocationApi,
   setCurrentLocation,
 } from '../../connectivity/api';
 import {
@@ -75,7 +75,7 @@ class index extends Component {
   }
 
   getUserLocationFun = () => {
-    getUserLocation()
+    getUserLocationApi()
       .then(res => {
         console.log('res', res);
         let finalUsersList = res.data.map((item, index) => {

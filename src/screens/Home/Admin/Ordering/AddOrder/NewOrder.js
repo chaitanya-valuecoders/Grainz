@@ -183,7 +183,9 @@ class NewOrder extends Component {
               <TouchableOpacity
                 onPress={() => this.props.navigation.goBack()}
                 style={styles.goBackContainer}>
-                <Text style={styles.goBackTextStyle}>Go Back</Text>
+                <Text style={styles.goBackTextStyle}>
+                  {translate('Go Back')}
+                </Text>
               </TouchableOpacity>
             </View>
           </View>

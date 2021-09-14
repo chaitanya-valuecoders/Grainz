@@ -248,7 +248,7 @@ class StockScreen extends Component {
             <TouchableOpacity
               onPress={() => this.props.navigation.goBack()}
               style={styles.goBackContainer}>
-              <Text style={styles.goBackTextStyle}>Go Back</Text>
+              <Text style={styles.goBackTextStyle}>{translate('Go Back')}</Text>
             </TouchableOpacity>
           </View>
           {topValueStatus === false ? (
@@ -346,6 +346,14 @@ class StockScreen extends Component {
                 <ScrollView nestedScrollEnabled>
                   {catArray && catArray.length > 0 ? (
                     catArray.map((item, index) => {
+                      let finaUnitVal =
+                        item &&
+                        item.units.map((subItem, subIndex) => {
+                          if (subItem.isDefault === true) {
+                            return subItem.name;
+                          }
+                        });
+                      const filteredUnit = finaUnitVal.filter(elm => elm);
                       return (
                         <View>
                           <View
@@ -408,7 +416,7 @@ class StockScreen extends Component {
                                     color: '#161C27',
                                     fontFamily: 'Inter-Regular',
                                   }}>
-                                  {item.unit}
+                                  {filteredUnit[0]}
                                 </Text>
                               </View>
 
@@ -422,7 +430,7 @@ class StockScreen extends Component {
                                   numberOfLines={1}>
                                   {item.systemSays &&
                                     item.systemSays.toFixed(2)}{' '}
-                                  {item.unit}
+                                  {filteredUnit[0]}
                                 </Text>
                                 {item.correction ? (
                                   <Text

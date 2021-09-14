@@ -30,7 +30,40 @@ class index extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      buttons: [],
+      buttons: [
+        {
+          name: translate('New'),
+          icon: img.addIconNew,
+          screen: 'NewOrderScreen',
+          id: 0,
+        },
+        {
+          name: translate('Draft Orders'),
+          icon: img.draftIcon,
+          screen: 'DraftOrderAdminScreen',
+          id: 1,
+        },
+
+        {
+          name: translate('Pending Deliveries'),
+          icon: img.pendingIcon,
+          screen: 'PendingDeliveryAdminScreen',
+          id: 2,
+        },
+
+        {
+          name: translate('Review'),
+          icon: img.reviewIcon,
+          screen: 'PendingDeliveryAdminScreen',
+          id: 3,
+        },
+        {
+          name: translate('History'),
+          icon: img.historyIcon,
+          screen: 'PendingDeliveryAdminScreen',
+          id: 4,
+        },
+      ],
       token: '',
       buttonsSubHeader: [],
       loader: true,
@@ -59,40 +92,6 @@ class index extends Component {
       .then(res => {
         this.setState({
           loader: false,
-          buttons: [
-            {
-              name: translate('New'),
-              icon: img.addIconNew,
-              screen: 'NewOrderScreen',
-              id: 0,
-            },
-            {
-              name: translate('Draft Orders'),
-              icon: img.draftIcon,
-              screen: 'DraftOrderAdminScreen',
-              id: 1,
-            },
-
-            {
-              name: translate('Pending Deliveries'),
-              icon: img.pendingIcon,
-              screen: 'PendingDeliveryAdminScreen',
-              id: 2,
-            },
-
-            {
-              name: translate('Review'),
-              icon: img.reviewIcon,
-              screen: 'PendingDeliveryAdminScreen',
-              id: 3,
-            },
-            {
-              name: translate('History'),
-              icon: img.historyIcon,
-              screen: 'PendingDeliveryAdminScreen',
-              id: 4,
-            },
-          ],
           buttonsSubHeader: [
             {name: translate('ADMIN')},
             {name: translate('Setup')},
@@ -172,7 +171,7 @@ class index extends Component {
             <TouchableOpacity
               onPress={() => this.props.navigation.goBack()}
               style={styles.goBackContainer}>
-              <Text style={styles.goBackTextStyle}>Go Back</Text>
+              <Text style={styles.goBackTextStyle}>{translate('Go Back')}</Text>
             </TouchableOpacity>
           </View>
 

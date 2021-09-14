@@ -785,7 +785,9 @@ class EditDraftOrder extends Component {
                   this.props.navigation.navigate('OrderingAdminScreen')
                 }
                 style={styles.goBackContainer}>
-                <Text style={styles.goBackTextStyle}>Go Back</Text>
+                <Text style={styles.goBackTextStyle}>
+                  {translate('Go Back')}
+                </Text>
               </TouchableOpacity>
             </View>
           </View>
