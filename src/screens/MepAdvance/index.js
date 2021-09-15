@@ -280,7 +280,9 @@ class index extends Component {
                       </Text>
                     </View>
                     <View style={{flex: 1, alignItems: 'center'}}>
-                      <Text style={{color: '#212529'}}>Quantity</Text>
+                      <Text style={{color: '#212529'}}>
+                        {translate('Quantity')}
+                      </Text>
                     </View>
                   </View>
                   <View

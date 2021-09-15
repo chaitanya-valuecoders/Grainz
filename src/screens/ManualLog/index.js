@@ -1480,7 +1480,7 @@ class index extends Component {
                   marginLeft: 10,
                   fontFamily: 'Inter-SemiBold',
                 }}>
-                Add New
+                {translate('Add new')}
               </Text>
             </View>
           </TouchableOpacity>

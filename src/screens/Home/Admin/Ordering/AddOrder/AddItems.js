@@ -535,7 +535,9 @@ class AddItems extends Component {
           <View style={styles.subContainer}>
             <View style={styles.firstContainer}>
               <View style={{flex: 1}}>
-                <Text style={styles.adminTextStyle}>Order/Product List</Text>
+                <Text style={styles.adminTextStyle}>
+                  {translate('Order/Product List')}
+                </Text>
               </View>
               <TouchableOpacity
                 onPress={() => this.props.navigation.goBack()}
@@ -677,7 +679,7 @@ class AddItems extends Component {
               </View>
             </View>
           ) : null}
-          {inventoryStatus ? (
+          {/* {inventoryStatus ? (
             <View
               style={{
                 flexDirection: 'row',
@@ -781,7 +783,7 @@ class AddItems extends Component {
                 )}
               </TouchableOpacity>
             </View>
-          )}
+          )} */}
 
           {modalLoader ? (
             <ActivityIndicator color="#94C036" size="large" />

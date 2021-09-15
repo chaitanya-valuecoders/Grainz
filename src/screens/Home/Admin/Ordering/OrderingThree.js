@@ -262,7 +262,7 @@ class OrderingThree extends Component {
                     style={{
                       width: wp('30%'),
                     }}>
-                    <Text>Product Name: </Text>
+                    <Text>{translate('Product Name')}: </Text>
                   </View>
                   <View style={{marginLeft: wp('3%')}}>
                     <TextInput
@@ -338,7 +338,7 @@ class OrderingThree extends Component {
                     style={{
                       width: wp('30%'),
                     }}>
-                    <Text>Price: </Text>
+                    <Text>{translate('Price')}: </Text>
                   </View>
                   <Text style={{marginLeft: 5}}>$</Text>
                   <View style={{marginLeft: wp('3%')}}>
@@ -513,7 +513,7 @@ class OrderingThree extends Component {
                         <Text>Order * 1</Text>
                       </View>
                       <View style={{width: wp('40%')}}>
-                        <Text>Quantity</Text>
+                        <Text>{translate('Quantity')}</Text>
                       </View>
                       <View style={{width: wp('40%')}}>
                         <Text>Unit</Text>

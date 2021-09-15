@@ -316,7 +316,7 @@ class ViewRecipe extends Component {
                                     color: '#161C27',
                                     fontSize: 14,
                                   }}>
-                                  Quantity
+                                  {translate('Quantity')}
                                 </Text>
                               </View>
                               <View
@@ -422,7 +422,7 @@ class ViewRecipe extends Component {
                                     color: '#161C27',
                                     fontSize: 14,
                                   }}>
-                                  Quantity
+                                  {translate('Quantity')}
                                 </Text>
                               </View>
                               <View

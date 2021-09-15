@@ -415,7 +415,7 @@ class ViewDraftOrders extends Component {
                                     color: '#161C27',
                                     fontFamily: 'Inter-SemiBold',
                                   }}>
-                                  Quantity
+                                  {translate('Quantity')}
                                 </Text>
                               </View>
                               <View

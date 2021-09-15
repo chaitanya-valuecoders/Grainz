@@ -209,7 +209,7 @@ class EditDraftOrder extends Component {
           recipeLoader: false,
           buttons: [
             {
-              name: 'Add items',
+              name: translate('Add items'),
               icon: img.addIconNew,
               id: 0,
             },
@@ -1073,7 +1073,7 @@ class EditDraftOrder extends Component {
                                 color: '#161C27',
                                 fontFamily: 'Inter-SemiBold',
                               }}>
-                              Quantity
+                              {translate('Quantity')}
                             </Text>
                           </View>
                           <View

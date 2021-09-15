@@ -310,14 +310,14 @@ class InventorySec extends Component {
                                   width: wp('30%'),
                                   alignItems: 'center',
                                 }}>
-                                <Text>Quantity</Text>
+                                <Text>{translate('Quantity')}</Text>
                               </View>
                               <View
                                 style={{
                                   width: wp('30%'),
                                   alignItems: 'center',
                                 }}>
-                                <Text>Price</Text>
+                                <Text>{translate('Price')}</Text>
                               </View>
                               <View
                                 style={{
@@ -331,7 +331,7 @@ class InventorySec extends Component {
                                   width: wp('30%'),
                                   alignItems: 'center',
                                 }}>
-                                <Text>Quantity</Text>
+                                <Text>{translate('Quantity')}</Text>
                               </View>
                               <View
                                 style={{
@@ -473,7 +473,7 @@ class InventorySec extends Component {
                                             fontSize: 14,
                                             fontFamily: 'Inter-Regular',
                                           }}>
-                                          Add to basket
+                                          {translate('Add to basket')}
                                         </Text>
                                       </TouchableOpacity>
                                     </View>

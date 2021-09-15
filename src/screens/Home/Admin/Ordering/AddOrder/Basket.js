@@ -117,7 +117,7 @@ class Basket extends Component {
           ],
           buttons: [
             {
-              name: 'Add items',
+              name: translate('Add items'),
               icon: img.addIconNew,
               id: 0,
             },
@@ -1063,7 +1063,7 @@ class Basket extends Component {
                                 style={{
                                   fontFamily: 'Inter-SemiBold',
                                 }}>
-                                Quantity
+                                {translate('Quantity')}
                               </Text>
                             </View>
                             <View

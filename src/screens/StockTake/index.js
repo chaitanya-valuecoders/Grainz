@@ -25,11 +25,11 @@ class index extends Component {
       buttons: [
         {
           id: 0,
-          name: 'New',
+          name: translate('New'),
         },
         {
           id: 1,
-          name: 'History',
+          name: translate('History'),
         },
       ],
       token: '',
@@ -88,9 +88,9 @@ class index extends Component {
   };
 
   onPressFun = item => {
-    if (item.name === 'New') {
+    if (item.id === 0) {
       this.props.navigation.navigate('NewStockScreen');
-    } else if (item.name === 'History') {
+    } else if (item.id === 1) {
       this.props.navigation.navigate('HistoryStockScreen');
     }
   };
@@ -133,9 +133,9 @@ class index extends Component {
                   <View style={styles.tileImageContainer}>
                     <Image
                       source={
-                        item.name === 'New'
+                        item.id === 0
                           ? img.addIconNew
-                          : item.name === 'History'
+                          : item.id === 1
                           ? img.historyIcon
                           : null
                       }

@@ -1348,7 +1348,7 @@ class ViewHistoryOrder extends Component {
                             fontSize: 14,
                             fontFamily: 'Inter-SemiBold',
                           }}>
-                          Quantity
+                          {translate('Quantity')}
                         </Text>
                       </View>
                       <View
@@ -1998,7 +1998,7 @@ class ViewHistoryOrder extends Component {
                                   fontSize: 14,
                                   fontFamily: 'Inter-SemiBold',
                                 }}>
-                                Price
+                                {translate('Price')}
                               </Text>
                             </View>
                             <View

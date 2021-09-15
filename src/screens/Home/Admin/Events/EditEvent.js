@@ -1203,7 +1203,7 @@ class EditEvent extends Component {
                               fontSize: 14,
                               fontFamily: 'Inter-SemiBold',
                             }}>
-                            Price
+                            {translate('Price')}
                           </Text>
                         </View>
                         <View

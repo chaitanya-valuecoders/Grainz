@@ -361,7 +361,7 @@ class index extends Component {
                 }}>
                 <View style={{marginBottom: hp('2%')}}>
                   <Text style={{fontFamily: 'Inter-Regular', fontSize: 15}}>
-                    View :
+                    {translate('View')} :
                   </Text>
                 </View>
                 <View
@@ -530,7 +530,7 @@ class index extends Component {
                 }}>
                 <View style={{marginBottom: hp('2%')}}>
                   <Text style={{fontFamily: 'Inter-Regular', fontSize: 15}}>
-                    Select Location :
+                    Select Location(s) :
                   </Text>
                 </View>
                 <View
@@ -738,7 +738,7 @@ class index extends Component {
                                 style={{
                                   fontFamily: 'Inter-Regular',
                                 }}>
-                                Cost of sales
+                                {translate('Cost of sales')}
                               </Text>
                             </View>
                             <View
@@ -796,7 +796,7 @@ class index extends Component {
                                 style={{
                                   fontFamily: 'Inter-Regular',
                                 }}>
-                                Gross Margin
+                                {translate('Gross Margin')}
                               </Text>
                             </View>
                             <View

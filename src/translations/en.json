@@ -757,5 +757,7 @@
     "selectAllText": "Select All",
     "searchPlaceholderText":"Search",
     "Select Casual Purchase":"Select",
-    "Go Back": "Go Back"
+    "Go Back": "Go Back",
+    "Order/Product List": "Order/Product List",
+    "Add items": "Add items"
 }

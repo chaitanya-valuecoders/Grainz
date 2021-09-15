@@ -1365,7 +1365,7 @@ class ViewPendingDelivery extends Component {
                             fontSize: 14,
                             fontFamily: 'Inter-SemiBold',
                           }}>
-                          Quantity
+                          {translate('Quantity')}
                         </Text>
                       </View>
                       <View
@@ -2027,7 +2027,7 @@ class ViewPendingDelivery extends Component {
                                   fontSize: 14,
                                   fontFamily: 'Inter-SemiBold',
                                 }}>
-                                Price
+                                {translate('Price')}
                               </Text>
                             </View>
                             <View

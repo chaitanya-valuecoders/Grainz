@@ -443,7 +443,7 @@ class EditStock extends Component {
                             <View style={styles.headingEditContainer}>
                               <View style={styles.headingSubContainer}>
                                 <Text style={{textAlign: 'center'}}>
-                                  Quantity
+                                  {translate('Quantity')}
                                 </Text>
                               </View>
                               <View style={styles.headingSubContainer}>

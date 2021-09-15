@@ -268,7 +268,7 @@ class MenuAnalysis extends Component {
                       width: wp('30%'),
                       alignItems: 'center',
                     }}>
-                    <Text>Price</Text>
+                    <Text>{translate('Price')}</Text>
                   </View>
                   <View
                     style={{

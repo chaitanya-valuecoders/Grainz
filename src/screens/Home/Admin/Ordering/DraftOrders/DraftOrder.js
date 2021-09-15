@@ -235,24 +235,48 @@ class DraftOrder extends Component {
                         paddingVertical: hp('3%'),
                         borderTopLeftRadius: 5,
                         borderTopRightRadius: 5,
-                        paddingHorizontal: wp('5%'),
+                        paddingHorizontal: wp('3%'),
                       }}>
-                      <View style={{}}>
+                      <View
+                        style={{
+                          flex: 1,
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                        }}>
                         <Text
                           style={{
                             color: '#161C27',
                             fontFamily: 'Inter-SemiBold',
                           }}>
-                          Supplier
+                          {translate('Supplier')}
                         </Text>
                       </View>
-                      <View style={{}}>
+                      <View
+                        style={{
+                          flex: 1,
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                        }}>
                         <Text
                           style={{
                             color: '#161C27',
                             fontFamily: 'Inter-SemiBold',
                           }}>
-                          Order date
+                          {translate('Order date')}
+                        </Text>
+                      </View>
+                      <View
+                        style={{
+                          flex: 1,
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                        }}>
+                        <Text
+                          style={{
+                            color: '#161C27',
+                            fontFamily: 'Inter-SemiBold',
+                          }}>
+                          {translate('Value')}
                         </Text>
                       </View>
                     </View>
@@ -291,15 +315,35 @@ class DraftOrder extends Component {
                                 paddingVertical: hp('3%'),
                                 borderTopLeftRadius: 5,
                                 borderTopRightRadius: 5,
-                                paddingHorizontal: wp('5%'),
+                                paddingHorizontal: wp('3%'),
                               }}>
-                              <View style={{}}>
+                              <View
+                                style={{
+                                  flex: 1,
+                                  justifyContent: 'center',
+                                  alignItems: 'center',
+                                }}>
                                 <Text style={{}}>{item.supplierName}</Text>
                               </View>
-                              <View style={{}}>
+                              <View
+                                style={{
+                                  flex: 1,
+                                  justifyContent: 'center',
+                                  alignItems: 'center',
+                                }}>
                                 <Text>
                                   {item.orderDate &&
                                     moment(item.orderDate).format('L')}
+                                </Text>
+                              </View>
+                              <View
+                                style={{
+                                  flex: 1,
+                                  justifyContent: 'center',
+                                  alignItems: 'center',
+                                }}>
+                                <Text>
+                                  € {item.htva && item.htva.toFixed(2)}
                                 </Text>
                               </View>
                             </TouchableOpacity>

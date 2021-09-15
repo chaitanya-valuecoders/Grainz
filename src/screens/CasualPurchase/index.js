@@ -25,11 +25,11 @@ class index extends Component {
       buttons: [
         {
           id: 0,
-          name: 'New',
+          name: translate('New'),
         },
         {
           id: 1,
-          name: 'View',
+          name: translate('View'),
         },
       ],
       token: '',
@@ -88,9 +88,9 @@ class index extends Component {
   };
 
   onPressFun = item => {
-    if (item.name === 'New') {
+    if (item.id === 0) {
       this.props.navigation.navigate('AddPurchaseScreen');
-    } else if (item.name === 'View') {
+    } else if (item.id === 1) {
       this.props.navigation.navigate('ViewPurchaseScreen');
     }
   };
@@ -136,9 +136,9 @@ class index extends Component {
                   <View style={styles.tileImageContainer}>
                     <Image
                       source={
-                        item.name === 'New'
+                        item.id === 0
                           ? img.addIconNew
-                          : item.name === 'View'
+                          : item.id === 1
                           ? img.inventoryIcon
                           : null
                       }

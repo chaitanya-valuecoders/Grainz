@@ -721,7 +721,9 @@ class SearchInventory extends Component {
                         marginLeft: 10,
                         fontFamily: 'Inter-SemiBold',
                       }}>
-                      {screenType === 'New' ? 'Add to basket' : 'Update basket'}
+                      {screenType === 'New'
+                        ? translate('Add to basket')
+                        : 'Update basket'}
                     </Text>
                   </View>
                 </TouchableOpacity>
@@ -760,7 +762,7 @@ class SearchInventory extends Component {
                                   style={{
                                     width: wp('40%'),
                                   }}>
-                                  <Text>Quantity</Text>
+                                  <Text>{translate('Quantity')}</Text>
                                 </View>
 
                                 {/* <View
@@ -776,7 +778,7 @@ class SearchInventory extends Component {
                                     width: wp('30%'),
                                     marginLeft: wp('5%'),
                                   }}>
-                                  <Text>Product Name</Text>
+                                  <Text>{translate('Product Name')}</Text>
                                 </View>
                                 {/* <View
                             style={{
@@ -790,7 +792,7 @@ class SearchInventory extends Component {
                                     width: wp('30%'),
                                     marginLeft: wp('5%'),
                                   }}>
-                                  <Text>Price</Text>
+                                  <Text>{translate('Price')}</Text>
                                 </View>
                                 {/* <View
                             style={{
@@ -1166,7 +1168,7 @@ class SearchInventory extends Component {
                         }}>
                         <Text
                           style={{fontFamily: 'Inter-Regular', fontSize: 15}}>
-                          Product Name :{' '}
+                          {translate('Product Name')} :{' '}
                         </Text>
                       </View>
                       <View style={{}}>
@@ -1306,7 +1308,7 @@ class SearchInventory extends Component {
                         }}>
                         <Text
                           style={{fontFamily: 'Inter-Regular', fontSize: 15}}>
-                          Price:{' '}
+                          {translate('Price')}:{' '}
                         </Text>
                       </View>
                       <View style={{}}>
@@ -1434,7 +1436,7 @@ class SearchInventory extends Component {
                             <Text>Order * 1</Text>
                           </View>
                           <View style={{width: wp('40%')}}>
-                            <Text>Quantity</Text>
+                            <Text>{translate('Quantity')}</Text>
                           </View>
                           <View style={{width: wp('40%')}}>
                             <Text>Unit</Text>
@@ -1758,7 +1760,7 @@ class SearchInventory extends Component {
                         }}>
                         <Text
                           style={{fontFamily: 'Inter-Regular', fontSize: 15}}>
-                          Product Name :{' '}
+                          {translate('Product Name')} :{' '}
                         </Text>
                       </View>
                       <View style={{}}>
@@ -1812,7 +1814,7 @@ class SearchInventory extends Component {
                         }}>
                         <Text
                           style={{fontFamily: 'Inter-Regular', fontSize: 15}}>
-                          Price :{' '}
+                          {translate('Price')} :{' '}
                         </Text>
                       </View>
                       <View style={{}}>

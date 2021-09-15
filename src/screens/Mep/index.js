@@ -1127,7 +1127,7 @@ class index extends Component {
                                   fontFamily: 'Inter-Regular',
                                   color: '#151B26',
                                 }}>
-                                Quantity
+                                {translate('Quantity')}
                               </Text>
                             </View>
                             <View
@@ -1286,7 +1286,7 @@ class index extends Component {
                   marginLeft: 10,
                   fontFamily: 'Inter-SemiBold',
                 }}>
-                Add New
+                {translate('Add new')}
               </Text>
             </View>
           </TouchableOpacity>
