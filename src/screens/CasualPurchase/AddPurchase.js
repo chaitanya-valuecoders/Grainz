@@ -36,11 +36,14 @@ import ImagePicker from 'react-native-image-crop-picker';
 import Modal from 'react-native-modal';
 import styles from './style';
 import RNPickerSelect from 'react-native-picker-select';
+import ModalPicker from '../../components/ModalPicker';
 
 var minTime = new Date();
 minTime.setHours(0);
 minTime.setMinutes(0);
 minTime.setMilliseconds(0);
+
+let todayDate = moment(new Date()).format('DD-MM-YY');
 
 class index extends Component {
   constructor(props) {
@@ -48,11 +51,13 @@ class index extends Component {
     this.state = {
       token: '',
       isDatePickerVisible: false,
-      finalDate: '',
+      finalDate: todayDate,
+      placeHolderTextDept: 'Select Supplier',
       productionDate: '',
       htvaIsSelected: true,
       auditIsSelected: false,
       note: '',
+      dataListLoader: false,
       supplierList: [],
       object: {
         date: '',
@@ -67,6 +72,7 @@ class index extends Component {
       loading: false,
       items: [],
       selectedItems: [],
+      selectedTextUser: '',
       selectedItemObjects: '',
       supplierListLoader: false,
       orderItemsFinal: [
@@ -137,11 +143,23 @@ class index extends Component {
     this.setState(
       {
         supplierListLoader: true,
+        dataListLoader: true,
       },
       () =>
         getSupplierListApi()
           .then(res => {
-            this.setState({supplierList: res.data, supplierListLoader: false});
+            const finalArr = [];
+            res.data.map(item => {
+              finalArr.push({
+                name: item.name,
+                id: item.id,
+              });
+            });
+            this.setState({
+              supplierList: [...finalArr],
+              supplierListLoader: false,
+              dataListLoader: false,
+            });
           })
           .catch(error => {
             this.setState({supplierListLoader: false});
@@ -313,6 +331,8 @@ class index extends Component {
       supplieReference: '',
     };
 
+    console.log('Payload', payload);
+
     if (orderItemsFinal.length === 0) {
       alert('Please enter values first');
     } else {
@@ -328,11 +348,21 @@ class index extends Component {
                 {text: 'OK', onPress: () => this.props.navigation.goBack()},
               ]);
             })
-            .catch(error => {
+            .catch(err => {
               this.setState({
                 saveLoader: false,
                 saveTouchableStatus: false,
               });
+              Alert.alert(
+                `Error - ${err.response.status}`,
+                'Something went wrong',
+                [
+                  {
+                    text: 'Okay',
+                    onPress: () => this.props.navigation.goBack(),
+                  },
+                ],
+              );
             }),
       );
     }
@@ -449,6 +479,15 @@ class index extends Component {
     });
   };
 
+  selectUserNameFun = item => {
+    this.setState({
+      supplier: item.name,
+      selectedTextUser: item.name,
+      supplierId: item.id,
+      supplieReference: item.reference,
+    });
+  };
+
   render() {
     const {
       isDatePickerVisible,
@@ -473,8 +512,11 @@ class index extends Component {
       imageShow,
       buttonsSubHeader,
       recipeLoader,
+      dataListLoader,
+      placeHolderTextDept,
+      selectedTextUser,
     } = this.state;
-
+    console.log('SUUU', supplierList);
     return (
       <View style={styles.container}>
         <Header
@@ -551,59 +593,17 @@ class index extends Component {
                     minimumDate={minTime}
                   />
 
-                  <View style={{}}>
-                    <View style={{flex: 4}}>
-                      <TouchableOpacity
-                        onPress={() => this.showSupplierList()}
-                        style={{
-                          padding: 15,
-                          marginBottom: hp('3%'),
-                          flexDirection: 'row',
-                          justifyContent: 'space-between',
-                          backgroundColor: '#fff',
-                          borderRadius: 6,
-                        }}>
-                        <Text>{supplier}</Text>
-                        <Image
-                          source={img.arrowDownIcon}
-                          style={{
-                            width: 20,
-                            height: 20,
-                            resizeMode: 'contain',
-                          }}
-                        />
-                      </TouchableOpacity>
-                    </View>
+                  <View style={{marginBottom: hp('3%')}}>
+                    <ModalPicker
+                      dataListLoader={dataListLoader}
+                      placeHolderLabel={placeHolderTextDept}
+                      placeHolderLabelColor="grey"
+                      dataSource={supplierList}
+                      selectedLabel={selectedTextUser}
+                      onSelectFun={item => this.selectUserNameFun(item)}
+                    />
                   </View>
-                  <View style={{}}>
-                    {showSuppliers ? (
-                      <View
-                        style={{
-                          width: wp('85%'),
-                          alignItems: 'center',
-                          borderWidth: 0.5,
-                          marginTop: hp('2%'),
-                        }}>
-                        {supplierList.map(item => {
-                          return (
-                            <View
-                              style={{marginVertical: 5, borderBottomWidth: 1}}>
-                              <Pressable
-                                onPress={() =>
-                                  this.selectSupplier(
-                                    item.name,
-                                    item.id,
-                                    item.reference,
-                                  )
-                                }>
-                                <Text>{item.name}</Text>
-                              </Pressable>
-                            </View>
-                          );
-                        })}
-                      </View>
-                    ) : null}
-                  </View>
+
                   {orderItemsFinal.length > 0 &&
                     orderItemsFinal.map((item, index) => {
                       return (

@@ -431,7 +431,8 @@ class StockScreen extends Component {
                                   <Text
                                     style={{
                                       fontSize: 12,
-                                      color: '#161C27',
+                                      color:
+                                        item.correction > 0 ? '#161C27' : 'red',
                                       fontFamily: 'Inter-Regular',
                                       marginTop: hp('2%'),
                                     }}>

@@ -28,6 +28,9 @@ class ViewPurchase extends Component {
       casualListLoader: false,
       recipeLoader: true,
       buttonsSubHeader: [],
+      arrangeStatusSupplier: 0,
+      arrangeStatusDate: 0,
+      arrangeStatusHTVA: 0,
     };
   }
 
@@ -98,6 +101,116 @@ class ViewPurchase extends Component {
     });
   }
 
+  arrangeListFun = funType => {
+    if (funType === 'SUPPLIER') {
+      this.setState(
+        {
+          arrangeStatusSupplier: Number(1) + this.state.arrangeStatusSupplier,
+        },
+        () => this.arrangeListFunSec('SUPPLIER'),
+      );
+    } else if (funType === 'DATE') {
+      this.setState(
+        {
+          arrangeStatusDate: Number(1) + this.state.arrangeStatusDate,
+        },
+        () => this.arrangeListFunSec('DATE'),
+      );
+    } else if (funType === 'HTVA') {
+      this.setState(
+        {
+          arrangeStatusHTVA: Number(1) + this.state.arrangeStatusHTVA,
+        },
+        () => this.arrangeListFunSec('HTVA'),
+      );
+    }
+  };
+
+  arrangeListFunSec = type => {
+    const {arrangeStatusSupplier, arrangeStatusDate, arrangeStatusHTVA} =
+      this.state;
+    const finalData =
+      type === 'SUPPLIER'
+        ? arrangeStatusSupplier
+        : type === 'DATE'
+        ? arrangeStatusDate
+        : arrangeStatusHTVA;
+    if (finalData % 2 == 0) {
+      this.reverseFun();
+    } else {
+      this.descendingOrderFun(type);
+    }
+  };
+
+  reverseFun = () => {
+    const {casualPurchases} = this.state;
+    const finalData = casualPurchases.reverse();
+
+    this.setState({
+      casualPurchases: finalData,
+    });
+  };
+
+  descendingOrderFun = type => {
+    const {casualPurchases} = this.state;
+
+    if (type === 'SUPPLIER') {
+      function dynamicSort(property) {
+        var sortOrder = 1;
+
+        if (property[0] === '-') {
+          sortOrder = -1;
+          property = property.substr(1);
+        }
+
+        return function (a, b) {
+          if (sortOrder == -1) {
+            return b[property].localeCompare(a[property]);
+          } else {
+            return a[property].localeCompare(b[property]);
+          }
+        };
+      }
+      const finalKeyValue =
+        type === 'SUPPLIER'
+          ? 'supplierName'
+          : type === 'DATE'
+          ? 'orderDate'
+          : 'htva';
+
+      const finalData = casualPurchases.sort(dynamicSort(finalKeyValue));
+
+      this.setState({
+        casualPurchases: finalData,
+      });
+    } else {
+      function dynamicSort(property) {
+        var sortOrder = 1;
+        if (property[0] === '-') {
+          sortOrder = -1;
+          property = property.substr(1);
+        }
+        return function (a, b) {
+          var result =
+            a[property] < b[property] ? -1 : a[property] > b[property] ? 1 : 0;
+          return result * sortOrder;
+        };
+      }
+      const finalKeyValue =
+        type === 'SUPPLIER'
+          ? 'supplierName'
+          : type === 'DATE'
+          ? 'orderDate'
+          : 'htva';
+
+      const finalData = casualPurchases.sort(dynamicSort(finalKeyValue));
+
+      this.setState({
+        casualPurchases: finalData,
+      });
+    }
+  };
+
   render() {
     const {casualPurchases, casualListLoader, buttonsSubHeader, recipeLoader} =
       this.state;
@@ -139,7 +252,7 @@ class ViewPurchase extends Component {
             <View style={styles.listHeading}>
               <View style={styles.listSubHeading}>
                 <Text style={styles.listTextStyling}>{translate('Date')}</Text>
-                <Pressable>
+                <Pressable onPress={() => this.arrangeListFun('DATE')}>
                   <Image
                     style={styles.listImageStyling}
                     source={img.doubleArrowIconNew}
@@ -150,7 +263,7 @@ class ViewPurchase extends Component {
                 <Text style={styles.listTextStyling}>
                   {translate('Supplier')}
                 </Text>
-                <Pressable>
+                <Pressable onPress={() => this.arrangeListFun('SUPPLIER')}>
                   <Image
                     style={styles.listImageStyling}
                     source={img.doubleArrowIconNew}
@@ -161,7 +274,7 @@ class ViewPurchase extends Component {
                 <Text style={styles.listTextStyling}>
                   $ {translate('Total')} HTVA
                 </Text>
-                <Pressable>
+                <Pressable onPress={() => this.arrangeListFun('HTVA')}>
                   <Image
                     style={styles.listImageStyling}
                     source={img.doubleArrowIconNew}
