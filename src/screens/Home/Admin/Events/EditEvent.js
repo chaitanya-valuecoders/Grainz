@@ -212,7 +212,6 @@ class EditEvent extends Component {
   getMenuDataSec = () => {
     getMenuItemsSetupApi()
       .then(res => {
-        console.log('res', res);
         const finalArr = [];
         res.data.map(item => {
           finalArr.push({
@@ -270,7 +269,6 @@ class EditEvent extends Component {
 
         const finalArrItem = [];
         eventItemList.map(item => {
-          console.log('item', item);
           finalArrItem.push({
             action: 'Update',
             departmentId: item.departmentId,
@@ -380,8 +378,6 @@ class EditEvent extends Component {
   };
 
   editOfferItemsFun = (index, type, value) => {
-    // console.log(index, type, value);
-
     const {eventOfferListArr} = this.state;
 
     let newArr = eventOfferListArr.map((item, i) =>
@@ -437,8 +433,6 @@ class EditEvent extends Component {
               ),
           },
         ]);
-
-        console.log('res', res);
       })
       .catch(err => {
         console.log('err', err);
@@ -475,8 +469,6 @@ class EditEvent extends Component {
               ),
           },
         ]);
-
-        console.log('res', res);
       })
       .catch(err => {
         console.log('err', err);
@@ -484,8 +476,6 @@ class EditEvent extends Component {
   };
 
   editMenuItemsFun = (index, type, value) => {
-    // console.log(index, type, value);
-
     const {eventItemListArr} = this.state;
 
     let newArr = eventItemListArr.map((item, i) =>
@@ -534,11 +524,9 @@ class EditEvent extends Component {
       kitchenNotes: kitchenNotesValue,
       pax: peopleValue,
     };
-    console.log('PayloadUpdate', payload);
 
     updateEventAdminApi(payload)
       .then(res => {
-        console.log('res', res);
         Alert.alert('Grainz', 'Event updated successfully', [
           {
             text: 'Okay',
@@ -585,8 +573,6 @@ class EditEvent extends Component {
   };
 
   onPressMenuItemSec = item => {
-    console.log('item', item);
-
     let objSec = {};
     let newlist = [];
     const {eventItemListArr} = this.state;
@@ -671,8 +657,6 @@ class EditEvent extends Component {
       menuItemsArr,
       menuListItemsArr,
     } = this.state;
-
-    console.log('eventItemListArr', eventItemListArr);
 
     return (
       <View style={styles.container}>

@@ -106,7 +106,6 @@ class HistoryStock extends Component {
   getDatesData = id => {
     getPreviousStockDatesApi(id)
       .then(res => {
-        console.log('res', res);
         let finalUsersList = res.data.map((item, index) => {
           return {
             label: moment(item).format('MM/DD/YYYY'),

@@ -141,7 +141,6 @@ class MenuAnalysis extends Component {
 
   selectPeriodtNameFun = item => {
     const {departmentId} = this.state;
-    console.log('de', departmentId);
     if (departmentId) {
       this.setState(
         {
@@ -182,8 +181,6 @@ class MenuAnalysis extends Component {
       selectedTextDept,
       dataListLoader,
     } = this.state;
-
-    console.log('departmentArr', departmentArr);
 
     return (
       <View style={styles.container}>

@@ -123,8 +123,6 @@ class ViewMenuItems extends Component {
       showMenuItems,
     } = this.state;
 
-    console.log('moda', modalData);
-
     return (
       <View style={styles.container}>
         <Header

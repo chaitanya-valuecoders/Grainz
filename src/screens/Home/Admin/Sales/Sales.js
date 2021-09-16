@@ -131,7 +131,6 @@ class Sales extends Component {
   };
 
   handleConfirmStart = date => {
-    console.log('date', date);
     let newdate = moment(date).format('MM/DD/YYYY');
     this.setState({
       finalDateStart: newdate,
@@ -145,7 +144,6 @@ class Sales extends Component {
   };
 
   handleConfirmEnd = date => {
-    console.log('date', date);
     let newdate = moment(date).format('MM/DD/YYYY');
     this.setState({
       finalDateEnd: newdate,
@@ -226,7 +224,6 @@ class Sales extends Component {
             };
           });
 
-          // console.log('INVOICES', finalSaleInvoices);
           function groupByKey(array, key) {
             return array.reduce((hash, obj) => {
               if (obj[key] === undefined) return hash;
@@ -255,7 +252,6 @@ class Sales extends Component {
 
           let finalArray = Object.keys(final).map((item, index) => {
             let groupedCategory = groupByKey(final[item], 'menuItemCategory');
-            // console.log('groupedCategory', groupedCategory);
 
             let catArray = Object.keys(groupedCategory).map(
               (subItem, index) => {
@@ -265,8 +261,6 @@ class Sales extends Component {
                 };
               },
             );
-
-            // console.log('catArray', catArray);
 
             return {
               title: item,
@@ -533,7 +527,6 @@ class Sales extends Component {
   };
 
   _renderContentInvoices = section => {
-    // console.log('sec--->', section);
     return (
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
         <View style={{marginTop: hp('2%')}}>
@@ -610,7 +603,6 @@ class Sales extends Component {
   };
 
   _renderContentVat = section => {
-    // console.log('sec--->', section);
     return (
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
         <View style={{marginTop: hp('2%')}}>
@@ -675,7 +667,6 @@ class Sales extends Component {
   };
 
   _renderContentDepartment = section => {
-    // console.log('sec--->', section);
     return (
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
         <View style={{marginTop: hp('2%')}}>

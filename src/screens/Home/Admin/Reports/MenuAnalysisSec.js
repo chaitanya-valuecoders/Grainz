@@ -87,7 +87,6 @@ class MenuAnalysisSec extends Component {
 
   render() {
     const {recipeLoader, buttonsSubHeader, modalData, finalName} = this.state;
-    console.log('FINBA', modalData);
 
     return (
       <View style={styles.container}>

@@ -165,10 +165,8 @@ class Basket extends Component {
 
   getBasketDataFun = () => {
     const {basketId} = this.state;
-    console.log('basketId', basketId);
     getBasketApi(basketId)
       .then(res => {
-        console.log('resGetBasket', res);
         this.setState(
           {
             modalData: res.data && res.data.shopingBasketItemList,
@@ -194,7 +192,6 @@ class Basket extends Component {
     const {modalData} = this.state;
     const finalArr = [];
     modalData.map(item => {
-      console.log('item', item);
       finalArr.push({
         id: item.id,
         inventoryId: item.inventoryId,
@@ -235,7 +232,6 @@ class Basket extends Component {
   };
 
   actionFun = data => {
-    console.log('data', data);
     this.setState({
       actionModalStatus: true,
       finalArrData: data,
@@ -301,7 +297,6 @@ class Basket extends Component {
       };
       addDraftApi(payload)
         .then(res => {
-          console.log('res', res);
           this.setState({
             mailModalVisible: true,
             loaderCompStatus: false,
@@ -379,12 +374,8 @@ class Basket extends Component {
       id: basketId,
     };
 
-    console.log('finalArrData', finalArrData);
-
-    console.log('Paylaod', payload);
     updateBasketApi(payload)
       .then(res => {
-        console.log('res', res);
         this.setState(
           {
             modalLoader: true,
@@ -412,7 +403,6 @@ class Basket extends Component {
       basketId,
       modalData,
     } = this.state;
-    console.log('finalApiData', finalApiData);
     let payload = {
       id: basketId,
       supplierId: supplierId,
@@ -421,7 +411,6 @@ class Basket extends Component {
       placedBy: placedByValue,
       shopingBasketItemList: finalApiData,
     };
-    console.log('payoad', payload);
     if (apiOrderDate && placedByValue && supplierId && finalApiData) {
       addDraftApi(payload)
         .then(res => {
@@ -549,7 +538,6 @@ class Basket extends Component {
 
     viewHTMLApi(basketId)
       .then(res => {
-        console.log('res', res);
         this.setState(
           {
             loaderCompStatus: false,
@@ -600,7 +588,6 @@ class Basket extends Component {
   };
 
   handleConfirmOrderDate = date => {
-    console.log('date', date);
     let newdate = moment(date).format('MM/DD/YYYY');
     let apiOrderDate = date.toISOString();
     this.setState({
@@ -617,7 +604,6 @@ class Basket extends Component {
   };
 
   handleConfirmDeliveryDate = date => {
-    console.log('date', date);
     let newdate = moment(date).format('MM/DD/YYYY');
     let apiDeliveryDate = date.toISOString();
     this.setState({
@@ -642,7 +628,6 @@ class Basket extends Component {
     };
     updateBasketApi(payload)
       .then(res => {
-        console.log('resUpdateBasket', res);
         this.setState(
           {
             modalLoader: true,
@@ -688,11 +673,8 @@ class Basket extends Component {
       shopingBasketId: basketId,
     };
 
-    console.log('payload', payload);
-
     sendOrderApi(payload)
       .then(res => {
-        console.log('res', res);
         this.setState(
           {
             mailModalVisible: false,
@@ -738,7 +720,6 @@ class Basket extends Component {
         ).then(granted => {
           if (granted === PermissionsAndroid.RESULTS.GRANTED) {
             //Once user grant the permission start downloading
-            // console.log('Storage Permission Granted.');
             this.downloadHistory(data);
           } else {
             //If permission denied then show alert 'Storage Permission Not Granted'
@@ -753,7 +734,6 @@ class Basket extends Component {
   };
 
   downloadHistory = async data => {
-    // console.warn('receipt', data);
     var pdf_url = data.receipt;
     let PictureDir =
       Platform.OS === 'ios'
@@ -776,7 +756,6 @@ class Basket extends Component {
     RNFetchBlob.config(options)
       .fetch('GET', 'http://www.africau.edu/images/default/sample.pdf')
       .then(res => {
-        console.log('res', res);
         Alert.alert('Ticket receipt downloaded successfully!');
       })
       .catch(err => {

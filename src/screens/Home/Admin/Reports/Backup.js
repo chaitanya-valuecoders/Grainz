@@ -170,7 +170,6 @@ class MenuAnalysis extends Component {
       () => {
         menuAnalysisAdminApi()
           .then(res => {
-            console.log('res', res);
             const {menus, location} = res.data;
 
             const name = location;
@@ -279,7 +278,6 @@ class MenuAnalysis extends Component {
   };
 
   openListFun = (index, section, sta, item) => {
-    console.log('item', item.title);
     this.setState(
       {
         finalName: item.title,
@@ -292,16 +290,10 @@ class MenuAnalysis extends Component {
   };
 
   createDataFun = (index, section, sta, subItem) => {
-    console.log('section', section);
-    console.log('inde', index);
-    console.log('status', sta);
     const {SECTIONS, showSubList, finalName} = this.state;
-    console.log('finalName', finalName);
-    console.log('SECTIONS', SECTIONS);
 
     const status = true;
     // const status = !showSubList;
-    console.log('status', status);
 
     let newArr = section.content.map((item, i) =>
       finalName === item.title
@@ -314,7 +306,6 @@ class MenuAnalysis extends Component {
             [sta]: false,
           },
     );
-    console.log('new', newArr);
 
     // const finalArrSections = [];
 
@@ -324,8 +315,6 @@ class MenuAnalysis extends Component {
     //     content: newArr,
     //   });
     // });
-
-    // console.log('finalArrSections', finalArrSections);
 
     setTimeout(() => {
       this.setState({
@@ -836,7 +825,6 @@ class MenuAnalysis extends Component {
                                 if (item.status === true) {
                                   return item.content.map(
                                     (subItem, subIndex) => {
-                                      console.log('sub-->', subItem);
                                       return (
                                         <View
                                           style={{
@@ -1061,7 +1049,6 @@ class MenuAnalysis extends Component {
                       </View>
                     </View>
                     {gmReportsArr.map((item, index) => {
-                      console.log('iTEM', item.data);
                       const {data} = item;
                       return (
                         <View>

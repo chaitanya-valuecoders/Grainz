@@ -164,7 +164,6 @@ class EditPurchase extends Component {
     const id = order.id;
     getOrderImagesByIdApi(id)
       .then(res => {
-        console.log('IMAGESSSS', res);
         this.setState({
           imageData: res.data.length > 0 ? res.data[0] : '',
         });
@@ -185,7 +184,6 @@ class EditPurchase extends Component {
   };
 
   showEditCasualPurchase(order) {
-    console.log('ORDRE', order);
     total = 0;
     this.getOrderById(order.id);
     this.setState({
@@ -208,8 +206,6 @@ class EditPurchase extends Component {
     let obj = {};
     getOrderByIdApi(id)
       .then(res => {
-        // console.log('res', res);
-
         this.setState({
           yourOrder: res.data,
         });
@@ -222,7 +218,6 @@ class EditPurchase extends Component {
   }
 
   getFinalArray = item => {
-    // console.log('itemm', item);
     const {orderItemsFinal} = this.state;
     let objSec = {};
     let newlist = [];
@@ -251,8 +246,6 @@ class EditPurchase extends Component {
 
     getInventoryByIdApi(id)
       .then(res => {
-        // console.log('InventoryRes', res);
-
         total = total + item.orderValue;
         obj = {
           action: 'Update',
@@ -271,13 +264,6 @@ class EditPurchase extends Component {
           departmentName: res.data.departmentName,
         };
 
-        // obj = {
-        //   name: res.data.name,
-        //   departmentName: res.data.departmentName,
-        //   quantityOrdered:
-        //     item.quantityOrdered && item.quantityOrdered.toString(),
-        //   unitPrice: item.unitPrice && item.unitPrice.toString(),
-        // };
         list.push(obj);
         this.setState({
           orderTotal: total,
@@ -352,8 +338,6 @@ class EditPurchase extends Component {
           ]
         : [],
     };
-
-    console.log('PAYLOAD', payload);
 
     if (yourOrderItems.length > 0) {
       this.setState(
@@ -489,7 +473,6 @@ class EditPurchase extends Component {
     temp.splice(index, 1);
     this.setState({yourOrderItems: temp});
 
-    console.log(index, type);
     const {orderItemsFinal} = this.state;
 
     let newArr = orderItemsFinal.map((item, i) =>
@@ -574,7 +557,6 @@ class EditPurchase extends Component {
   }
 
   onSelectedItemsChange = selectedItems => {
-    // console.log('asdasdaasdasdas', selectedItems);
     this.setState({selectedItems});
   };
 
@@ -620,14 +602,10 @@ class EditPurchase extends Component {
     invId,
   ) => {
     const {yourOrderItems} = this.state;
-    // console.log('index|tye|value', index, type, selectedItemObjects, id, invId);
 
     const value = selectedItemObjects[0].name;
     const unitId = selectedItemObjects[0].units[0].id;
     const inventoryId = selectedItemObjects[0].units[0].inventoryId;
-
-    // console.log('unitId', unitId);
-    // console.log('vinventoryIdalue', inventoryId);
 
     let newArr = yourOrderItems.map((item, i) =>
       index === i
@@ -661,7 +639,6 @@ class EditPurchase extends Component {
       yourOrderItems: [...newArr],
       orderItemsFinal: [...newArr],
     });
-    // console.log('yourOrderItems', yourOrderItems);
   };
 
   setModalVisibleImage = () => {
@@ -728,8 +705,6 @@ class EditPurchase extends Component {
       recipeLoader,
       orderItemsFinal,
     } = this.state;
-    console.log('orderItemsFinal', orderItemsFinal);
-    console.log('yourOrderItems', yourOrderItems.length);
 
     return (
       <View style={styles.container}>

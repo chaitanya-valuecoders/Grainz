@@ -126,7 +126,6 @@ class NewStock extends Component {
   getCategoryData = departmentId => {
     lookupInventoryApi(departmentId)
       .then(res => {
-        console.log('res', res);
         let finalUsersList = res.data.map((item, index) => {
           return {
             label: item.name,

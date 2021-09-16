@@ -92,7 +92,6 @@ class StockScreen extends Component {
 
     const {departmentId, pageDate, topValue, topValueStatus} =
       this.props.route && this.props.route.params;
-    console.log('departmentId', departmentId);
     this.getCategoryData(departmentId);
     this.props.navigation.addListener('focus', () => {
       this.setState(
@@ -111,7 +110,6 @@ class StockScreen extends Component {
   getCategoryData = departmentId => {
     lookupInventoryApi(departmentId)
       .then(res => {
-        console.log('res', res);
         let finalUsersList = res.data.map((item, index) => {
           return {
             label: item.name,
@@ -155,7 +153,6 @@ class StockScreen extends Component {
 
   getStockDataFun = () => {
     const {departmentId, categoryId, pageDate} = this.state;
-    console.log('Date', pageDate);
     getStockDataApi(departmentId, categoryId, pageDate)
       .then(res => {
         this.setState({
@@ -185,7 +182,6 @@ class StockScreen extends Component {
   };
 
   selectCategoryFun = value => {
-    console.log('value', value);
     this.setState(
       {
         categoryId: value,
@@ -225,7 +221,6 @@ class StockScreen extends Component {
       modalLoader,
       modalData,
     } = this.state;
-    console.log('selectedIndex', selectedIndex);
 
     return (
       <View style={styles.container}>

@@ -147,7 +147,6 @@ class ViewReviewOrder extends Component {
     const {productId} = this.state;
     getOrderByIdApi(productId)
       .then(res => {
-        console.log('res', res);
         const {data} = res;
         this.setState(
           {
@@ -262,7 +261,6 @@ class ViewReviewOrder extends Component {
       isChecked: true,
     };
 
-    console.log('payloadOrderProcess', payload);
     processPendingOrderApi(payload)
       .then(res => {
         this.setState({
@@ -340,11 +338,9 @@ class ViewReviewOrder extends Component {
       userQuantityDelivered: item.userQuantityDelivered,
       userQuantityInvoiced: item.userQuantityInvoiced,
     };
-    console.log('payloadDelete', payload);
 
     processPendingOrderItemApi(payload)
       .then(res => {
-        console.log('res', res);
         this.setState({
           loaderCompStatus: false,
         });
@@ -379,7 +375,6 @@ class ViewReviewOrder extends Component {
   };
 
   handleConfirmDeliveryDate = date => {
-    console.log('date', date);
     let newdate = moment(date).format('MM/DD/YYYY');
     let apiDeliveryDate = date.toISOString();
     this.setState({
@@ -408,7 +403,6 @@ class ViewReviewOrder extends Component {
   };
 
   handleConfirmArrivalDate = date => {
-    console.log('date', date);
     let newdate = moment(date).format('MM/DD/YYYY');
     let apiArrivalDate = date.toISOString();
     this.hideDatePickerArrivalDate();
@@ -439,7 +433,6 @@ class ViewReviewOrder extends Component {
             ['arrivedDate']: arrivedDate,
           },
     );
-    console.log('newArr', newArr);
 
     this.setState(
       {
@@ -450,7 +443,6 @@ class ViewReviewOrder extends Component {
   };
 
   handleConfirmArrivalDateSpecific = date => {
-    console.log('date', date);
     let newdate = moment(date).format('MM/DD/YYYY');
     // let apiArrivalDate = date.toISOString();
     this.hideDatePickerArrivalDateSpecific();
@@ -486,7 +478,6 @@ class ViewReviewOrder extends Component {
         : value && value.choiceCode === 'N'
         ? 'false'
         : null;
-    console.log('finaV', finalValue);
     let payload = {
       action: 'Update',
       arrivedDate: item.arrivedDate,
@@ -506,7 +497,6 @@ class ViewReviewOrder extends Component {
       userQuantityDelivered: item.userQuantityDelivered,
       userQuantityInvoiced: item.userQuantityInvoiced,
     };
-    console.log('payloadUpdate', payload);
     if (item.arrivedDate) {
       processPendingOrderItemApi(payload)
         .then(res => {
@@ -642,7 +632,6 @@ class ViewReviewOrder extends Component {
         : value && value.choiceCode === 'N'
         ? 'N'
         : null;
-    console.log('payloadOrderProcessCorrect', payload);
     if (apiArrivalDate) {
       processPendingOrderApi(payload)
         .then(res => {
@@ -761,10 +750,8 @@ class ViewReviewOrder extends Component {
       userQuantityDelivered: Number(modalUserQuantityDelivered),
       userQuantityInvoiced: Number(modalUserQuantityInvoiced),
     };
-    console.log('payload', payload);
     processPendingOrderItemApi(payload)
       .then(res => {
-        console.log('res', res);
         this.setState({
           loaderCompStatus: false,
         });

@@ -145,7 +145,6 @@ class index extends Component {
           })
           .catch(error => {
             this.setState({supplierListLoader: false});
-            console.warn('erro', error);
           }),
     );
   }
@@ -314,8 +313,6 @@ class index extends Component {
       supplieReference: '',
     };
 
-    console.log('PAYLOAD', payload);
-
     if (orderItemsFinal.length === 0) {
       alert('Please enter values first');
     } else {
@@ -336,7 +333,6 @@ class index extends Component {
                 saveLoader: false,
                 saveTouchableStatus: false,
               });
-              console.warn('addfailed', error.response);
             }),
       );
     }
@@ -353,7 +349,6 @@ class index extends Component {
   }
 
   selectDepartementNameFun = value => {
-    console.log('value', value);
     this.setState(
       {
         departmentName: value,
@@ -399,7 +394,6 @@ class index extends Component {
           items: [...finalArray],
           loading: false,
         });
-        console.warn(this.state.items);
       })
       .catch(err => {
         console.warn('Err', err.response);
@@ -407,16 +401,11 @@ class index extends Component {
   };
 
   onSelectedItemsChange = selectedItems => {
-    console.log('selectedItems', selectedItems);
     this.setState({selectedItems});
   };
 
   onSelectedItemObjectsChange = selectedItemObjects => {
     this.setState({selectedItemObjects});
-    // let temp = [];
-    // temp.push(selectedItemObjects[0]);
-    // console.warn('temp', temp);
-    console.log('selectedItemObjects', selectedItemObjects);
   };
 
   setModalVisibleImage = () => {
@@ -441,7 +430,6 @@ class index extends Component {
   };
 
   addDataFun = (index, type, value, finalValue) => {
-    console.log(index, type, value);
     const {orderItemsFinal, selectedItemObjects} = this.state;
     const finalUnitId =
       selectedItemObjects && selectedItemObjects[0].units[0].id;
@@ -487,7 +475,6 @@ class index extends Component {
       recipeLoader,
     } = this.state;
 
-    console.log('orderItemsFinal', orderItemsFinal);
     return (
       <View style={styles.container}>
         <Header

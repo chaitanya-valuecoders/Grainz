@@ -222,7 +222,6 @@ class PdfViewDraft extends Component {
         totalValue: draftsOrderData.totalValue,
         shopingBasketItemList: finalApiData,
       };
-      console.log('payload', payload);
       updateDraftOrderNewApi(payload)
         .then(res => {
           this.setState(
@@ -231,7 +230,6 @@ class PdfViewDraft extends Component {
             },
             () => this.openMailModal(res),
           );
-          console.log('res', res);
         })
         .catch(err => {
           Alert.alert(
@@ -303,11 +301,8 @@ class PdfViewDraft extends Component {
       shopingBasketId: basketId,
     };
 
-    console.log('payload', payload);
-
     sendOrderApi(payload)
       .then(res => {
-        console.log('res', res);
         this.setState(
           {
             mailModalVisible: false,

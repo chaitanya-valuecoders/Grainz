@@ -17,7 +17,6 @@ export const setI18nConfig = async () => {
   const lang = await AsyncStorage.getItem('Language');
   if (lang !== null && lang !== undefined) {
     const fallback = {languageTag: lang, isRTL: false};
-    // console.warn(lang,"lang")
     const {languageTag, isRTL} =
       // RNLocalize.findBestAvailableLanguage(Object.keys(translationGetters)) ||
       // fallback;

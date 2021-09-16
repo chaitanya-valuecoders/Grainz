@@ -178,7 +178,6 @@ class PendingDelivery extends Component {
     const newData = this.state.deliveryPendingDataBackup.filter(function (
       item,
     ) {
-      console.log('item', item);
       //applying filter for the inserted text in search bar
       const itemData = item.supplierName
         ? item.supplierName.toUpperCase()
@@ -211,32 +210,32 @@ class PendingDelivery extends Component {
     }
   };
 
-  arrangeListSupplierFun = funType => {
-    // if(
-    //   funType === 'SUPPLIER'
-    // ) {
-
-    // } else if (funType === 'DATE') {
-
-    // } else if(funType === '')
-    this.setState(
-      {
-        arrangeStatusSupplier: Number(1) + this.state.arrangeStatusSupplier,
-      },
-      () => this.arrangeListSupplierFunSec(),
-    );
-  };
-
-  arrangeListSupplierFunSec = () => {
-    const {arrangeStatusSupplier} = this.state;
-    if (arrangeStatusSupplier % 2 == 0) {
-      this.ascendingOrderSupplierFun();
-    } else {
-      this.descendingOrderSupplierFun();
+  arrangeListFun = funType => {
+    if (funType === 'SUPPLIER') {
+      this.setState(
+        {
+          arrangeStatusSupplier: Number(1) + this.state.arrangeStatusSupplier,
+        },
+        () => this.arrangeListFunSec('SUPPLIER'),
+      );
+    } else if (funType === 'DATE') {
+      this.setState(
+        {
+          arrangeStatusDate: Number(1) + this.state.arrangeStatusDate,
+        },
+        () => this.arrangeListFunSec('DATE'),
+      );
+    } else if (funType === 'HTVA') {
+      this.setState(
+        {
+          arrangeStatusHTVA: Number(1) + this.state.arrangeStatusHTVA,
+        },
+        () => this.arrangeListFunSec('HTVA'),
+      );
     }
   };
 
-  ascendingOrderSupplierFun = () => {
+  reverseFun = () => {
     const {deliveryPendingData} = this.state;
     const finalData = deliveryPendingData.reverse();
 
@@ -245,133 +244,80 @@ class PendingDelivery extends Component {
     });
   };
 
-  descendingOrderSupplierFun = () => {
-    const {deliveryPendingData} = this.state;
-    // deliveryPendingData.sort();
-    function dynamicSort(property) {
-      var sortOrder = 1;
-      if (property[0] === '-') {
-        sortOrder = -1;
-        property = property.substr(1);
-      }
-      return function (a, b) {
-        /* next line works with strings and numbers,
-         * and you may want to customize it to your needs
-         */
-        var result =
-          a[property] < b[property] ? -1 : a[property] > b[property] ? 1 : 0;
-        return result * sortOrder;
-      };
-    }
-
-    const finalData = deliveryPendingData.sort(dynamicSort('supplierName'));
-    console.log('supplierName', finalData);
-
-    this.setState({
-      deliveryPendingData: finalData,
-    });
-  };
-
-  arrangeListDateFun = () => {
-    this.setState(
-      {
-        arrangeStatusDate: Number(1) + this.state.arrangeStatusDate,
-      },
-      () => this.arrangeListDateFunSec(),
-    );
-  };
-
-  arrangeListDateFunSec = () => {
-    const {arrangeStatusDate} = this.state;
-    if (arrangeStatusDate % 2 == 0) {
-      this.ascendingOrderDateFun();
+  arrangeListFunSec = type => {
+    const {arrangeStatusSupplier, arrangeStatusDate, arrangeStatusHTVA} =
+      this.state;
+    const finalData =
+      type === 'SUPPLIER'
+        ? arrangeStatusSupplier
+        : type === 'DATE'
+        ? arrangeStatusDate
+        : arrangeStatusHTVA;
+    if (finalData % 2 == 0) {
+      this.reverseFun();
     } else {
-      this.descendingOrderDateFun();
+      this.descendingOrderFun(type);
     }
   };
 
-  ascendingOrderDateFun = () => {
+  descendingOrderFun = type => {
     const {deliveryPendingData} = this.state;
-    const finalData = deliveryPendingData.reverse();
-    this.setState({
-      deliveryPendingData: finalData,
-    });
-  };
 
-  descendingOrderDateFun = () => {
-    const {deliveryPendingData} = this.state;
-    // deliveryPendingData.sort();
-    function dynamicSort(property) {
-      var sortOrder = 1;
-      if (property[0] === '-') {
-        sortOrder = -1;
-        property = property.substr(1);
+    if (type === 'SUPPLIER') {
+      function dynamicSort(property) {
+        var sortOrder = 1;
+
+        if (property[0] === '-') {
+          sortOrder = -1;
+          property = property.substr(1);
+        }
+
+        return function (a, b) {
+          if (sortOrder == -1) {
+            return b[property].localeCompare(a[property]);
+          } else {
+            return a[property].localeCompare(b[property]);
+          }
+        };
       }
-      return function (a, b) {
-        /* next line works with strings and numbers,
-         * and you may want to customize it to your needs
-         */
-        var result =
-          a[property] < b[property] ? -1 : a[property] > b[property] ? 1 : 0;
-        return result * sortOrder;
-      };
-    }
-    const finalData = deliveryPendingData.sort(dynamicSort('deliveryDate'));
-    console.log('date', finalData);
-    this.setState({
-      deliveryPendingData: finalData,
-    });
-  };
+      const finalKeyValue =
+        type === 'SUPPLIER'
+          ? 'supplierName'
+          : type === 'DATE'
+          ? 'deliveryDate'
+          : 'htva';
 
-  arrangeListHTVAFun = () => {
-    this.setState(
-      {
-        arrangeStatusHTVA: Number(1) + this.state.arrangeStatusHTVA,
-      },
-      () => this.arrangeListHTVAFunSec(),
-    );
-  };
+      const finalData = deliveryPendingData.sort(dynamicSort(finalKeyValue));
 
-  arrangeListHTVAFunSec = () => {
-    const {arrangeStatusHTVA} = this.state;
-    if (arrangeStatusHTVA % 2 == 0) {
-      this.ascendingOrderHTVAFun();
+      this.setState({
+        deliveryPendingData: finalData,
+      });
     } else {
-      this.descendingOrderHTVAFun();
-    }
-  };
-
-  ascendingOrderHTVAFun = () => {
-    const {deliveryPendingData} = this.state;
-    const finalData = deliveryPendingData.reverse();
-    this.setState({
-      deliveryPendingData: finalData,
-    });
-  };
-
-  descendingOrderHTVAFun = () => {
-    const {deliveryPendingData} = this.state;
-    // deliveryPendingData.sort();
-    function dynamicSort(property) {
-      var sortOrder = 1;
-      if (property[0] === '-') {
-        sortOrder = -1;
-        property = property.substr(1);
+      function dynamicSort(property) {
+        var sortOrder = 1;
+        if (property[0] === '-') {
+          sortOrder = -1;
+          property = property.substr(1);
+        }
+        return function (a, b) {
+          var result =
+            a[property] < b[property] ? -1 : a[property] > b[property] ? 1 : 0;
+          return result * sortOrder;
+        };
       }
-      return function (a, b) {
-        /* next line works with strings and numbers,
-         * and you may want to customize it to your needs
-         */
-        var result =
-          a[property] < b[property] ? -1 : a[property] > b[property] ? 1 : 0;
-        return result * sortOrder;
-      };
+      const finalKeyValue =
+        type === 'SUPPLIER'
+          ? 'supplierName'
+          : type === 'DATE'
+          ? 'deliveryDate'
+          : 'htva';
+
+      const finalData = deliveryPendingData.sort(dynamicSort(finalKeyValue));
+
+      this.setState({
+        deliveryPendingData: finalData,
+      });
     }
-    const finalData = deliveryPendingData.sort(dynamicSort('htva'));
-    console.log('htva', finalData);
-    this.setState({
-      deliveryPendingData: finalData,
-    });
   };
 
   render() {
@@ -511,9 +457,7 @@ class PendingDelivery extends Component {
                               Supplier
                             </Text>
                             <TouchableOpacity
-                              onPress={() =>
-                                this.arrangeListSupplierFun('SUPPLIER')
-                              }>
+                              onPress={() => this.arrangeListFun('SUPPLIER')}>
                               <Image
                                 style={{
                                   width: 13,
@@ -540,7 +484,7 @@ class PendingDelivery extends Component {
                               {listId === 2 ? 'Delivery date' : 'Order date'}
                             </Text>
                             <TouchableOpacity
-                              onPress={() => this.arrangeListDateFun('DATE')}>
+                              onPress={() => this.arrangeListFun('DATE')}>
                               <Image
                                 style={{
                                   width: 13,
@@ -567,7 +511,7 @@ class PendingDelivery extends Component {
                               Total HTVA
                             </Text>
                             <TouchableOpacity
-                              onPress={() => this.arrangeListHTVAFun('HTVA')}>
+                              onPress={() => this.arrangeListFun('HTVA')}>
                               <Image
                                 style={{
                                   width: 13,

@@ -103,7 +103,6 @@ class MenuAnalysis extends Component {
   createFirstData = () => {
     menuAnalysisAdminApi()
       .then(res => {
-        console.log('res', res);
         const {menus, location} = res.data;
 
         const name = location;

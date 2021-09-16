@@ -122,10 +122,8 @@ class OrderingThree extends Component {
       userDefinedQuantity: userDefinedQuantity,
       userDefinedUnit: pageData.userDefinedUnit,
     };
-    console.log('payload', payload);
     updateInventoryProductApi(payload)
       .then(res => {
-        console.log('res', res);
         Alert.alert('Grainz', 'Inventory updated successfully', [
           {text: 'Oky', onPress: () => this.props.navigation.goBack()},
         ]);
@@ -174,8 +172,6 @@ class OrderingThree extends Component {
       userDefinedQuantity,
       priceFinal,
     } = this.state;
-
-    console.log('pageData', pageData);
 
     return (
       <View style={{flex: 1, backgroundColor: '#fff'}}>

@@ -202,7 +202,6 @@ class Events extends Component {
   };
 
   actionFun = data => {
-    console.log('data', data);
     this.setState({
       actionModalStatus: true,
       eventId: data.id,

@@ -133,7 +133,6 @@ class EditDraftOrder extends Component {
             },
             () => this.openMailModal(res),
           );
-          console.log('res', res);
         })
         .catch(err => {
           Alert.alert(
@@ -176,7 +175,6 @@ class EditDraftOrder extends Component {
       draftsOrderData,
       finalApiData,
     } = this.state;
-    console.log('react-native-pd', apiOrderDate);
     let payload = {
       id: basketId,
       supplierId: supplierValue,
@@ -186,7 +184,6 @@ class EditDraftOrder extends Component {
       totalValue: draftsOrderData.totalValue,
       shopingBasketItemList: finalApiData,
     };
-    console.log('payload', payload);
     updateDraftOrderNewApi(payload)
       .then(res => {
         this.setState({
@@ -360,7 +357,6 @@ class EditDraftOrder extends Component {
       };
       updateDraftOrderNewApi(payload)
         .then(res => {
-          console.log('res', res);
           this.viewFunSec();
         })
         .catch(err => {
@@ -386,7 +382,6 @@ class EditDraftOrder extends Component {
 
   viewFunSec = () => {
     const {basketId} = this.state;
-    console.log('bas', basketId);
     viewHTMLApi(basketId)
       .then(res => {
         this.setState(
@@ -440,7 +435,6 @@ class EditDraftOrder extends Component {
   };
 
   handleConfirmOrderDate = date => {
-    console.log('date', date);
     let newdate = moment(date).format('MM/DD/YYYY');
     let apiOrderDate = date.toISOString();
     this.setState({
@@ -463,7 +457,6 @@ class EditDraftOrder extends Component {
   };
 
   handleConfirmDeliveryDate = date => {
-    console.log('date', date);
     let newdate = moment(date).format('MM/DD/YYYY');
     let apiDeliveryDate = date.toISOString();
     this.setState({
@@ -480,7 +473,6 @@ class EditDraftOrder extends Component {
   };
 
   actionFun = (data, index) => {
-    console.log('data', data);
     this.setState({
       actionModalStatus: true,
       finalArrData: data,
@@ -547,11 +539,8 @@ class EditDraftOrder extends Component {
       id: basketId,
     };
 
-    console.log('payload', payload);
-
     updateBasketApi(payload)
       .then(res => {
-        console.log('res', res);
         this.setState(
           {
             modalLoaderDrafts: true,
@@ -570,12 +559,9 @@ class EditDraftOrder extends Component {
 
   getInventoryFun = () => {
     const {productId, basketId} = this.state;
-    console.log('productId', productId);
-    console.log('basketId', basketId);
 
     getBasketApi(basketId)
       .then(res => {
-        console.log('res', res);
         this.setState(
           {
             draftsOrderData: res.data,
@@ -611,7 +597,6 @@ class EditDraftOrder extends Component {
     const {inventoryData} = this.state;
     const finalArr = [];
     inventoryData.map(item => {
-      console.log('item', item);
       finalArr.push({
         id: item.id,
         inventoryId: item.inventoryId,
@@ -665,7 +650,6 @@ class EditDraftOrder extends Component {
     };
     updateBasketApi(payload)
       .then(res => {
-        console.log('res', res);
         this.setState(
           {
             modalLoaderDrafts: true,
@@ -709,11 +693,8 @@ class EditDraftOrder extends Component {
       shopingBasketId: basketId,
     };
 
-    console.log('payload', payload);
-
     sendOrderApi(payload)
       .then(res => {
-        console.log('res', res);
         this.setState(
           {
             mailModalVisible: false,
@@ -759,7 +740,6 @@ class EditDraftOrder extends Component {
       loaderCompStatus,
     } = this.state;
 
-    console.log('finalApiData', finalApiData);
     return (
       <View style={styles.container}>
         <Header

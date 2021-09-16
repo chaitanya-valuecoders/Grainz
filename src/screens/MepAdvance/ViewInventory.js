@@ -126,7 +126,6 @@ class ViewInventory extends Component {
       () =>
         getInventoryByIdApi(pageData.inventoryId)
           .then(res => {
-            console.log('res', res);
             this.setState({
               sectionAdvanceData: res.data,
               advanceDetailsLoader: false,

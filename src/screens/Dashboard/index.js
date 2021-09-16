@@ -151,10 +151,8 @@ class index extends Component {
       type: finalType,
       locations: [locationValue],
     };
-    console.log('payload', payload);
     revenuePostReportApi(payload)
       .then(res => {
-        console.log('resREport', res);
         const {data} = res;
         this.setState({
           modalLoaderDrafts: false,
@@ -170,13 +168,11 @@ class index extends Component {
     getCurrentUserApi()
       .then(res => {
         const {data} = res;
-        console.log('currentUserData', data);
         let todaydate = moment(new Date()).format('MM/DD/YYYY');
         let todaydateApi = new Date().toISOString();
         var currentTime = new Date();
         let periods = data && data.dashBoardPreferences.periods;
         currentTime.setDate(currentTime.getDate() - periods);
-        console.log('currentTime', currentTime);
         let previousDate = moment(currentTime).format('MM/DD/YYYY');
         let previousDateApi = currentTime.toISOString();
         this.setState(
@@ -230,7 +226,6 @@ class index extends Component {
   };
 
   handleConfirmFirstDate = date => {
-    console.log('date', date);
     let newdate = moment(date).format('MM/DD/YYYY');
     let apiFirstDate = date.toISOString();
     this.setState(
@@ -257,7 +252,6 @@ class index extends Component {
   };
 
   handleConfirmSecondDate = date => {
-    console.log('date', date);
     let newdate = moment(date).format('MM/DD/YYYY');
     let apiSecondDate = date.toISOString();
     this.setState(

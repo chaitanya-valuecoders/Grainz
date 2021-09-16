@@ -108,10 +108,8 @@ class ViewDraftOrders extends Component {
 
   getDraftOrderData = () => {
     const {productId, basketId} = this.state;
-    console.log('bake', basketId);
     getBasketApi(basketId)
       .then(res => {
-        console.log('res', res);
         this.setState({
           draftsOrderData: res.data.shopingBasketItemList,
           modalLoaderDrafts: false,
@@ -435,7 +433,6 @@ class ViewDraftOrders extends Component {
                             {draftsOrderData &&
                               draftsOrderData.length > 0 &&
                               draftsOrderData.map((item, index) => {
-                                console.log('item', item);
                                 return (
                                   <View>
                                     <View

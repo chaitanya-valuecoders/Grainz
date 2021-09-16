@@ -165,7 +165,6 @@ class MapProductsList extends Component {
           },
         ]);
       });
-    console.log('payload', payload);
   };
 
   searchFun = txt => {

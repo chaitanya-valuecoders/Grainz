@@ -297,11 +297,8 @@ class PdfView extends Component {
       shopingBasketId: basketId,
     };
 
-    console.log('payload', payload);
-
     sendOrderApi(payload)
       .then(res => {
-        console.log('res', res);
         this.setState(
           {
             mailModalVisible: false,

@@ -122,7 +122,6 @@ class AddBuilder extends Component {
     let newData = [];
     const {selectectedItems, productionDate} = this.state;
     selectectedItems.map(item => {
-      console.log('item', item);
       const obj = {};
       obj.isSelected = true;
       obj.notes = '';
@@ -242,8 +241,6 @@ class AddBuilder extends Component {
   };
 
   editQuantityFun = (index, type, value) => {
-    console.log(index, type, value);
-
     const {selectectedItems} = this.state;
 
     let newArr = selectectedItems.map((item, i) =>
@@ -273,8 +270,6 @@ class AddBuilder extends Component {
       applyClickStatus,
       buttonLoader,
     } = this.state;
-
-    console.log('selectectedItems', selectectedItems);
 
     return (
       <View style={styles.container}>

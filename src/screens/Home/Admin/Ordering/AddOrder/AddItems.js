@@ -128,7 +128,6 @@ class AddItems extends Component {
     const {supplierId} = this.state;
     getSupplierCatalogApi(supplierId)
       .then(res => {
-        console.log('res', res);
         let finalArray = res.data.map((item, index) => {
           return {
             title: item,
@@ -158,7 +157,6 @@ class AddItems extends Component {
     const {supplierId} = this.state;
     getInventoryBySupplierIdApi(supplierId)
       .then(res => {
-        console.log('res', res);
         let finalArray = res.data.map((item, index) => {
           return {
             title: item.name,
@@ -467,7 +465,6 @@ class AddItems extends Component {
   };
 
   selectDepartementNameFun = value => {
-    console.log('value', value);
     this.setState(
       {
         departmentName: value,
@@ -481,8 +478,6 @@ class AddItems extends Component {
   };
 
   filterDataDepartmentName = value => {
-    console.log('value', value);
-
     //passing the inserted text in textinput
     const newData = this.state.SECTIONS_SEC_INVEN.filter(function (item) {
       //applying filter for the inserted text in search bar
@@ -515,8 +510,6 @@ class AddItems extends Component {
       searchItemSupplier,
       searchLoader,
     } = this.state;
-
-    console.log('inventoryStatus', inventoryStatus);
 
     return (
       <View style={styles.container}>

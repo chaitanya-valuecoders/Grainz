@@ -176,7 +176,6 @@ class Inventory extends Component {
   };
 
   openListFun = (item, index, section) => {
-    console.log('item', item);
     this.props.navigation.navigate('InventoryAdminSec', {
       item,
       section,

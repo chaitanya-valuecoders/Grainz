@@ -198,8 +198,6 @@ class InventorySetupSec extends Component {
       actionModalStatus,
     } = this.state;
 
-    console.log('inventoryId', inventoryId);
-
     return (
       <View style={styles.container}>
         <Header

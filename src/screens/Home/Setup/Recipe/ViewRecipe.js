@@ -87,7 +87,6 @@ class ViewRecipe extends Component {
   getRecipeDataFun = catId => {
     getRecipeDetailsApi(catId)
       .then(res => {
-        console.log('res', res);
         this.setState({
           modalData: res.data,
           modalLoader: false,
@@ -123,8 +122,6 @@ class ViewRecipe extends Component {
       recipeArr,
       showMenuItems,
     } = this.state;
-
-    console.log('moda', modalData);
 
     return (
       <View style={styles.container}>

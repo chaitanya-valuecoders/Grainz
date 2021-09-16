@@ -101,8 +101,6 @@ class ViewEvent extends Component {
       .then(res => {
         const array1 = offerArray;
         const array2 = res.data;
-        console.log('arr1', array1);
-        console.log('array2', array2);
         const finalArr = array1.map(item => {
           return {
             ...item,
@@ -187,7 +185,6 @@ class ViewEvent extends Component {
       pageData,
       finalOfferListArr,
     } = this.state;
-    console.log('pageDa', pageData);
 
     const newDate = moment(pageData.eventDate).format('L');
 

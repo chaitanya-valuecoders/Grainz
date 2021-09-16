@@ -619,7 +619,6 @@ class index extends Component {
           return item.departmentName === departmentName;
         });
 
-        console.log('firarr', firstArr);
         function groupByKey(array, key) {
           return array.reduce((hash, obj) => {
             if (obj[key] === undefined) return hash;
@@ -630,11 +629,6 @@ class index extends Component {
         }
 
         let groupedCategory = groupByKey(firstArr, 'category');
-
-        console.log(
-          'Object.keys(groupedCategory)',
-          Object.keys(groupedCategory),
-        );
 
         let finalArray = Object.keys(groupedCategory).map((item, index) => {
           return {

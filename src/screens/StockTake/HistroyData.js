@@ -98,7 +98,6 @@ class HistoryData extends Component {
 
   getStockDataFun = () => {
     const {historyDate} = this.state;
-    console.log('Date', historyDate);
     getPreviousStockDatesDataApi(historyDate)
       .then(res => {
         function groupByKey(array, key) {
@@ -113,7 +112,6 @@ class HistoryData extends Component {
         let groupedCategory = groupByKey(res.data, 'category');
 
         let finalArray = Object.keys(groupedCategory).map((item, index) => {
-          console.log('item', item);
           return {
             name: item,
             id: index,
@@ -121,7 +119,6 @@ class HistoryData extends Component {
           };
         });
 
-        console.log('final', finalArray);
         this.setState({
           categoryLoader: false,
           SECTIONS: finalArray,
@@ -149,7 +146,6 @@ class HistoryData extends Component {
   };
 
   _renderContent = section => {
-    console.log('sec', section);
     const {categoryLoader} = this.state;
     return (
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
@@ -287,7 +283,6 @@ class HistoryData extends Component {
   render() {
     const {buttonsSubHeader, loader, categoryLoader, SECTIONS, activeSections} =
       this.state;
-    console.log('SECTIONS', SECTIONS);
 
     return (
       <View style={styles.container}>

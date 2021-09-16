@@ -142,8 +142,6 @@ class InventoryList extends Component {
 
   getInsideCatFun = () => {
     const {catId, supplierId} = this.state;
-    console.log('catID', catId);
-    console.log('supplierId', supplierId);
     this.setState(
       {
         modalLoader: true,
@@ -151,7 +149,6 @@ class InventoryList extends Component {
       () =>
         getInsideInventoryNewApi(catId, supplierId)
           .then(res => {
-            console.log('resInventory', res);
             const finalArr = res.data;
             finalArr.forEach(function (item) {
               item.isSelected = false;
@@ -251,7 +248,6 @@ class InventoryList extends Component {
       inventoryId: inventoryId,
       productId: productId,
     };
-    console.log('payload', payload);
 
     unMapProductAdminApi(payload)
       .then(res => {
@@ -272,12 +268,6 @@ class InventoryList extends Component {
   };
 
   editQuantityFun = (index, type, data, valueType, section) => {
-    console.log('index', index);
-    console.log('type', type);
-    console.log('data', data);
-    console.log('valueType', valueType);
-    console.log('section', section);
-
     this.setState(
       {
         inventoryId: data.id,
@@ -342,7 +332,6 @@ class InventoryList extends Component {
         value: Number(item.quantityProduct * item.productPrice * item.packSize),
       });
     });
-    console.log('finalArr', finalArr);
 
     let finalArrSec = {
       title: data.name,
@@ -381,7 +370,6 @@ class InventoryList extends Component {
           supplierId: supplierId,
           shopingBasketItemList: finalBasketData,
         };
-        console.log('Paylaod', payload);
         addBasketApi(payload)
           .then(res => {
             this.setState(
@@ -417,11 +405,9 @@ class InventoryList extends Component {
         shopingBasketItemList: finalBasketData,
         id: basketId,
       };
-      console.log('Paylaod', payload);
       if (finalBasketData.length > 0) {
         updateBasketApi(payload)
           .then(res => {
-            console.log('res', res);
             if (navigateType === 'EditDraft') {
               this.setState(
                 {
@@ -502,10 +488,8 @@ class InventoryList extends Component {
       userDefinedQuantity: userDefinedQuantity,
       userDefinedUnit: userDefinedUnit,
     };
-    console.log('payload', payload);
     updateInventoryProductApi(payload)
       .then(res => {
-        console.log('res', res);
         Alert.alert('Grainz', 'Inventory updated successfully', [
           {
             text: 'Oky',
@@ -553,14 +537,9 @@ class InventoryList extends Component {
   changeDiscountFunSec = () => {
     const {priceFinalBackup, discountPriceValue, priceFinal} = this.state;
 
-    console.log('priceFinalBackup', priceFinalBackup);
-    console.log('discountPriceValue', discountPriceValue / 100);
-
     const finalDiscountVal = priceFinalBackup * (discountPriceValue / 100);
-    console.log('finalDiscountVal', finalDiscountVal);
 
     const finalPriceCal = priceFinalBackup - finalDiscountVal;
-    console.log('finalPriceCal', finalPriceCal);
 
     if (discountPriceValue) {
       this.setState({
@@ -585,8 +564,6 @@ class InventoryList extends Component {
 
   changePriceFunSec = () => {
     const {privatePriceValue, priceFinalBackup, pageData} = this.state;
-    console.log('privatePriceValue', privatePriceValue);
-    console.log('priceFinalBackup', priceFinalBackup);
 
     const finalPriceCal = pageData.packSize * privatePriceValue;
     if (privatePriceValue) {
@@ -605,7 +582,6 @@ class InventoryList extends Component {
     const finalDiscountVal = priceFinal * (item.discount / 100);
 
     const finalPriceCal = priceFinal - finalDiscountVal;
-    console.log('finalPriceCal', finalPriceCal);
     let finalPrice =
       item && item.discount ? finalPriceCal : item.price * item.packSize;
     this.setState({
@@ -859,9 +835,6 @@ class InventoryList extends Component {
       listLoader,
       activeSections,
     } = this.state;
-
-    console.log('pageData', pageData);
-    // console.log('screenType', screenType);
 
     return (
       <View style={styles.container}>

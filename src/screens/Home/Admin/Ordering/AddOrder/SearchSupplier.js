@@ -148,9 +148,6 @@ class SearchSupplier extends Component {
 
         const result = finalArray;
 
-        console.log('res', res);
-        console.log('result', result);
-
         this.setState({
           SECTIONS: [...result],
           recipeLoader: false,
@@ -234,7 +231,6 @@ class SearchSupplier extends Component {
   };
 
   actionFun = data => {
-    console.log('data', data);
     this.setState(
       {
         inventoryId: data.id,
@@ -313,7 +309,6 @@ class SearchSupplier extends Component {
       inventoryId: inventoryId,
       productId: productId,
     };
-    console.log('payload', payload);
     unMapProductAdminApi(payload)
       .then(res => {
         Alert.alert('Grainz', 'Product unmapped successfully', [
@@ -352,8 +347,6 @@ class SearchSupplier extends Component {
   };
 
   editQuantityFunThird = (index, type, data, valueType) => {
-    console.log('data', data);
-
     const valueSec =
       data.quantityProduct === '' ? Number(0) : Number(data.quantityProduct);
     const valueMinus = valueSec - Number(1);
@@ -370,7 +363,6 @@ class SearchSupplier extends Component {
           }
         : item,
     );
-    console.log('newArr', newArr);
 
     var filteredArray = newArr.filter(function (itm) {
       if (itm.quantityProduct !== '') {
@@ -378,11 +370,8 @@ class SearchSupplier extends Component {
       }
     });
 
-    console.log('filteredArray', filteredArray);
-
     const finalArr = [];
     filteredArray.map(item => {
-      console.log('item', item);
       finalArr.push({
         inventoryId: item.inventoryMapping && item.inventoryMapping.inventoryId,
         inventoryProductMappingId:
@@ -449,7 +438,6 @@ class SearchSupplier extends Component {
           supplierId: supplierId,
           shopingBasketItemList: finalBasketData,
         };
-        console.log('Payload', payload);
         addBasketApi(payload)
           .then(res => {
             this.setState(
@@ -485,11 +473,9 @@ class SearchSupplier extends Component {
         shopingBasketItemList: finalBasketData,
         id: basketId,
       };
-      console.log('Paylaod', payload);
       if (finalBasketData.length > 0) {
         updateBasketApi(payload)
           .then(res => {
-            console.log('res', res);
             if (navigateType === 'EditDraft') {
               this.setState(
                 {
@@ -591,7 +577,6 @@ class SearchSupplier extends Component {
 
   openListFun = (item, index, section) => {
     const {inventoryId} = this.state;
-    console.log('inve', inventoryId);
     this.setState(
       {
         mapModalStatus: false,
@@ -661,12 +646,9 @@ class SearchSupplier extends Component {
     const {SECTIONS, activeSections} = this.state;
     if (activeSections.length > 0) {
       const deptId = SECTIONS[activeSections].content;
-      console.log('deptId', deptId);
 
       lookupCategoriesApi(deptId)
         .then(res => {
-          console.log('res', res);
-
           this.setState({
             catArray: res.data,
             categoryLoader: false,
@@ -706,10 +688,8 @@ class SearchSupplier extends Component {
       userDefinedQuantity: userDefinedQuantity,
       userDefinedUnit: userDefinedUnit,
     };
-    console.log('payload', payload);
     updateInventoryProductApi(payload)
       .then(res => {
-        console.log('res', res);
         Alert.alert('Grainz', 'Inventory updated successfully', [
           {
             text: 'Oky',
@@ -742,14 +722,9 @@ class SearchSupplier extends Component {
   changeDiscountFunSec = () => {
     const {priceFinalBackup, discountPriceValue, priceFinal} = this.state;
 
-    console.log('priceFinalBackup', priceFinalBackup);
-    console.log('discountPriceValue', discountPriceValue / 100);
-
     const finalDiscountVal = priceFinalBackup * (discountPriceValue / 100);
-    console.log('finalDiscountVal', finalDiscountVal);
 
     const finalPriceCal = priceFinalBackup - finalDiscountVal;
-    console.log('finalPriceCal', finalPriceCal);
 
     if (discountPriceValue) {
       this.setState({
@@ -774,8 +749,6 @@ class SearchSupplier extends Component {
 
   changePriceFunSec = () => {
     const {privatePriceValue, priceFinalBackup, pageData} = this.state;
-    console.log('privatePriceValue', privatePriceValue);
-    console.log('priceFinalBackup', priceFinalBackup);
 
     const finalPriceCal = pageData.packSize * privatePriceValue;
     if (privatePriceValue) {
@@ -798,7 +771,6 @@ class SearchSupplier extends Component {
       (item.inventoryMapping && item.inventoryMapping.discount / 100);
 
     const finalPriceCal = priceFinal - finalDiscountVal;
-    console.log('finalPriceCal', finalPriceCal);
     let finalPrice =
       item.inventoryMapping && item.inventoryMapping.discount
         ? finalPriceCal
@@ -849,12 +821,6 @@ class SearchSupplier extends Component {
       discountPriceValue,
       userDefinedUnit,
     } = this.state;
-
-    console.log('pageData', pageData);
-    // console.log('finalBasketData', finalBasketData);
-
-    console.log('navigateType', navigateType);
-    console.log('screenType', screenType);
 
     return (
       <View style={styles.container}>

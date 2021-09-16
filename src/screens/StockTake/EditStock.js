@@ -93,7 +93,6 @@ class EditStock extends Component {
     const {item, pageDate, inventoryId, departmentId, categoryId, screenType} =
       this.props.route && this.props.route.params;
 
-    console.log('item', item);
     let finalUnitData = item.units.map((item, index) => {
       return {
         label: item.name,
@@ -126,7 +125,6 @@ class EditStock extends Component {
       //   }
       // });
 
-      console.log('final', finalModalData);
       this.setState({
         sectionName: 'Test',
         finalName: item.name,
@@ -182,10 +180,6 @@ class EditStock extends Component {
       const arr1 = finalModalData;
       const arr2 = unitData;
 
-      console.log('arr1', arr1);
-
-      console.log('arr2', arr2);
-
       function comparer(otherArray) {
         return function (current) {
           return (
@@ -200,8 +194,6 @@ class EditStock extends Component {
       var onlyInB = arr2.filter(comparer(arr1));
 
       const result = onlyInA.concat(onlyInB);
-
-      console.log('result', result);
 
       this.setState({
         sectionName: 'Test',
@@ -309,7 +301,6 @@ class EditStock extends Component {
   };
 
   editOfferItemsFun = (index, type, value) => {
-    console.log('value', value);
     const {modalData} = this.state;
     let newArr = modalData.map((item, i) =>
       index === i
@@ -347,10 +338,7 @@ class EditStock extends Component {
       return element !== undefined;
     });
 
-    console.log('finalArrSec', finalArrSec);
-
     let payload = finalArrSec;
-    console.log('paylaod', payload);
     addStockTakeApi(payload)
       .then(res => {
         this.setState(
@@ -394,7 +382,6 @@ class EditStock extends Component {
       saveStatus,
     } = this.state;
 
-    console.log('modalData', modalData);
     return (
       <View style={styles.container}>
         <Header

@@ -178,7 +178,6 @@ class AddNewEvent extends Component {
   getMenuDataSec = () => {
     getMenuItemsSetupApi()
       .then(res => {
-        console.log('res', res);
         const finalArr = [];
         res.data.map(item => {
           finalArr.push({
@@ -238,7 +237,6 @@ class AddNewEvent extends Component {
   };
 
   handleConfirm = date => {
-    console.log('date', date);
     let newdate = moment(date).format('L');
     let productionDate = moment(date).format();
     this.setState({
@@ -304,7 +302,6 @@ class AddNewEvent extends Component {
       kitchenNotes: kitchenNotesValue,
       pax: peopleValue,
     };
-    console.log('Payload', payload);
 
     if (peopleValue === '') {
       alert('Please enter all the data');
@@ -354,8 +351,6 @@ class AddNewEvent extends Component {
   };
 
   editOfferItemsFun = (index, type, value) => {
-    console.log(index, type, value);
-
     const {finalOfferListArr} = this.state;
     const valueTotalHTVA = 50;
     const valueTotalTvac = 100;
@@ -375,8 +370,6 @@ class AddNewEvent extends Component {
   };
 
   editMenuItemsFun = (index, type, value) => {
-    console.log(index, type, value);
-
     const {menuListItemsArr} = this.state;
 
     let newArr = menuListItemsArr.map((item, i) =>
@@ -424,8 +417,6 @@ class AddNewEvent extends Component {
   };
 
   onPressMenuItemSec = item => {
-    console.log('item', item);
-
     let objSec = {};
     let newlist = [];
     const {menuListItemsArr} = this.state;
@@ -484,8 +475,6 @@ class AddNewEvent extends Component {
       searchMenuItem,
       menuListItemsArr,
     } = this.state;
-
-    console.log('menuListItemsArr', menuListItemsArr);
 
     return (
       <View style={styles.container}>

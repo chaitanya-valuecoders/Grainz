@@ -106,7 +106,6 @@ class Account extends Component {
           tcsAccepted,
           mainAddress,
         } = res.data;
-        console.log('ress', res.data);
         this.setState({
           accountName: fullName,
           businessName: name,
@@ -234,7 +233,6 @@ class Account extends Component {
       tcsAccepted: tcsAccepted,
       url: url,
     };
-    console.log('PAYLOAD', payload);
     updateCustomerDataApi(payload)
       .then(res => {
         Alert.alert('Grainz', 'Details updated successfully', [

@@ -197,7 +197,6 @@ class SearchInventory extends Component {
       inventoryId: inventoryId,
       productId: productId,
     };
-    console.log('payload', payload);
 
     unMapProductAdminApi(payload)
       .then(res => {
@@ -238,7 +237,6 @@ class SearchInventory extends Component {
   };
 
   editQuantityFunThird = (index, type, data, valueType) => {
-    // console.log('index', index, type, 'type', 'val', value);
     const valueSec =
       data.quantityProduct === '' ? Number(0) : Number(data.quantityProduct);
     const valueMinus = valueSec - Number(1);
@@ -283,7 +281,6 @@ class SearchInventory extends Component {
         value: Number(item.quantityProduct * item.productPrice * item.packSize),
       });
     });
-    console.log('filteredArray', filteredArray);
     this.setState({
       modalData: [...newArr],
       finalBasketData: [...finalArr],
@@ -315,7 +312,6 @@ class SearchInventory extends Component {
           supplierId: supplierId,
           shopingBasketItemList: finalBasketData,
         };
-        console.log('Paylaod', payload);
         addBasketApi(payload)
           .then(res => {
             this.setState(
@@ -324,7 +320,6 @@ class SearchInventory extends Component {
               },
               () => this.navigateToBasket(res),
             );
-            console.log('res', res);
           })
           .catch(err => {
             Alert.alert(
@@ -352,11 +347,9 @@ class SearchInventory extends Component {
         shopingBasketItemList: finalBasketData,
         id: basketId,
       };
-      console.log('Paylaod', payload);
       if (finalBasketData.length > 0) {
         updateBasketApi(payload)
           .then(res => {
-            console.log('res', res);
             if (navigateType === 'EditDraft') {
               this.setState(
                 {
@@ -437,10 +430,8 @@ class SearchInventory extends Component {
       userDefinedQuantity: userDefinedQuantity,
       userDefinedUnit: userDefinedUnit,
     };
-    console.log('payload', payload);
     updateInventoryProductApi(payload)
       .then(res => {
-        console.log('res', res);
         Alert.alert('Grainz', 'Inventory updated successfully', [
           {
             text: 'Oky',
@@ -488,14 +479,9 @@ class SearchInventory extends Component {
   changeDiscountFunSec = () => {
     const {priceFinalBackup, discountPriceValue, priceFinal} = this.state;
 
-    console.log('priceFinalBackup', priceFinalBackup);
-    console.log('discountPriceValue', discountPriceValue / 100);
-
     const finalDiscountVal = priceFinalBackup * (discountPriceValue / 100);
-    console.log('finalDiscountVal', finalDiscountVal);
 
     const finalPriceCal = priceFinalBackup - finalDiscountVal;
-    console.log('finalPriceCal', finalPriceCal);
 
     if (discountPriceValue) {
       this.setState({
@@ -520,8 +506,6 @@ class SearchInventory extends Component {
 
   changePriceFunSec = () => {
     const {privatePriceValue, priceFinalBackup, pageData} = this.state;
-    console.log('privatePriceValue', privatePriceValue);
-    console.log('priceFinalBackup', priceFinalBackup);
 
     const finalPriceCal = pageData.packSize * privatePriceValue;
     if (privatePriceValue) {
@@ -540,7 +524,6 @@ class SearchInventory extends Component {
     const finalDiscountVal = priceFinal * (item.discount / 100);
 
     const finalPriceCal = priceFinal - finalDiscountVal;
-    console.log('finalPriceCal', finalPriceCal);
     let finalPrice =
       item && item.discount ? finalPriceCal : item.price * item.packSize;
     this.setState({
@@ -610,9 +593,6 @@ class SearchInventory extends Component {
       searchItem,
       listLoader,
     } = this.state;
-
-    console.log('finalBasketData', finalBasketData);
-    console.log('modalData', modalData);
 
     return (
       <View style={styles.container}>

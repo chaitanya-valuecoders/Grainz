@@ -40,6 +40,9 @@ class DraftOrder extends Component {
       draftsOrderData: [],
       draftsOrderDataBackup: [],
       searchItem: '',
+      arrangeStatusSupplier: 0,
+      arrangeStatusDate: 0,
+      arrangeStatusHTVA: 0,
     };
   }
 
@@ -137,6 +140,116 @@ class DraftOrder extends Component {
       draftsOrderData: newData,
       searchItem: text,
     });
+  };
+
+  arrangeListFun = funType => {
+    if (funType === 'SUPPLIER') {
+      this.setState(
+        {
+          arrangeStatusSupplier: Number(1) + this.state.arrangeStatusSupplier,
+        },
+        () => this.arrangeListFunSec('SUPPLIER'),
+      );
+    } else if (funType === 'DATE') {
+      this.setState(
+        {
+          arrangeStatusDate: Number(1) + this.state.arrangeStatusDate,
+        },
+        () => this.arrangeListFunSec('DATE'),
+      );
+    } else if (funType === 'HTVA') {
+      this.setState(
+        {
+          arrangeStatusHTVA: Number(1) + this.state.arrangeStatusHTVA,
+        },
+        () => this.arrangeListFunSec('HTVA'),
+      );
+    }
+  };
+
+  arrangeListFunSec = type => {
+    const {arrangeStatusSupplier, arrangeStatusDate, arrangeStatusHTVA} =
+      this.state;
+    const finalData =
+      type === 'SUPPLIER'
+        ? arrangeStatusSupplier
+        : type === 'DATE'
+        ? arrangeStatusDate
+        : arrangeStatusHTVA;
+    if (finalData % 2 == 0) {
+      this.reverseFun();
+    } else {
+      this.descendingOrderFun(type);
+    }
+  };
+
+  reverseFun = () => {
+    const {draftsOrderData} = this.state;
+    const finalData = draftsOrderData.reverse();
+
+    this.setState({
+      draftsOrderData: finalData,
+    });
+  };
+
+  descendingOrderFun = type => {
+    const {draftsOrderData} = this.state;
+
+    if (type === 'SUPPLIER') {
+      function dynamicSort(property) {
+        var sortOrder = 1;
+
+        if (property[0] === '-') {
+          sortOrder = -1;
+          property = property.substr(1);
+        }
+
+        return function (a, b) {
+          if (sortOrder == -1) {
+            return b[property].localeCompare(a[property]);
+          } else {
+            return a[property].localeCompare(b[property]);
+          }
+        };
+      }
+      const finalKeyValue =
+        type === 'SUPPLIER'
+          ? 'supplierName'
+          : type === 'DATE'
+          ? 'orderDate'
+          : 'htva';
+
+      const finalData = draftsOrderData.sort(dynamicSort(finalKeyValue));
+
+      this.setState({
+        draftsOrderData: finalData,
+      });
+    } else {
+      function dynamicSort(property) {
+        var sortOrder = 1;
+        if (property[0] === '-') {
+          sortOrder = -1;
+          property = property.substr(1);
+        }
+        return function (a, b) {
+          var result =
+            a[property] < b[property] ? -1 : a[property] > b[property] ? 1 : 0;
+          return result * sortOrder;
+        };
+      }
+      const finalKeyValue =
+        type === 'SUPPLIER'
+          ? 'supplierName'
+          : type === 'DATE'
+          ? 'orderDate'
+          : 'htva';
+
+      const finalData = draftsOrderData.sort(dynamicSort(finalKeyValue));
+
+      this.setState({
+        draftsOrderData: finalData,
+      });
+    }
   };
 
   render() {
@@ -242,6 +355,8 @@ class DraftOrder extends Component {
                           flex: 1,
                           justifyContent: 'center',
                           alignItems: 'center',
+                          flexDirection: 'row',
+                          alignItems: 'center',
                         }}>
                         <Text
                           style={{
@@ -250,11 +365,25 @@ class DraftOrder extends Component {
                           }}>
                           {translate('Supplier')}
                         </Text>
+                        <TouchableOpacity
+                          onPress={() => this.arrangeListFun('SUPPLIER')}>
+                          <Image
+                            style={{
+                              width: 13,
+                              height: 13,
+                              resizeMode: 'contain',
+                              marginLeft: 5,
+                            }}
+                            source={img.doubleArrowIconNew}
+                          />
+                        </TouchableOpacity>
                       </View>
                       <View
                         style={{
                           flex: 1,
                           justifyContent: 'center',
+                          alignItems: 'center',
+                          flexDirection: 'row',
                           alignItems: 'center',
                         }}>
                         <Text
@@ -264,11 +393,25 @@ class DraftOrder extends Component {
                           }}>
                           {translate('Order date')}
                         </Text>
+                        <TouchableOpacity
+                          onPress={() => this.arrangeListFun('DATE')}>
+                          <Image
+                            style={{
+                              width: 13,
+                              height: 13,
+                              resizeMode: 'contain',
+                              marginLeft: 5,
+                            }}
+                            source={img.doubleArrowIconNew}
+                          />
+                        </TouchableOpacity>
                       </View>
                       <View
                         style={{
                           flex: 1,
                           justifyContent: 'center',
+                          alignItems: 'center',
+                          flexDirection: 'row',
                           alignItems: 'center',
                         }}>
                         <Text
@@ -278,11 +421,22 @@ class DraftOrder extends Component {
                           }}>
                           {translate('Value')}
                         </Text>
+                        <TouchableOpacity
+                          onPress={() => this.arrangeListFun('HTVA')}>
+                          <Image
+                            style={{
+                              width: 13,
+                              height: 13,
+                              resizeMode: 'contain',
+                              marginLeft: 5,
+                            }}
+                            source={img.doubleArrowIconNew}
+                          />
+                        </TouchableOpacity>
                       </View>
                     </View>
                     {draftsOrderData &&
                       draftsOrderData.map((item, index) => {
-                        console.log('item', item);
                         return (
                           <View>
                             <TouchableOpacity
@@ -333,7 +487,7 @@ class DraftOrder extends Component {
                                 }}>
                                 <Text>
                                   {item.orderDate &&
-                                    moment(item.orderDate).format('L')}
+                                    moment(item.orderDate).format('DD/MM/YY')}
                                 </Text>
                               </View>
                               <View
