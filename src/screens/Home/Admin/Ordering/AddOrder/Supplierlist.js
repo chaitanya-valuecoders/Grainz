@@ -913,7 +913,7 @@ class SupplierList extends Component {
                     }}>
                     {screenType === 'New'
                       ? translate('Add to basket')
-                      : 'Update basket'}
+                      : translate('Update basket')}
                   </Text>
                 </View>
               </TouchableOpacity>
@@ -989,11 +989,11 @@ class SupplierList extends Component {
                                 }}>
                                 <Text style={{}}>In Stock?</Text>
                               </View> */}
-                              <View
+                              {/* <View
                                 style={{
                                   width: wp('30%'),
                                   marginLeft: wp('5%'),
-                                }}></View>
+                                }}></View> */}
                             </View>
                             <View>
                               {modalData && modalData.length > 0 ? (
@@ -1179,7 +1179,7 @@ class SupplierList extends Component {
                                           }}
                                         />
                                       </View> */}
-                                      {item.isMapped ? (
+                                      {/* {item.isMapped ? (
                                         <TouchableOpacity
                                           onPress={() => this.actionFun(item)}
                                           style={{
@@ -1229,7 +1229,7 @@ class SupplierList extends Component {
                                             </Text>
                                           </View>
                                         </TouchableOpacity>
-                                      )}
+                                      )} */}
                                     </View>
                                   );
                                 })

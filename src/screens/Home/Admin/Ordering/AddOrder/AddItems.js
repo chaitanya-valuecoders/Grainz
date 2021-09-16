@@ -574,7 +574,7 @@ class AddItems extends Component {
                       : 'Inter-SemiBold',
                     color: inventoryStatus ? '#82A72F' : '#D8DCE6',
                   }}>
-                  InventoryList
+                  {translate('InventoryList')}
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
@@ -586,6 +586,7 @@ class AddItems extends Component {
                   paddingBottom: 5,
                 }}>
                 <Text
+                  numberOfLines={1}
                   style={{
                     fontSize: 18,
                     fontFamily: supplierStatus
@@ -593,7 +594,7 @@ class AddItems extends Component {
                       : 'Inter-SemiBold',
                     color: supplierStatus ? '#82A72F' : '#D8DCE6',
                   }}>
-                  Supplier catalog
+                  {translate('Supplier catalog')}
                 </Text>
               </TouchableOpacity>
             </View>

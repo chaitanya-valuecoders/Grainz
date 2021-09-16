@@ -1051,7 +1051,7 @@ class Basket extends Component {
                                 style={{
                                   fontFamily: 'Inter-SemiBold',
                                 }}>
-                                Inventory item
+                                {translate('Inventory item')}
                               </Text>
                             </View>
                             <View

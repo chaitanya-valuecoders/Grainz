@@ -723,7 +723,7 @@ class SearchInventory extends Component {
                       }}>
                       {screenType === 'New'
                         ? translate('Add to basket')
-                        : 'Update basket'}
+                        : translate('Update basket')}
                     </Text>
                   </View>
                 </TouchableOpacity>

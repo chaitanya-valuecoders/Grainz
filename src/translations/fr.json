@@ -843,5 +843,6 @@
     "User name/email":"Nom d'utilisateur / e-mail",
     "Go Back": "Précédent",
     "Order/Product List": "Commande/Liste de produits",
-    "Add items": "Ajouter articles"
+    "Add items": "Ajouter articles",
+    "InventoryList": "Liste d'inventaire"
 }
