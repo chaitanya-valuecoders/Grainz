@@ -307,7 +307,7 @@ class ViewPurchase extends Component {
                       </View>
                       <View style={styles.listDataContainer}>
                         <Text style={styles.listDataTextStyling}>
-                          $ {price}
+                          € {price}
                         </Text>
                       </View>
                     </TouchableOpacity>

@@ -760,5 +760,9 @@
     "Go Back": "Go Back",
     "Order/Product List": "Order/Product List",
     "Add items": "Add items",
-    "InventoryList": "InventoryList"
+    "InventoryList": "InventoryList",
+    "Language":"Language",
+    "Remove": "Remove",
+    "Date Range": "Date Range",
+    "Select location(s)":"Select location(s)"
 }

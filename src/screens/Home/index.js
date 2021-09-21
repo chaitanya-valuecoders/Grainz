@@ -26,7 +26,7 @@ class index extends Component {
       buttons: [],
       token: '',
       buttonsSubHeader: [],
-      loader: true,
+      loader: false,
     };
   }
 
@@ -37,6 +37,7 @@ class index extends Component {
         this.setState(
           {
             token: value,
+            loader: true,
           },
           () => this.getProfileData(),
         );
@@ -115,9 +116,7 @@ class index extends Component {
       })
       .catch(err => {
         console.warn('ERr', err.response);
-        this.setState({
-          loader: false,
-        });
+
         Alert.alert('Grainz', 'Session Timeout', [
           {text: 'OK', onPress: () => this.removeToken()},
         ]);
@@ -130,7 +129,9 @@ class index extends Component {
   };
 
   componentDidMount() {
-    this.getData();
+    this.props.navigation.addListener('focus', () => {
+      this.getData();
+    });
     this.setLanguage();
   }
 

@@ -713,7 +713,7 @@ class index extends Component {
                                             fontSize: 16,
                                             textDecorationLine: 'underline',
                                           }}>
-                                          Remove
+                                          {translate('Remove')}
                                         </Text>
                                       </TouchableOpacity>
                                     ) : null}
@@ -802,7 +802,7 @@ class index extends Component {
                                           textAlign: 'center',
                                           backgroundColor: '#F7F8F5',
                                         }}>
-                                        Unit
+                                        {translate('Unit')}
                                       </Text>
                                     </View>
                                     <View
@@ -812,7 +812,7 @@ class index extends Component {
                                         alignItems: 'center',
                                         marginLeft: wp('5%'),
                                       }}>
-                                      <Text style={{}}>$</Text>
+                                      <Text style={{}}>€</Text>
                                       <TextInput
                                         placeholder="Price"
                                         style={{

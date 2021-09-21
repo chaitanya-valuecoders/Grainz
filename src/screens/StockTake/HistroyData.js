@@ -251,7 +251,7 @@ class HistoryData extends Component {
               ) : (
                 <View style={styles.notAvailableContainer}>
                   <Text style={styles.notAvailableStyling}>
-                    No data available
+                    {translate('No data available')}
                   </Text>
                 </View>
               )}

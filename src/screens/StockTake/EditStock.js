@@ -434,12 +434,12 @@ class EditStock extends Component {
                                 </Text>
                               </View>
                               <View style={styles.headingSubContainer}>
-                                <Text>Unit</Text>
+                                <Text>{translate('Unit')}</Text>
                               </View>
 
                               <View style={styles.headingSubContainer}>
                                 {screenType === 'New' && deleteStatus ? (
-                                  <Text>Action</Text>
+                                  <Text>{translate('Action')}</Text>
                                 ) : null}
                               </View>
                             </View>
@@ -536,7 +536,7 @@ class EditStock extends Component {
                               ) : (
                                 <View style={{marginTop: hp('3%')}}>
                                   <Text style={{color: 'red', fontSize: 20}}>
-                                    No data available
+                                    {translate('No data available')}
                                   </Text>
                                 </View>
                               )}

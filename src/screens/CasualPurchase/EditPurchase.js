@@ -1064,7 +1064,7 @@ class EditPurchase extends Component {
                                     textAlign: 'center',
                                     backgroundColor: '#F7F8F5',
                                   }}>
-                                  Unit
+                                  {translate('Unit')}
                                 </Text>
                               </View>
                               <View
@@ -1074,7 +1074,7 @@ class EditPurchase extends Component {
                                   alignItems: 'center',
                                   marginLeft: wp('5%'),
                                 }}>
-                                <Text style={{}}>$</Text>
+                                <Text style={{}}>€</Text>
                                 <TextInput
                                   editable={!editDisabled}
                                   placeholder="Price"
@@ -1165,7 +1165,7 @@ class EditPurchase extends Component {
                         fontSize: 16,
                         color: '#151B26',
                       }}>
-                      $ {orderTotal}
+                      € {orderTotal}
                     </Text>
                   </View>
                 </View>

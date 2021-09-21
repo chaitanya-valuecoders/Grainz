@@ -844,5 +844,9 @@
     "Go Back": "Précédent",
     "Order/Product List": "Commande/Liste de produits",
     "Add items": "Ajouter articles",
-    "InventoryList": "Liste d'inventaire"
+    "InventoryList": "Liste d'inventaire",
+    "Language":"Language",
+    "Remove": "Supprimer",
+    "Date Range": "Plage de dates",
+    "Select location(s)":"Select location(s)"
 }

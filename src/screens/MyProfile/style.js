@@ -35,5 +35,14 @@ const styles = StyleSheet.create({
     resizeMode: 'contain',
     marginLeft: '5%',
   },
+  langContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  langStyling: {
+    fontSize: wp('4%'),
+    padding: '2%',
+    fontFamily: 'Inter-Regular',
+  },
 });
 export default styles;

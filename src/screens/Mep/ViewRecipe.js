@@ -341,7 +341,7 @@ class ViewRecipe extends Component {
                             ) : (
                               <View style={{marginTop: hp('3%')}}>
                                 <Text style={{color: 'red', fontSize: 20}}>
-                                  No data available
+                                  {translate('No data available')}
                                 </Text>
                               </View>
                             )}

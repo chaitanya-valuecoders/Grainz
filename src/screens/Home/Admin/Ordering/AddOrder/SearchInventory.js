@@ -1003,7 +1003,7 @@ class SearchInventory extends Component {
                                         color: 'red',
                                         fontSize: 20,
                                       }}>
-                                      No data available
+                                      {translate('No data available')}
                                     </Text>
                                   </View>
                                 )}

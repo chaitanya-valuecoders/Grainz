@@ -7,6 +7,7 @@ import {
   ScrollView,
   TextInput,
   ActivityIndicator,
+  Switch,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {connect} from 'react-redux';
@@ -23,9 +24,10 @@ import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
-import {translate} from '../../utils/translations';
+import {translate, setI18nConfig} from '../../utils/translations';
 import styles from './style';
 import RNPickerSelect from 'react-native-picker-select';
+import Loader from '../../components/Loader';
 
 class index extends Component {
   constructor(props) {
@@ -40,6 +42,8 @@ class index extends Component {
       buttonsSubHeader: [],
       locationArr: [],
       finalLocation: '',
+      switchValue: false,
+      loader: false,
     };
   }
 
@@ -72,7 +76,23 @@ class index extends Component {
   componentDidMount() {
     this.getProfileData();
     this.getUserLocationFun();
+    this.getLanguageFun();
   }
+
+  getLanguageFun = async () => {
+    const lan = await AsyncStorage.getItem('Language');
+    console.log('LANNNN', lan);
+
+    if (lan === 'en') {
+      this.setState({
+        switchValue: false,
+      });
+    } else {
+      this.setState({
+        switchValue: true,
+      });
+    }
+  };
 
   getUserLocationFun = () => {
     getUserLocationApi()
@@ -133,6 +153,26 @@ class index extends Component {
     }
   };
 
+  toggleSwitch = value => {
+    this.setState({switchValue: value, loader: true}, () =>
+      this.languageSelector(),
+    );
+  };
+
+  languageSelector = async () => {
+    let language = '';
+    this.state.switchValue === true ? (language = 'fr') : (language = 'en');
+    await AsyncStorage.setItem('Language', language);
+    setI18nConfig();
+    setTimeout(
+      () =>
+        this.setState({
+          loader: false,
+        }),
+      2000,
+    );
+  };
+
   render() {
     const {
       pageLoader,
@@ -144,6 +184,7 @@ class index extends Component {
       buttonsSubHeader,
       locationArr,
       finalLocation,
+      loader,
     } = this.state;
     return (
       <View style={styles.container}>
@@ -151,6 +192,7 @@ class index extends Component {
           logoutFun={this.myProfile}
           logoFun={() => this.props.navigation.navigate('HomeScreen')}
         />
+        <Loader loaderComp={loader} />
         {/* {pageLoader ? (
           <ActivityIndicator size="small" color="#94C036" />
         ) : (
@@ -302,6 +344,26 @@ class index extends Component {
                         marginTop: Platform.OS === 'ios' ? 13 : 13,
                       }}
                     />
+                  </View>
+                </View>
+              </View>
+              <View style={styles.dataContainer}>
+                <View style={styles.dataFirstContainer}>
+                  <Text style={styles.textStyling}>
+                    {translate('Language')}
+                  </Text>
+                </View>
+                <View style={styles.dataSecondContainer}>
+                  <View style={styles.langContainer}>
+                    <Text style={styles.langStyling}>English</Text>
+                    <Switch
+                      thumbColor={'#94BB3B'}
+                      trackColor={{false: 'grey', true: 'grey'}}
+                      ios_backgroundColor="white"
+                      onValueChange={this.toggleSwitch}
+                      value={this.state.switchValue}
+                    />
+                    <Text style={styles.langStyling}>Français</Text>
                   </View>
                 </View>
               </View>

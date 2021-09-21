@@ -441,7 +441,7 @@ class index extends Component {
               <View>
                 <View style={{marginBottom: hp('2%')}}>
                   <Text style={{fontFamily: 'Inter-Regular', fontSize: 15}}>
-                    Date Range :
+                    {translate('Date Range')} :
                   </Text>
                 </View>
                 <View style={{}}>
@@ -524,7 +524,7 @@ class index extends Component {
                 }}>
                 <View style={{marginBottom: hp('2%')}}>
                   <Text style={{fontFamily: 'Inter-Regular', fontSize: 15}}>
-                    Select Location(s) :
+                    {translate('Select Location(s)')} :
                   </Text>
                 </View>
                 <View

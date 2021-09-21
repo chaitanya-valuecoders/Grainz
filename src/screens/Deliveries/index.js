@@ -20,6 +20,7 @@ import {
 } from 'react-native-responsive-screen';
 import {UserTokenAction} from '../../redux/actions/UserTokenAction';
 import {getMyProfileApi} from '../../connectivity/api';
+import {translate} from '../../utils/translations';
 
 var minTime = new Date();
 minTime.setHours(0);
@@ -96,7 +97,9 @@ class index extends Component {
               alignItems: 'center',
               paddingVertical: hp('3%'),
             }}>
-            <Text style={{fontSize: 22, color: 'white'}}>DELIVERIES</Text>
+            <Text style={{fontSize: 22, color: 'white'}}>
+              {translate('Deliveries')}
+            </Text>
             {buttons.map((item, index) => {
               return (
                 <View style={{}} key={index}>
