@@ -184,7 +184,6 @@ class index extends Component {
                         source={item.icon}
                         style={{
                           ...styles.tileImageStyling,
-                          tintColor: item.id === 6 ? 'red' : null,
                         }}
                       />
                     </View>
