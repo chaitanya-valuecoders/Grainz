@@ -5,7 +5,7 @@ import {Provider} from 'react-redux';
 import store from './src/redux/reducers';
 import {NavigationContainer} from '@react-navigation/native';
 import SplashScreen from 'react-native-splash-screen';
-import {setI18nConfig, translate} from './src/utils/translations';
+import {setI18nConfig} from './src/utils/translations';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 class App extends Component {
