@@ -35,6 +35,7 @@ import Accordion from 'react-native-collapsible/Accordion';
 import moment from 'moment';
 import {translate} from '../../utils/translations';
 import styles from './style';
+import {ARRAY} from '../../constants/dummy';
 
 class index extends Component {
   constructor(props) {
@@ -58,6 +59,7 @@ class index extends Component {
       recipeID: '',
       buttonsSubHeader: [],
       allDoneStatus: false,
+      collapseStatus: true,
     };
   }
 
@@ -246,6 +248,14 @@ class index extends Component {
   onPressCollapseHisFun = () => {
     this.setState({
       activeSectionsHistory: [],
+      collapseStatus: true,
+    });
+  };
+
+  onPressUncollapseHisFun = () => {
+    this.setState({
+      activeSectionsHistory: ARRAY,
+      collapseStatus: false,
     });
   };
 
@@ -728,6 +738,7 @@ class index extends Component {
       quantity,
       notes,
       buttonsSubHeader,
+      collapseStatus,
     } = this.state;
     const finalDateData = moment(sectionData.productionDate).format(
       'dddd, MMM DD YYYY',
@@ -750,7 +761,7 @@ class index extends Component {
               <View style={styles.firstContainer}>
                 <View style={{flex: 1}}>
                   <Text style={styles.adminTextStyle}>
-                    {translate('Manual Log small')}
+                    {translate('Mise-en-Place')}
                   </Text>
                 </View>
                 <TouchableOpacity
@@ -820,22 +831,41 @@ class index extends Component {
                           padding: hp('3%'),
                         }}>
                         <View style={{}}>
-                          <TouchableOpacity
-                            onPress={() => this.onPressCollapseHisFun()}
-                            style={{
-                              height: hp('5%'),
-                              width: wp('50%'),
-                              backgroundColor: '#94C036',
-                              alignSelf: 'center',
-                              marginTop: hp('3%'),
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              borderRadius: 100,
-                            }}>
-                            <Text style={{color: '#fff', fontSize: 16}}>
-                              {translate('Collapse All')}
-                            </Text>
-                          </TouchableOpacity>
+                          {collapseStatus ? (
+                            <TouchableOpacity
+                              onPress={() => this.onPressUncollapseHisFun()}
+                              style={{
+                                height: hp('5%'),
+                                width: wp('50%'),
+                                backgroundColor: '#94C036',
+                                alignSelf: 'center',
+                                marginTop: hp('3%'),
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                borderRadius: 100,
+                              }}>
+                              <Text style={{color: '#fff', fontSize: 16}}>
+                                {translate('Uncollapse All')}
+                              </Text>
+                            </TouchableOpacity>
+                          ) : (
+                            <TouchableOpacity
+                              onPress={() => this.onPressCollapseHisFun()}
+                              style={{
+                                height: hp('5%'),
+                                width: wp('50%'),
+                                backgroundColor: '#94C036',
+                                alignSelf: 'center',
+                                marginTop: hp('3%'),
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                borderRadius: 100,
+                              }}>
+                              <Text style={{color: '#fff', fontSize: 16}}>
+                                {translate('Collapse All')}
+                              </Text>
+                            </TouchableOpacity>
+                          )}
                           {recipeLoaderHistory ? (
                             <ActivityIndicator color="#94C036" size="large" />
                           ) : (

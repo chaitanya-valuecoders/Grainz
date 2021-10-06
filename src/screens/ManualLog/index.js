@@ -39,6 +39,7 @@ import SectionedMultiSelect from 'react-native-sectioned-multi-select';
 import DropDownPicker from 'react-native-dropdown-picker';
 import {translate} from '../../utils/translations';
 import styles from './style';
+import {ARRAY} from '../../constants/dummy';
 
 var minTime = new Date();
 minTime.setHours(0);
@@ -75,6 +76,7 @@ class index extends Component {
       selectedItemObjects: '',
       viewStatus: false,
       buttonsSubHeader: [],
+      collapseStatus: true,
     };
   }
 
@@ -90,6 +92,7 @@ class index extends Component {
       selectedItems: [],
       notes: '',
       itemTypes: '',
+      items: [],
     });
   };
 
@@ -235,6 +238,14 @@ class index extends Component {
   onPressCollapseFun = () => {
     this.setState({
       activeSections: [],
+      collapseStatus: true,
+    });
+  };
+
+  onPressUnCollapseFun = () => {
+    this.setState({
+      activeSections: ARRAY,
+      collapseStatus: false,
     });
   };
 
@@ -336,8 +347,16 @@ class index extends Component {
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
         <View style={{backgroundColor: '#fff'}}>
           {section.content.map((item, index) => {
+            let finaUnitVal =
+              item &&
+              item.units.map((subItem, subIndex) => {
+                if (subItem.isDefault === true) {
+                  return subItem.name;
+                }
+              });
+            const filteredUnit = finaUnitVal.filter(elm => elm);
             return (
-              <View style={{paddingHorizontal: 10}}>
+              <View style={{paddingHorizontal: 10}} key={index}>
                 <View style={{flexDirection: 'row', alignItems: 'center'}}>
                   <Switch
                     style={{}}
@@ -377,8 +396,7 @@ class index extends Component {
                       style={{
                         fontSize: 14,
                       }}>
-                      {item.quantity}{' '}
-                      {/* {section.units.length > 0 && section.units[0].name} */}
+                      {item.quantity} {filteredUnit[0]}
                     </Text>
                   </View>
                   <View style={{alignItems: 'center', width: wp('20%')}}>
@@ -706,6 +724,7 @@ class index extends Component {
           this.setState(
             {
               modalVisibleAdd: false,
+              items: [],
             },
             () => this.getManualLogsData(),
           );
@@ -754,6 +773,7 @@ class index extends Component {
       items,
       viewStatus,
       buttonsSubHeader,
+      collapseStatus,
     } = this.state;
     const finalDateData = moment(sectionData.loggedDate).format(
       'dddd, MMM DD YYYY',
@@ -875,24 +895,6 @@ class index extends Component {
                             />
                           </TouchableOpacity>
 
-                          <TextInput
-                            placeholder="quantity"
-                            value={quantity}
-                            style={{
-                              padding: 12,
-                              marginBottom: hp('3%'),
-                              justifyContent: 'space-between',
-                              borderRadius: 6,
-                              backgroundColor: '#fff',
-                            }}
-                            keyboardType="number-pad"
-                            onChangeText={value => {
-                              this.setState({
-                                quantity: value,
-                              });
-                            }}
-                          />
-
                           <View>
                             <DropDownPicker
                               items={[
@@ -992,6 +994,28 @@ class index extends Component {
                                 })
                               }
                             />
+
+                            <View
+                              style={{
+                                marginTop: hp('3%'),
+                              }}>
+                              <TextInput
+                                placeholder="quantity"
+                                value={quantity}
+                                style={{
+                                  padding: 12,
+                                  justifyContent: 'space-between',
+                                  borderRadius: 6,
+                                  backgroundColor: '#fff',
+                                }}
+                                keyboardType="number-pad"
+                                onChangeText={value => {
+                                  this.setState({
+                                    quantity: value,
+                                  });
+                                }}
+                              />
+                            </View>
 
                             <View
                               style={{
@@ -1480,13 +1504,23 @@ class index extends Component {
           </TouchableOpacity>
           <View style={styles.subContainer}>
             <View style={styles.firstContainer}>
-              <TouchableOpacity
-                style={{flex: 1}}
-                onPress={() => this.onPressCollapseFun()}>
-                <Text style={styles.adminTextStyle}>
-                  {translate('Collapse All')}
-                </Text>
-              </TouchableOpacity>
+              {collapseStatus ? (
+                <TouchableOpacity
+                  style={{flex: 1}}
+                  onPress={() => this.onPressUnCollapseFun()}>
+                  <Text style={styles.adminTextStyle}>
+                    {translate('Uncollapse All')}
+                  </Text>
+                </TouchableOpacity>
+              ) : (
+                <TouchableOpacity
+                  style={{flex: 1}}
+                  onPress={() => this.onPressCollapseFun()}>
+                  <Text style={styles.adminTextStyle}>
+                    {translate('Collapse All')}
+                  </Text>
+                </TouchableOpacity>
+              )}
             </View>
           </View>
           {recipeLoader ? (

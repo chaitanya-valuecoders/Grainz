@@ -265,7 +265,7 @@ class StockScreen extends Component {
                 }}>
                 <RNPickerSelect
                   placeholder={{
-                    label: 'Categories*',
+                    label: 'Select Category*',
                     value: null,
                     color: 'black',
                   }}
@@ -305,7 +305,7 @@ class StockScreen extends Component {
                     height: 18,
                     width: 18,
                     resizeMode: 'contain',
-                    marginTop: Platform.OS === 'ios' ? 12 : 15,
+                    marginTop: Platform.OS === 'ios' ? 15 : 15,
                   }}
                 />
               </View>
@@ -704,9 +704,9 @@ class StockScreen extends Component {
                     })
                   ) : (
                     <View style={styles.notAvailableContainer}>
-                      <Text style={styles.notAvailableStyling}>
+                      {/* <Text style={styles.notAvailableStyling}>
                         {translate('No data available')}
-                      </Text>
+                      </Text> */}
                     </View>
                   )}
                 </ScrollView>
