@@ -215,6 +215,7 @@ class ViewPendingDelivery extends Component {
     });
     this.setState({
       isCheckedEditableStatus: finalStatus,
+      loaderCompStatus: false,
     });
   };
 
@@ -266,15 +267,18 @@ class ViewPendingDelivery extends Component {
 
     processPendingOrderApi(payload)
       .then(res => {
-        this.setState({
-          loaderCompStatus: false,
-        });
-        Alert.alert(`Grainz`, 'Order processed successfully', [
+        this.setState(
           {
-            text: 'Okay',
-            onPress: () => this.navigateToOrderScreen(),
+            loaderCompStatus: false,
           },
-        ]);
+          () => this.navigateToOrderScreen(),
+        );
+        // Alert.alert(`Grainz`, 'Order processed successfully', [
+        //   {
+        //     text: 'Okay',
+        //     onPress: () => this.navigateToOrderScreen(),
+        //   },
+        // ]);
       })
       .catch(err => {
         Alert.alert(`Error - ${err.response.status}`, 'Something went wrong', [
@@ -289,12 +293,13 @@ class ViewPendingDelivery extends Component {
   navigateToOrderScreen = () => {
     const {arrivalDataStatus} = this.state;
     if (arrivalDataStatus) {
-      this.setState(
-        {
-          loaderCompStatus: true,
-        },
-        () => this.getOrderFun(),
-      );
+      this.getOrderFun();
+      // this.setState(
+      //   {
+      //     loaderCompStatus: true,
+      //   },
+      //   () =>
+      // );
     } else {
       this.props.navigation.navigate('OrderingAdminScreen');
     }
@@ -344,22 +349,25 @@ class ViewPendingDelivery extends Component {
 
     processPendingOrderItemApi(payload)
       .then(res => {
-        this.setState({
-          loaderCompStatus: false,
-        });
-        Alert.alert(`Grainz`, 'Order line item deleted successfully', [
+        this.setState(
           {
-            text: 'Okay',
-            onPress: () =>
-              this.setState(
-                {
-                  loaderCompStatus: true,
-                },
-
-                () => this.getOrderFun(),
-              ),
+            loaderCompStatus: false,
           },
-        ]);
+          () => this.getOrderFun(),
+        );
+        // Alert.alert(`Grainz`, 'Order line item deleted successfully', [
+        //   {
+        //     text: 'Okay',
+        //     onPress: () =>
+        //       this.setState(
+        //         {
+        //           loaderCompStatus: true,
+        //         },
+
+        //         () => this.getOrderFun(),
+        //       ),
+        //   },
+        // ]);
       })
       .catch(err => {
         Alert.alert(`Error - ${err.response.status}`, 'Something went wrong', [
@@ -503,22 +511,25 @@ class ViewPendingDelivery extends Component {
     if (item.arrivedDate) {
       processPendingOrderItemApi(payload)
         .then(res => {
-          this.setState({
-            loaderCompStatus: false,
-          });
-          Alert.alert(`Grainz`, 'Correct status updated successfully', [
+          this.setState(
             {
-              text: 'Okay',
-              onPress: () =>
-                this.setState(
-                  {
-                    loaderCompStatus: true,
-                  },
-
-                  () => this.getOrderFun(),
-                ),
+              loaderCompStatus: false,
             },
-          ]);
+            () => this.getOrderFun(),
+          );
+          // Alert.alert(`Grainz`, 'Correct status updated successfully', [
+          //   {
+          //     text: 'Okay',
+          //     onPress: () =>
+          //       this.setState(
+          //         {
+          //           loaderCompStatus: true,
+          //         },
+
+          //         () => this.getOrderFun(),
+          //       ),
+          //   },
+          // ]);
         })
         .catch(err => {
           Alert.alert(
@@ -646,13 +657,13 @@ class ViewPendingDelivery extends Component {
               initialValueAllCorrect: finalValue,
               pageOrderItems: [],
             },
-            () =>
-              Alert.alert(`Grainz`, 'Order processed successfully', [
-                {
-                  text: 'Okay',
-                  onPress: () => this.navigateToOrderScreen(value),
-                },
-              ]),
+            () => this.navigateToOrderScreen(value),
+            // Alert.alert(`Grainz`, 'Order processed successfully', [
+            //   {
+            //     text: 'Okay',
+            //     onPress: () => this.navigateToOrderScreen(value),
+            //   },
+            // ]),
           );
         })
         .catch(err => {
@@ -755,22 +766,25 @@ class ViewPendingDelivery extends Component {
     };
     processPendingOrderItemApi(payload)
       .then(res => {
-        this.setState({
-          loaderCompStatus: false,
-        });
-        Alert.alert(`Grainz`, 'Order line item updated successfully', [
+        this.setState(
           {
-            text: 'Okay',
-            onPress: () =>
-              this.setState(
-                {
-                  loaderCompStatus: true,
-                },
-
-                () => this.getOrderFun(),
-              ),
+            loaderCompStatus: false,
           },
-        ]);
+          () => this.getOrderFun(),
+        );
+        // Alert.alert(`Grainz`, 'Order line item updated successfully', [
+        //   {
+        //     text: 'Okay',
+        //     onPress: () =>
+        //       this.setState(
+        //         {
+        //           loaderCompStatus: true,
+        //         },
+
+        //         () => this.getOrderFun(),
+        //       ),
+        //   },
+        // ]);
       })
       .catch(err => {
         Alert.alert(`Error - ${err.response.status}`, 'Something went wrong', [
@@ -847,86 +861,104 @@ class ViewPendingDelivery extends Component {
             <ScrollView style={{}} showsVerticalScrollIndicator={false}>
               <View style={{padding: hp('3%')}}>
                 <View style={{}}>
-                  <View style={{marginBottom: hp('3%')}}>
-                    <Text
-                      style={{
-                        marginBottom: hp('3%'),
-                        fontFamily: 'Inter-Regular',
-                        marginLeft: 5,
-                      }}>
-                      Supplier :
-                    </Text>
-                    <TextInput
-                      editable={false}
-                      placeholder="Supplier"
-                      value={pageData.supplierName}
-                      style={{
-                        padding: 14,
-                        justifyContent: 'space-between',
-                        elevation: 3,
-                        shadowOpacity: 2.0,
-                        shadowColor: 'rgba(0, 0, 0, 0.05)',
-                        shadowOffset: {
-                          width: 2,
-                          height: 2,
-                        },
-                        shadowRadius: 10,
-                        borderRadius: 5,
-                        backgroundColor: '#E9ECEF',
-                        borderWidth: 0.2,
-                      }}
-                    />
-                  </View>
-                  <View style={{marginBottom: hp('3%')}}>
-                    <Text
-                      style={{
-                        marginBottom: hp('3%'),
-                        fontFamily: 'Inter-Regular',
-                        marginLeft: 5,
-                      }}>
-                      Order Date :
-                    </Text>
-                    <TextInput
-                      editable={false}
-                      placeholder="Order Date"
-                      value={
-                        pageData.orderDate &&
-                        moment(pageData.orderDate).format('L')
-                      }
-                      style={{
-                        padding: 14,
-                        justifyContent: 'space-between',
-                        elevation: 3,
-                        shadowOpacity: 2.0,
-                        shadowColor: 'rgba(0, 0, 0, 0.05)',
-                        shadowOffset: {
-                          width: 2,
-                          height: 2,
-                        },
-                        shadowRadius: 10,
-                        borderRadius: 5,
-                        backgroundColor: '#E9ECEF',
-                        borderWidth: 0.2,
-                      }}
-                    />
+                  <View
+                    style={{
+                      marginBottom: hp('3%'),
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                    }}>
+                    <View style={{flex: 1}}>
+                      <Text
+                        style={{
+                          fontFamily: 'Inter-Regular',
+                          marginLeft: 5,
+                        }}>
+                        Supplier :
+                      </Text>
+                    </View>
+                    <View style={{flex: 2}}>
+                      <TextInput
+                        editable={false}
+                        placeholder="Supplier"
+                        value={pageData.supplierName}
+                        style={{
+                          padding: 14,
+                          justifyContent: 'space-between',
+                          elevation: 3,
+                          shadowOpacity: 2.0,
+                          shadowColor: 'rgba(0, 0, 0, 0.05)',
+                          shadowOffset: {
+                            width: 2,
+                            height: 2,
+                          },
+                          shadowRadius: 10,
+                          borderRadius: 5,
+                          backgroundColor: '#E9ECEF',
+                          borderWidth: 0.2,
+                        }}
+                      />
+                    </View>
                   </View>
                   <View
                     style={{
                       marginBottom: hp('3%'),
+                      flexDirection: 'row',
+                      alignItems: 'center',
                     }}>
-                    <Text
-                      style={{
-                        marginBottom: hp('3%'),
-                        fontFamily: 'Inter-Regular',
-                        marginLeft: 5,
-                      }}>
-                      Delivery Date :
-                    </Text>
-                    <View style={{}}>
+                    <View style={{flex: 1}}>
+                      <Text
+                        style={{
+                          fontFamily: 'Inter-Regular',
+                          marginLeft: 5,
+                        }}>
+                        Order Date :
+                      </Text>
+                    </View>
+                    <View style={{flex: 2}}>
+                      <TextInput
+                        editable={false}
+                        placeholder="Order Date"
+                        value={
+                          pageData.orderDate &&
+                          moment(pageData.orderDate).format('L')
+                        }
+                        style={{
+                          padding: 14,
+                          justifyContent: 'space-between',
+                          elevation: 3,
+                          shadowOpacity: 2.0,
+                          shadowColor: 'rgba(0, 0, 0, 0.05)',
+                          shadowOffset: {
+                            width: 2,
+                            height: 2,
+                          },
+                          shadowRadius: 10,
+                          borderRadius: 5,
+                          backgroundColor: '#E9ECEF',
+                          borderWidth: 0.2,
+                        }}
+                      />
+                    </View>
+                  </View>
+                  <View
+                    style={{
+                      marginBottom: hp('3%'),
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                    }}>
+                    <View style={{flex: 1}}>
+                      <Text
+                        style={{
+                          fontFamily: 'Inter-Regular',
+                          marginLeft: 5,
+                        }}>
+                        Delivery Date :
+                      </Text>
+                    </View>
+                    <View style={{flex: 2}}>
                       <TouchableOpacity
                         onPress={() => this.showDatePickerDeliveryDate()}
                         style={{
-                          width: wp('90%'),
                           padding: Platform.OS === 'ios' ? 15 : 5,
                           flexDirection: 'row',
                           justifyContent: 'space-between',
@@ -963,20 +995,22 @@ class ViewPendingDelivery extends Component {
                   <View
                     style={{
                       marginBottom: hp('3%'),
+                      flexDirection: 'row',
+                      alignItems: 'center',
                     }}>
-                    <Text
-                      style={{
-                        marginBottom: hp('3%'),
-                        fontFamily: 'Inter-Regular',
-                        marginLeft: 5,
-                      }}>
-                      Arrived Date :
-                    </Text>
-                    <View style={{}}>
+                    <View style={{flex: 1}}>
+                      <Text
+                        style={{
+                          fontFamily: 'Inter-Regular',
+                          marginLeft: 5,
+                        }}>
+                        Arrived Date :
+                      </Text>
+                    </View>
+                    <View style={{flex: 2}}>
                       <TouchableOpacity
                         onPress={() => this.showDatePickerArrivalDate()}
                         style={{
-                          width: wp('90%'),
                           padding: Platform.OS === 'ios' ? 15 : 5,
                           flexDirection: 'row',
                           justifyContent: 'space-between',
@@ -1011,263 +1045,327 @@ class ViewPendingDelivery extends Component {
                     </View>
                   </View>
 
-                  <View style={{marginBottom: hp('3%')}}>
-                    <Text
-                      style={{
-                        marginBottom: hp('3%'),
-                        fontFamily: 'Inter-Regular',
-                        marginLeft: 5,
-                      }}>
-                      Order reference :
-                    </Text>
-                    <TextInput
-                      placeholder="Order reference"
-                      value={pageData.orderReference}
-                      editable={false}
-                      style={{
-                        padding: 14,
-                        justifyContent: 'space-between',
-                        elevation: 3,
-                        shadowOpacity: 2.0,
-                        shadowColor: 'rgba(0, 0, 0, 0.05)',
-                        shadowOffset: {
-                          width: 2,
-                          height: 2,
-                        },
-                        shadowRadius: 10,
-                        borderRadius: 5,
-                        backgroundColor: '#E9ECEF',
-                        borderWidth: 0.2,
-                      }}
-                    />
+                  <View
+                    style={{
+                      marginBottom: hp('3%'),
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                    }}>
+                    <View style={{flex: 1}}>
+                      <Text
+                        style={{
+                          fontFamily: 'Inter-Regular',
+                          marginLeft: 5,
+                        }}>
+                        Order reference :
+                      </Text>
+                    </View>
+                    <View style={{flex: 2}}>
+                      <TextInput
+                        placeholder="Order reference"
+                        value={pageData.orderReference}
+                        editable={false}
+                        style={{
+                          padding: 14,
+                          justifyContent: 'space-between',
+                          elevation: 3,
+                          shadowOpacity: 2.0,
+                          shadowColor: 'rgba(0, 0, 0, 0.05)',
+                          shadowOffset: {
+                            width: 2,
+                            height: 2,
+                          },
+                          shadowRadius: 10,
+                          borderRadius: 5,
+                          backgroundColor: '#E9ECEF',
+                          borderWidth: 0.2,
+                        }}
+                      />
+                    </View>
                   </View>
-                  <View style={{marginBottom: hp('3%')}}>
-                    <Text
-                      style={{
-                        marginBottom: hp('3%'),
-                        fontFamily: 'Inter-Regular',
-                        marginLeft: 5,
-                      }}>
-                      Invoice number :
-                    </Text>
-                    <TextInput
-                      placeholder="Invoice number"
-                      value={pageInvoiceNumber}
-                      style={{
-                        padding: 14,
-                        justifyContent: 'space-between',
-                        elevation: 3,
-                        shadowOpacity: 2.0,
-                        shadowColor: 'rgba(0, 0, 0, 0.05)',
-                        shadowOffset: {
-                          width: 2,
-                          height: 2,
-                        },
-                        shadowRadius: 10,
-                        borderRadius: 5,
-                        backgroundColor: '#fff',
-                      }}
-                      onChangeText={value =>
-                        this.setState({
-                          pageInvoiceNumber: value,
-                        })
-                      }
-                    />
+                  <View
+                    style={{
+                      marginBottom: hp('3%'),
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                    }}>
+                    <View style={{flex: 1}}>
+                      <Text
+                        style={{
+                          fontFamily: 'Inter-Regular',
+                          marginLeft: 5,
+                        }}>
+                        Invoice number :
+                      </Text>
+                    </View>
+                    <View style={{flex: 2}}>
+                      <TextInput
+                        placeholder="Invoice number"
+                        value={pageInvoiceNumber}
+                        style={{
+                          padding: 14,
+                          justifyContent: 'space-between',
+                          elevation: 3,
+                          shadowOpacity: 2.0,
+                          shadowColor: 'rgba(0, 0, 0, 0.05)',
+                          shadowOffset: {
+                            width: 2,
+                            height: 2,
+                          },
+                          shadowRadius: 10,
+                          borderRadius: 5,
+                          backgroundColor: '#fff',
+                        }}
+                        onChangeText={value =>
+                          this.setState({
+                            pageInvoiceNumber: value,
+                          })
+                        }
+                      />
+                    </View>
                   </View>
-                  <View style={{marginBottom: hp('3%')}}>
-                    <Text
-                      style={{
-                        marginBottom: hp('3%'),
-                        fontFamily: 'Inter-Regular',
-                        marginLeft: 5,
-                      }}>
-                      Delivery note reference :
-                    </Text>
-                    <TextInput
-                      placeholder="Delivery note reference"
-                      value={pageDeliveryNoteReference}
-                      style={{
-                        padding: 14,
-                        justifyContent: 'space-between',
-                        elevation: 3,
-                        shadowOpacity: 2.0,
-                        shadowColor: 'rgba(0, 0, 0, 0.05)',
-                        shadowOffset: {
-                          width: 2,
-                          height: 2,
-                        },
-                        shadowRadius: 10,
-                        borderRadius: 5,
-                        backgroundColor: '#fff',
-                      }}
-                      onChangeText={value =>
-                        this.setState({
-                          pageDeliveryNoteReference: value,
-                        })
-                      }
-                    />
+                  <View
+                    style={{
+                      marginBottom: hp('3%'),
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                    }}>
+                    <View style={{flex: 1}}>
+                      <Text
+                        style={{
+                          fontFamily: 'Inter-Regular',
+                          marginLeft: 5,
+                        }}>
+                        Delivery note reference :
+                      </Text>
+                    </View>
+                    <View style={{flex: 2}}>
+                      <TextInput
+                        placeholder="Delivery note reference"
+                        value={pageDeliveryNoteReference}
+                        style={{
+                          padding: 14,
+                          justifyContent: 'space-between',
+                          elevation: 3,
+                          shadowOpacity: 2.0,
+                          shadowColor: 'rgba(0, 0, 0, 0.05)',
+                          shadowOffset: {
+                            width: 2,
+                            height: 2,
+                          },
+                          shadowRadius: 10,
+                          borderRadius: 5,
+                          backgroundColor: '#fff',
+                        }}
+                        onChangeText={value =>
+                          this.setState({
+                            pageDeliveryNoteReference: value,
+                          })
+                        }
+                      />
+                    </View>
                   </View>
-                  <View style={{marginBottom: hp('3%')}}>
-                    <Text
-                      style={{
-                        marginBottom: hp('3%'),
-                        fontFamily: 'Inter-Regular',
-                        marginLeft: 5,
-                      }}>
-                      Ambient Temperature :
-                    </Text>
-                    <TextInput
-                      placeholder="Ambient Temperature"
-                      value={pageAmbientTemp && String(pageAmbientTemp)}
-                      style={{
-                        padding: 14,
-                        justifyContent: 'space-between',
-                        elevation: 3,
-                        shadowOpacity: 2.0,
-                        shadowColor: 'rgba(0, 0, 0, 0.05)',
-                        shadowOffset: {
-                          width: 2,
-                          height: 2,
-                        },
-                        shadowRadius: 10,
-                        borderRadius: 5,
-                        backgroundColor: '#fff',
-                      }}
-                      onChangeText={value =>
-                        this.setState({
-                          pageAmbientTemp: value,
-                        })
-                      }
-                    />
+                  <View
+                    style={{
+                      marginBottom: hp('3%'),
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                    }}>
+                    <View style={{flex: 1}}>
+                      <Text
+                        style={{
+                          fontFamily: 'Inter-Regular',
+                          marginLeft: 5,
+                        }}>
+                        Ambient Temperature :
+                      </Text>
+                    </View>
+                    <View style={{flex: 2}}>
+                      <TextInput
+                        placeholder="Ambient Temperature"
+                        value={pageAmbientTemp && String(pageAmbientTemp)}
+                        style={{
+                          padding: 14,
+                          justifyContent: 'space-between',
+                          elevation: 3,
+                          shadowOpacity: 2.0,
+                          shadowColor: 'rgba(0, 0, 0, 0.05)',
+                          shadowOffset: {
+                            width: 2,
+                            height: 2,
+                          },
+                          shadowRadius: 10,
+                          borderRadius: 5,
+                          backgroundColor: '#fff',
+                        }}
+                        onChangeText={value =>
+                          this.setState({
+                            pageAmbientTemp: value,
+                          })
+                        }
+                      />
+                    </View>
                   </View>
-                  <View style={{marginBottom: hp('3%')}}>
-                    <Text
-                      style={{
-                        marginBottom: hp('3%'),
-                        fontFamily: 'Inter-Regular',
-                        marginLeft: 5,
-                      }}>
-                      Chilled Temperature :
-                    </Text>
-                    <TextInput
-                      placeholder="Chilled Temperature"
-                      value={pageChilledTemp && String(pageChilledTemp)}
-                      style={{
-                        padding: 14,
-                        justifyContent: 'space-between',
-                        elevation: 3,
-                        shadowOpacity: 2.0,
-                        shadowColor: 'rgba(0, 0, 0, 0.05)',
-                        shadowOffset: {
-                          width: 2,
-                          height: 2,
-                        },
-                        shadowRadius: 10,
-                        borderRadius: 5,
-                        backgroundColor: '#fff',
-                      }}
-                      onChangeText={value =>
-                        this.setState({
-                          pageChilledTemp: value,
-                        })
-                      }
-                    />
+                  <View
+                    style={{
+                      marginBottom: hp('3%'),
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                    }}>
+                    <View style={{flex: 1}}>
+                      <Text
+                        style={{
+                          fontFamily: 'Inter-Regular',
+                          marginLeft: 5,
+                        }}>
+                        Chilled Temperature :
+                      </Text>
+                    </View>
+                    <View style={{flex: 2}}>
+                      <TextInput
+                        placeholder="Chilled Temperature"
+                        value={pageChilledTemp && String(pageChilledTemp)}
+                        style={{
+                          padding: 14,
+                          justifyContent: 'space-between',
+                          elevation: 3,
+                          shadowOpacity: 2.0,
+                          shadowColor: 'rgba(0, 0, 0, 0.05)',
+                          shadowOffset: {
+                            width: 2,
+                            height: 2,
+                          },
+                          shadowRadius: 10,
+                          borderRadius: 5,
+                          backgroundColor: '#fff',
+                        }}
+                        onChangeText={value =>
+                          this.setState({
+                            pageChilledTemp: value,
+                          })
+                        }
+                      />
+                    </View>
                   </View>
-                  <View style={{marginBottom: hp('3%')}}>
-                    <Text
-                      style={{
-                        marginBottom: hp('3%'),
-                        fontFamily: 'Inter-Regular',
-                        marginLeft: 5,
-                      }}>
-                      Frozen Temperature :
-                    </Text>
-                    <TextInput
-                      placeholder="Frozen Temperature"
-                      value={pageFrozenTemp && String(pageFrozenTemp)}
-                      style={{
-                        padding: 14,
-                        justifyContent: 'space-between',
-                        elevation: 3,
-                        shadowOpacity: 2.0,
-                        shadowColor: 'rgba(0, 0, 0, 0.05)',
-                        shadowOffset: {
-                          width: 2,
-                          height: 2,
-                        },
-                        shadowRadius: 10,
-                        borderRadius: 5,
-                        backgroundColor: '#fff',
-                      }}
-                      onChangeText={value =>
-                        this.setState({
-                          pageFrozenTemp: value,
-                        })
-                      }
-                    />
+                  <View
+                    style={{
+                      marginBottom: hp('3%'),
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                    }}>
+                    <View style={{flex: 1}}>
+                      <Text
+                        style={{
+                          fontFamily: 'Inter-Regular',
+                          marginLeft: 5,
+                        }}>
+                        Frozen Temperature :
+                      </Text>
+                    </View>
+                    <View style={{flex: 2}}>
+                      <TextInput
+                        placeholder="Frozen Temperature"
+                        value={pageFrozenTemp && String(pageFrozenTemp)}
+                        style={{
+                          padding: 14,
+                          justifyContent: 'space-between',
+                          elevation: 3,
+                          shadowOpacity: 2.0,
+                          shadowColor: 'rgba(0, 0, 0, 0.05)',
+                          shadowOffset: {
+                            width: 2,
+                            height: 2,
+                          },
+                          shadowRadius: 10,
+                          borderRadius: 5,
+                          backgroundColor: '#fff',
+                        }}
+                        onChangeText={value =>
+                          this.setState({
+                            pageFrozenTemp: value,
+                          })
+                        }
+                      />
+                    </View>
                   </View>
-                  <View style={{marginBottom: hp('3%')}}>
-                    <Text
-                      style={{
-                        marginBottom: hp('3%'),
-                        fontFamily: 'Inter-Regular',
-                        marginLeft: 5,
-                      }}>
-                      Notes :
-                    </Text>
-                    <TextInput
-                      placeholder="Notes"
-                      value={pageNotes}
-                      style={{
-                        padding: 14,
-                        justifyContent: 'space-between',
-                        elevation: 3,
-                        shadowOpacity: 2.0,
-                        shadowColor: 'rgba(0, 0, 0, 0.05)',
-                        shadowOffset: {
-                          width: 2,
-                          height: 2,
-                        },
-                        shadowRadius: 10,
-                        borderRadius: 5,
-                        backgroundColor: '#fff',
-                      }}
-                      onChangeText={value =>
-                        this.setState({
-                          pageNotes: value,
-                        })
-                      }
-                    />
+                  <View
+                    style={{
+                      marginBottom: hp('3%'),
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                    }}>
+                    <View style={{flex: 1}}>
+                      <Text
+                        style={{
+                          fontFamily: 'Inter-Regular',
+                          marginLeft: 5,
+                        }}>
+                        Notes :
+                      </Text>
+                    </View>
+                    <View style={{flex: 2}}>
+                      <TextInput
+                        placeholder="Notes"
+                        value={pageNotes}
+                        style={{
+                          padding: 14,
+                          justifyContent: 'space-between',
+                          elevation: 3,
+                          shadowOpacity: 2.0,
+                          shadowColor: 'rgba(0, 0, 0, 0.05)',
+                          shadowOffset: {
+                            width: 2,
+                            height: 2,
+                          },
+                          shadowRadius: 10,
+                          borderRadius: 5,
+                          backgroundColor: '#fff',
+                        }}
+                        onChangeText={value =>
+                          this.setState({
+                            pageNotes: value,
+                          })
+                        }
+                      />
+                    </View>
                   </View>
-                  <View style={{marginBottom: hp('3%')}}>
-                    <Text
-                      style={{
-                        marginBottom: hp('3%'),
-                        fontFamily: 'Inter-Regular',
-                        marginLeft: 5,
-                      }}>
-                      Placed by :
-                    </Text>
-                    <TextInput
-                      placeholder="Placed by"
-                      value={pageData.placedByNAme}
-                      editable={false}
-                      style={{
-                        padding: 14,
-                        justifyContent: 'space-between',
-                        elevation: 3,
-                        shadowOpacity: 2.0,
-                        shadowColor: 'rgba(0, 0, 0, 0.05)',
-                        shadowOffset: {
-                          width: 2,
-                          height: 2,
-                        },
-                        shadowRadius: 10,
-                        borderRadius: 5,
-                        backgroundColor: '#E9ECEF',
-                        borderWidth: 0.2,
-                      }}
-                    />
+                  <View
+                    style={{
+                      marginBottom: hp('3%'),
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                    }}>
+                    <View style={{flex: 1}}>
+                      <Text
+                        style={{
+                          fontFamily: 'Inter-Regular',
+                          marginLeft: 5,
+                        }}>
+                        Placed by :
+                      </Text>
+                    </View>
+                    <View style={{flex: 2}}>
+                      <TextInput
+                        placeholder="Placed by"
+                        value={pageData.placedByNAme}
+                        editable={false}
+                        style={{
+                          padding: 14,
+                          justifyContent: 'space-between',
+                          elevation: 3,
+                          shadowOpacity: 2.0,
+                          shadowColor: 'rgba(0, 0, 0, 0.05)',
+                          shadowOffset: {
+                            width: 2,
+                            height: 2,
+                          },
+                          shadowRadius: 10,
+                          borderRadius: 5,
+                          backgroundColor: '#E9ECEF',
+                          borderWidth: 0.2,
+                        }}
+                      />
+                    </View>
                   </View>
                 </View>
 
