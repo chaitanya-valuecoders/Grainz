@@ -108,7 +108,7 @@ class HistoryStock extends Component {
       .then(res => {
         let finalUsersList = res.data.map((item, index) => {
           return {
-            label: moment(item).format('MM/DD/YYYY'),
+            label: moment(item).format('DD/MM/YYYY'),
             value: moment(item).format('MM/DD/YYYY'),
           };
         });
@@ -138,9 +138,11 @@ class HistoryStock extends Component {
   };
 
   selectDateFun = value => {
-    this.setState({
-      historyDate: value,
-    });
+    if (value) {
+      this.setState({
+        historyDate: value,
+      });
+    }
   };
 
   getDataFun = () => {

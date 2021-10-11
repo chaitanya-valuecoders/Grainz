@@ -105,7 +105,6 @@ class EditStock extends Component {
         item.units.map((item, index) => {
           return {
             action: 'New',
-            // convertor: item.converter,
             id: null,
             inventoryId: item.inventoryId,
             isDefault: item.isDefault,
@@ -114,8 +113,7 @@ class EditStock extends Component {
             stockTakeDate: pageDate,
             unit: item.name,
             unitId: item.id,
-            createdBy: '',
-            converter: item.converter,
+            convertor: item.converter,
           };
         });
 
@@ -163,7 +161,6 @@ class EditStock extends Component {
         item.units.map((item, index) => {
           return {
             action: 'New',
-            // convertor: item.converter,
             id: null,
             inventoryId: item.inventoryId,
             isDefault: item.isDefault,
@@ -306,7 +303,7 @@ class EditStock extends Component {
       index === i
         ? {
             ...item,
-            [type]: value,
+            [type]: Number(value),
           }
         : item,
     );
@@ -339,6 +336,7 @@ class EditStock extends Component {
     });
 
     let payload = finalArrSec;
+    console.log('PAYLOAD', payload);
     addStockTakeApi(payload)
       .then(res => {
         this.setState(
@@ -437,6 +435,10 @@ class EditStock extends Component {
                                 <Text>{translate('Unit')}</Text>
                               </View>
 
+                              {/* <View style={styles.headingSubContainer}>
+                                <Text>{translate('Inventory')}</Text>
+                              </View> */}
+
                               <View style={styles.headingSubContainer}>
                                 {screenType === 'New' && deleteStatus ? (
                                   <Text>{translate('Action')}</Text>
@@ -446,6 +448,7 @@ class EditStock extends Component {
                             <View>
                               {modalData && modalData.length > 0 ? (
                                 modalData.map((item, index) => {
+                                  console.log('item', item);
                                   return (
                                     <View
                                       style={{
@@ -508,6 +511,27 @@ class EditStock extends Component {
                                           value={item.unit}
                                         />
                                       </View>
+                                      {/* <View
+                                        style={{
+                                          width: wp('30%'),
+                                          alignItems: 'center',
+                                        }}>
+                                        <TextInput
+                                          editable={false}
+                                          returnKeyType="done"
+                                          style={{
+                                            paddingVertical: 8,
+                                            borderColor: '#00000033',
+                                            borderWidth: 1,
+                                            width: wp('20%'),
+                                            paddingLeft: 10,
+                                            backgroundColor: '#E9ECEF',
+                                          }}
+                                          numberOfLines={1}
+                                          keyboardType="numeric"
+                                          value={item.unit}
+                                        />
+                                      </View> */}
 
                                       {screenType === 'New' && deleteStatus ? (
                                         <TouchableOpacity

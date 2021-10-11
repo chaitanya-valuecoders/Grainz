@@ -113,6 +113,12 @@ const styles = StyleSheet.create({
     marginHorizontal: wp('5%'),
   },
   boxSize: {width: wp('25%'), justifyContent: 'center', paddingTop: 10},
+  boxSizeNew: {
+    width: wp('25%'),
+    paddingTop: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   boxSizeSec: {width: wp('25%'), justifyContent: 'center'},
   boxTextHeadingStyling: {
     fontSize: 14,
@@ -284,6 +290,12 @@ const styles = StyleSheet.create({
   headingSubContainer: {
     width: wp('30%'),
     alignItems: 'center',
+  },
+  listImageStyling: {
+    width: 10,
+    height: 10,
+    resizeMode: 'contain',
+    marginLeft: 5,
   },
 });
 export default styles;

@@ -610,7 +610,7 @@ class AddItems extends Component {
                 }}>
                 <RNPickerSelect
                   placeholder={{
-                    label: 'Select Department*',
+                    label: 'All',
                     value: null,
                     color: 'black',
                   }}

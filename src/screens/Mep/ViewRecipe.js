@@ -241,37 +241,53 @@ class ViewRecipe extends Component {
                               paddingVertical: 15,
                               paddingHorizontal: 5,
                               flexDirection: 'row',
-                              justifyContent: 'space-between',
                               backgroundColor: '#EFFBCF',
                             }}>
                             <View
                               style={{
-                                width: wp('30%'),
+                                width: wp('25%'),
                                 alignItems: 'center',
                               }}>
-                              <Text style={{textAlign: 'center'}}>
+                              <Text
+                                style={{
+                                  textAlign: 'center',
+                                  fontSize: 12,
+                                  fontFamily: 'Inter-SemiBold',
+                                }}>
                                 Ingredient
                               </Text>
                             </View>
                             <View
                               style={{
-                                width: wp('30%'),
+                                width: wp('25%'),
                                 alignItems: 'center',
                               }}>
-                              <Text>{translate('Quantity')}</Text>
+                              <Text
+                                style={{
+                                  fontSize: 12,
+                                  fontFamily: 'Inter-SemiBold',
+                                }}>
+                                {translate('Quantity')}
+                              </Text>
                             </View>
                             <View
                               style={{
-                                width: wp('30%'),
+                                width: wp('25%'),
                                 alignItems: 'center',
                               }}>
-                              <Text>Custom</Text>
+                              <Text
+                                style={{
+                                  fontSize: 12,
+                                  fontFamily: 'Inter-SemiBold',
+                                }}>
+                                Custom
+                              </Text>
                             </View>
-                            <View
+                            {/* <View
                               style={{
                                 width: wp('15%'),
                                 alignItems: 'center',
-                              }}></View>
+                              }}></View> */}
                           </View>
                           <View>
                             {modalData && modalData.length > 0 ? (
@@ -287,25 +303,31 @@ class ViewRecipe extends Component {
                                     }}>
                                     <View
                                       style={{
-                                        width: wp('30%'),
+                                        width: wp('25%'),
                                         alignItems: 'center',
                                         justifyContent: 'center',
                                       }}>
-                                      <Text style={{textAlign: 'center'}}>
+                                      <Text
+                                        style={{
+                                          textAlign: 'center',
+                                          fontSize: 12,
+                                        }}>
                                         {item.name}
                                       </Text>
                                     </View>
                                     <View
                                       style={{
-                                        width: wp('30%'),
+                                        width: wp('25%'),
                                         alignItems: 'center',
                                         justifyContent: 'center',
                                       }}>
-                                      <Text>{item.quantity} g</Text>
+                                      <Text style={{fontSize: 12}}>
+                                        {item.quantity} g
+                                      </Text>
                                     </View>
                                     <View
                                       style={{
-                                        width: wp('30%'),
+                                        width: wp('25%'),
                                         alignItems: 'center',
                                       }}>
                                       <TextInput
@@ -313,7 +335,7 @@ class ViewRecipe extends Component {
                                         style={{borderWidth: 0.8, padding: 8}}
                                       />
                                     </View>
-                                    <TouchableOpacity
+                                    {/* <TouchableOpacity
                                       onPress={() =>
                                         this.viewInventoryFun(item, index)
                                       }
@@ -334,7 +356,7 @@ class ViewRecipe extends Component {
                                           resizeMode: 'contain',
                                         }}
                                       />
-                                    </TouchableOpacity>
+                                    </TouchableOpacity> */}
                                   </View>
                                 );
                               })
@@ -351,12 +373,11 @@ class ViewRecipe extends Component {
                               paddingVertical: 15,
                               paddingHorizontal: 5,
                               flexDirection: 'row',
-                              justifyContent: 'space-between',
                               backgroundColor: '#EFFBCF',
                             }}>
                             <View
                               style={{
-                                width: wp('30%'),
+                                width: wp('25%'),
                                 alignItems: 'center',
                                 justifyContent: 'center',
                               }}>
@@ -364,13 +385,14 @@ class ViewRecipe extends Component {
                                 style={{
                                   textAlign: 'center',
                                   fontFamily: 'Inter-SemiBold',
+                                  fontSize: 12,
                                 }}>
                                 Total
                               </Text>
                             </View>
                             <View
                               style={{
-                                width: wp('30%'),
+                                width: wp('25%'),
                                 alignItems: 'center',
                                 justifyContent: 'center',
                               }}>
@@ -378,13 +400,14 @@ class ViewRecipe extends Component {
                                 style={{
                                   textAlign: 'center',
                                   fontFamily: 'Inter-SemiBold',
+                                  fontSize: 12,
                                 }}>
                                 {batchQuantity} g
                               </Text>
                             </View>
                             <View
                               style={{
-                                width: wp('30%'),
+                                width: wp('25%'),
                                 alignItems: 'center',
                               }}>
                               <TextInput
@@ -392,11 +415,6 @@ class ViewRecipe extends Component {
                                 style={{borderWidth: 0.8, padding: 8}}
                               />
                             </View>
-                            <View
-                              style={{
-                                width: wp('15%'),
-                                alignItems: 'center',
-                              }}></View>
                           </View>
                         </View>
                       </ScrollView>
@@ -447,7 +465,7 @@ class ViewRecipe extends Component {
                   </Text>
                 </View>
               </View>
-              <View>
+              {/* <View>
                 <View
                   style={{
                     marginTop: hp('2%'),
@@ -495,7 +513,7 @@ class ViewRecipe extends Component {
                     </Text>
                   </TouchableOpacity>
                 </View>
-              </View>
+              </View> */}
             </ScrollView>
           </View>
         </ScrollView>

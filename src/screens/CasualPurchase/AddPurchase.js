@@ -44,6 +44,7 @@ minTime.setMinutes(0);
 minTime.setMilliseconds(0);
 
 let todayDate = moment(new Date()).format('DD-MM-YY');
+let todayDateProd = moment.utc(new Date()).format();
 
 class index extends Component {
   constructor(props) {
@@ -53,7 +54,7 @@ class index extends Component {
       isDatePickerVisible: false,
       finalDate: todayDate,
       placeHolderTextDept: 'Select Supplier',
-      productionDate: '',
+      productionDate: todayDateProd,
       htvaIsSelected: true,
       auditIsSelected: false,
       note: '',
@@ -344,9 +345,7 @@ class index extends Component {
         () =>
           addOrderApi(payload)
             .then(res => {
-              Alert.alert('Grainz', 'Order added successfully', [
-                {text: 'OK', onPress: () => this.props.navigation.goBack()},
-              ]);
+              this.props.navigation.goBack();
             })
             .catch(err => {
               this.setState({
@@ -515,8 +514,11 @@ class index extends Component {
       dataListLoader,
       placeHolderTextDept,
       selectedTextUser,
+      supplierId,
+      productionDate,
+      departmentName,
+      selectedItemObjects,
     } = this.state;
-    console.log('SUUU', supplierList);
     return (
       <View style={styles.container}>
         <Header
@@ -590,7 +592,7 @@ class index extends Component {
                     mode={'date'}
                     onConfirm={this.handleConfirm}
                     onCancel={this.hideDatePicker}
-                    minimumDate={minTime}
+                    // minimumDate={minTime}
                   />
 
                   <View style={{marginBottom: hp('3%')}}>
@@ -1029,31 +1031,63 @@ class index extends Component {
                         justifyContent: 'center',
                         marginTop: hp('3%'),
                       }}>
-                      <TouchableOpacity
-                        disabled={saveTouchableStatus}
-                        onPress={() => this.createOrder()}
-                        style={{
-                          width: wp('30%'),
-                          height: hp('5%'),
-                          alignSelf: 'flex-end',
-                          backgroundColor: '#94C036',
-                          justifyContent: 'center',
-                          alignItems: 'center',
-                          borderRadius: 100,
-                        }}>
-                        <Text
+                      {supplierId === '' ||
+                      productionDate === '' ||
+                      departmentName === '' ||
+                      orderItemsFinal[0].quantityOrdered === '' ||
+                      orderItemsFinal[0].unitPrice === '' ||
+                      selectedItemObjects === '' ? (
+                        <View
+                          opacity={0.5}
                           style={{
-                            color: '#fff',
-                            fontSize: 15,
-                            fontWeight: 'bold',
+                            width: wp('30%'),
+                            height: hp('5%'),
+                            alignSelf: 'flex-end',
+                            backgroundColor: '#94C036',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            borderRadius: 100,
                           }}>
-                          {saveLoader ? (
-                            <ActivityIndicator size="small" color="#fff" />
-                          ) : (
-                            translate('Save')
-                          )}
-                        </Text>
-                      </TouchableOpacity>
+                          <Text
+                            style={{
+                              color: '#fff',
+                              fontSize: 15,
+                              fontWeight: 'bold',
+                            }}>
+                            {saveLoader ? (
+                              <ActivityIndicator size="small" color="#fff" />
+                            ) : (
+                              translate('Save')
+                            )}
+                          </Text>
+                        </View>
+                      ) : (
+                        <TouchableOpacity
+                          disabled={saveTouchableStatus}
+                          onPress={() => this.createOrder()}
+                          style={{
+                            width: wp('30%'),
+                            height: hp('5%'),
+                            alignSelf: 'flex-end',
+                            backgroundColor: '#94C036',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            borderRadius: 100,
+                          }}>
+                          <Text
+                            style={{
+                              color: '#fff',
+                              fontSize: 15,
+                              fontWeight: 'bold',
+                            }}>
+                            {saveLoader ? (
+                              <ActivityIndicator size="small" color="#fff" />
+                            ) : (
+                              translate('Save')
+                            )}
+                          </Text>
+                        </TouchableOpacity>
+                      )}
                       <TouchableOpacity
                         onPress={() => this.props.navigation.goBack()}
                         style={{

@@ -156,7 +156,7 @@ class HistoryData extends Component {
             </View>
             <View
               style={{
-                width: wp('40'),
+                width: wp('25'),
                 justifyContent: 'center',
                 paddingTop: 10,
                 marginLeft: wp('2%'),
@@ -168,7 +168,7 @@ class HistoryData extends Component {
             </View>
             <View
               style={{
-                width: wp('10%'),
+                width: wp('7%'),
                 justifyContent: 'center',
                 paddingTop: 10,
                 marginLeft: wp('2%'),
@@ -183,6 +183,14 @@ class HistoryData extends Component {
             <ScrollView nestedScrollEnabled>
               {section && section.children.length > 0 ? (
                 section.children.map((item, index) => {
+                  let finaUnitVal =
+                    item &&
+                    item.units.map((subItem, subIndex) => {
+                      if (subItem.isDefault === true) {
+                        return subItem.name;
+                      }
+                    });
+                  const filteredUnit = finaUnitVal.filter(elm => elm);
                   return (
                     <View
                       key={index}
@@ -197,13 +205,20 @@ class HistoryData extends Component {
                           </Text>
                         </View>
                         <View
-                          style={{...styles.boxSizeSec, marginLeft: wp('2%')}}>
-                          <Text
-                            style={styles.boxTextDataStyling}
-                            numberOfLines={1}>
-                            {item.systemSays && item.systemSays.toFixed(2)}{' '}
-                            {item.unit}
-                          </Text>
+                          style={{
+                            width: wp('25'),
+                            justifyContent: 'center',
+                            paddingTop: 10,
+                            marginLeft: wp('2%'),
+                          }}>
+                          {item.systemSays ? (
+                            <Text
+                              style={styles.boxTextDataStyling}
+                              numberOfLines={1}>
+                              {item.systemSays && item.systemSays.toFixed(2)}{' '}
+                              {item.unit}
+                            </Text>
+                          ) : null}
                         </View>
                         <TouchableOpacity
                           onPress={() => this.editUnitsFun(item)}
@@ -223,7 +238,7 @@ class HistoryData extends Component {
                         </TouchableOpacity>
                         <View
                           style={{
-                            width: wp('10%'),
+                            width: wp('7%'),
                             alignItems: 'center',
                             justifyContent: 'center',
                             marginLeft: wp('2%'),
@@ -234,15 +249,21 @@ class HistoryData extends Component {
                               color: '#161C27',
                               fontFamily: 'Inter-Regular',
                             }}>
-                            {item.unit}
+                            {filteredUnit[0]}
                           </Text>
                         </View>
 
                         <View
                           style={{...styles.boxSizeSec, marginLeft: wp('2%')}}>
-                          <Text style={styles.boxTextDataStyling}>
-                            {item.correction} {item.unit}
-                          </Text>
+                          {item.correction ? (
+                            <Text
+                              style={{
+                                ...styles.boxTextDataStyling,
+                                color: item.correction > 0 ? '#94C01F' : 'red',
+                              }}>
+                              {item.correction} {filteredUnit[0]}
+                            </Text>
+                          ) : null}
                         </View>
                       </View>
                     </View>

@@ -681,7 +681,7 @@ class InventoryList extends Component {
                 <View style={{flexDirection: 'row', alignItems: 'center'}}>
                   <View
                     style={{
-                      width: wp('40%'),
+                      width: wp('30%'),
                       flexDirection: 'row',
                       alignItems: 'center',
                       justifyContent: 'flex-start',
@@ -698,7 +698,7 @@ class InventoryList extends Component {
                       }
                       style={{
                         backgroundColor: '#ED3833',
-                        width: 30,
+                        width: 25,
                         padding: 10,
                         alignItems: 'center',
                         marginRight: 2,
@@ -720,7 +720,7 @@ class InventoryList extends Component {
                         borderWidth: 1,
                         borderRadius: 5,
                         padding: 10,
-                        width: wp('15%'),
+                        width: wp('10%'),
                       }}
                     />
                     <TouchableOpacity
@@ -735,7 +735,7 @@ class InventoryList extends Component {
                       }
                       style={{
                         backgroundColor: '#94C036',
-                        width: 30,
+                        width: 25,
                         padding: 10,
                         alignItems: 'center',
                         marginLeft: 2,
@@ -749,13 +749,12 @@ class InventoryList extends Component {
                       </Text>
                     </TouchableOpacity>
                   </View>
-                  <View style={{marginLeft: wp('2%'), width: wp('40%')}}>
+                  <View style={{width: wp('25%')}}>
                     <TouchableOpacity
                       onPress={() => this.openModalFun(item)}
                       style={{
-                        width: wp('30%'),
-                        marginLeft: wp('5%'),
-                        justifyContent: 'center',
+                        width: wp('25%'),
+                        marginLeft: wp('3%'),
                       }}>
                       <Text>{item.productName}</Text>
                       {item.deltaNew > 0 ? (
@@ -779,9 +778,9 @@ class InventoryList extends Component {
                   </View>
                   <View
                     style={{
-                      width: wp('30%'),
-                      marginLeft: wp('5%'),
+                      width: wp('25%'),
                       justifyContent: 'center',
+                      marginLeft: wp('6%'),
                     }}>
                     <Text>
                       {item.comparePrice} / {item.compareUnit}

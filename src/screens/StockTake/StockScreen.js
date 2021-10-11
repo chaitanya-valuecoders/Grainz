@@ -48,6 +48,7 @@ class StockScreen extends Component {
       selectedIndex: '',
       modalLoader: false,
       modalData: [],
+      arrangeStatusName: 0,
     };
   }
 
@@ -207,6 +208,66 @@ class StockScreen extends Component {
     }
   };
 
+  arrangeListFun = funType => {
+    if (funType === 'NAME') {
+      this.setState(
+        {
+          arrangeStatusName: Number(1) + this.state.arrangeStatusName,
+        },
+        () => this.arrangeListFunSec('NAME'),
+      );
+    }
+  };
+
+  arrangeListFunSec = type => {
+    const {arrangeStatusName} = this.state;
+    const finalData = type === 'NAME' ? arrangeStatusName : null;
+    if (finalData % 2 == 0) {
+      this.reverseFun();
+    } else {
+      this.descendingOrderFun(type);
+    }
+  };
+
+  reverseFun = () => {
+    const {catArray} = this.state;
+    const finalData = catArray.reverse();
+
+    this.setState({
+      catArray: finalData,
+    });
+  };
+
+  descendingOrderFun = type => {
+    const {catArray} = this.state;
+
+    if (type === 'NAME') {
+      function dynamicSort(property) {
+        var sortOrder = 1;
+
+        if (property[0] === '-') {
+          sortOrder = -1;
+          property = property.substr(1);
+        }
+
+        return function (a, b) {
+          if (sortOrder == -1) {
+            return b[property].localeCompare(a[property]);
+          } else {
+            return a[property].localeCompare(b[property]);
+          }
+        };
+      }
+      const finalKeyValue = type === 'NAME' ? 'name' : null;
+
+      const finalData = catArray.sort(dynamicSort(finalKeyValue));
+
+      this.setState({
+        catArray: finalData,
+      });
+    }
+  };
+
   render() {
     const {
       buttonsSubHeader,
@@ -314,8 +375,16 @@ class StockScreen extends Component {
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             <View style={styles.renderContentContainer}>
               <View style={styles.renderContentSubContainer}>
-                <View style={styles.boxSize}>
+                <View style={styles.boxSizeNew}>
                   <Text style={styles.boxTextHeadingStyling}>Name</Text>
+                  <TouchableOpacity
+                    style={{padding: 5}}
+                    onPress={() => this.arrangeListFun('NAME')}>
+                    <Image
+                      style={styles.listImageStyling}
+                      source={img.doubleArrowIconNew}
+                    />
+                  </TouchableOpacity>
                 </View>
                 <View
                   style={{
@@ -341,6 +410,7 @@ class StockScreen extends Component {
                 <ScrollView nestedScrollEnabled>
                   {catArray && catArray.length > 0 ? (
                     catArray.map((item, index) => {
+                      console.log('item', item);
                       let finaUnitVal =
                         item &&
                         item.units.map((subItem, subIndex) => {

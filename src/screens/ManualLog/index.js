@@ -61,9 +61,9 @@ class index extends Component {
       sectionData: {},
       isMakeMeStatus: true,
       isDatePickerVisible: false,
-      finalDate: '',
+      finalDate: moment(new Date()).format('L'),
       itemsTypesArr: [],
-      productionDate: '',
+      productionDate: moment.utc(new Date()).format(),
       detailsLoader: false,
       quantity: '',
       notes: '',
@@ -88,7 +88,6 @@ class index extends Component {
     this.setState({
       modalVisibleAdd: visible,
       quantity: '',
-      productionDate: '',
       selectedItems: [],
       notes: '',
       itemTypes: '',
@@ -230,7 +229,6 @@ class index extends Component {
     this.setModalVisibleAdd(true);
     this.setState({
       preparedDate: '',
-      finalDate: '',
       itemsTypesArr: [],
     });
   };
@@ -667,6 +665,7 @@ class index extends Component {
   };
 
   handleConfirm = date => {
+    console.log('date', date);
     let newdate = moment(date).format('L');
     this.setState({
       finalDate: newdate,
@@ -692,8 +691,14 @@ class index extends Component {
       itemTypes,
     } = this.state;
 
-    if (productionDate === '' || quantity == '' || departmentName === '') {
-      alert('Please select correct options');
+    if (
+      productionDate === '' ||
+      quantity === '' ||
+      departmentName === '' ||
+      selectedItemObjects === '' ||
+      itemTypes === ''
+    ) {
+      alert('Please select all options');
     } else {
       let payload = {
         category: selectedItemObjects[0].category,
@@ -774,6 +779,10 @@ class index extends Component {
       viewStatus,
       buttonsSubHeader,
       collapseStatus,
+      productionDate,
+      departmentName,
+      selectedItemObjects,
+      itemTypes,
     } = this.state;
     const finalDateData = moment(sectionData.loggedDate).format(
       'dddd, MMM DD YYYY',
@@ -1041,26 +1050,54 @@ class index extends Component {
                                 justifyContent: 'center',
                                 marginTop: hp('5%'),
                               }}>
-                              <TouchableOpacity
-                                onPress={() => this.addManualLogFun()}
-                                style={{
-                                  width: wp('30%'),
-                                  height: hp('5%'),
-                                  alignSelf: 'flex-end',
-                                  backgroundColor: '#94C036',
-                                  justifyContent: 'center',
-                                  alignItems: 'center',
-                                  borderRadius: 100,
-                                }}>
-                                <Text
+                              {productionDate === '' ||
+                              quantity == '' ||
+                              departmentName === '' ||
+                              selectedItemObjects === '' ||
+                              itemTypes === '' ? (
+                                <View
+                                  opacity={0.5}
                                   style={{
-                                    color: '#fff',
-                                    fontSize: 15,
-                                    fontWeight: 'bold',
+                                    width: wp('30%'),
+                                    height: hp('5%'),
+                                    alignSelf: 'flex-end',
+                                    backgroundColor: '#94C036',
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                    borderRadius: 100,
                                   }}>
-                                  {translate('Save')}
-                                </Text>
-                              </TouchableOpacity>
+                                  <Text
+                                    style={{
+                                      color: '#fff',
+                                      fontSize: 15,
+                                      fontWeight: 'bold',
+                                    }}>
+                                    {translate('Save')}
+                                  </Text>
+                                </View>
+                              ) : (
+                                <TouchableOpacity
+                                  onPress={() => this.addManualLogFun()}
+                                  style={{
+                                    width: wp('30%'),
+                                    height: hp('5%'),
+                                    alignSelf: 'flex-end',
+                                    backgroundColor: '#94C036',
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                    borderRadius: 100,
+                                  }}>
+                                  <Text
+                                    style={{
+                                      color: '#fff',
+                                      fontSize: 15,
+                                      fontWeight: 'bold',
+                                    }}>
+                                    {translate('Save')}
+                                  </Text>
+                                </TouchableOpacity>
+                              )}
+
                               <TouchableOpacity
                                 onPress={() => this.setModalVisibleAdd(false)}
                                 style={{
