@@ -122,15 +122,9 @@ class Basket extends Component {
               id: 0,
             },
             {
-              name: translate('Save draft'),
-              icon: img.draftIcon,
-              id: 1,
-            },
-
-            {
               name: translate('View'),
               icon: img.pendingIcon,
-              id: 2,
+              id: 1,
             },
           ],
         });
@@ -154,7 +148,7 @@ class Basket extends Component {
         itemType,
         basketId: finalData,
         modalLoader: true,
-        finalOrderDate: moment(new Date()).format('L'),
+        finalOrderDate: moment(new Date()).format('DD-MM-YY'),
         apiOrderDate: new Date().toISOString(),
         productId,
         supplierName,
@@ -461,13 +455,6 @@ class Basket extends Component {
         {
           loaderCompStatus: true,
         },
-        () => this.saveAndUpdateFun(),
-      );
-    } else {
-      this.setState(
-        {
-          loaderCompStatus: true,
-        },
         () => this.viewFun(),
       );
     }
@@ -588,7 +575,7 @@ class Basket extends Component {
   };
 
   handleConfirmOrderDate = date => {
-    let newdate = moment(date).format('MM/DD/YYYY');
+    let newdate = moment(date).format('DD-MM-YY');
     let apiOrderDate = date.toISOString();
     this.setState({
       finalOrderDate: newdate,
@@ -604,13 +591,22 @@ class Basket extends Component {
   };
 
   handleConfirmDeliveryDate = date => {
-    let newdate = moment(date).format('MM/DD/YYYY');
-    let apiDeliveryDate = date.toISOString();
-    this.setState({
-      finalDeliveryDate: newdate,
-      apiDeliveryDate,
-    });
-    this.hideDatePickerDeliveryDate();
+    const {finalOrderDate} = this.state;
+    const finalDeliveryDate = moment(date).format('DD-MM-YY');
+    if (
+      finalDeliveryDate < finalOrderDate ||
+      finalDeliveryDate === finalOrderDate
+    ) {
+      alert('Delivery date cannot be less than or equal to order date');
+    } else {
+      let newdate = moment(date).format('DD-MM-YY');
+      let apiDeliveryDate = date.toISOString();
+      this.setState({
+        finalDeliveryDate: newdate,
+        apiDeliveryDate,
+      });
+      this.hideDatePickerDeliveryDate();
+    }
   };
 
   hideDatePickerDeliveryDate = () => {
@@ -761,6 +757,15 @@ class Basket extends Component {
       .catch(err => {
         console.log('PDFErr', err);
       });
+  };
+
+  saveDraftFunGreen = () => {
+    this.setState(
+      {
+        loaderCompStatus: true,
+      },
+      () => this.saveAndUpdateFun(),
+    );
   };
 
   render() {
@@ -1024,7 +1029,7 @@ class Basket extends Component {
                             }}>
                             <View
                               style={{
-                                width: wp('40%'),
+                                width: wp('25%'),
                               }}>
                               <Text
                                 style={{
@@ -1035,7 +1040,7 @@ class Basket extends Component {
                             </View>
                             <View
                               style={{
-                                width: wp('30%'),
+                                width: wp('25%'),
                                 marginLeft: wp('5%'),
                               }}>
                               <Text
@@ -1047,7 +1052,7 @@ class Basket extends Component {
                             </View>
                             <View
                               style={{
-                                width: wp('30%'),
+                                width: wp('25%'),
                                 marginLeft: wp('5%'),
                               }}>
                               <Text
@@ -1075,7 +1080,7 @@ class Basket extends Component {
                                       }}>
                                       <View
                                         style={{
-                                          width: wp('40%'),
+                                          width: wp('25%'),
                                           justifyContent: 'center',
                                         }}>
                                         <Text
@@ -1097,7 +1102,7 @@ class Basket extends Component {
                                       {editStatus ? (
                                         <View
                                           style={{
-                                            width: wp('30%'),
+                                            width: wp('25%'),
                                             justifyContent: 'center',
                                             marginLeft: wp('5%'),
                                           }}>
@@ -1125,7 +1130,7 @@ class Basket extends Component {
                                             this.actionFun(item)
                                           }
                                           style={{
-                                            width: wp('30%'),
+                                            width: wp('25%'),
                                             justifyContent: 'center',
                                             marginLeft: wp('5%'),
                                           }}>
@@ -1151,7 +1156,7 @@ class Basket extends Component {
 
                                       <View
                                         style={{
-                                          width: wp('30%'),
+                                          width: wp('25%'),
                                           justifyContent: 'center',
                                           marginLeft: wp('5%'),
                                         }}>
@@ -1180,12 +1185,12 @@ class Basket extends Component {
                               }}>
                               <View
                                 style={{
-                                  width: wp('40%'),
+                                  width: wp('25%'),
                                   justifyContent: 'center',
                                 }}></View>
                               <View
                                 style={{
-                                  width: wp('30%'),
+                                  width: wp('25%'),
                                   justifyContent: 'center',
                                   marginLeft: wp('5%'),
                                 }}>
@@ -1193,7 +1198,7 @@ class Basket extends Component {
                               </View>
                               <View
                                 style={{
-                                  width: wp('30%'),
+                                  width: wp('25%'),
                                   justifyContent: 'center',
                                   marginLeft: wp('5%'),
                                 }}>
@@ -1268,6 +1273,31 @@ class Basket extends Component {
           </View>
 
           <View style={{justifyContent: 'center', alignItems: 'center'}}>
+            <TouchableOpacity
+              onPress={() => this.saveDraftFunGreen()}
+              style={{
+                height: hp('6%'),
+                width: wp('80%'),
+                backgroundColor: '#94C036',
+                justifyContent: 'center',
+                alignItems: 'center',
+                marginTop: hp('2%'),
+                borderRadius: 100,
+              }}>
+              <View
+                style={{
+                  alignItems: 'center',
+                }}>
+                <Text
+                  style={{
+                    color: 'white',
+                    marginLeft: 10,
+                    fontFamily: 'Inter-SemiBold',
+                  }}>
+                  {translate('Save draft')}
+                </Text>
+              </View>
+            </TouchableOpacity>
             <TouchableOpacity
               onPress={() => this.sendFun()}
               style={{

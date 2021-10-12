@@ -104,6 +104,7 @@ class index extends Component {
       imageShow: false,
       recipeLoader: true,
       buttonsSubHeader: [],
+      chooseImageModalStatus: false,
     };
   }
 
@@ -216,16 +217,8 @@ class index extends Component {
   };
 
   handleChoosePhoto() {
-    ImagePicker.openPicker({
-      width: 300,
-      height: 400,
-      includeBase64: true,
-      cropping: true,
-    }).then(image => {
-      this.setState({
-        imageModalStatus: true,
-        imageData: image,
-      });
+    this.setState({
+      chooseImageModalStatus: true,
     });
   }
 
@@ -440,6 +433,7 @@ class index extends Component {
   setModalVisibleImage = () => {
     this.setState({
       imageModalStatus: false,
+      chooseImageModalStatus: false,
     });
   };
 
@@ -487,6 +481,49 @@ class index extends Component {
     });
   };
 
+  choosePhotoFun = () => {
+    this.setState(
+      {
+        chooseImageModalStatus: false,
+      },
+      () =>
+        setTimeout(() => {
+          ImagePicker.openPicker({
+            width: 300,
+            height: 400,
+            includeBase64: true,
+            cropping: true,
+          }).then(image => {
+            this.setState({
+              imageModalStatus: true,
+              imageData: image,
+            });
+          });
+        }, 500),
+    );
+  };
+
+  clickPhotoFun = () => {
+    this.setState(
+      {
+        chooseImageModalStatus: false,
+      },
+      () =>
+        setTimeout(() => {
+          ImagePicker.openCamera({
+            width: 300,
+            height: 400,
+            cropping: true,
+          }).then(image => {
+            this.setState({
+              imageModalStatus: true,
+              imageData: image,
+            });
+          });
+        }, 500),
+    );
+  };
+
   render() {
     const {
       isDatePickerVisible,
@@ -518,6 +555,7 @@ class index extends Component {
       productionDate,
       departmentName,
       selectedItemObjects,
+      chooseImageModalStatus,
     } = this.state;
     return (
       <View style={styles.container}>
@@ -1245,6 +1283,95 @@ class index extends Component {
                         fontWeight: 'bold',
                       }}>
                       {translate('Save')}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </ScrollView>
+            </View>
+          </Modal>
+          <Modal isVisible={chooseImageModalStatus} backdropOpacity={0.35}>
+            <View
+              style={{
+                width: wp('80%'),
+                height: hp('25%'),
+                backgroundColor: '#fff',
+                alignSelf: 'center',
+              }}>
+              <View
+                style={{
+                  backgroundColor: '#412916',
+                  height: hp('7%'),
+                  flexDirection: 'row',
+                }}>
+                <View
+                  style={{
+                    flex: 3,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}>
+                  <Text style={{fontSize: 16, color: '#fff'}}>
+                    {translate('Add image')}
+                  </Text>
+                </View>
+                <View
+                  style={{
+                    flex: 1,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}>
+                  <TouchableOpacity
+                    onPress={() => this.setModalVisibleImage(false)}>
+                    <Image
+                      source={img.cancelIcon}
+                      style={{
+                        height: 22,
+                        width: 22,
+                        tintColor: 'white',
+                        resizeMode: 'contain',
+                      }}
+                    />
+                  </TouchableOpacity>
+                </View>
+              </View>
+              <ScrollView>
+                <View style={{padding: hp('3%')}}>
+                  <TouchableOpacity
+                    onPress={() => this.choosePhotoFun()}
+                    style={{
+                      width: wp('70%'),
+                      height: hp('5%'),
+                      alignSelf: 'flex-end',
+                      backgroundColor: 'red',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                    }}>
+                    <Text
+                      style={{
+                        color: '#fff',
+                        fontSize: 15,
+                        fontWeight: 'bold',
+                      }}>
+                      {translate('Choose image from gallery')}
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => this.clickPhotoFun()}
+                    style={{
+                      width: wp('70%'),
+                      height: hp('5%'),
+                      alignSelf: 'flex-end',
+                      backgroundColor: '#94C036',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      marginTop: 10,
+                    }}>
+                    <Text
+                      style={{
+                        color: '#fff',
+                        fontSize: 15,
+                        fontWeight: 'bold',
+                      }}>
+                      {translate('Click Photo')}
                     </Text>
                   </TouchableOpacity>
                 </View>

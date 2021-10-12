@@ -204,19 +204,26 @@ class AddBuilder extends Component {
     const {selectectedItems} = this.state;
     newMepListApi(selectectedItems)
       .then(res => {
-        Alert.alert('Grainz', 'Mep added successfully', [
+        this.setState(
           {
-            text: 'Okay',
-            onPress: () =>
-              this.setState(
-                {
-                  selectectedItems: [],
-                  buttonLoader: false,
-                },
-                () => this.props.navigation.goBack(),
-              ),
+            selectectedItems: [],
+            buttonLoader: false,
           },
-        ]);
+          () => this.props.navigation.goBack(),
+        );
+        // Alert.alert('Grainz', 'Mep added successfully', [
+        //   {
+        //     text: 'Okay',
+        //     onPress: () =>
+        //       this.setState(
+        //         {
+        //           selectectedItems: [],
+        //           buttonLoader: false,
+        //         },
+        //         () => this.props.navigation.goBack(),
+        //       ),
+        //   },
+        // ]);
       })
       .catch(err => {
         console.warn('ERRDeleteMep', err.response);

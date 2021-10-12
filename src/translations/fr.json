@@ -848,5 +848,7 @@
     "Language":"Language",
     "Remove": "Supprimer",
     "Date Range": "Plage de dates",
-    "Select location(s)":"Select location(s)"
+    "Select location(s)":"Select location(s)",
+    "Choose image from gallery": "Choose image from gallery",
+    "Click Photo" : "Click Photo"
 }
