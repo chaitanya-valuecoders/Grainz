@@ -36,6 +36,8 @@ var minTime = new Date();
 minTime.setHours(0);
 minTime.setMinutes(0);
 minTime.setMilliseconds(0);
+var todayDate = moment(new Date()).format('DD-MM-YY');
+var todayProdDate = new Date().toISOString();
 
 class AddBuilder extends Component {
   constructor(props) {
@@ -47,15 +49,15 @@ class AddBuilder extends Component {
       recipeLoader: false,
       modalVisibleRecipeDetails: false,
       isDatePickerVisible: false,
-      finalDate: '',
+      finalDate: todayDate,
+      productionDate: todayProdDate,
       selectectedItems: [],
       isShownPicker: false,
       items: [],
-      productionDate: '',
-      applyStatus: false,
       buttonsSubHeader: [],
-      applyClickStatus: false,
       buttonLoader: false,
+      applyClickStatus: false,
+      selectectedItemsNew: [],
     };
   }
 
@@ -96,6 +98,7 @@ class AddBuilder extends Component {
 
   componentDidMount() {
     this.getData();
+    this.getRecipesData();
   }
 
   myProfile = () => {
@@ -103,19 +106,17 @@ class AddBuilder extends Component {
   };
 
   onPressApplyFun = () => {
-    const {selectectedItems, productionDate, applyStatus} = this.state;
+    const {selectectedItems, productionDate} = this.state;
     if (productionDate === '' || selectectedItems.length === 0) {
       alert('Please select date and recipe');
-    } else if (applyStatus === false) {
-      this.setState(
-        {
-          isShownPicker: false,
-          applyStatus: true,
-          applyClickStatus: true,
-        },
-        () => this.createpayloadFun(),
-      );
     }
+    this.setState(
+      {
+        isShownPicker: false,
+        applyClickStatus: true,
+      },
+      () => this.createpayloadFun(),
+    );
   };
 
   createpayloadFun = () => {
@@ -133,7 +134,7 @@ class AddBuilder extends Component {
       newData = [...newData, obj];
     });
     this.setState({
-      selectectedItems: newData,
+      selectectedItemsNew: newData,
     });
   };
 
@@ -144,8 +145,8 @@ class AddBuilder extends Component {
   };
 
   getRecipesData = () => {
-    const {finalDate} = this.state;
-    getMepRecipesApi(finalDate)
+    const {productionDate} = this.state;
+    getMepRecipesApi(productionDate)
       .then(res => {
         const {data} = res;
         let newData = [];
@@ -167,13 +168,14 @@ class AddBuilder extends Component {
   };
 
   handleConfirm = date => {
-    let newdate = moment(date).format('L');
+    let newdate = moment(date).format('DD-MM-YY');
     this.setState(
       {
         finalDate: newdate,
         productionDate: date,
       },
-      () => this.getRecipesData(),
+      // ,
+      // () => this.getRecipesData(),
     );
 
     this.hideDatePicker();
@@ -201,56 +203,39 @@ class AddBuilder extends Component {
   };
 
   hitAddApi = () => {
-    const {selectectedItems} = this.state;
-    newMepListApi(selectectedItems)
+    const {selectectedItemsNew} = this.state;
+    console.log('selectectedItemsNew', selectectedItemsNew);
+    newMepListApi(selectectedItemsNew)
       .then(res => {
         this.setState(
           {
             selectectedItems: [],
+            selectectedItemsNew: [],
             buttonLoader: false,
           },
           () => this.props.navigation.goBack(),
         );
-        // Alert.alert('Grainz', 'Mep added successfully', [
-        //   {
-        //     text: 'Okay',
-        //     onPress: () =>
-        //       this.setState(
-        //         {
-        //           selectectedItems: [],
-        //           buttonLoader: false,
-        //         },
-        //         () => this.props.navigation.goBack(),
-        //       ),
-        //   },
-        // ]);
       })
       .catch(err => {
-        console.warn('ERRDeleteMep', err.response);
+        console.warn('ERRADDMep', err.response);
       });
   };
 
   openRecipeDropDown = () => {
-    const {applyStatus, finalDate} = this.state;
+    const {finalDate, isShownPicker} = this.state;
     if (finalDate) {
-      if (applyStatus) {
-        this.setState({
-          isShownPicker: false,
-        });
-      } else {
-        this.setState({
-          isShownPicker: true,
-        });
-      }
+      this.setState({
+        isShownPicker: !isShownPicker,
+      });
     } else {
       alert('Please select date first.');
     }
   };
 
   editQuantityFun = (index, type, value) => {
-    const {selectectedItems} = this.state;
+    const {selectectedItemsNew} = this.state;
 
-    let newArr = selectectedItems.map((item, i) =>
+    let newArr = selectectedItemsNew.map((item, i) =>
       index === i
         ? {
             ...item,
@@ -259,7 +244,7 @@ class AddBuilder extends Component {
         : item,
     );
     this.setState({
-      selectectedItems: [...newArr],
+      selectectedItemsNew: [...newArr],
     });
   };
 
@@ -272,10 +257,10 @@ class AddBuilder extends Component {
       isShownPicker,
       selectectedItems,
       items,
-      applyStatus,
       buttonsSubHeader,
-      applyClickStatus,
       buttonLoader,
+      applyClickStatus,
+      selectectedItemsNew,
     } = this.state;
 
     return (
@@ -339,49 +324,36 @@ class AddBuilder extends Component {
                           />
                         </TouchableOpacity>
 
-                        <View
-                          style={{flexDirection: 'row', alignItems: 'center'}}>
+                        <View style={{}}>
                           <TouchableOpacity
                             onPress={() => {
                               this.openRecipeDropDown();
                             }}
                             style={{
                               padding: 14,
-                              flexDirection: 'row',
                               justifyContent: 'space-between',
                               backgroundColor: '#fff',
                               borderRadius: 6,
-                              width: wp('70%'),
+                              flexDirection: 'row',
                             }}>
                             {selectectedItems.length > 0 ? (
                               <View>
-                                {applyStatus ? (
-                                  <View>
-                                    {selectectedItems.map(item => {
-                                      return (
-                                        <View style={{marginTop: hp('1%')}}>
-                                          <Text>{item.name}</Text>
-                                        </View>
-                                      );
-                                    })}
-                                  </View>
-                                ) : selectectedItems.length > 0 ? (
-                                  <View>
-                                    {selectectedItems.map(item => {
-                                      return (
-                                        <View style={{marginTop: hp('1%')}}>
-                                          <Text>{item.label}</Text>
-                                        </View>
-                                      );
-                                    })}
-                                  </View>
-                                ) : null}
+                                <View>
+                                  {selectectedItems.map(item => {
+                                    return (
+                                      <View style={{marginTop: hp('1%')}}>
+                                        <Text>{item.label}</Text>
+                                      </View>
+                                    );
+                                  })}
+                                </View>
                               </View>
                             ) : (
                               <Text style={{color: '#D6D7D9'}}>
                                 Select recipe
                               </Text>
                             )}
+
                             <Image
                               source={img.arrowDownIcon}
                               style={{
@@ -391,31 +363,13 @@ class AddBuilder extends Component {
                               }}
                             />
                           </TouchableOpacity>
-                          <TouchableOpacity
-                            disabled={applyClickStatus}
-                            onPress={() => {
-                              this.onPressApplyFun();
-                            }}
-                            style={{
-                              padding: 14,
-                            }}>
-                            <Text
-                              style={{
-                                fontFamily: 'Inter-SemiBold',
-                                textDecorationLine: 'underline',
-                                textDecorationColor: '#7AA62D',
-                                color: '#7AA62D',
-                                fontSize: 16,
-                              }}>
-                              Apply
-                            </Text>
-                          </TouchableOpacity>
                         </View>
 
                         {isShownPicker ? (
                           <MultipleSelectPicker
                             items={items}
                             onSelectionsChange={ele => {
+                              console.log('ererer', ele);
                               this.setState({selectectedItems: ele});
                             }}
                             selectedItems={selectectedItems}
@@ -429,39 +383,45 @@ class AddBuilder extends Component {
                           />
                         ) : null}
 
-                        {applyStatus ? (
+                        {applyClickStatus ? (
                           <View
                             style={{
                               marginTop: hp('3%'),
                             }}>
-                            {selectectedItems.map((item, index) => {
+                            {selectectedItemsNew.map((item, index) => {
                               return (
-                                <View>
-                                  <View>
+                                <View
+                                  style={{
+                                    flexDirection: 'row',
+                                    alignItems: 'center',
+                                    marginTop: hp('2%'),
+                                  }}>
+                                  <View style={{flex: 1}}>
                                     <Text
                                       style={{
                                         fontFamily: 'Inter-Regular',
-                                        fontSize: 18,
+                                        fontSize: 12,
                                       }}>
                                       {item.name}
                                     </Text>
                                   </View>
-
                                   <View
                                     style={{
-                                      marginBottom: hp('3%'),
-                                      marginTop: hp('3%'),
-                                      backgroundColor: '#fff',
+                                      flex: 1,
+                                      marginLeft: 10,
+                                      marginRight: 10,
                                       flexDirection: 'row',
-                                      justifyContent: 'space-between',
+                                      alignItems: 'center',
                                       borderRadius: 6,
+                                      borderWidth: 1,
+                                      borderColor: '#C9CCD7',
                                     }}>
                                     <View style={{flex: 3}}>
                                       <TextInput
                                         placeholder="Quantity"
                                         value={String(item.quantity)}
                                         style={{
-                                          padding: 14,
+                                          paddingLeft: 10,
                                         }}
                                         onChangeText={value =>
                                           this.editQuantityFun(
@@ -474,33 +434,37 @@ class AddBuilder extends Component {
                                     </View>
                                     <View
                                       style={{
-                                        backgroundColor: '#F7F8F5',
                                         flex: 1,
+                                        backgroundColor: '#68AFFF',
                                         justifyContent: 'center',
                                         alignItems: 'center',
                                         borderTopRightRadius: 6,
                                         borderBottomRightRadius: 6,
                                       }}>
                                       <Text
+                                        numberOfLines={1}
                                         style={{
                                           fontSize: 15,
                                           fontFamily: 'Inter-Regular',
+                                          padding: 10,
                                         }}>
                                         {item.unit}
                                       </Text>
                                     </View>
                                   </View>
-
                                   <View
                                     style={{
-                                      padding: 14,
-                                      marginBottom: hp('3%'),
-                                      backgroundColor: '#fff',
+                                      flex: 1,
+                                      borderWidth: 1,
+                                      borderColor: '#C9CCD7',
                                       borderRadius: 6,
                                     }}>
                                     <TextInput
                                       placeholder="Notes"
                                       value={item.notes}
+                                      style={{
+                                        padding: 10,
+                                      }}
                                       onChangeText={value =>
                                         this.editQuantityFun(
                                           index,
@@ -519,10 +483,41 @@ class AddBuilder extends Component {
                         <View>
                           <View
                             style={{
-                              flexDirection: 'row',
                               alignItems: 'center',
                               justifyContent: 'center',
                               marginTop: hp('5%'),
+                            }}>
+                            <TouchableOpacity
+                              onPress={() => {
+                                this.onPressApplyFun();
+                              }}
+                              style={{
+                                width: wp('30%'),
+                                height: hp('5%'),
+                                backgroundColor: '#94C036',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                borderRadius: 100,
+                              }}>
+                              <Text
+                                style={{
+                                  color: '#fff',
+                                  fontSize: 15,
+                                  fontWeight: 'bold',
+                                }}>
+                                {translate('Apply')}
+                              </Text>
+                            </TouchableOpacity>
+                          </View>
+                        </View>
+
+                        <View>
+                          <View
+                            style={{
+                              flexDirection: 'row',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              marginTop: hp('3%'),
                             }}>
                             {buttonLoader ? (
                               <View
