@@ -108,7 +108,7 @@ class AddBuilder extends Component {
   onPressApplyFun = () => {
     const {selectectedItems, productionDate} = this.state;
     if (productionDate === '' || selectectedItems.length === 0) {
-      alert('Please select date and recipe');
+      alert('Please select recipe');
     }
     this.setState(
       {
@@ -191,7 +191,7 @@ class AddBuilder extends Component {
     const {selectectedItems, productionDate} = this.state;
 
     if (productionDate === '' || selectectedItems.length === 0) {
-      alert('Please select date and recipe');
+      alert('Please select recipe');
     } else {
       this.setState(
         {

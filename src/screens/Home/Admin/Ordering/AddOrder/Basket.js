@@ -85,6 +85,7 @@ class Basket extends Component {
       mailTitleValue: '',
       supplierName: '',
       loaderCompStatus: false,
+      arrangeStatusName: 0,
     };
   }
 
@@ -768,6 +769,72 @@ class Basket extends Component {
     );
   };
 
+  arrangeListFun = funType => {
+    if (funType === 'NAME') {
+      this.setState(
+        {
+          arrangeStatusName: Number(1) + this.state.arrangeStatusName,
+        },
+        () => this.arrangeListFunSec('NAME'),
+      );
+    }
+  };
+
+  arrangeListFunSec = type => {
+    const {arrangeStatusName} = this.state;
+    const finalData = type === 'NAME' ? arrangeStatusName : null;
+    if (finalData % 2 == 0) {
+      this.reverseFun();
+    } else {
+      this.descendingOrderFun(type);
+    }
+  };
+
+  reverseFun = () => {
+    const {modalData} = this.state;
+    const finalData = modalData.reverse();
+
+    this.setState({
+      modalData: finalData,
+    });
+  };
+
+  descendingOrderFun = type => {
+    const {modalData} = this.state;
+
+    console.log;
+
+    if (type === 'NAME') {
+      function dynamicSort(property) {
+        var sortOrder = 1;
+
+        if (property[0] === '-') {
+          sortOrder = -1;
+          property = property.substr(1);
+        }
+
+        return function (a, b) {
+          if (sortOrder == -1) {
+            return b[property].localeCompare(a[property]);
+          } else {
+            return a[property].localeCompare(b[property]);
+          }
+        };
+      }
+      // const finalKeyValue = type === 'NAME' ? 'productName' : null;
+
+      // item.inventoryMapping.productName
+
+      const finalData = modalData.sort(
+        dynamicSort(item.inventoryMapping && item.inventoryMapping.productName),
+      );
+
+      this.setState({
+        modalData: finalData,
+      });
+    }
+  };
+
   render() {
     const {
       buttonsSubHeader,
@@ -1030,6 +1097,8 @@ class Basket extends Component {
                             <View
                               style={{
                                 width: wp('25%'),
+                                // flexDirection: 'row',
+                                // alignItems: 'center',
                               }}>
                               <Text
                                 style={{
@@ -1037,6 +1106,18 @@ class Basket extends Component {
                                 }}>
                                 {translate('Inventory item')}
                               </Text>
+                              {/* <TouchableOpacity
+                                onPress={() => this.arrangeListFun('NAME')}>
+                                <Image
+                                  style={{
+                                    width: 13,
+                                    height: 13,
+                                    resizeMode: 'contain',
+                                    marginLeft: 5,
+                                  }}
+                                  source={img.doubleArrowIconNew}
+                                />
+                              </TouchableOpacity> */}
                             </View>
                             <View
                               style={{

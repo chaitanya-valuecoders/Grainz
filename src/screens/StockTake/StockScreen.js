@@ -231,6 +231,7 @@ class StockScreen extends Component {
 
   reverseFun = () => {
     const {catArray} = this.state;
+    console.log('catAA', catArray);
     const finalData = catArray.reverse();
 
     this.setState({
@@ -240,6 +241,7 @@ class StockScreen extends Component {
 
   descendingOrderFun = type => {
     const {catArray} = this.state;
+    console.log('catAA', catArray);
 
     if (type === 'NAME') {
       function dynamicSort(property) {

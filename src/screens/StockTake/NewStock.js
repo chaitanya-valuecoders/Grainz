@@ -243,6 +243,7 @@ class NewStock extends Component {
                   style={{
                     height: 20,
                     width: 20,
+                    padding: 12,
                   }}
                   onValueChange={() =>
                     this.setState({
@@ -272,6 +273,7 @@ class NewStock extends Component {
                   style={{
                     height: 20,
                     width: 20,
+                    padding: 12,
                   }}
                   onValueChange={() =>
                     this.setState({
@@ -370,6 +372,7 @@ class NewStock extends Component {
                   style={{
                     height: 20,
                     width: 20,
+                    padding: 12,
                   }}
                   onValueChange={() => this.categoryStatusFun()}
                 />
@@ -394,6 +397,7 @@ class NewStock extends Component {
                   style={{
                     height: 20,
                     width: 20,
+                    padding: 12,
                   }}
                   onValueChange={() =>
                     this.setState({

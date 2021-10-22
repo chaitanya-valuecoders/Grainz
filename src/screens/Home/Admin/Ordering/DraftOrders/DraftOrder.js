@@ -356,7 +356,6 @@ class DraftOrder extends Component {
                           justifyContent: 'center',
                           alignItems: 'center',
                           flexDirection: 'row',
-                          alignItems: 'center',
                         }}>
                         <Text
                           style={{

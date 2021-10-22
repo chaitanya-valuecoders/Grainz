@@ -38,8 +38,10 @@ class ViewRecipe extends Component {
       pageData: '',
       modalLoader: true,
       batchQuantity: '',
+      batchUnit: '',
       recipeInstructions: '',
       recipeId: '',
+      batchValue: '',
     };
   }
 
@@ -101,6 +103,7 @@ class ViewRecipe extends Component {
           modalData: res.data && res.data.recipeVersions[0].ingredients,
           modalLoader: false,
           batchQuantity: res.data && res.data.recipeVersions[0].batchQuantity,
+          batchUnit: res.data && res.data.recipeVersions[0].batchUnit,
           recipeInstructions:
             res.data && res.data.recipeVersions[0].instructions,
         });
@@ -131,6 +134,34 @@ class ViewRecipe extends Component {
     });
   };
 
+  editCustomPriceFun = (index, type, value, modalDataNew) => {
+    const {modalData, batchValue, batchQuantity} = this.state;
+    let finalValue = parseFloat(value);
+    let finalQuantity = parseFloat(modalDataNew[index].quantity);
+    let difference = finalValue / finalQuantity;
+    let finalBatchValue = batchQuantity * difference;
+
+    let newArr = modalData.map((item, i) =>
+      index === i
+        ? {
+            ...item,
+            [type]: value,
+          }
+        : {
+            ...item,
+            [type]:
+              difference * item.quantity
+                ? (difference * item.quantity).toFixed(2)
+                : null,
+          },
+    );
+
+    this.setState({
+      modalData: [...newArr],
+      batchValue: finalBatchValue ? finalBatchValue.toFixed(2) : '0',
+    });
+  };
+
   render() {
     const {
       buttonsSubHeader,
@@ -139,7 +170,9 @@ class ViewRecipe extends Component {
       finalName,
       modalLoader,
       batchQuantity,
+      batchUnit,
       recipeInstructions,
+      batchValue,
     } = this.state;
 
     return (
@@ -292,6 +325,16 @@ class ViewRecipe extends Component {
                           <View>
                             {modalData && modalData.length > 0 ? (
                               modalData.map((item, index) => {
+                                let finaUnitVal =
+                                  item &&
+                                  item.units.map((subItem, subIndex) => {
+                                    if (subItem.isDefault === true) {
+                                      return subItem.name;
+                                    }
+                                  });
+                                const filteredUnit = finaUnitVal.filter(
+                                  elm => elm,
+                                );
                                 return (
                                   <View
                                     style={{
@@ -322,7 +365,7 @@ class ViewRecipe extends Component {
                                         justifyContent: 'center',
                                       }}>
                                       <Text style={{fontSize: 12}}>
-                                        {item.quantity} g
+                                        {item.quantity} {filteredUnit[0]}
                                       </Text>
                                     </View>
                                     <View
@@ -331,8 +374,26 @@ class ViewRecipe extends Component {
                                         alignItems: 'center',
                                       }}>
                                       <TextInput
-                                        placeholder="0.0"
-                                        style={{borderWidth: 0.8, padding: 8}}
+                                        placeholder="0"
+                                        value={
+                                          item.customPrice &&
+                                          item.customPrice.toString()
+                                        }
+                                        style={{
+                                          borderWidth: 0.8,
+                                          paddingVertical: 8,
+                                          paddingLeft: 10,
+                                          width: wp('18%'),
+                                          borderRadius: 4,
+                                        }}
+                                        onChangeText={value => {
+                                          this.editCustomPriceFun(
+                                            index,
+                                            'customPrice',
+                                            value,
+                                            modalData,
+                                          );
+                                        }}
                                       />
                                     </View>
                                     {/* <TouchableOpacity
@@ -402,7 +463,7 @@ class ViewRecipe extends Component {
                                   fontFamily: 'Inter-SemiBold',
                                   fontSize: 12,
                                 }}>
-                                {batchQuantity} g
+                                {batchQuantity} {batchUnit}
                               </Text>
                             </View>
                             <View
@@ -411,8 +472,16 @@ class ViewRecipe extends Component {
                                 alignItems: 'center',
                               }}>
                               <TextInput
-                                placeholder="custom"
-                                style={{borderWidth: 0.8, padding: 8}}
+                                placeholder="0"
+                                editable={false}
+                                style={{
+                                  borderWidth: 0.8,
+                                  paddingVertical: 8,
+                                  paddingLeft: 10,
+                                  width: wp('18%'),
+                                  borderRadius: 4,
+                                }}
+                                value={batchValue.toString()}
                               />
                             </View>
                           </View>

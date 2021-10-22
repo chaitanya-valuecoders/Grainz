@@ -305,10 +305,13 @@ class InventoryList extends Component {
         ? {
             ...item,
             [type]: value,
-            ['deltaNew']: newDeltaVal,
             ['isSelected']: isSelectedValue,
+            ['deltaNew']: newDeltaVal,
           }
-        : item,
+        : {
+            ...item,
+            ['deltaNew']: newDeltaVal,
+          },
     );
     var filteredArray = newArr.filter(function (itm) {
       if (itm.quantityProduct !== '') {
@@ -677,7 +680,12 @@ class InventoryList extends Component {
         <View style={{backgroundColor: '#fff'}}>
           {section.content.map((item, index) => {
             return (
-              <View style={{paddingHorizontal: 10}}>
+              <View
+                style={{
+                  paddingHorizontal: 10,
+                  marginBottom:
+                    index === section.content.length - 1 ? 40 : null,
+                }}>
                 <View style={{flexDirection: 'row', alignItems: 'center'}}>
                   <View
                     style={{
@@ -759,9 +767,11 @@ class InventoryList extends Component {
                       <Text>{item.productName}</Text>
                       {item.deltaNew > 0 ? (
                         <Text
+                          numberOfLines={1}
                           style={{
                             color: 'red',
                             marginTop: 5,
+                            fontSize: 12,
                           }}>
                           ( Δ {item.deltaNew.toFixed(2)} {item.unit} )
                         </Text>
