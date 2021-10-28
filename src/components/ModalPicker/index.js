@@ -183,6 +183,7 @@ class index extends Component {
               <View style={{marginVertical: hp('2%'), flex: 1}}>
                 <FlatList
                   showsVerticalScrollIndicator={false}
+                  keyExtractor={item => item.id}
                   data={searchItem ? dataSource : this.props.dataSource}
                   renderItem={({item}) => (
                     <View style={{flex: 1}}>

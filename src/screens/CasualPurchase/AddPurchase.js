@@ -74,24 +74,25 @@ class index extends Component {
       items: [],
       selectedItems: [],
       selectedTextUser: '',
-      selectedItemObjects: '',
+      selectedItemObjects: [],
       supplierListLoader: false,
-      orderItemsFinal: [
-        {
-          action: 'New',
-          id: '',
-          inventoryId: '',
-          inventoryProductMappingId: '',
-          isCorrect: false,
-          notes: '',
-          position: '',
-          quantityOrdered: '',
-          tdcVolume: 0,
-          unitId: '',
-          unitPrice: '',
-          name: '',
-        },
-      ],
+      orderItemsFinal: [],
+      // orderItemsFinal: [
+      //   {
+      //     action: 'New',
+      //     id: '',
+      //     inventoryId: '',
+      //     inventoryProductMappingId: '',
+      //     isCorrect: false,
+      //     notes: '',
+      //     position: '',
+      //     quantityOrdered: '',
+      //     tdcVolume: 0,
+      //     unitId: '',
+      //     unitPrice: '',
+      //     name: '',
+      //   },
+      // ],
       quantityValue: '',
       price: '',
       orderTotal: 0,
@@ -169,7 +170,7 @@ class index extends Component {
     );
   }
 
-  componentDidMount() {
+  async componentDidMount() {
     this.props.navigation.addListener('focus', () => {
       this.clearData();
       this.getSupplierListData();
@@ -234,42 +235,42 @@ class index extends Component {
     });
   };
 
-  addPurchaseLine() {
-    const {
-      quantityValue,
-      price,
-      selectedItemObjects,
-      orderItemsFinal,
-      orderTotal,
-    } = this.state;
+  // addPurchaseLine() {
+  //   const {
+  //     quantityValue,
+  //     price,
+  //     selectedItemObjects,
+  //     orderItemsFinal,
+  //     orderTotal,
+  //   } = this.state;
 
-    let obj = {};
-    let newlist = [];
-    obj = {
-      action: 'New',
-      id: '',
-      inventoryId: '',
-      inventoryProductMappingId: '',
-      isCorrect: false,
-      notes: '',
-      position: '',
-      quantityOrdered: '',
-      tdcVolume: 0,
-      unitId: '',
-      unitPrice: '',
-      name: '',
-    };
+  //   let obj = {};
+  //   let newlist = [];
+  //   obj = {
+  //     action: 'New',
+  //     id: '',
+  //     inventoryId: '',
+  //     inventoryProductMappingId: '',
+  //     isCorrect: false,
+  //     notes: '',
+  //     position: '',
+  //     quantityOrdered: '',
+  //     tdcVolume: 0,
+  //     unitId: '',
+  //     unitPrice: '',
+  //     name: '',
+  //   };
 
-    const finalTotal = parseInt(orderTotal) + parseInt(price);
+  //   const finalTotal = parseInt(orderTotal) + parseInt(price);
 
-    newlist.push(obj);
-    this.setState({
-      orderItemsFinal: [...orderItemsFinal, ...newlist],
-      quantityValue: '',
-      price: '',
-      orderTotal: finalTotal,
-    });
-  }
+  //   newlist.push(obj);
+  //   this.setState({
+  //     orderItemsFinal: [...orderItemsFinal, ...newlist],
+  //     quantityValue: '',
+  //     price: '',
+  //     orderTotal: finalTotal,
+  //   });
+  // }
 
   deletePurchaseLine(index) {
     if (index > 0) {
@@ -375,6 +376,9 @@ class index extends Component {
       {
         departmentName: value,
         loading: true,
+        items: [],
+        selectedItemObjects: [],
+        selectedItems: [],
       },
       () => this.getManualData(),
     );
@@ -386,9 +390,11 @@ class index extends Component {
 
   getItemListData = () => {
     const {departmentName} = this.state;
+
     getInventoryListApi()
       .then(res => {
         const {data} = res;
+
         let firstArr = data.filter(item => {
           return item.departmentName === departmentName;
         });
@@ -418,7 +424,7 @@ class index extends Component {
         });
       })
       .catch(err => {
-        console.warn('Err', err.response);
+        console.warn('ErrITEMSS', err);
       });
   };
 
@@ -426,9 +432,39 @@ class index extends Component {
     this.setState({selectedItems});
   };
 
-  onSelectedItemObjectsChange = selectedItemObjects => {
-    this.setState({selectedItemObjects});
+  onSelectedItemObjectsChange = async (index, type, value, finalValue) => {
+    const {orderItemsFinal} = this.state;
+    let finalArray = finalValue.map((item, index) => {
+      return {
+        action: 'New',
+        id: '',
+        inventoryId: item.id,
+        inventoryProductMappingId: '',
+        isCorrect: false,
+        notes: '',
+        position: index + 1,
+        quantityOrdered: '',
+        tdcVolume: 0,
+        unitId: item.units[0].id,
+        unitPrice: '',
+        name: item.name,
+      };
+    });
+    console.log('finalArray--', finalArray);
+
+    this.setState(
+      {
+        selectedItemObjects: finalValue,
+        orderItemsFinal: [...finalArray],
+      },
+      // ,
+      // () => this.addDataFun(index, type, value, finalValue),
+    );
   };
+
+  // storeDataFun = async () => {
+  //   const {orderItemsFinal} = this.state;
+  // };
 
   setModalVisibleImage = () => {
     this.setState({
@@ -454,21 +490,21 @@ class index extends Component {
 
   addDataFun = (index, type, value, finalValue) => {
     const {orderItemsFinal, selectedItemObjects} = this.state;
-    const finalUnitId =
-      selectedItemObjects && selectedItemObjects[0].units[0].id;
+    // const finalUnitId =
+    //   selectedItemObjects && selectedItemObjects[0].units[0].id;
     let newArr = orderItemsFinal.map((item, i) =>
       index === i
         ? {
             ...item,
             [type]: value,
-            ['unitId']: finalUnitId,
-            ['position']: index,
+            // ['unitId']: finalUnitId,
+            // ['position']: index,
           }
         : item,
     );
     this.setState({
       orderItemsFinal: [...newArr],
-      selectedItems: finalValue,
+      // selectedItems: finalValue,
     });
   };
 
@@ -556,7 +592,10 @@ class index extends Component {
       departmentName,
       selectedItemObjects,
       chooseImageModalStatus,
+      selectedItems,
     } = this.state;
+    console.log('orderItemsFinal', orderItemsFinal);
+
     return (
       <View style={styles.container}>
         <Header
@@ -644,15 +683,156 @@ class index extends Component {
                     />
                   </View>
 
+                  <View
+                    style={{
+                      marginBottom: hp('3%'),
+                      width: wp('70%'),
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                    }}>
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        borderRadius: 5,
+                        backgroundColor: '#fff',
+                      }}>
+                      <View
+                        style={{
+                          alignSelf: 'center',
+                          justifyContent: 'center',
+                          width: index > 0 ? wp('60%') : wp('80%'),
+                        }}>
+                        <RNPickerSelect
+                          placeholder={{
+                            label: 'Select Department*',
+                            value: null,
+                            color: 'black',
+                          }}
+                          placeholderTextColor="red"
+                          onValueChange={value => {
+                            this.selectDepartementNameFun(value);
+                          }}
+                          style={{
+                            inputIOS: {
+                              fontSize: 14,
+                              paddingHorizontal: '3%',
+                              color: '#161C27',
+                              width: '100%',
+                              alignSelf: 'center',
+                              paddingVertical: 15,
+                            },
+                            inputAndroid: {
+                              fontSize: 14,
+                              paddingHorizontal: '3%',
+                              color: '#161C27',
+                              width: '100%',
+                              alignSelf: 'center',
+                            },
+                            iconContainer: {
+                              top: '40%',
+                            },
+                          }}
+                          items={[
+                            {
+                              label: 'Bar',
+                              value: 'Bar',
+                            },
+                            {
+                              label: 'Restaurant',
+                              value: 'Restaurant',
+                            },
+                            {
+                              label: 'Retail',
+                              value: 'Retail',
+                            },
+                            {
+                              label: 'Other',
+                              value: 'Other',
+                            },
+                          ]}
+                          value={departmentName}
+                          useNativeAndroidPickerStyle={false}
+                        />
+                      </View>
+                      <View style={{marginRight: wp('5%')}}>
+                        <Image
+                          source={img.arrowDownIcon}
+                          resizeMode="contain"
+                          style={{
+                            height: 18,
+                            width: 18,
+                            resizeMode: 'contain',
+                            marginTop: Platform.OS === 'ios' ? 15 : 15,
+                          }}
+                        />
+                      </View>
+                    </View>
+                  </View>
+                  <View>
+                    <SectionedMultiSelect
+                      styles={{
+                        container: {
+                          paddingTop: hp('2%'),
+                          marginTop: hp('7%'),
+                        },
+                        selectToggle: {
+                          backgroundColor: '#fff',
+                          paddingVertical: 14,
+                          paddingHorizontal: 5,
+                          borderRadius: 6,
+                        },
+                      }}
+                      loadingComponent={
+                        <View
+                          style={{
+                            flex: 1,
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                          }}>
+                          <ActivityIndicator size="large" color="#94C036" />
+                        </View>
+                      }
+                      loading={loading}
+                      // hideSearch={true}
+                      // single={true}
+                      items={items}
+                      IconRenderer={Icon}
+                      uniqueKey="id"
+                      subKey="children"
+                      showDropDowns={true}
+                      readOnlyHeadings={true}
+                      // onConfirm={() => this.storeDataFun()}
+                      onSelectedItemObjectsChange={value =>
+                        this.onSelectedItemObjectsChange(
+                          index,
+                          'inventoryId',
+                          value[0],
+                          value,
+                        )
+                      }
+                      // onSelectedItemsChange={value =>
+                      //   this.addDataFun(
+                      //     index,
+                      //     'inventoryId',
+                      //     value[0],
+                      //     value,
+                      //   )
+                      // }
+                      onSelectedItemsChange={this.onSelectedItemsChange}
+                      selectedItems={this.state.selectedItems}
+                      // selectedItems={[item.inventoryId]}
+                    />
+                  </View>
+
                   {orderItemsFinal.length > 0 &&
                     orderItemsFinal.map((item, index) => {
                       return (
                         <View style={{}}>
-                          <View style={{marginBottom: hp('4%')}}>
+                          <View style={{}}>
                             <View>
                               <View style={{}}>
                                 <View>
-                                  <View
+                                  {/* <View
                                     style={{
                                       marginBottom: hp('3%'),
                                       width: wp('70%'),
@@ -757,8 +937,8 @@ class index extends Component {
                                         </Text>
                                       </TouchableOpacity>
                                     ) : null}
-                                  </View>
-                                  <SectionedMultiSelect
+                                  </View> */}
+                                  {/* <SectionedMultiSelect
                                     styles={{
                                       container: {
                                         paddingTop: hp('2%'),
@@ -786,26 +966,35 @@ class index extends Component {
                                     }
                                     loading={loading}
                                     // hideSearch={true}
-                                    single={true}
+                                    // single={true}
                                     items={items}
                                     IconRenderer={Icon}
                                     uniqueKey="id"
                                     subKey="children"
                                     showDropDowns={true}
                                     readOnlyHeadings={true}
-                                    onSelectedItemObjectsChange={
-                                      this.onSelectedItemObjectsChange
-                                    }
-                                    onSelectedItemsChange={value =>
-                                      this.addDataFun(
+                                    onSelectedItemObjectsChange={value =>
+                                      this.onSelectedItemObjectsChange(
                                         index,
                                         'inventoryId',
                                         value[0],
                                         value,
                                       )
                                     }
-                                    selectedItems={[item.inventoryId]}
-                                  />
+                                    // onSelectedItemsChange={value =>
+                                    //   this.addDataFun(
+                                    //     index,
+                                    //     'inventoryId',
+                                    //     value[0],
+                                    //     value,
+                                    //   )
+                                    // }
+                                    onSelectedItemsChange={
+                                      this.onSelectedItemsChange
+                                    }
+                                    selectedItems={this.state.selectedItems}
+                                    // selectedItems={[item.inventoryId]}
+                                  /> */}
 
                                   <View
                                     style={{
@@ -815,18 +1004,23 @@ class index extends Component {
                                     }}>
                                     <View
                                       style={{
-                                        flex: 2,
-                                        backgroundColor: 'red',
+                                        flex: 1,
+                                      }}>
+                                      <Text>{item.name}</Text>
+                                    </View>
+                                    <View
+                                      style={{
+                                        flex: 1.5,
                                         flexDirection: 'row',
                                         alignItems: 'center',
-                                        backgroundColor: '#fff',
                                         borderRadius: 6,
+                                        backgroundColor: '#fff',
                                       }}>
                                       <TextInput
                                         placeholder="Quantity"
                                         style={{
                                           padding: 15,
-                                          width: wp('40%'),
+                                          width: wp('25%'),
                                         }}
                                         value={item.quantityOrdered}
                                         onChangeText={value =>
@@ -850,7 +1044,7 @@ class index extends Component {
                                         flex: 1,
                                         flexDirection: 'row',
                                         alignItems: 'center',
-                                        marginLeft: wp('5%'),
+                                        marginLeft: wp('4%'),
                                       }}>
                                       <Text style={{}}>€</Text>
                                       <TextInput
@@ -858,7 +1052,7 @@ class index extends Component {
                                         style={{
                                           padding: 15,
                                           marginLeft: wp('5%'),
-                                          width: wp('20%'),
+                                          width: wp('15%'),
                                           backgroundColor: '#fff',
                                           borderRadius: 6,
                                         }}
@@ -880,13 +1074,14 @@ class index extends Component {
                         </View>
                       );
                     })}
-                  <View>
+                  {/* <View>
                     <TouchableOpacity
                       onPress={() => this.addPurchaseLine()}
                       style={{
                         marginBottom: 20,
                         flexDirection: 'row',
                         alignItems: 'center',
+                        marginTop: hp('3%'),
                       }}>
                       <View style={{}}>
                         <Image
@@ -911,9 +1106,9 @@ class index extends Component {
                         </Text>
                       </View>
                     </TouchableOpacity>
-                  </View>
+                  </View> */}
 
-                  <View style={{}}>
+                  <View style={{marginTop: hp('3%')}}>
                     <View
                       style={{
                         flexDirection: 'row',
@@ -1072,8 +1267,6 @@ class index extends Component {
                       {supplierId === '' ||
                       productionDate === '' ||
                       departmentName === '' ||
-                      orderItemsFinal[0].quantityOrdered === '' ||
-                      orderItemsFinal[0].unitPrice === '' ||
                       selectedItemObjects === '' ? (
                         <View
                           opacity={0.5}

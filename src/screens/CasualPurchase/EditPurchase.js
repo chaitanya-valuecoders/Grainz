@@ -347,12 +347,15 @@ class EditPurchase extends Component {
         () =>
           updateOrderApi(payload)
             .then(res => {
-              this.setState({
-                updateLoader: false,
-              });
-              Alert.alert('Grainz', 'Order updated successfully', [
-                {text: 'OK', onPress: () => this.goBackFun()},
-              ]);
+              this.setState(
+                {
+                  updateLoader: false,
+                },
+                () => this.goBackFun(),
+              );
+              // Alert.alert('Grainz', 'Order updated successfully', [
+              //   {text: 'OK', onPress: () => this.goBackFun()},
+              // ]);
             })
             .catch(error => {
               this.setState({
@@ -389,15 +392,18 @@ class EditPurchase extends Component {
         deleteOrderApi(param)
           .then(res => {
             this.showCasualPurchases();
-            this.setState({
-              deleteLoader: false,
-            });
-            Alert.alert('Grainz', 'Order deleted successfully', [
+            this.setState(
               {
-                text: 'Okay',
-                onPress: () => this.goBackFun(),
+                deleteLoader: false,
               },
-            ]);
+              () => this.goBackFun(),
+            );
+            // Alert.alert('Grainz', 'Order deleted successfully', [
+            //   {
+            //     text: 'Okay',
+            //     onPress: () => this.goBackFun(),
+            //   },
+            // ]);
           })
           .catch(error => {
             this.setState({

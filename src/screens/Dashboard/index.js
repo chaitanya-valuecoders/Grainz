@@ -524,7 +524,7 @@ class index extends Component {
                 }}>
                 <View style={{marginBottom: hp('2%')}}>
                   <Text style={{fontFamily: 'Inter-Regular', fontSize: 15}}>
-                    {translate('Select Location(s)')} :
+                    {translate('Select location(s)')} :
                   </Text>
                 </View>
                 <View
@@ -1042,13 +1042,13 @@ class index extends Component {
               />
             </View>
           ) : null} */}
-          <View
+          {/* <View
             style={{
               marginHorizontal: wp('5%'),
               marginTop: hp('5%'),
             }}>
             <PureChart data={sampleData} type="bar" />
-          </View>
+          </View> */}
         </ScrollView>
       </View>
     );
