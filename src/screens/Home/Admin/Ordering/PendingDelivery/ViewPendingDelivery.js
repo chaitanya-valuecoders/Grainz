@@ -78,6 +78,9 @@ class ViewPendingDelivery extends Component {
       initialValueAllCorrect: 'null',
       isCheckedEditableStatus: true,
       isDatePickerArrivalDateSpecific: false,
+      supplierId: '',
+      supplierName: '',
+      basketId: '',
       choicesProp: [
         {
           choiceCode: 'Y',
@@ -138,6 +141,9 @@ class ViewPendingDelivery extends Component {
         productId: item.id,
         arrivalDataStatus: false,
         loaderCompStatus: true,
+        supplierId: item.supplierId,
+        supplierName: item.supplierName,
+        basketId: item.shopingBasketId,
       },
       () => this.getOrderFun(),
     );
@@ -794,6 +800,16 @@ class ViewPendingDelivery extends Component {
           },
         ]);
       });
+  };
+
+  addNewOrderLineFun = () => {
+    const {supplierId, supplierName, basketId, productId} = this.state;
+    this.props.navigation.navigate('AddNewOrderLineScreen', {
+      supplierValue: supplierId,
+      basketId: basketId,
+      supplierName: supplierName,
+      productId: productId,
+    });
   };
 
   render() {
@@ -1700,13 +1716,43 @@ class ViewPendingDelivery extends Component {
                   </View>
                 </View>
               </View>
+
+              <View>
+                <View
+                  style={{
+                    justifyContent: 'center',
+                    marginTop: hp('2%'),
+                    alignItems: 'center',
+                  }}>
+                  <TouchableOpacity
+                    onPress={() => this.addNewOrderLineFun()}
+                    style={{
+                      width: wp('60%'),
+                      height: hp('5%'),
+                      backgroundColor: '#94C036',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      borderRadius: 100,
+                    }}>
+                    <Text
+                      style={{
+                        color: '#fff',
+                        fontSize: 15,
+                        fontWeight: 'bold',
+                      }}>
+                      {translate('Add New Order Line')}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+
               <View>
                 <View
                   style={{
                     flexDirection: 'row',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    marginTop: hp('2%'),
+                    marginTop: hp('3%'),
                     marginBottom: hp('3%'),
                   }}>
                   <TouchableOpacity

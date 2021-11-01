@@ -1021,6 +1021,15 @@ export const processPendingOrderItemApi = async payload => {
   });
 };
 
+export const addNewOrderLineApi = async payload => {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.post(baseURL + `/Order/add order items`, payload, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
 export const getUserLocationApi = async () => {
   const token = await AsyncStorage.getItem('@appToken');
   return axios.get(baseURL + `/Location/get user locations`, {

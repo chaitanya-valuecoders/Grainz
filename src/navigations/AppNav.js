@@ -68,6 +68,8 @@ import ViewReviewOrderScreen from '../screens/Home/Admin/Ordering/ReviewOrder/Vi
 import ViewHistoryOrderScreen from '../screens/Home/Admin/Ordering/HistoryOrder/ViewHistoryOrder';
 import HistroyDataScreen from '../screens/StockTake/HistroyData';
 import DashboardScreen from '../screens/Dashboard';
+import AddNewOrderLineScreen from '../screens/Home/Admin/Ordering/PendingDelivery/AddNewOrderLine';
+import SupplierListNewOrderLineScreen from '../screens/Home/Admin/Ordering/PendingDelivery/SupplierListNewOrderLine';
 
 const AppNav = createStackNavigator();
 
@@ -76,6 +78,14 @@ export default function AppNavFun() {
     <AppNav.Navigator headerMode="none" initialRouteName="HomeScreen">
       <AppNav.Screen name="HomeScreen" component={HomeScreen} />
       <AppNav.Screen name="DashboardScreen" component={DashboardScreen} />
+      <AppNav.Screen
+        name="AddNewOrderLineScreen"
+        component={AddNewOrderLineScreen}
+      />
+      <AppNav.Screen
+        name="SupplierListNewOrderLineScreen"
+        component={SupplierListNewOrderLineScreen}
+      />
       <AppNav.Screen name="MepScreen" component={MepScreen} />
       <AppNav.Screen name="MepAdvanceScreen" component={MepAdvanceScreen} />
       <AppNav.Screen name="ManualLogScreen" component={ManualLogScreen} />
