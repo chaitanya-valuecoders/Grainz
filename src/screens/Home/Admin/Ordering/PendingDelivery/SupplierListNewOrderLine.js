@@ -441,8 +441,12 @@ class SupplierListNewOrderLine extends Component {
   };
 
   navigateToBasket = res => {
-    this.props.navigation.navigate('PendingDeliveryAdminScreen', {
-      listId: 2,
+    const {supplierId, basketId, productId, supplierName} = this.state;
+    this.props.navigation.navigate('ViewPendingDeliveryScreen', {
+      productId: productId,
+      supplierId: supplierId,
+      supplierName: supplierName,
+      basketId: basketId,
     });
   };
 
@@ -1045,7 +1049,7 @@ class SupplierListNewOrderLine extends Component {
                                           justifyContent: 'center',
                                         }}>
                                         <Text>
-                                          {Number(item.price).toFixed(2)} $ /{' '}
+                                          {Number(item.price).toFixed(2)} € /{' '}
                                           {item.unit}
                                         </Text>
                                       </View>

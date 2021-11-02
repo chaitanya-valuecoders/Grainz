@@ -197,7 +197,10 @@ class PendingDelivery extends Component {
     const {listId} = this.state;
     if (listId === 2) {
       this.props.navigation.navigate('ViewPendingDeliveryScreen', {
-        item,
+        productId: item.id,
+        supplierId: item.supplierId,
+        supplierName: item.supplierName,
+        basketId: item.shopingBasketId,
       });
     } else if (listId === 3) {
       this.props.navigation.navigate('ViewReviewOrderScreen', {
