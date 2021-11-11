@@ -74,8 +74,13 @@ class ViewHistoryOrder extends Component {
       modalPricePaid: '',
       modalNotes: '',
       modalData: '',
+      totalValue: '',
       isCheckedStatus: false,
+      supplierId: '',
+      supplierName: '',
       initialValueAllCorrect: 'null',
+      basketId: '',
+      listId: '',
       isDatePickerArrivalDateSpecific: false,
       choicesProp: [
         {
@@ -131,15 +136,23 @@ class ViewHistoryOrder extends Component {
 
   componentDidMount() {
     this.getData();
-    const {item} = this.props.route && this.props.route.params;
-    this.setState(
-      {
-        productId: item.id,
-        arrivalDataStatus: false,
-        loaderCompStatus: true,
-      },
-      () => this.getOrderFun(),
-    );
+    const {productId, supplierId, supplierName, basketId, listId} =
+      this.props.route && this.props.route.params;
+
+    this.props.navigation.addListener('focus', () => {
+      this.setState(
+        {
+          productId: productId,
+          arrivalDataStatus: false,
+          loaderCompStatus: true,
+          supplierId: supplierId,
+          supplierName: supplierName,
+          basketId: basketId,
+          listId: listId,
+        },
+        () => this.getOrderFun(),
+      );
+    });
   }
 
   getOrderFun = () => {
@@ -147,6 +160,7 @@ class ViewHistoryOrder extends Component {
     getOrderByIdApi(productId)
       .then(res => {
         const {data} = res;
+        console.log('data', data);
         this.setState(
           {
             pageData: data,
@@ -163,6 +177,7 @@ class ViewHistoryOrder extends Component {
             finalArrivalDate: data.deliveredDate,
             loaderCompStatus: false,
             isCheckedStatus: data.isAuditComplete,
+            totalValue: data.htva.toFixed(2),
           },
           () => this.createFinalData(),
         );
@@ -780,6 +795,17 @@ class ViewHistoryOrder extends Component {
       });
   };
 
+  addNewOrderLineFun = () => {
+    const {supplierId, supplierName, basketId, productId, listId} = this.state;
+    this.props.navigation.navigate('AddNewOrderLineScreen', {
+      supplierValue: supplierId,
+      basketId: basketId,
+      supplierName: supplierName,
+      productId: productId,
+      listId: listId,
+    });
+  };
+
   render() {
     const {
       buttonsSubHeader,
@@ -814,6 +840,7 @@ class ViewHistoryOrder extends Component {
       finalArrivalDateSpecific,
       modalData,
       isCheckedStatus,
+      totalValue,
     } = this.state;
 
     return (
@@ -1665,10 +1692,38 @@ class ViewHistoryOrder extends Component {
                         justifyContent: 'center',
                         marginLeft: wp('5%'),
                       }}>
-                      <Text> $ --</Text>
+                      <Text> € {totalValue}</Text>
                       {/* <Text> $ {Number(totalHTVAVal).toFixed(2)}</Text> */}
                     </View>
                   </View>
+                </View>
+              </View>
+              <View>
+                <View
+                  style={{
+                    justifyContent: 'center',
+                    marginBottom: hp('1%'),
+                    alignItems: 'center',
+                  }}>
+                  <TouchableOpacity
+                    onPress={() => this.addNewOrderLineFun()}
+                    style={{
+                      width: wp('60%'),
+                      height: hp('5%'),
+                      backgroundColor: '#94C036',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      borderRadius: 100,
+                    }}>
+                    <Text
+                      style={{
+                        color: '#fff',
+                        fontSize: 15,
+                        fontWeight: 'bold',
+                      }}>
+                      {translate('Add New Order Line')}
+                    </Text>
+                  </TouchableOpacity>
                 </View>
               </View>
               <View>

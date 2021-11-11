@@ -80,7 +80,9 @@ class ViewPendingDelivery extends Component {
       isDatePickerArrivalDateSpecific: false,
       supplierId: '',
       supplierName: '',
+      totalValue: '',
       basketId: '',
+      listId: '',
       choicesProp: [
         {
           choiceCode: 'Y',
@@ -135,7 +137,7 @@ class ViewPendingDelivery extends Component {
 
   componentDidMount() {
     this.getData();
-    const {productId, supplierId, supplierName, basketId} =
+    const {productId, supplierId, supplierName, basketId, listId} =
       this.props.route && this.props.route.params;
 
     this.props.navigation.addListener('focus', () => {
@@ -147,6 +149,7 @@ class ViewPendingDelivery extends Component {
           supplierId: supplierId,
           supplierName: supplierName,
           basketId: basketId,
+          listId: listId,
         },
         () => this.getOrderFun(),
       );
@@ -176,6 +179,7 @@ class ViewPendingDelivery extends Component {
             apiArrivalDate: data.deliveredDate,
             finalArrivalDate: data.deliveredDate,
             loaderCompStatus: false,
+            totalValue: data.htva.toFixed(2),
           },
           () => this.createFinalData(),
         );
@@ -810,12 +814,13 @@ class ViewPendingDelivery extends Component {
   };
 
   addNewOrderLineFun = () => {
-    const {supplierId, supplierName, basketId, productId} = this.state;
+    const {supplierId, supplierName, basketId, productId, listId} = this.state;
     this.props.navigation.navigate('AddNewOrderLineScreen', {
       supplierValue: supplierId,
       basketId: basketId,
       supplierName: supplierName,
       productId: productId,
+      listId: listId,
     });
   };
 
@@ -854,6 +859,7 @@ class ViewPendingDelivery extends Component {
       modalData,
       isCheckedStatus,
       isCheckedEditableStatus,
+      totalValue,
     } = this.state;
 
     return (
@@ -1509,7 +1515,6 @@ class ViewPendingDelivery extends Component {
                     <View>
                       {pageData && pageOrderItems.length > 0 ? (
                         pageOrderItems.map((item, index) => {
-                          console.log('item', item);
                           return (
                             <View
                               key={index}
@@ -1716,7 +1721,7 @@ class ViewPendingDelivery extends Component {
                         justifyContent: 'center',
                         marginLeft: wp('5%'),
                       }}>
-                      <Text> € --</Text>
+                      <Text> € {totalValue} </Text>
                       {/* <Text> $ {Number(totalHTVAVal).toFixed(2)}</Text> */}
                     </View>
                   </View>

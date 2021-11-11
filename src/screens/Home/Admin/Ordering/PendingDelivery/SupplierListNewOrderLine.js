@@ -62,6 +62,7 @@ class SupplierListNewOrderLine extends Component {
       discountPrice: false,
       discountPriceValue: '',
       priceFinalBackup: '',
+      listId: '',
       userDefinedUnit: '',
       productId: '',
     };
@@ -107,7 +108,7 @@ class SupplierListNewOrderLine extends Component {
   componentDidMount() {
     this.getData();
     this.props.navigation.addListener('focus', () => {
-      const {supplierId, catName, basketId, supplierName, productId} =
+      const {supplierId, catName, basketId, supplierName, productId, listId} =
         this.props.route && this.props.route.params;
       this.createFirstData();
       this.setState(
@@ -118,6 +119,7 @@ class SupplierListNewOrderLine extends Component {
           finalBasketData: [],
           supplierName,
           productId,
+          listId,
         },
         () => this.getInsideCatFun(),
       );
@@ -441,13 +443,32 @@ class SupplierListNewOrderLine extends Component {
   };
 
   navigateToBasket = res => {
-    const {supplierId, basketId, productId, supplierName} = this.state;
-    this.props.navigation.navigate('ViewPendingDeliveryScreen', {
-      productId: productId,
-      supplierId: supplierId,
-      supplierName: supplierName,
-      basketId: basketId,
-    });
+    const {supplierId, basketId, productId, supplierName, listId} = this.state;
+    if (listId === 2) {
+      this.props.navigation.navigate('ViewPendingDeliveryScreen', {
+        productId: productId,
+        supplierId: supplierId,
+        supplierName: supplierName,
+        basketId: basketId,
+        listId: 2,
+      });
+    } else if (listId === 3) {
+      this.props.navigation.navigate('ViewReviewOrderScreen', {
+        productId: productId,
+        supplierId: supplierId,
+        supplierName: supplierName,
+        basketId: basketId,
+        listId: 3,
+      });
+    } else if (listId === 4) {
+      this.props.navigation.navigate('ViewHistoryOrderScreen', {
+        productId: productId,
+        supplierId: supplierId,
+        supplierName: supplierName,
+        basketId: basketId,
+        listId: 4,
+      });
+    }
   };
 
   closeBasketLoader = () => {

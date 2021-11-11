@@ -201,15 +201,31 @@ class PendingDelivery extends Component {
         supplierId: item.supplierId,
         supplierName: item.supplierName,
         basketId: item.shopingBasketId,
+        listId: 2,
       });
     } else if (listId === 3) {
       this.props.navigation.navigate('ViewReviewOrderScreen', {
-        item,
+        productId: item.id,
+        supplierId: item.supplierId,
+        supplierName: item.supplierName,
+        basketId: item.shopingBasketId,
+        listId: 3,
       });
     } else if (listId === 4) {
-      this.props.navigation.navigate('ViewHistoryOrderScreen', {
-        item,
-      });
+      if (item.isTDC === true) {
+        console.log('item', item);
+        this.props.navigation.navigate('EditHistoryOrderScreen', {
+          orderData: item,
+        });
+      } else {
+        this.props.navigation.navigate('ViewHistoryOrderScreen', {
+          productId: item.id,
+          supplierId: item.supplierId,
+          supplierName: item.supplierName,
+          basketId: item.shopingBasketId,
+          listId: 4,
+        });
+      }
     }
   };
 
@@ -545,7 +561,9 @@ class PendingDelivery extends Component {
                                         width: wp('30%'),
                                         alignItems: 'center',
                                       }}>
-                                      <Text style={{textAlign: 'center'}}>
+                                      <Text
+                                        style={{textAlign: 'center'}}
+                                        numberOfLines={1}>
                                         {item.orderReference}
                                       </Text>
                                     </View>
@@ -554,7 +572,23 @@ class PendingDelivery extends Component {
                                         width: wp('30%'),
                                         alignItems: 'center',
                                       }}>
-                                      <Text>{item.supplierName}</Text>
+                                      {item.isRed ? (
+                                        <Text
+                                          numberOfLines={1}
+                                          style={{
+                                            color: 'red',
+                                          }}>
+                                          {item.supplierName}
+                                        </Text>
+                                      ) : (
+                                        <Text
+                                          numberOfLines={1}
+                                          style={{
+                                            color: '#22262A',
+                                          }}>
+                                          {item.supplierName}
+                                        </Text>
+                                      )}
                                     </View>
                                     <View
                                       style={{

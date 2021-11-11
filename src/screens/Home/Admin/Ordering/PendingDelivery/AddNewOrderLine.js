@@ -40,6 +40,7 @@ class AddNewOrderLine extends Component {
       basketId: '',
       SECTIONS_SEC_SUPP: [],
       supplierName: '',
+      listId: '',
     };
   }
 
@@ -110,7 +111,7 @@ class AddNewOrderLine extends Component {
   componentDidMount() {
     this.getData();
     this.props.navigation.addListener('focus', () => {
-      const {supplierValue, basketId, supplierName, productId} =
+      const {supplierValue, basketId, supplierName, productId, listId} =
         this.props.route && this.props.route.params;
       this.setState(
         {
@@ -120,6 +121,7 @@ class AddNewOrderLine extends Component {
           departmentName: '',
           supplierName,
           productId,
+          listId,
         },
         () => this.supplierFun(),
       );
@@ -208,6 +210,7 @@ class AddNewOrderLine extends Component {
       basketId,
       supplierName,
       productId,
+      listId,
     } = this.state;
     const catName = SECTIONS[activeSections].title;
     if (activeSections.length > 0) {
@@ -217,6 +220,7 @@ class AddNewOrderLine extends Component {
         basketId,
         supplierName,
         productId,
+        listId,
       });
     } else {
       this.setState({

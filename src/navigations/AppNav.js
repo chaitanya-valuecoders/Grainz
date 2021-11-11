@@ -70,6 +70,7 @@ import HistroyDataScreen from '../screens/StockTake/HistroyData';
 import DashboardScreen from '../screens/Dashboard';
 import AddNewOrderLineScreen from '../screens/Home/Admin/Ordering/PendingDelivery/AddNewOrderLine';
 import SupplierListNewOrderLineScreen from '../screens/Home/Admin/Ordering/PendingDelivery/SupplierListNewOrderLine';
+import EditHistoryOrderScreen from '../screens/Home/Admin/Ordering/HistoryOrder/EditHistoryOrder';
 
 const AppNav = createStackNavigator();
 
@@ -81,6 +82,10 @@ export default function AppNavFun() {
       <AppNav.Screen
         name="AddNewOrderLineScreen"
         component={AddNewOrderLineScreen}
+      />
+      <AppNav.Screen
+        name="EditHistoryOrderScreen"
+        component={EditHistoryOrderScreen}
       />
       <AppNav.Screen
         name="SupplierListNewOrderLineScreen"

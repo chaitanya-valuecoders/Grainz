@@ -74,10 +74,15 @@ class ViewReviewOrder extends Component {
       modalPricePaid: '',
       modalNotes: '',
       modalData: '',
+      totalValue: '',
       isAuditStatus: false,
       initialValueAllCorrect: 'null',
       isCheckedEditableStatus: true,
+      supplierId: '',
       isDatePickerArrivalDateSpecific: false,
+      basketId: '',
+      supplierName: '',
+      listId: '',
       choicesProp: [
         {
           choiceCode: 'Y',
@@ -132,15 +137,23 @@ class ViewReviewOrder extends Component {
 
   componentDidMount() {
     this.getData();
-    const {item} = this.props.route && this.props.route.params;
-    this.setState(
-      {
-        productId: item.id,
-        arrivalDataStatus: false,
-        loaderCompStatus: true,
-      },
-      () => this.getOrderFun(),
-    );
+    const {productId, supplierId, supplierName, basketId, listId} =
+      this.props.route && this.props.route.params;
+
+    this.props.navigation.addListener('focus', () => {
+      this.setState(
+        {
+          productId: productId,
+          arrivalDataStatus: false,
+          loaderCompStatus: true,
+          supplierId: supplierId,
+          supplierName: supplierName,
+          basketId: basketId,
+          listId: listId,
+        },
+        () => this.getOrderFun(),
+      );
+    });
   }
 
   getOrderFun = () => {
@@ -163,6 +176,7 @@ class ViewReviewOrder extends Component {
             apiArrivalDate: data.deliveredDate,
             finalArrivalDate: data.deliveredDate,
             loaderCompStatus: false,
+            totalValue: data.htva.toFixed(2),
           },
           () => this.createFinalData(),
         );
@@ -793,6 +807,17 @@ class ViewReviewOrder extends Component {
       });
   };
 
+  addNewOrderLineFun = () => {
+    const {supplierId, supplierName, basketId, productId, listId} = this.state;
+    this.props.navigation.navigate('AddNewOrderLineScreen', {
+      supplierValue: supplierId,
+      basketId: basketId,
+      supplierName: supplierName,
+      productId: productId,
+      listId: listId,
+    });
+  };
+
   render() {
     const {
       buttonsSubHeader,
@@ -827,6 +852,7 @@ class ViewReviewOrder extends Component {
       finalArrivalDateSpecific,
       modalData,
       isAuditStatus,
+      totalValue,
       isCheckedEditableStatus,
     } = this.state;
 
@@ -1684,10 +1710,38 @@ class ViewReviewOrder extends Component {
                         justifyContent: 'center',
                         marginLeft: wp('5%'),
                       }}>
-                      <Text> $ --</Text>
+                      <Text> € {totalValue}</Text>
                       {/* <Text> $ {Number(totalHTVAVal).toFixed(2)}</Text> */}
                     </View>
                   </View>
+                </View>
+              </View>
+              <View>
+                <View
+                  style={{
+                    justifyContent: 'center',
+                    marginTop: hp('2%'),
+                    alignItems: 'center',
+                  }}>
+                  <TouchableOpacity
+                    onPress={() => this.addNewOrderLineFun()}
+                    style={{
+                      width: wp('60%'),
+                      height: hp('5%'),
+                      backgroundColor: '#94C036',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      borderRadius: 100,
+                    }}>
+                    <Text
+                      style={{
+                        color: '#fff',
+                        fontSize: 15,
+                        fontWeight: 'bold',
+                      }}>
+                      {translate('Add New Order Line')}
+                    </Text>
+                  </TouchableOpacity>
                 </View>
               </View>
               <View>
