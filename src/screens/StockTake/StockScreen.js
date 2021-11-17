@@ -448,7 +448,7 @@ class StockScreen extends Component {
                                       marginTop: hp('2%'),
                                     }}>
                                     {moment(item.stockTakeLastUpdate).format(
-                                      'MM/DD/YYYY',
+                                      'DD/MM/YYYY',
                                     )}
                                   </Text>
                                 ) : null}
@@ -507,8 +507,9 @@ class StockScreen extends Component {
                                         item.correction > 0 ? '#161C27' : 'red',
                                       fontFamily: 'Inter-Regular',
                                       marginTop: hp('2%'),
+                                      marginLeft: wp('2%'),
                                     }}>
-                                    ({item.correction})
+                                    ({item.correction}) {filteredUnit[0]}
                                   </Text>
                                 ) : null}
                               </View>

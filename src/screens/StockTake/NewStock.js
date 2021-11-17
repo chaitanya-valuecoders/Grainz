@@ -50,7 +50,7 @@ class NewStock extends Component {
       departmentName: '',
       topValueStatus: false,
       categoriesStatus: true,
-      topValue: '50',
+      topValue: '10',
       departmentArr: [],
       categoryArr: [],
       pageDate: todayDate,
@@ -227,7 +227,7 @@ class NewStock extends Component {
                 </Text>
               </TouchableOpacity>
             </View>
-            <View
+            {/* <View
               style={{
                 flexDirection: 'row',
                 marginVertical: hp('4%'),
@@ -293,13 +293,14 @@ class NewStock extends Component {
                   {translate('End')}
                 </Text>
               </View>
-            </View>
+            </View> */}
             <View
               style={{
                 flexDirection: 'row',
                 borderRadius: 10,
                 backgroundColor: '#fff',
                 marginHorizontal: wp('5%'),
+                marginTop: hp('2%'),
               }}>
               <View
                 style={{
@@ -415,28 +416,26 @@ class NewStock extends Component {
                   }}>
                   {translate('Top')}
                 </Text>
-                {topValueStatus ? (
-                  <TextInput
-                    placeholder="0"
-                    value={topValue}
-                    editable={topValueStatus}
-                    style={{
-                      width: '58%',
-                      paddingVertical: 8,
-                      paddingLeft: 5,
-                      borderRadius: 5,
-                      backgroundColor: '#fff',
-                      marginLeft: wp('3%'),
-                    }}
-                    returnKeyType="done"
-                    keyboardType="numeric"
-                    onChangeText={value =>
-                      this.setState({
-                        topValue: value,
-                      })
-                    }
-                  />
-                ) : null}
+                <TextInput
+                  placeholder="0"
+                  value={topValue}
+                  editable={topValueStatus}
+                  style={{
+                    width: '58%',
+                    paddingVertical: 8,
+                    paddingLeft: 5,
+                    borderRadius: 5,
+                    backgroundColor: '#fff',
+                    marginLeft: wp('3%'),
+                  }}
+                  returnKeyType="done"
+                  keyboardType="numeric"
+                  onChangeText={value =>
+                    this.setState({
+                      topValue: value,
+                    })
+                  }
+                />
               </View>
             </View>
 

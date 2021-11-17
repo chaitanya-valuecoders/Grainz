@@ -250,43 +250,49 @@ class ViewPurchase extends Component {
           </View>
           <View style={{marginTop: '4%'}}>
             <View style={styles.listHeading}>
-              <View style={styles.listSubHeading}>
+              <TouchableOpacity
+                style={styles.listSubHeading}
+                onPress={() => this.arrangeListFun('DATE')}>
                 <Text style={styles.listTextStyling}>{translate('Date')}</Text>
-                <Pressable onPress={() => this.arrangeListFun('DATE')}>
+                <View>
                   <Image
                     style={styles.listImageStyling}
                     source={img.doubleArrowIconNew}
                   />
-                </Pressable>
-              </View>
-              <View style={styles.listSubHeading}>
+                </View>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.listSubHeading}
+                onPress={() => this.arrangeListFun('SUPPLIER')}>
                 <Text style={styles.listTextStyling}>
                   {translate('Supplier')}
                 </Text>
-                <Pressable onPress={() => this.arrangeListFun('SUPPLIER')}>
+                <View>
                   <Image
                     style={styles.listImageStyling}
                     source={img.doubleArrowIconNew}
                   />
-                </Pressable>
-              </View>
-              <View style={styles.listSubHeading}>
+                </View>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.listSubHeading}
+                onPress={() => this.arrangeListFun('HTVA')}>
                 <Text style={styles.listTextStyling}>
                   $ {translate('Total')} HTVA
                 </Text>
-                <Pressable onPress={() => this.arrangeListFun('HTVA')}>
+                <View>
                   <Image
                     style={styles.listImageStyling}
                     source={img.doubleArrowIconNew}
                   />
-                </Pressable>
-              </View>
+                </View>
+              </TouchableOpacity>
             </View>
             {casualListLoader ? (
               <ActivityIndicator color="grey" size="large" />
             ) : (
               casualPurchases.map((item, index) => {
-                const date = moment(item.orderDate).format('MM/DD/YYYY');
+                const date = moment(item.orderDate).format('DD/MM/YYYY');
                 const price = Math.round(item.htva);
                 return (
                   <View

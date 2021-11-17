@@ -216,7 +216,7 @@ class HistoryData extends Component {
                               style={styles.boxTextDataStyling}
                               numberOfLines={1}>
                               {item.systemSays && item.systemSays.toFixed(2)}{' '}
-                              {item.unit}
+                              {filteredUnit[0]}
                             </Text>
                           ) : null}
                         </View>

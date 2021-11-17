@@ -40,6 +40,7 @@ import DropDownPicker from 'react-native-dropdown-picker';
 import {translate} from '../../utils/translations';
 import styles from './style';
 import {ARRAY} from '../../constants/dummy';
+import RNPickerSelect from 'react-native-picker-select';
 
 var minTime = new Date();
 minTime.setHours(0);
@@ -61,13 +62,14 @@ class index extends Component {
       sectionData: {},
       isMakeMeStatus: true,
       isDatePickerVisible: false,
-      finalDate: moment(new Date()).format('L'),
+      finalDate: moment(new Date()).format('DD-MM-YYYY'),
       itemsTypesArr: [],
       productionDate: moment.utc(new Date()).format(),
       detailsLoader: false,
       quantity: '',
       notes: '',
       recipeID: '',
+      quantityName: '',
       selectedItems: [],
       items: [],
       departmentName: '',
@@ -77,6 +79,7 @@ class index extends Component {
       viewStatus: false,
       buttonsSubHeader: [],
       collapseStatus: true,
+      quantityList: [],
     };
   }
 
@@ -394,7 +397,7 @@ class index extends Component {
                       style={{
                         fontSize: 14,
                       }}>
-                      {item.quantity} {filteredUnit[0]}
+                      {item.quantity} {item.unit ? item.unit : filteredUnit[0]}
                     </Text>
                   </View>
                   <View style={{alignItems: 'center', width: wp('20%')}}>
@@ -447,14 +450,13 @@ class index extends Component {
                     </TouchableOpacity>
                   </View>
                 </View>
-                <View>
+                <View style={{marginVertical: hp('1%')}}>
                   <Text
                     style={{
+                      marginLeft: wp('18%'),
                       fontSize: 12,
-                      marginLeft: wp('20%'),
-                      fontWeight: 'bold',
-                      fontSize: 16,
                       color: 'grey',
+                      fontFamily: 'Inter-Regular',
                     }}>
                     {item.notes}
                   </Text>
@@ -665,8 +667,7 @@ class index extends Component {
   };
 
   handleConfirm = date => {
-    console.log('date', date);
-    let newdate = moment(date).format('L');
+    let newdate = moment(date).format('DD-MM-YYYY');
     this.setState({
       finalDate: newdate,
       productionDate: date,
@@ -689,6 +690,8 @@ class index extends Component {
       notes,
       quantity,
       itemTypes,
+      quantityName,
+      quantityList,
     } = this.state;
 
     if (
@@ -719,8 +722,8 @@ class index extends Component {
         typeId: itemTypes.value,
         typeName: itemTypes.label,
         unit: '',
-        unitId: selectedItemObjects[0].units[0].id,
-        units: selectedItemObjects[0].units,
+        unitId: quantityName,
+        units: quantityList,
         userFullName: null,
         userId: '8e194fe1-5cac-439e-a036-c2009bfb455a',
       };
@@ -757,9 +760,28 @@ class index extends Component {
   };
 
   onSelectedItemObjectsChange = selectedItemObjects => {
-    this.setState({selectedItemObjects});
+    let finalArray = selectedItemObjects[0].units.map((item, index) => {
+      return {
+        label: item.name,
+        value: item.id,
+      };
+    });
+
+    this.setState({
+      selectedItemObjects,
+      quantityList: finalArray,
+      quantityName:
+        selectedItemObjects[0] && selectedItemObjects[0].units[0].id,
+    });
   };
 
+  selectQuantityFun = item => {
+    if (item) {
+      this.setState({
+        quantityName: item.id,
+      });
+    }
+  };
   render() {
     const {
       modalVisibleAdd,
@@ -783,6 +805,8 @@ class index extends Component {
       departmentName,
       selectedItemObjects,
       itemTypes,
+      quantityName,
+      quantityList,
     } = this.state;
     const finalDateData = moment(sectionData.loggedDate).format(
       'dddd, MMM DD YYYY',
@@ -906,6 +930,7 @@ class index extends Component {
 
                           <View>
                             <DropDownPicker
+                              placeholder="Select Department"
                               items={[
                                 {
                                   label: 'Bar',
@@ -984,6 +1009,7 @@ class index extends Component {
                               selectedItems={this.state.selectedItems}
                             />
                             <DropDownPicker
+                              placeholder="Select Type"
                               items={itemsTypesArr}
                               containerStyle={{
                                 height: 50,
@@ -1007,23 +1033,100 @@ class index extends Component {
                             <View
                               style={{
                                 marginTop: hp('3%'),
+                                flexDirection: 'row',
+                                alignItems: 'center',
                               }}>
-                              <TextInput
-                                placeholder="quantity"
-                                value={quantity}
+                              <View>
+                                <TextInput
+                                  placeholder="Quantity"
+                                  value={quantity}
+                                  style={{
+                                    padding: 12,
+                                    justifyContent: 'space-between',
+                                    borderTopLeftRadius: 5,
+                                    borderBottomLeftRadius: 5,
+                                    backgroundColor: '#fff',
+                                    width: wp('47%'),
+                                  }}
+                                  keyboardType="number-pad"
+                                  onChangeText={value => {
+                                    this.setState({
+                                      quantity: value,
+                                    });
+                                  }}
+                                />
+                              </View>
+                              <View
                                 style={{
-                                  padding: 12,
-                                  justifyContent: 'space-between',
-                                  borderRadius: 6,
-                                  backgroundColor: '#fff',
-                                }}
-                                keyboardType="number-pad"
-                                onChangeText={value => {
-                                  this.setState({
-                                    quantity: value,
-                                  });
-                                }}
-                              />
+                                  flexDirection: 'row',
+                                  alignItems: 'center',
+                                }}>
+                                <View
+                                  style={{
+                                    flexDirection: 'row',
+                                    borderTopRightRadius: 5,
+                                    borderBottomRightRadius: 5,
+                                    backgroundColor: '#68AFFF',
+                                    width: wp('20%'),
+                                  }}>
+                                  <View
+                                    style={{
+                                      alignSelf: 'center',
+                                      justifyContent: 'center',
+                                      width: wp('13%'),
+                                    }}>
+                                    <RNPickerSelect
+                                      placeholder={{
+                                        label: 'Unit*',
+                                        value: null,
+                                        color: '#fff',
+                                      }}
+                                      placeholderTextColor="#fff"
+                                      onValueChange={value => {
+                                        this.selectQuantityFun(value);
+                                      }}
+                                      style={{
+                                        inputIOS: {
+                                          fontSize: 14,
+                                          paddingHorizontal: '3%',
+                                          color: '#fff',
+                                          width: '100%',
+                                          alignSelf: 'center',
+                                          paddingVertical: 12,
+                                          marginLeft: 10,
+                                        },
+                                        inputAndroid: {
+                                          fontSize: 14,
+                                          paddingHorizontal: '3%',
+                                          color: '#fff',
+                                          width: '100%',
+                                          alignSelf: 'center',
+                                        },
+                                        iconContainer: {
+                                          top: '40%',
+                                        },
+                                      }}
+                                      items={quantityList}
+                                      value={quantityName}
+                                      useNativeAndroidPickerStyle={false}
+                                    />
+                                  </View>
+                                  <View style={{marginRight: wp('5%')}}>
+                                    <Image
+                                      source={img.arrowDownIcon}
+                                      resizeMode="contain"
+                                      style={{
+                                        height: 15,
+                                        width: 15,
+                                        resizeMode: 'contain',
+                                        tintColor: '#fff',
+                                        marginTop:
+                                          Platform.OS === 'ios' ? 12 : 15,
+                                      }}
+                                    />
+                                  </View>
+                                </View>
+                              </View>
                             </View>
 
                             <View
@@ -1226,7 +1329,7 @@ class index extends Component {
                             </TouchableOpacity>
 
                             <TextInput
-                              placeholder="quantity"
+                              placeholder="Quantity"
                               value={quantity}
                               style={{
                                 padding: 12,
@@ -1245,6 +1348,7 @@ class index extends Component {
 
                             <View>
                               <DropDownPicker
+                                placeholder="Select Department"
                                 items={[
                                   {
                                     label: 'Bar',
@@ -1341,6 +1445,7 @@ class index extends Component {
                               )}
                               {viewStatus ? (
                                 <DropDownPicker
+                                  placeholder="Select Type"
                                   items={itemsTypesArr}
                                   containerStyle={{
                                     height: 50,

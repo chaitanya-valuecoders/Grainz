@@ -76,6 +76,8 @@ class index extends Component {
       selectedTextUser: '',
       selectedItemObjects: [],
       supplierListLoader: false,
+      quantityList: [],
+      quantityName: '',
       orderItemsFinal: [],
       // orderItemsFinal: [
       //   {
@@ -106,6 +108,8 @@ class index extends Component {
       recipeLoader: true,
       buttonsSubHeader: [],
       chooseImageModalStatus: false,
+      quantityError: '',
+      priceError: '',
     };
   }
 
@@ -280,6 +284,33 @@ class index extends Component {
     }
   }
 
+  payloadValidation = () => {
+    let formIsValid = true;
+    const {orderItemsFinal} = this.state;
+    console.log('order---->', orderItemsFinal);
+    if (orderItemsFinal.length > 0) {
+      for (let i of orderItemsFinal) {
+        if (i.quantityOrdered === '') {
+          i.error = 'Quantity is required';
+          formIsValid = false;
+          // this.setState({
+          //   quantityError: 'Quantity is required',
+          // });
+        } else if (i.unitPrice === '') {
+          i.error = 'Price is required';
+          formIsValid = false;
+          // this.setState({
+          //   priceError: 'Price is required',
+          // });
+        }
+      }
+    }
+    this.setState({
+      orderItemsFinal,
+    });
+    return formIsValid;
+  };
+
   createOrder() {
     const {
       productionDate,
@@ -325,39 +356,38 @@ class index extends Component {
       placedBy: '',
       supplieReference: '',
     };
-
-    console.log('Payload', payload);
-
-    if (orderItemsFinal.length === 0) {
-      alert('Please enter values first');
-    } else {
-      this.setState(
-        {
-          saveLoader: true,
-          saveTouchableStatus: true,
-        },
-        () =>
-          addOrderApi(payload)
-            .then(res => {
-              this.props.navigation.goBack();
-            })
-            .catch(err => {
-              this.setState({
-                saveLoader: false,
-                saveTouchableStatus: false,
-              });
-              Alert.alert(
-                `Error - ${err.response.status}`,
-                'Something went wrong',
-                [
-                  {
-                    text: 'Okay',
-                    onPress: () => this.props.navigation.goBack(),
-                  },
-                ],
-              );
-            }),
-      );
+    if (this.payloadValidation()) {
+      if (orderItemsFinal.length === 0) {
+        alert('Please enter values first');
+      } else {
+        this.setState(
+          {
+            saveLoader: true,
+            saveTouchableStatus: true,
+          },
+          () =>
+            addOrderApi(payload)
+              .then(res => {
+                this.props.navigation.goBack();
+              })
+              .catch(err => {
+                this.setState({
+                  saveLoader: false,
+                  saveTouchableStatus: false,
+                });
+                Alert.alert(
+                  `Error - ${err.response.status}`,
+                  'Something went wrong',
+                  [
+                    {
+                      text: 'Okay',
+                      onPress: () => this.props.navigation.goBack(),
+                    },
+                  ],
+                );
+              }),
+        );
+      }
     }
   }
 
@@ -434,7 +464,15 @@ class index extends Component {
 
   onSelectedItemObjectsChange = async (index, type, value, finalValue) => {
     const {orderItemsFinal} = this.state;
+
     let finalArray = finalValue.map((item, index) => {
+      const finalUnits = item.units.map((subItem, subIndex) => {
+        return {
+          label: subItem.name,
+          value: subItem.id,
+        };
+      });
+
       return {
         action: 'New',
         id: '',
@@ -448,9 +486,17 @@ class index extends Component {
         unitId: item.units[0].id,
         unitPrice: '',
         name: item.name,
+        units: finalUnits,
       };
     });
-    console.log('finalArray--', finalArray);
+
+    // let finalArrayUnit = finalValue.map((item, index) => {
+    //   console.log('item', item);
+    //   return {
+    //     label: item,
+    //     value: item,
+    //   };
+    // });
 
     this.setState(
       {
@@ -593,9 +639,10 @@ class index extends Component {
       selectedItemObjects,
       chooseImageModalStatus,
       selectedItems,
+      quantityList,
+      quantityName,
     } = this.state;
     console.log('orderItemsFinal', orderItemsFinal);
-
     return (
       <View style={styles.container}>
         <Header
@@ -1001,16 +1048,125 @@ class index extends Component {
                                       flexDirection: 'row',
                                       alignItems: 'center',
                                       marginTop: hp('2%'),
+                                      flex: 1,
                                     }}>
                                     <View
                                       style={{
-                                        flex: 1,
+                                        flex: 0.7,
                                       }}>
                                       <Text>{item.name}</Text>
                                     </View>
                                     <View
                                       style={{
-                                        flex: 1.5,
+                                        flexDirection: 'row',
+                                        alignItems: 'center',
+                                        flex: 2,
+                                        marginLeft: wp('2%'),
+                                      }}>
+                                      <View>
+                                        <TextInput
+                                          placeholder="Quantity"
+                                          style={{
+                                            padding: 12,
+                                            borderTopLeftRadius: 5,
+                                            borderBottomLeftRadius: 5,
+                                            backgroundColor: '#fff',
+                                            width: wp('20%'),
+                                          }}
+                                          keyboardType="number-pad"
+                                          value={item.quantityOrdered}
+                                          onChangeText={value =>
+                                            this.addDataFun(
+                                              index,
+                                              'quantityOrdered',
+                                              value,
+                                            )
+                                          }
+                                        />
+                                      </View>
+                                      <View
+                                        style={{
+                                          flexDirection: 'row',
+                                          alignItems: 'center',
+                                        }}>
+                                        <View
+                                          style={{
+                                            flexDirection: 'row',
+                                            borderTopRightRadius: 5,
+                                            borderBottomRightRadius: 5,
+                                            backgroundColor: '#68AFFF',
+                                          }}>
+                                          <View
+                                            style={{
+                                              alignSelf: 'center',
+                                              justifyContent: 'center',
+                                              width: wp('15%'),
+                                            }}>
+                                            <RNPickerSelect
+                                              placeholder={{
+                                                label: 'Unit*',
+                                                value: null,
+                                                color: '#fff',
+                                              }}
+                                              placeholderTextColor="#fff"
+                                              onValueChange={value => {
+                                                this.addDataFun(
+                                                  index,
+                                                  'unitId',
+                                                  value,
+                                                );
+                                              }}
+                                              style={{
+                                                inputIOS: {
+                                                  fontSize: 14,
+                                                  paddingHorizontal: '3%',
+                                                  color: '#fff',
+                                                  width: '100%',
+                                                  alignSelf: 'center',
+                                                  paddingVertical: 12,
+                                                  marginLeft: 10,
+                                                },
+                                                inputAndroid: {
+                                                  fontSize: 14,
+                                                  paddingHorizontal: '3%',
+                                                  color: '#fff',
+                                                  width: '100%',
+                                                  alignSelf: 'center',
+                                                },
+                                                iconContainer: {
+                                                  top: '40%',
+                                                },
+                                              }}
+                                              items={item.units}
+                                              value={item.unitId}
+                                              useNativeAndroidPickerStyle={
+                                                false
+                                              }
+                                            />
+                                          </View>
+                                          <View style={{marginRight: wp('4%')}}>
+                                            <Image
+                                              source={img.arrowDownIcon}
+                                              resizeMode="contain"
+                                              style={{
+                                                height: 15,
+                                                width: 15,
+                                                resizeMode: 'contain',
+                                                tintColor: '#fff',
+                                                marginTop:
+                                                  Platform.OS === 'ios'
+                                                    ? 12
+                                                    : 15,
+                                              }}
+                                            />
+                                          </View>
+                                        </View>
+                                      </View>
+                                    </View>
+
+                                    {/* <View
+                                      style={{
+                                        flex: 1,
                                         flexDirection: 'row',
                                         alignItems: 'center',
                                         borderRadius: 6,
@@ -1020,7 +1176,6 @@ class index extends Component {
                                         placeholder="Quantity"
                                         style={{
                                           padding: 15,
-                                          width: wp('25%'),
                                         }}
                                         value={item.quantityOrdered}
                                         onChangeText={value =>
@@ -1038,21 +1193,20 @@ class index extends Component {
                                         }}>
                                         {translate('Unit')}
                                       </Text>
-                                    </View>
+                                    </View> */}
                                     <View
                                       style={{
                                         flex: 1,
                                         flexDirection: 'row',
                                         alignItems: 'center',
-                                        marginLeft: wp('4%'),
                                       }}>
                                       <Text style={{}}>€</Text>
                                       <TextInput
                                         placeholder="Price"
                                         style={{
                                           padding: 15,
-                                          marginLeft: wp('5%'),
-                                          width: wp('15%'),
+                                          marginLeft: wp('2%'),
+                                          width: wp('18%'),
                                           backgroundColor: '#fff',
                                           borderRadius: 6,
                                         }}
@@ -1067,6 +1221,19 @@ class index extends Component {
                                       />
                                     </View>
                                   </View>
+                                  {item.error ? (
+                                    <View>
+                                      <Text
+                                        style={{
+                                          color: 'red',
+                                          fontSize: 12,
+                                          fontFamily: 'Inter-Regular',
+                                          marginTop: 5,
+                                        }}>
+                                        {item.error}
+                                      </Text>
+                                    </View>
+                                  ) : null}
                                 </View>
                               </View>
                             </View>
@@ -1245,7 +1412,7 @@ class index extends Component {
                       <TextInput
                         placeholder="Notes"
                         style={{
-                          paddingVertical: '40%',
+                          paddingVertical: '20%',
                           paddingLeft: 20,
                           paddingTop: 10,
                         }}
@@ -1254,93 +1421,6 @@ class index extends Component {
                         onChangeText={note => this.setState({note})}
                         value={note}
                       />
-                    </View>
-                  </View>
-                  <View>
-                    <View
-                      style={{
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        marginTop: hp('3%'),
-                      }}>
-                      {supplierId === '' ||
-                      productionDate === '' ||
-                      departmentName === '' ||
-                      selectedItemObjects === '' ? (
-                        <View
-                          opacity={0.5}
-                          style={{
-                            width: wp('30%'),
-                            height: hp('5%'),
-                            alignSelf: 'flex-end',
-                            backgroundColor: '#94C036',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            borderRadius: 100,
-                          }}>
-                          <Text
-                            style={{
-                              color: '#fff',
-                              fontSize: 15,
-                              fontWeight: 'bold',
-                            }}>
-                            {saveLoader ? (
-                              <ActivityIndicator size="small" color="#fff" />
-                            ) : (
-                              translate('Save')
-                            )}
-                          </Text>
-                        </View>
-                      ) : (
-                        <TouchableOpacity
-                          disabled={saveTouchableStatus}
-                          onPress={() => this.createOrder()}
-                          style={{
-                            width: wp('30%'),
-                            height: hp('5%'),
-                            alignSelf: 'flex-end',
-                            backgroundColor: '#94C036',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            borderRadius: 100,
-                          }}>
-                          <Text
-                            style={{
-                              color: '#fff',
-                              fontSize: 15,
-                              fontWeight: 'bold',
-                            }}>
-                            {saveLoader ? (
-                              <ActivityIndicator size="small" color="#fff" />
-                            ) : (
-                              translate('Save')
-                            )}
-                          </Text>
-                        </TouchableOpacity>
-                      )}
-                      <TouchableOpacity
-                        onPress={() => this.props.navigation.goBack()}
-                        style={{
-                          width: wp('30%'),
-                          height: hp('5%'),
-                          alignSelf: 'flex-end',
-                          justifyContent: 'center',
-                          alignItems: 'center',
-                          marginLeft: wp('2%'),
-                          borderRadius: 100,
-                          borderWidth: 1,
-                          borderColor: '#482813',
-                        }}>
-                        <Text
-                          style={{
-                            color: '#482813',
-                            fontSize: 15,
-                            fontWeight: 'bold',
-                          }}>
-                          {translate('Cancel')}
-                        </Text>
-                      </TouchableOpacity>
                     </View>
                   </View>
                 </View>
@@ -1572,6 +1652,93 @@ class index extends Component {
             </View>
           </Modal>
         </ScrollView>
+        <View style={{}}>
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'center',
+              paddingVertical: hp('2%'),
+            }}>
+            {supplierId === '' ||
+            productionDate === '' ||
+            departmentName === '' ||
+            selectedItemObjects === '' ? (
+              <View
+                opacity={0.5}
+                style={{
+                  width: wp('30%'),
+                  height: hp('5%'),
+                  alignSelf: 'flex-end',
+                  backgroundColor: '#94C036',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  borderRadius: 100,
+                }}>
+                <Text
+                  style={{
+                    color: '#fff',
+                    fontSize: 15,
+                    fontWeight: 'bold',
+                  }}>
+                  {saveLoader ? (
+                    <ActivityIndicator size="small" color="#fff" />
+                  ) : (
+                    translate('Save')
+                  )}
+                </Text>
+              </View>
+            ) : (
+              <TouchableOpacity
+                disabled={saveTouchableStatus}
+                onPress={() => this.createOrder()}
+                style={{
+                  width: wp('30%'),
+                  height: hp('5%'),
+                  alignSelf: 'flex-end',
+                  backgroundColor: '#94C036',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  borderRadius: 100,
+                }}>
+                <Text
+                  style={{
+                    color: '#fff',
+                    fontSize: 15,
+                    fontWeight: 'bold',
+                  }}>
+                  {saveLoader ? (
+                    <ActivityIndicator size="small" color="#fff" />
+                  ) : (
+                    translate('Save')
+                  )}
+                </Text>
+              </TouchableOpacity>
+            )}
+            <TouchableOpacity
+              onPress={() => this.props.navigation.goBack()}
+              style={{
+                width: wp('30%'),
+                height: hp('5%'),
+                alignSelf: 'flex-end',
+                justifyContent: 'center',
+                alignItems: 'center',
+                marginLeft: wp('2%'),
+                borderRadius: 100,
+                borderWidth: 1,
+                borderColor: '#482813',
+              }}>
+              <Text
+                style={{
+                  color: '#482813',
+                  fontSize: 15,
+                  fontWeight: 'bold',
+                }}>
+                {translate('Cancel')}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
       </View>
     );
   }

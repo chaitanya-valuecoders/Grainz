@@ -204,7 +204,6 @@ class AddBuilder extends Component {
 
   hitAddApi = () => {
     const {selectectedItemsNew} = this.state;
-    console.log('selectectedItemsNew', selectectedItemsNew);
     newMepListApi(selectectedItemsNew)
       .then(res => {
         this.setState(
@@ -407,7 +406,7 @@ class AddBuilder extends Component {
                                   </View>
                                   <View
                                     style={{
-                                      flex: 1,
+                                      flex: 2,
                                       marginLeft: 10,
                                       marginRight: 10,
                                       flexDirection: 'row',
@@ -416,7 +415,7 @@ class AddBuilder extends Component {
                                       borderWidth: 1,
                                       borderColor: '#C9CCD7',
                                     }}>
-                                    <View style={{flex: 3}}>
+                                    <View style={{flex: 1}}>
                                       <TextInput
                                         placeholder="Quantity"
                                         value={String(item.quantity)}
@@ -444,9 +443,10 @@ class AddBuilder extends Component {
                                       <Text
                                         numberOfLines={1}
                                         style={{
-                                          fontSize: 15,
+                                          fontSize: 12,
                                           fontFamily: 'Inter-Regular',
-                                          padding: 10,
+                                          paddingVertical: 10,
+                                          paddingHorizontal: 5,
                                         }}>
                                         {item.unit}
                                       </Text>
