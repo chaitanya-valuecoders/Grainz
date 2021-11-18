@@ -372,7 +372,7 @@ class ViewMenuItems extends Component {
                                             alignItems: 'center',
                                           }}>
                                           <Text>
-                                            $ {item.recipeCost.toFixed(2)}
+                                            € {item.recipeCost.toFixed(2)}
                                           </Text>
                                         </View>
                                       </View>

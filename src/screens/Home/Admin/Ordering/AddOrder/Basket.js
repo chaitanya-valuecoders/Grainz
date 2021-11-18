@@ -1140,7 +1140,7 @@ class Basket extends Component {
                                 style={{
                                   fontFamily: 'Inter-SemiBold',
                                 }}>
-                                HTVA ($)
+                                HTVA (€)
                               </Text>
                             </View>
                           </View>
@@ -1242,7 +1242,7 @@ class Basket extends Component {
                                           marginLeft: wp('5%'),
                                         }}>
                                         <Text>
-                                          $ {Number(item.value).toFixed(2)}
+                                          € {Number(item.value).toFixed(2)}
                                         </Text>
                                       </View>
                                     </View>
@@ -1285,7 +1285,7 @@ class Basket extends Component {
                                 }}>
                                 <Text>
                                   {' '}
-                                  $ {Number(totalHTVAVal).toFixed(2)}
+                                  € {Number(totalHTVAVal).toFixed(2)}
                                 </Text>
                               </View>
                             </View>

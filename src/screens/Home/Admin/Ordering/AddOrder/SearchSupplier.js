@@ -1126,7 +1126,7 @@ class SearchSupplier extends Component {
                                       justifyContent: 'center',
                                     }}>
                                     <Text>
-                                      {Number(item.price).toFixed(2)} $ /{' '}
+                                      {Number(item.price).toFixed(2)} € /{' '}
                                       {item.unit}
                                     </Text>
                                   </View>

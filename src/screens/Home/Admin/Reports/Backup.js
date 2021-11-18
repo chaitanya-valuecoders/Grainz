@@ -954,7 +954,7 @@ class MenuAnalysis extends Component {
                           justifyContent: 'center',
                         }}>
                         <Text style={{fontSize: 15, fontWeight: 'bold'}}>
-                          $
+                          €
                         </Text>
                       </View>
                       <View

@@ -413,7 +413,7 @@ class InventorySec extends Component {
                                           alignItems: 'center',
                                           justifyContent: 'center',
                                         }}>
-                                        <Text>$ {item.comparePrice}</Text>
+                                        <Text>€ {item.comparePrice}</Text>
                                       </View>
                                       <View
                                         style={{

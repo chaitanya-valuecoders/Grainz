@@ -606,7 +606,7 @@ class ViewInventory extends Component {
                             fontFamily: 'Inter-Regular',
                             fontSize: 15,
                           }}>
-                          $ {sectionAdvanceData.defaultPrice.toFixed(2)}
+                          € {sectionAdvanceData.defaultPrice.toFixed(2)}
                         </Text>
                       </View>
                     </View>
@@ -865,7 +865,7 @@ class ViewInventory extends Component {
                                             alignItems: 'center',
                                           }}>
                                           <Text>
-                                            {item.productPrice} $ / {item.unit}
+                                            {item.productPrice} € / {item.unit}
                                           </Text>
                                         </View>
 

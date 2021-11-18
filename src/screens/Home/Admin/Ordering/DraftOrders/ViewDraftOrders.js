@@ -426,7 +426,7 @@ class ViewDraftOrders extends Component {
                                     color: '#161C27',
                                     fontFamily: 'Inter-SemiBold',
                                   }}>
-                                  HTVA $
+                                  HTVA €
                                 </Text>
                               </View>
                             </View>
@@ -494,7 +494,7 @@ class ViewDraftOrders extends Component {
                                           justifyContent: 'center',
                                         }}>
                                         <Text>
-                                          $ {Number(item.value).toFixed(2)}
+                                          € {Number(item.value).toFixed(2)}
                                         </Text>
                                       </View>
                                     </View>
@@ -536,7 +536,7 @@ class ViewDraftOrders extends Component {
                             justifyContent: 'center',
                             marginLeft: wp('5%'),
                           }}>
-                          <Text> $ {Number(totalHTVAVal).toFixed(2)}</Text>
+                          <Text> € {Number(totalHTVAVal).toFixed(2)}</Text>
                         </View>
                       </View>
                     </View>

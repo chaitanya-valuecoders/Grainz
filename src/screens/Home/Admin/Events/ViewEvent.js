@@ -726,7 +726,7 @@ class ViewEvent extends Component {
                                       fontSize: 14,
                                       fontFamily: 'Inter-Regular',
                                     }}>
-                                    $ {item.price}
+                                    € {item.price}
                                   </Text>
                                 </View>
                                 <View

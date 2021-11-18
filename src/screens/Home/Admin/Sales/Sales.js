@@ -501,21 +501,21 @@ class Sales extends Component {
                       width: wp('30%'),
                       alignItems: 'center',
                     }}>
-                    <Text>$TVAC</Text>
+                    <Text>€TVAC</Text>
                   </View>
                   <View
                     style={{
                       width: wp('30%'),
                       alignItems: 'center',
                     }}>
-                    <Text>$TVA</Text>
+                    <Text>€TVA</Text>
                   </View>
                   <View
                     style={{
                       width: wp('30%'),
                       alignItems: 'center',
                     }}>
-                    <Text>$HTVA</Text>
+                    <Text>€HTVA</Text>
                   </View>
                 </TouchableOpacity>
               </View>
@@ -544,13 +544,13 @@ class Sales extends Component {
               <Text style={{fontSize: 15, fontWeight: 'bold'}}>TVA%</Text>
             </View>
             <View style={{width: wp('30%')}}>
-              <Text style={{fontSize: 15, fontWeight: 'bold'}}>$TVAC</Text>
+              <Text style={{fontSize: 15, fontWeight: 'bold'}}>€TVAC</Text>
             </View>
             <View style={{width: wp('30%')}}>
-              <Text style={{fontSize: 15, fontWeight: 'bold'}}>$TVA</Text>
+              <Text style={{fontSize: 15, fontWeight: 'bold'}}>€TVA</Text>
             </View>
             <View style={{width: wp('30%')}}>
-              <Text style={{fontSize: 15, fontWeight: 'bold'}}>$HTVA</Text>
+              <Text style={{fontSize: 15, fontWeight: 'bold'}}>€HTVA</Text>
             </View>
           </View>
           {section.content.map((item, index) => {
@@ -578,17 +578,17 @@ class Sales extends Component {
                 </View>
                 <View style={{width: wp('30%')}}>
                   <Text style={{fontSize: 15}}>
-                    ${item && item.content.amount}
+                    €{item && item.content.amount}
                   </Text>
                 </View>
                 <View style={{width: wp('30%')}}>
                   <Text style={{fontSize: 15}}>
-                    ${item && item.content.vatAmountFormatted}
+                    €{item && item.content.vatAmountFormatted}
                   </Text>
                 </View>
                 <View style={{width: wp('30%')}}>
                   <Text style={{fontSize: 15}}>
-                    ${item && item.content.priceExcludingVATFormatted}
+                    €{item && item.content.priceExcludingVATFormatted}
                   </Text>
                 </View>
                 {/* <TouchableOpacity style={{width: wp('30%')}}>
@@ -615,13 +615,13 @@ class Sales extends Component {
               <Text style={{fontSize: 15, fontWeight: 'bold'}}>VAT%</Text>
             </View>
             <View style={{width: wp('30%')}}>
-              <Text style={{fontSize: 15, fontWeight: 'bold'}}>$TVAC</Text>
+              <Text style={{fontSize: 15, fontWeight: 'bold'}}>€TVAC</Text>
             </View>
             <View style={{width: wp('30%')}}>
-              <Text style={{fontSize: 15, fontWeight: 'bold'}}>$TVA</Text>
+              <Text style={{fontSize: 15, fontWeight: 'bold'}}>€TVA</Text>
             </View>
             <View style={{width: wp('30%')}}>
-              <Text style={{fontSize: 15, fontWeight: 'bold'}}>$HTVA</Text>
+              <Text style={{fontSize: 15, fontWeight: 'bold'}}>€HTVA</Text>
             </View>
           </View>
           {section.content.map((item, index) => {
@@ -645,17 +645,17 @@ class Sales extends Component {
                 </View>
                 <View style={{width: wp('30%')}}>
                   <Text style={{fontSize: 15}} numberOfLines={1}>
-                    ${item && item.content.totalPriceFormatted}
+                    €{item && item.content.totalPriceFormatted}
                   </Text>
                 </View>
                 <View style={{width: wp('30%')}}>
                   <Text style={{fontSize: 15}}>
-                    ${item && item.content.vatAmountFormatted}
+                    €{item && item.content.vatAmountFormatted}
                   </Text>
                 </View>
                 <View style={{width: wp('30%')}}>
                   <Text style={{fontSize: 15}}>
-                    ${item && item.content.priceExcludingVATFormatted}
+                    €{item && item.content.priceExcludingVATFormatted}
                   </Text>
                 </View>
               </View>
@@ -679,13 +679,13 @@ class Sales extends Component {
               <Text style={{fontSize: 15, fontWeight: 'bold'}}>Department</Text>
             </View>
             <View style={{width: wp('30%')}}>
-              <Text style={{fontSize: 15, fontWeight: 'bold'}}>$TVAC</Text>
+              <Text style={{fontSize: 15, fontWeight: 'bold'}}>€TVAC</Text>
             </View>
             <View style={{width: wp('30%')}}>
-              <Text style={{fontSize: 15, fontWeight: 'bold'}}>$TVA</Text>
+              <Text style={{fontSize: 15, fontWeight: 'bold'}}>€TVA</Text>
             </View>
             <View style={{width: wp('30%')}}>
-              <Text style={{fontSize: 15, fontWeight: 'bold'}}>$HTVA</Text>
+              <Text style={{fontSize: 15, fontWeight: 'bold'}}>€HTVA</Text>
             </View>
           </View>
           {section.content.map((item, index) => {
@@ -709,17 +709,17 @@ class Sales extends Component {
                 </View>
                 <View style={{width: wp('30%')}}>
                   <Text style={{fontSize: 15}} numberOfLines={1}>
-                    ${item && item.content.totalPriceFormatted}
+                    €{item && item.content.totalPriceFormatted}
                   </Text>
                 </View>
                 <View style={{width: wp('30%')}}>
                   <Text style={{fontSize: 15}}>
-                    ${item && item.content.vatAmountFormatted}
+                    €{item && item.content.vatAmountFormatted}
                   </Text>
                 </View>
                 <View style={{width: wp('30%')}}>
                   <Text style={{fontSize: 15}}>
-                    ${item && item.content.priceExcludingVATFormatted}
+                    €{item && item.content.priceExcludingVATFormatted}
                   </Text>
                 </View>
               </View>

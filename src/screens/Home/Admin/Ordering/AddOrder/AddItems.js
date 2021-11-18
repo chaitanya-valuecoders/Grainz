@@ -23,11 +23,19 @@ import {
   getMyProfileApi,
   getInventoryBySupplierIdApi,
   getSupplierCatalogApi,
+  getInsideInventoryNewApi,
   searchInventoryItemLApi,
+  getSupplierProductsApi,
+  addBasketApi,
+  updateBasketApi,
+  updateInventoryProductApi,
 } from '../../../../../connectivity/api';
 import Accordion from 'react-native-collapsible/Accordion';
 import styles from '../style';
 import RNPickerSelect from 'react-native-picker-select';
+import Modal from 'react-native-modal';
+import moment from 'moment';
+import CheckBox from '@react-native-community/checkbox';
 
 import {translate} from '../../../../../utils/translations';
 
@@ -40,6 +48,7 @@ class AddItems extends Component {
       firstName: '',
       activeSections: [],
       SECTIONS: [],
+      SECTIONS_HORIZONTAL: [],
       recipeLoader: true,
       sectionData: {},
       isMakeMeStatus: true,
@@ -57,6 +66,7 @@ class AddItems extends Component {
       modalVisibleSetup: false,
       modalData: [],
       modalLoader: false,
+      modalSupplierLoader: false,
       sectionName: '',
       categoryLoader: false,
       supplierStatus: false,
@@ -69,6 +79,20 @@ class AddItems extends Component {
       searchItemInventory: '',
       searchItemSupplier: '',
       searchLoader: false,
+      listIndex: '',
+      catId: '',
+      catName: '',
+      basketLoader: false,
+      finalBasketData: [],
+      orderingThreeModal: false,
+      todayDate: new Date(),
+      pageData: '',
+      priceFinalBackup: '',
+      priceFinal: '',
+      privatePriceValue: '',
+      privatePrice: true,
+      discountPrice: false,
+      discountPriceValue: '',
     };
   }
 
@@ -118,7 +142,7 @@ class AddItems extends Component {
   getSupplierData = () => {
     this.setState(
       {
-        modalLoader: true,
+        modalSupplierLoader: true,
       },
       () => this.createSupplierData(),
     );
@@ -138,8 +162,8 @@ class AddItems extends Component {
         const result = finalArray;
 
         this.setState({
-          SECTIONS: [...result],
-          modalLoader: false,
+          SECTIONS_HORIZONTAL: [...result],
+          modalSupplierLoader: false,
           SECTIONS_SEC_SUPP: [...result],
         });
       })
@@ -166,7 +190,7 @@ class AddItems extends Component {
         });
         const result = finalArray;
         this.setState({
-          SECTIONS: [...result],
+          SECTIONS_HORIZONTAL: [...result],
           modalLoader: false,
           SECTIONS_SEC_INVEN: [...result],
         });
@@ -199,6 +223,9 @@ class AddItems extends Component {
           supplierName,
           searchItemInventory: '',
           searchItemSupplier: '',
+          listIndex: '',
+          SECTIONS: [],
+          modalData: [],
         },
         () => this.getManualLogsData(),
       );
@@ -219,135 +246,429 @@ class AddItems extends Component {
         style={{
           backgroundColor: '#FFFFFF',
           flexDirection: 'row',
-          borderWidth: 0.5,
-          borderColor: '#F0F0F0',
+          borderTopWidth: 1,
+          borderLeftWidth: 1,
+          borderTopColor: '#F0F0F0',
+          borderLeftColor: '#F0F0F0',
+          borderRightWidth: 1,
+          borderRightColor: '#F0F0F0',
           height: 60,
           marginTop: hp('2%'),
           alignItems: 'center',
           borderRadius: 6,
         }}>
-        <View
+        <Image
           style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            flex: 1,
+            height: 18,
+            width: 18,
+            resizeMode: 'contain',
+            marginLeft: wp('2%'),
+          }}
+          source={isActive ? img.upArrowIcon : img.arrowRightIcon}
+        />
+        <Text
+          style={{
+            color: '#492813',
+            fontSize: 15,
+            marginLeft: wp('2%'),
+            fontFamily: 'Inter-Regular',
           }}>
-          <Image
-            style={{
-              height: 18,
-              width: 18,
-              resizeMode: 'contain',
-              marginLeft: wp('2%'),
-            }}
-            source={isActive ? img.upArrowIcon : img.arrowRightIcon}
-          />
-          <Text
-            style={{
-              color: '#492813',
-              fontSize: 14,
-              marginLeft: wp('2%'),
-              fontFamily: 'Inter-Regular',
-            }}>
-            {section.title}
-          </Text>
-        </View>
-
-        <View style={{flex: 1}}>
-          <Text
-            style={{
-              color: '#492813',
-              fontSize: 14,
-              fontFamily: 'Inter-Regular',
-            }}>
-            {section.departmentName}
-          </Text>
-        </View>
+          {section.title}
+        </Text>
       </View>
     );
   };
 
+  editQuantityFun = (index, type, data, valueType, section) => {
+    this.setState(
+      {
+        inventoryId: data.id,
+      },
+      () => this.editQuantityFunSec(index, type, data, valueType, section),
+    );
+  };
+
+  editQuantityFunSec = (index, type, data, valueType, section) => {
+    if (valueType === 'add') {
+      this.editQuantityFunThird(index, type, data, valueType, section);
+    } else {
+      if (data.quantityProduct > 0) {
+        this.editQuantityFunThird(index, type, data, valueType, section);
+      }
+    }
+  };
+
+  editQuantityFunThird = (index, type, data, valueType, section) => {
+    const {inventoryStatus} = this.state;
+
+    if (inventoryStatus) {
+      const valueSec =
+        data.quantityProduct === '' ? Number(0) : Number(data.quantityProduct);
+      const valueMinus = valueSec - Number(1);
+      const valueAdd = Number(1) + valueSec;
+      const value = valueType === 'add' ? valueAdd : valueMinus;
+      const {screenType, SECTIONS, activeSections} = this.state;
+      const deltaOriginal = Number(data.delta);
+      const isSelectedValue = value !== '' && value > 0 ? true : false;
+      const newDeltaVal =
+        value !== ''
+          ? Number(data.delta) - Number(value) * Number(data.volume)
+          : deltaOriginal;
+
+      let newArr = section.content.map((item, i) =>
+        index === i
+          ? {
+              ...item,
+              [type]: value,
+              ['isSelected']: isSelectedValue,
+              ['deltaNew']: newDeltaVal,
+            }
+          : {
+              ...item,
+              ['deltaNew']: newDeltaVal,
+            },
+      );
+      var filteredArray = newArr.filter(function (itm) {
+        if (itm.quantityProduct !== '') {
+          return itm.isSelected === true;
+        }
+      });
+
+      const finalArr = [];
+      filteredArray.map(item => {
+        finalArr.push({
+          inventoryId: item.id,
+          inventoryProductMappingId: item.inventoryProductMappingId,
+          unitPrice: item.productPrice,
+          quantity: Number(item.quantityProduct),
+          action:
+            screenType === 'New'
+              ? 'New'
+              : screenType === 'Update'
+              ? 'New'
+              : 'String',
+          value: Number(
+            item.quantityProduct * item.productPrice * item.packSize,
+          ),
+        });
+      });
+
+      let finalArrSec = {
+        title: data.name,
+        content: newArr,
+      };
+
+      const finalSECIONS = SECTIONS.splice(activeSections[0], 1, finalArrSec);
+
+      this.setState({
+        finalBasketData: [...finalArr],
+      });
+    } else {
+      const valueSec =
+        data.quantityProduct === '' ? Number(0) : Number(data.quantityProduct);
+      const valueMinus = valueSec - Number(1);
+      const valueAdd = Number(1) + valueSec;
+      const value = valueType === 'add' ? valueAdd : valueMinus;
+      const {modalData, screenType} = this.state;
+      const isSelectedValue = value !== '' && value > 0 ? true : false;
+      if (data.isMapped === true) {
+        let newArr = modalData.map((item, i) =>
+          index === i
+            ? {
+                ...item,
+                [type]: value,
+                ['isSelected']: isSelectedValue,
+              }
+            : item,
+        );
+
+        var filteredArray = newArr.filter(function (itm) {
+          if (itm.quantityProduct !== '') {
+            return itm.isSelected === true;
+          }
+        });
+
+        const finalArr = [];
+        filteredArray.map(item => {
+          finalArr.push({
+            inventoryId:
+              item.inventoryMapping && item.inventoryMapping.inventoryId,
+            inventoryProductMappingId:
+              item.inventoryMapping && item.inventoryMapping.id,
+            unitPrice: item.price,
+            quantity: Number(item.quantityProduct),
+            action:
+              screenType === 'New'
+                ? 'New'
+                : screenType === 'Update'
+                ? 'New'
+                : 'String',
+            value: Number(item.quantityProduct * item.price * item.packSize),
+          });
+        });
+        this.setState({
+          modalData: [...newArr],
+          finalBasketData: [...finalArr],
+        });
+      }
+    }
+  };
+
   _renderContent = section => {
-    const {categoryLoader, catArray} = this.state;
-    return <View></View>;
+    return (
+      <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+        <View style={{backgroundColor: '#fff'}}>
+          {section.content.map((item, index) => {
+            return (
+              <View
+                style={{
+                  paddingHorizontal: 10,
+                  marginBottom:
+                    index === section.content.length - 1 ? 40 : null,
+                }}>
+                <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                  <View
+                    style={{
+                      width: wp('30%'),
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      justifyContent: 'flex-start',
+                    }}>
+                    <TouchableOpacity
+                      onPress={() =>
+                        this.editQuantityFun(
+                          index,
+                          'quantityProduct',
+                          item,
+                          'minus',
+                          section,
+                        )
+                      }
+                      style={{
+                        backgroundColor: '#ED3833',
+                        width: 25,
+                        padding: 10,
+                        alignItems: 'center',
+                        marginRight: 2,
+                        borderRadius: 5,
+                      }}>
+                      <Text
+                        style={{
+                          color: '#fff',
+                        }}>
+                        -
+                      </Text>
+                    </TouchableOpacity>
+                    <TextInput
+                      placeholder="0"
+                      editable={false}
+                      keyboardType="number-pad"
+                      value={String(item.quantityProduct)}
+                      style={{
+                        borderWidth: 1,
+                        borderRadius: 5,
+                        padding: 10,
+                        width: wp('10%'),
+                      }}
+                    />
+                    <TouchableOpacity
+                      onPress={() =>
+                        this.editQuantityFun(
+                          index,
+                          'quantityProduct',
+                          item,
+                          'add',
+                          section,
+                        )
+                      }
+                      style={{
+                        backgroundColor: '#94C036',
+                        width: 25,
+                        padding: 10,
+                        alignItems: 'center',
+                        marginLeft: 2,
+                        borderRadius: 5,
+                      }}>
+                      <Text
+                        style={{
+                          color: '#fff',
+                        }}>
+                        +
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                  <View style={{width: wp('25%')}}>
+                    <TouchableOpacity
+                      onPress={() => this.openModalFun(item)}
+                      style={{
+                        width: wp('25%'),
+                        marginLeft: wp('3%'),
+                      }}>
+                      <Text>{item.productName}</Text>
+                      {item.deltaNew > 0 ? (
+                        <Text
+                          numberOfLines={1}
+                          style={{
+                            color: 'red',
+                            marginTop: 5,
+                            fontSize: 12,
+                          }}>
+                          ( Δ {item.deltaNew.toFixed(2)} {item.unit} )
+                        </Text>
+                      ) : (
+                        <Text
+                          style={{
+                            color: 'black',
+                            marginTop: 5,
+                          }}>
+                          ( Δ 0 {item.unit} )
+                        </Text>
+                      )}
+                    </TouchableOpacity>
+                  </View>
+                  <View
+                    style={{
+                      width: wp('25%'),
+                      justifyContent: 'center',
+                      marginLeft: wp('6%'),
+                    }}>
+                    <Text>
+                      {item.comparePrice} / {item.compareUnit}
+                    </Text>
+                  </View>
+                </View>
+                <View>
+                  <Text
+                    style={{
+                      fontSize: 12,
+                      marginLeft: wp('20%'),
+                      fontWeight: 'bold',
+                      fontSize: 16,
+                      color: 'grey',
+                    }}>
+                    {item.notes}
+                  </Text>
+                </View>
+              </View>
+            );
+          })}
+        </View>
+      </ScrollView>
+    );
+  };
+
+  saveProductConfigFun = () => {
+    const {
+      userDefinedQuantity,
+      pageData,
+      userDefinedUnit,
+      privatePriceValue,
+      discountPriceValue,
+    } = this.state;
+    let payload = {
+      discount: discountPriceValue,
+      id: pageData.inventoryProductMappingId,
+      privatePrice: privatePriceValue,
+      userDefinedQuantity: userDefinedQuantity,
+      userDefinedUnit: userDefinedUnit,
+    };
+    updateInventoryProductApi(payload)
+      .then(res => {
+        Alert.alert('Grainz', 'Inventory updated successfully', [
+          {
+            text: 'Oky',
+            onPress: () =>
+              this.setState(
+                {
+                  orderingThreeModal: false,
+                },
+                () => this.getInsideInventoryFun(),
+              ),
+          },
+        ]);
+      })
+      .catch(err => {
+        console.log('err', err);
+      });
+  };
+
+  changeDiscountFun = value => {
+    const {priceFinalBackup} = this.state;
+    this.setState(
+      {
+        discountPriceValue: value,
+        priceFinal: priceFinalBackup,
+      },
+      () => this.changeDiscountFunSec(),
+    );
+  };
+
+  changeDiscountFunSec = () => {
+    const {priceFinalBackup, discountPriceValue, priceFinal} = this.state;
+
+    const finalDiscountVal = priceFinalBackup * (discountPriceValue / 100);
+
+    const finalPriceCal = priceFinalBackup - finalDiscountVal;
+
+    if (discountPriceValue) {
+      this.setState({
+        priceFinal: finalPriceCal,
+      });
+    } else {
+      this.setState({
+        priceFinal: priceFinalBackup,
+      });
+    }
+  };
+
+  changePriceFun = value => {
+    this.setState(
+      {
+        privatePriceValue: value,
+        discountPriceValue: '',
+      },
+      () => this.changePriceFunSec(),
+    );
+  };
+
+  changePriceFunSec = () => {
+    const {privatePriceValue, priceFinalBackup, pageData} = this.state;
+
+    const finalPriceCal = pageData.packSize * privatePriceValue;
+    if (privatePriceValue) {
+      this.setState({
+        priceFinal: finalPriceCal,
+      });
+    } else {
+      this.setState({
+        priceFinal: priceFinalBackup,
+      });
+    }
+  };
+
+  openModalFun = item => {
+    const priceFinal = item.productPrice * item.packSize;
+    const finalDiscountVal = priceFinal * (item.discount / 100);
+
+    const finalPriceCal = priceFinal - finalDiscountVal;
+    let finalPrice =
+      item && item.discount ? finalPriceCal : item.price * item.packSize;
+    this.setState({
+      orderingThreeModal: true,
+      priceFinal: finalPrice,
+      priceFinalBackup: item.productPrice * item.packSize,
+      userDefinedQuantity: item.userDefinedQuantity,
+      pageData: item,
+      userDefinedUnit: item.userDefinedUnit,
+      privatePriceValue: item.privatePrice,
+      discountPriceValue: item.discount,
+    });
   };
 
   _updateSections = activeSections => {
-    const {inventoryStatus} = this.state;
-    if (inventoryStatus) {
-      this.setState(
-        {
-          activeSections,
-          categoryLoader: false,
-        },
-        () => this.updateSubFun(),
-      );
-    } else {
-      this.setState(
-        {
-          activeSections,
-        },
-        () => this.updateSubFun(),
-      );
-    }
-  };
-
-  updateSubFun = () => {
-    const {inventoryStatus} = this.state;
-    if (inventoryStatus) {
-      const {
-        SECTIONS,
-        activeSections,
-        supplierId,
-        screenType,
-        basketId,
-        navigateType,
-        supplierName,
-      } = this.state;
-      if (activeSections.length > 0) {
-        const catId = SECTIONS[activeSections].content;
-        const catName = SECTIONS[activeSections].title;
-        this.props.navigation.navigate('InventoryListOrderScreen', {
-          supplierId,
-          catName,
-          catId,
-          screenType,
-          basketId,
-          navigateType,
-          supplierName,
-        });
-      } else {
-        this.setState({
-          activeSections: [],
-          categoryLoader: false,
-        });
-      }
-    } else {
-      const {
-        supplierId,
-        SECTIONS,
-        activeSections,
-        screenType,
-        basketId,
-        navigateType,
-        supplierName,
-      } = this.state;
-      const catName = SECTIONS[activeSections].title;
-      if (activeSections.length > 0) {
-        this.props.navigation.navigate('SupplierlistOrderScreen', {
-          supplierId,
-          catName,
-          screenType,
-          basketId,
-          navigateType,
-          supplierName,
-        });
-      } else {
-        this.setState({
-          activeSections: [],
-          categoryLoader: false,
-        });
-      }
-    }
+    this.setState({
+      activeSections,
+    });
   };
 
   setAdminModalVisible = visible => {
@@ -447,6 +768,9 @@ class AddItems extends Component {
         inventoryStatus: true,
         activeSections: [],
         searchItemSupplier: '',
+        SECTIONS: [],
+        modalData: [],
+        listIndex: '',
       },
       () => this.getManualLogsData(),
     );
@@ -459,6 +783,9 @@ class AddItems extends Component {
         inventoryStatus: false,
         activeSections: [],
         searchItemInventory: '',
+        SECTIONS: [],
+        modalData: [],
+        listIndex: '',
       },
       () => this.getSupplierData(),
     );
@@ -490,7 +817,296 @@ class AddItems extends Component {
     this.setState({
       //setting the filtered newData on datasource
       //After setting the data it will automatically re-render the view
-      SECTIONS: newData,
+      SECTIONS_HORIZONTAL: newData,
+      SECTIONS: [],
+      listIndex: '',
+    });
+  };
+
+  onPressInventoryFun = (item, index) => {
+    this.setState(
+      {
+        listIndex: index,
+      },
+      () => this.navigateSubFun(item),
+    );
+  };
+
+  navigateSubFun = item => {
+    const {inventoryStatus} = this.state;
+    if (inventoryStatus) {
+      const {
+        SECTIONS,
+        activeSections,
+        supplierId,
+        screenType,
+        basketId,
+        navigateType,
+        supplierName,
+      } = this.state;
+      const catId = item.content;
+      const catName = item.title;
+
+      this.setState(
+        {
+          supplierId,
+          catName,
+          catId,
+          screenType,
+          basketId,
+          navigateType,
+          finalBasketData: [],
+          supplierName,
+        },
+        () => this.getInsideInventoryFun(),
+      );
+    } else {
+      const {
+        supplierId,
+        SECTIONS,
+        activeSections,
+        screenType,
+        basketId,
+        navigateType,
+        supplierName,
+      } = this.state;
+      const catName = item.title;
+      this.setState(
+        {
+          supplierId,
+          catName,
+          screenType,
+          basketId,
+          navigateType,
+          finalBasketData: [],
+          supplierName,
+        },
+        () => this.getInsideSupplierFun(),
+      );
+    }
+  };
+
+  getInsideInventoryFun = () => {
+    const {catId, supplierId} = this.state;
+    this.setState(
+      {
+        modalLoader: true,
+      },
+      () =>
+        getInsideInventoryNewApi(catId, supplierId)
+          .then(res => {
+            const finalArr = res.data;
+            finalArr.forEach(function (item) {
+              item.isSelected = false;
+              item.quantityProduct = '';
+              item.deltaNew = item.delta;
+            });
+
+            this.setState(
+              {
+                modalData: [...finalArr],
+              },
+              () => this.createDataFun(),
+            );
+          })
+          .catch(err => {
+            Alert.alert(
+              `Error - ${err.response.status}`,
+              'Something went wrong',
+              [
+                {
+                  text: 'Okay',
+                  onPress: () => this.props.navigation.goBack(),
+                },
+              ],
+            );
+          }),
+    );
+  };
+
+  createDataFun = () => {
+    const {modalData} = this.state;
+    function extract() {
+      var groups = {};
+
+      modalData.forEach(function (val) {
+        var date = val.name;
+        if (date in groups) {
+          groups[date].push(val);
+        } else {
+          groups[date] = new Array(val);
+        }
+      });
+
+      return groups;
+    }
+
+    let final = extract();
+
+    let finalArray = Object.keys(final).map((item, index) => {
+      return {
+        title: item,
+        content: final[item],
+      };
+    });
+
+    this.setState({
+      SECTIONS: [...finalArray],
+      SECTIONS_BACKUP: [...finalArray],
+      modalLoader: false,
+    });
+  };
+
+  getInsideSupplierFun = () => {
+    const {supplierId, catName} = this.state;
+    this.setState(
+      {
+        modalSupplierLoader: true,
+      },
+      () =>
+        getSupplierProductsApi(supplierId, catName)
+          .then(res => {
+            const finalArr = res.data;
+            finalArr.forEach(function (item) {
+              item.isSelected = false;
+              item.quantityProduct = '';
+            });
+
+            this.setState({
+              modalData: [...finalArr],
+              modalSupplierLoader: false,
+            });
+          })
+          .catch(err => {
+            Alert.alert(
+              `Error - ${err.response.status}`,
+              'Something went wrong',
+              [
+                {
+                  text: 'Okay',
+                },
+              ],
+            );
+          }),
+    );
+  };
+
+  addToBasketFun = () => {
+    this.setState(
+      {
+        basketLoader: true,
+      },
+      () => this.addToBasketFunSec(),
+    );
+  };
+
+  addToBasketFunSec = () => {
+    const {
+      finalBasketData,
+      supplierId,
+      screenType,
+      basketId,
+      navigateType,
+      productId,
+      supplierName,
+    } = this.state;
+    if (screenType === 'New') {
+      if (finalBasketData.length > 0) {
+        let payload = {
+          supplierId: supplierId,
+          shopingBasketItemList: finalBasketData,
+        };
+        addBasketApi(payload)
+          .then(res => {
+            this.setState(
+              {
+                basketLoader: false,
+              },
+              () => this.navigateToBasket(res),
+            );
+          })
+          .catch(err => {
+            Alert.alert(
+              `Error - ${err.response.status}`,
+              'Something went wrong',
+              [
+                {
+                  text: 'Okay',
+                },
+              ],
+            );
+          });
+      } else {
+        Alert.alert('Grainz', 'Please add atleast one item', [
+          {
+            text: 'okay',
+            onPress: () => this.closeBasketLoader(),
+            style: 'default',
+          },
+        ]);
+      }
+    } else {
+      let payload = {
+        supplierId: supplierId,
+        shopingBasketItemList: finalBasketData,
+        id: basketId,
+      };
+      if (finalBasketData.length > 0) {
+        updateBasketApi(payload)
+          .then(res => {
+            if (navigateType === 'EditDraft') {
+              this.setState(
+                {
+                  basketLoader: false,
+                },
+                () => this.navigateToEditDraft(res),
+              );
+            } else {
+              this.setState(
+                {
+                  basketLoader: false,
+                },
+                () => this.navigateToBasket(res),
+              );
+            }
+          })
+          .catch(err => {
+            Alert.alert(
+              `Error - ${err.response.status}`,
+              'Something went wrong',
+              [
+                {
+                  text: 'Okay',
+                },
+              ],
+            );
+          });
+      } else {
+        Alert.alert('Grainz', 'Please add atleast one item', [
+          {
+            text: 'okay',
+            onPress: () => this.closeBasketLoader(),
+            style: 'default',
+          },
+        ]);
+      }
+    }
+  };
+
+  closeBasketLoader = () => {
+    this.setState({
+      basketLoader: false,
+    });
+  };
+
+  navigateToBasket = res => {
+    const {supplierId, productId, supplierName} = this.state;
+    this.props.navigation.navigate('BasketOrderScreen', {
+      finalData: res.data && res.data.id,
+      supplierId,
+      itemType: 'Inventory',
+      productId,
+      supplierName,
     });
   };
 
@@ -504,11 +1120,28 @@ class AddItems extends Component {
       inventoryStatus,
       searchItemInventory,
       modalLoader,
+      modalSupplierLoader,
       screenType,
       basketId,
       departmentName,
       searchItemSupplier,
       searchLoader,
+      listIndex,
+      SECTIONS_HORIZONTAL,
+      modalData,
+      basketLoader,
+      orderingThreeModal,
+      viewModalStatus,
+      todayDate,
+      supplierName,
+      pageData,
+      priceFinal,
+      privatePrice,
+      privatePriceValue,
+      discountPrice,
+      discountPriceValue,
+      userDefinedQuantity,
+      userDefinedUnit,
     } = this.state;
 
     return (
@@ -606,7 +1239,7 @@ class AddItems extends Component {
                   alignSelf: 'center',
                   justifyContent: 'center',
                   width: wp('80%'),
-                  height: hp('7%'),
+                  height: hp('6%'),
                 }}>
                 <RNPickerSelect
                   placeholder={{
@@ -779,18 +1412,1433 @@ class AddItems extends Component {
             </View>
           )} */}
 
-          {modalLoader ? (
-            <ActivityIndicator color="#94C036" size="large" />
-          ) : (
-            <View style={{marginTop: hp('2%'), marginHorizontal: wp('5%')}}>
-              <Accordion
-                underlayColor="#fff"
-                sections={SECTIONS}
-                activeSections={activeSections}
-                renderHeader={this._renderHeader}
-                renderContent={this._renderContent}
-                onChange={this._updateSections}
-              />
+          <View style={{marginTop: hp('2%'), marginHorizontal: wp('5%')}}>
+            <ScrollView horizontal style={{}}>
+              {SECTIONS_HORIZONTAL.map((item, index) => {
+                return (
+                  <TouchableOpacity
+                    onPress={() => this.onPressInventoryFun(item, index)}
+                    style={{
+                      borderRadius: 50,
+                      backgroundColor:
+                        index === listIndex ? '#412916' : '#94C01F',
+                      height: hp('5%'),
+                      marginRight: 10,
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      paddingHorizontal: 15,
+                    }}>
+                    <Text
+                      style={{
+                        color: '#fff',
+                        fontFamily: 'Inter-SemiBold',
+                        fontSize: 12,
+                      }}>
+                      {item.title}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </ScrollView>
+          </View>
+
+          {SECTIONS.length > 0 || modalData.length > 0 ? (
+            <View style={{justifyContent: 'center', alignItems: 'center'}}>
+              {basketLoader ? (
+                <View
+                  style={{
+                    height: hp('6%'),
+                    width: wp('80%'),
+                    backgroundColor: '#94C036',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    marginTop: hp('3%'),
+                    borderRadius: 100,
+                    marginBottom: hp('2%'),
+                  }}>
+                  <View
+                    style={{
+                      alignItems: 'center',
+                    }}>
+                    <ActivityIndicator color="#fff" size="small" />
+                  </View>
+                </View>
+              ) : (
+                <TouchableOpacity
+                  onPress={() => this.addToBasketFun()}
+                  style={{
+                    height: hp('6%'),
+                    width: wp('80%'),
+                    backgroundColor: '#94C036',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    marginTop: hp('3%'),
+                    borderRadius: 100,
+                    marginBottom: hp('2%'),
+                  }}>
+                  <View
+                    style={{
+                      alignItems: 'center',
+                    }}>
+                    <Text
+                      style={{
+                        color: 'white',
+                        marginLeft: 10,
+                        fontFamily: 'Inter-SemiBold',
+                      }}>
+                      {screenType === 'New'
+                        ? translate('Add to basket')
+                        : translate('Update basket')}
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              )}
+            </View>
+          ) : null}
+
+          <View style={{}}>
+            <View style={{marginHorizontal: wp('5%'), marginTop: hp('1%')}}>
+              {modalLoader ? (
+                <ActivityIndicator size="large" color="#94C036" />
+              ) : (
+                <Accordion
+                  expandMultiple
+                  underlayColor="#fff"
+                  sections={SECTIONS}
+                  activeSections={activeSections}
+                  renderHeader={this._renderHeader}
+                  renderContent={this._renderContent}
+                  onChange={this._updateSections}
+                />
+              )}
+            </View>
+          </View>
+
+          <Modal isVisible={viewModalStatus} backdropOpacity={0.35}>
+            <View
+              style={{
+                width: wp('80%'),
+                height: hp('75%'),
+                backgroundColor: '#F0F4FE',
+                alignSelf: 'center',
+                borderRadius: 14,
+              }}>
+              <View
+                style={{
+                  backgroundColor: '#7EA52D',
+                  height: hp('6%'),
+                  flexDirection: 'row',
+                  borderTopLeftRadius: 6,
+                  borderTopRightRadius: 6,
+                }}>
+                <View
+                  style={{
+                    flex: 3,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}>
+                  <Text
+                    style={{
+                      fontSize: 16,
+                      color: '#fff',
+                      fontFamily: 'Inter-Regular',
+                    }}>
+                    {translate('Order Line Item')}
+                  </Text>
+                </View>
+                <View
+                  style={{
+                    flex: 1,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}>
+                  <TouchableOpacity
+                    onPress={() =>
+                      this.setState({
+                        viewModalStatus: false,
+                        pageData: '',
+                      })
+                    }>
+                    <Image
+                      source={img.cancelIcon}
+                      style={{
+                        height: 22,
+                        width: 22,
+                        tintColor: 'white',
+                        resizeMode: 'contain',
+                      }}
+                    />
+                  </TouchableOpacity>
+                </View>
+              </View>
+              <ScrollView
+                style={{marginBottom: hp('5%')}}
+                showsVerticalScrollIndicator={false}>
+                <View style={{marginTop: hp('3%'), marginHorizontal: wp('5%')}}>
+                  <View>
+                    <View
+                      style={{
+                        marginTop: hp('3%'),
+                      }}>
+                      <View
+                        style={{
+                          marginBottom: hp('2%'),
+                        }}>
+                        <Text
+                          style={{fontFamily: 'Inter-Regular', fontSize: 15}}>
+                          Date :
+                        </Text>
+                      </View>
+                      <View style={{}}>
+                        <TextInput
+                          editable={false}
+                          value={moment(todayDate).format('L')}
+                          placeholder="Date"
+                          style={{
+                            padding: 10,
+                            width: wp('70%'),
+                            borderRadius: 5,
+                            backgroundColor: '#fff',
+                          }}
+                        />
+                      </View>
+                    </View>
+                    <View
+                      style={{
+                        marginTop: hp('3%'),
+                      }}>
+                      <View
+                        style={{
+                          marginBottom: hp('2%'),
+                        }}>
+                        <Text
+                          style={{fontFamily: 'Inter-Regular', fontSize: 15}}>
+                          Supplier :
+                        </Text>
+                      </View>
+                      <View style={{}}>
+                        <TextInput
+                          editable={false}
+                          value={supplierName}
+                          placeholder="Supplier"
+                          style={{
+                            padding: 10,
+                            width: wp('70%'),
+                            borderRadius: 5,
+                            backgroundColor: '#fff',
+                          }}
+                        />
+                      </View>
+                    </View>
+
+                    <View
+                      style={{
+                        marginTop: hp('3%'),
+                      }}>
+                      <View
+                        style={{
+                          marginBottom: hp('2%'),
+                        }}>
+                        <Text
+                          style={{fontFamily: 'Inter-Regular', fontSize: 15}}>
+                          {translate('Product Name')} :{' '}
+                        </Text>
+                      </View>
+                      <View style={{}}>
+                        <TextInput
+                          value={pageData.productName}
+                          editable={false}
+                          placeholder="Product Name"
+                          style={{
+                            padding: 10,
+                            width: wp('70%'),
+                            borderRadius: 5,
+                            backgroundColor: '#fff',
+                          }}
+                        />
+                      </View>
+                    </View>
+                    <View
+                      style={{
+                        marginTop: hp('3%'),
+                      }}>
+                      <View
+                        style={{
+                          marginBottom: hp('2%'),
+                        }}>
+                        <Text
+                          style={{fontFamily: 'Inter-Regular', fontSize: 15}}>
+                          Pack Size:{' '}
+                        </Text>
+                      </View>
+                      <View style={{}}>
+                        <TextInput
+                          value={String(pageData.packSize)}
+                          editable={false}
+                          placeholder="Pack Size"
+                          style={{
+                            padding: 10,
+                            width: wp('70%'),
+                            borderRadius: 5,
+                            backgroundColor: '#fff',
+                          }}
+                        />
+                      </View>
+                    </View>
+                    <View
+                      style={{
+                        marginTop: hp('3%'),
+                      }}>
+                      <View
+                        style={{
+                          marginBottom: hp('2%'),
+                        }}>
+                        <Text
+                          style={{fontFamily: 'Inter-Regular', fontSize: 15}}>
+                          {translate('Price')} :{' '}
+                        </Text>
+                      </View>
+                      <View style={{}}>
+                        <TextInput
+                          value={
+                            String(pageData.productPrice) +
+                            ' / ' +
+                            String(pageData.productUnit)
+                          }
+                          editable={false}
+                          placeholder="Price"
+                          style={{
+                            padding: 10,
+                            width: wp('70%'),
+                            borderRadius: 5,
+                            backgroundColor: '#fff',
+                          }}
+                        />
+                      </View>
+                    </View>
+
+                    <View
+                      style={{
+                        marginTop: hp('3%'),
+                      }}>
+                      <View
+                        style={{
+                          marginBottom: hp('2%'),
+                        }}>
+                        <Text
+                          style={{fontFamily: 'Inter-Regular', fontSize: 15}}>
+                          Order value :{' '}
+                        </Text>
+                      </View>
+                      <View style={{}}>
+                        <TextInput
+                          value={`€ ${Number(priceFinal).toFixed(2)}`}
+                          editable={false}
+                          placeholder="Price"
+                          style={{
+                            padding: 10,
+                            width: wp('70%'),
+                            borderRadius: 5,
+                            backgroundColor: '#fff',
+                          }}
+                        />
+                      </View>
+                    </View>
+                    <View
+                      style={{
+                        marginTop: hp('3%'),
+                      }}>
+                      <View
+                        style={{
+                          marginBottom: hp('2%'),
+                        }}>
+                        <Text
+                          style={{fontFamily: 'Inter-Regular', fontSize: 15}}>
+                          Inventory Item:{' '}
+                        </Text>
+                      </View>
+                      <View style={{}}>
+                        <TextInput
+                          value={pageData.name}
+                          editable={false}
+                          placeholder="Inventory Item"
+                          style={{
+                            padding: 10,
+                            width: wp('70%'),
+                            borderRadius: 5,
+                            backgroundColor: '#fff',
+                          }}
+                        />
+                      </View>
+                    </View>
+                    <View
+                      style={{
+                        marginTop: hp('3%'),
+                      }}>
+                      <View
+                        style={{
+                          marginBottom: hp('2%'),
+                        }}>
+                        <Text
+                          style={{fontFamily: 'Inter-Regular', fontSize: 15}}>
+                          Inventory Unit (default):{' '}
+                        </Text>
+                      </View>
+                      <View style={{}}>
+                        <TextInput
+                          value={pageData.unit}
+                          editable={false}
+                          placeholder="Inventory Unit"
+                          style={{
+                            padding: 10,
+                            width: wp('70%'),
+                            borderRadius: 5,
+                            backgroundColor: '#fff',
+                          }}
+                        />
+                      </View>
+                    </View>
+                    <View
+                      style={{
+                        marginTop: hp('3%'),
+                      }}>
+                      <View
+                        style={{
+                          marginBottom: hp('2%'),
+                        }}>
+                        <Text
+                          style={{fontFamily: 'Inter-Regular', fontSize: 15}}>
+                          Delta :{' '}
+                        </Text>
+                      </View>
+                      <View style={{}}>
+                        <TextInput
+                          value={String(pageData.delta)}
+                          editable={false}
+                          placeholder="Delta"
+                          style={{
+                            padding: 10,
+                            width: wp('70%'),
+                            borderRadius: 5,
+                            backgroundColor: '#fff',
+                          }}
+                        />
+                      </View>
+                    </View>
+                    <View
+                      style={{
+                        marginTop: hp('3%'),
+                      }}>
+                      <View
+                        style={{
+                          marginBottom: hp('2%'),
+                        }}>
+                        <Text
+                          style={{fontFamily: 'Inter-Regular', fontSize: 15}}>
+                          This order :{' '}
+                        </Text>
+                      </View>
+                      <View style={{}}>
+                        <TextInput
+                          value={String(pageData.delta)}
+                          editable={false}
+                          placeholder="This order"
+                          style={{
+                            padding: 10,
+                            width: wp('70%'),
+                            borderRadius: 5,
+                            backgroundColor: '#fff',
+                          }}
+                        />
+                      </View>
+                    </View>
+                    <View
+                      style={{
+                        marginTop: hp('3%'),
+                      }}>
+                      <View
+                        style={{
+                          marginBottom: hp('2%'),
+                        }}>
+                        <Text
+                          style={{fontFamily: 'Inter-Regular', fontSize: 15}}>
+                          Current Level :{' '}
+                        </Text>
+                      </View>
+                      <View style={{}}>
+                        <TextInput
+                          value={String(pageData.delta)}
+                          editable={false}
+                          placeholder="Current Level"
+                          style={{
+                            padding: 10,
+                            width: wp('70%'),
+                            borderRadius: 5,
+                            backgroundColor: '#fff',
+                          }}
+                        />
+                      </View>
+                    </View>
+                    <View
+                      style={{
+                        marginTop: hp('3%'),
+                      }}>
+                      <View
+                        style={{
+                          marginBottom: hp('2%'),
+                        }}>
+                        <Text
+                          style={{fontFamily: 'Inter-Regular', fontSize: 15}}>
+                          On Order :
+                        </Text>
+                      </View>
+                      <View style={{}}>
+                        <TextInput
+                          value={String(pageData.delta)}
+                          editable={false}
+                          placeholder="On Order"
+                          style={{
+                            padding: 10,
+                            width: wp('70%'),
+                            borderRadius: 5,
+                            backgroundColor: '#fff',
+                          }}
+                        />
+                      </View>
+                    </View>
+                    <View
+                      style={{
+                        marginTop: hp('3%'),
+                      }}>
+                      <View
+                        style={{
+                          marginBottom: hp('2%'),
+                        }}>
+                        <Text
+                          style={{fontFamily: 'Inter-Regular', fontSize: 15}}>
+                          Target :
+                        </Text>
+                      </View>
+                      <View style={{}}>
+                        <TextInput
+                          value={String(pageData.reorderLevel)}
+                          editable={false}
+                          placeholder="Target"
+                          style={{
+                            padding: 10,
+                            width: wp('70%'),
+                            borderRadius: 5,
+                            backgroundColor: '#fff',
+                          }}
+                        />
+                      </View>
+                    </View>
+                  </View>
+                </View>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    marginHorizontal: wp('10%'),
+                    justifyContent: 'center',
+                  }}>
+                  <View style={{}}>
+                    <TouchableOpacity
+                      onPress={() =>
+                        this.setState({
+                          viewModalStatus: false,
+                          pageData: '',
+                        })
+                      }
+                      style={{
+                        height: hp('6%'),
+                        width: wp('25%'),
+                        backgroundColor: '#E7943B',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        marginTop: 20,
+                        borderRadius: 5,
+                      }}>
+                      <View style={{}}>
+                        <Text style={{color: 'white'}}>Close</Text>
+                      </View>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              </ScrollView>
+            </View>
+          </Modal>
+
+          <Modal isVisible={orderingThreeModal} backdropOpacity={0.35}>
+            <View
+              style={{
+                width: wp('80%'),
+                height: hp('75%'),
+                backgroundColor: '#F0F4FE',
+                alignSelf: 'center',
+                borderRadius: 14,
+              }}>
+              <View
+                style={{
+                  backgroundColor: '#7EA52D',
+                  height: hp('6%'),
+                  flexDirection: 'row',
+                  borderTopLeftRadius: 6,
+                  borderTopRightRadius: 6,
+                }}>
+                <View
+                  style={{
+                    flex: 3,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}>
+                  <Text
+                    style={{
+                      fontSize: 16,
+                      color: '#fff',
+                      fontFamily: 'Inter-Regular',
+                    }}>
+                    {translate('Product Configuration')}
+                  </Text>
+                </View>
+                <View
+                  style={{
+                    flex: 1,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}>
+                  <TouchableOpacity
+                    onPress={() =>
+                      this.setState({
+                        orderingThreeModal: false,
+                        pageData: '',
+                        priceFinal: '',
+                        priceFinalBackup: '',
+                        userDefinedQuantity: '',
+                        userDefinedUnit: '',
+                      })
+                    }>
+                    <Image
+                      source={img.cancelIcon}
+                      style={{
+                        height: 22,
+                        width: 22,
+                        tintColor: 'white',
+                        resizeMode: 'contain',
+                      }}
+                    />
+                  </TouchableOpacity>
+                </View>
+              </View>
+              <ScrollView
+                style={{marginBottom: hp('5%')}}
+                showsVerticalScrollIndicator={false}>
+                <View style={{marginTop: hp('3%'), marginHorizontal: wp('5%')}}>
+                  <View>
+                    <View
+                      style={{
+                        marginTop: hp('3%'),
+                      }}>
+                      <View
+                        style={{
+                          marginBottom: hp('2%'),
+                        }}>
+                        <Text
+                          style={{fontFamily: 'Inter-Regular', fontSize: 15}}>
+                          Supplier :
+                        </Text>
+                      </View>
+                      <View style={{}}>
+                        <TextInput
+                          editable={false}
+                          value={supplierName}
+                          placeholder="Supplier"
+                          style={{
+                            padding: 10,
+                            width: wp('70%'),
+                            borderRadius: 5,
+                            backgroundColor: '#fff',
+                          }}
+                        />
+                      </View>
+                    </View>
+
+                    <View
+                      style={{
+                        marginTop: hp('3%'),
+                      }}>
+                      <View
+                        style={{
+                          marginBottom: hp('2%'),
+                        }}>
+                        <Text
+                          style={{fontFamily: 'Inter-Regular', fontSize: 15}}>
+                          {translate('Product Name')} :{' '}
+                        </Text>
+                      </View>
+                      <View style={{}}>
+                        <TextInput
+                          value={pageData.productName}
+                          editable={false}
+                          placeholder="Product Name"
+                          style={{
+                            padding: 10,
+                            width: wp('70%'),
+                            borderRadius: 5,
+                            backgroundColor: '#fff',
+                          }}
+                        />
+                      </View>
+                    </View>
+                    <View
+                      style={{
+                        marginTop: hp('3%'),
+                      }}>
+                      <View
+                        style={{
+                          marginBottom: hp('2%'),
+                        }}>
+                        <Text
+                          style={{fontFamily: 'Inter-Regular', fontSize: 15}}>
+                          Pack Size:{' '}
+                        </Text>
+                      </View>
+                      <View style={{}}>
+                        <TextInput
+                          value={String(pageData.packSize)}
+                          editable={false}
+                          placeholder="Pack Size"
+                          style={{
+                            padding: 10,
+                            width: wp('70%'),
+                            borderRadius: 5,
+                            backgroundColor: '#fff',
+                          }}
+                        />
+                      </View>
+                    </View>
+                    <View
+                      style={{
+                        marginTop: hp('3%'),
+                      }}>
+                      <View
+                        style={{
+                          marginBottom: hp('2%'),
+                        }}>
+                        <Text
+                          style={{fontFamily: 'Inter-Regular', fontSize: 15}}>
+                          List Price :{' '}
+                        </Text>
+                      </View>
+                      <View style={{}}>
+                        <TextInput
+                          value={
+                            String(pageData.productPrice) +
+                            ' / ' +
+                            String(pageData.productUnit)
+                          }
+                          editable={false}
+                          placeholder="List Price"
+                          style={{
+                            padding: 10,
+                            width: wp('70%'),
+                            borderRadius: 5,
+                            backgroundColor: '#fff',
+                          }}
+                        />
+                      </View>
+                    </View>
+
+                    <View
+                      style={{
+                        marginTop: hp('3%'),
+                      }}>
+                      <View
+                        style={{
+                          marginBottom: hp('2%'),
+                        }}>
+                        <Text
+                          style={{fontFamily: 'Inter-Regular', fontSize: 15}}>
+                          Inventory Item:{' '}
+                        </Text>
+                      </View>
+                      <View style={{}}>
+                        <TextInput
+                          value={pageData.name}
+                          editable={false}
+                          placeholder="Inventory Item"
+                          style={{
+                            padding: 10,
+                            width: wp('70%'),
+                            borderRadius: 5,
+                            backgroundColor: '#fff',
+                          }}
+                        />
+                      </View>
+                    </View>
+                    <View
+                      style={{
+                        marginTop: hp('3%'),
+                      }}>
+                      <View
+                        style={{
+                          marginBottom: hp('2%'),
+                        }}>
+                        <Text
+                          style={{fontFamily: 'Inter-Regular', fontSize: 15}}>
+                          Inventory Unit (default):{' '}
+                        </Text>
+                      </View>
+                      <View style={{}}>
+                        <TextInput
+                          value={pageData.unit}
+                          editable={false}
+                          placeholder="Inventory Unit"
+                          style={{
+                            padding: 10,
+                            width: wp('70%'),
+                            borderRadius: 5,
+                            backgroundColor: '#fff',
+                          }}
+                        />
+                      </View>
+                    </View>
+                    <View
+                      style={{
+                        marginTop: hp('3%'),
+                      }}>
+                      <View
+                        style={{
+                          marginBottom: hp('2%'),
+                        }}>
+                        <Text
+                          style={{fontFamily: 'Inter-Regular', fontSize: 15}}>
+                          {translate('Price')}:{' '}
+                        </Text>
+                      </View>
+                      <View style={{}}>
+                        <TextInput
+                          value={`€ ${Number(priceFinal).toFixed(2)}`}
+                          editable={false}
+                          placeholder="Price"
+                          style={{
+                            padding: 10,
+                            width: wp('70%'),
+                            borderRadius: 5,
+                            backgroundColor: '#fff',
+                          }}
+                        />
+                      </View>
+                    </View>
+                  </View>
+                  <View>
+                    <View
+                      style={{
+                        marginTop: hp('3%'),
+                      }}>
+                      <View
+                        style={{
+                          width: wp('30%'),
+                          flexDirection: 'row',
+                          alignItems: 'center',
+                          marginBottom: hp('2%'),
+                        }}>
+                        <View style={{}}>
+                          <CheckBox
+                            value={privatePrice}
+                            onValueChange={() =>
+                              this.setState({
+                                privatePrice: !privatePrice,
+                                discountPrice: false,
+                                priceFinal: this.state.priceFinalBackup,
+                                discountPriceValue: '',
+                              })
+                            }
+                            style={{
+                              backgroundColor: '#E9ECEF',
+                              height: 20,
+                              width: 20,
+                            }}
+                          />
+                        </View>
+                        <Text style={{marginLeft: 10}}>Private price: </Text>
+                      </View>
+                      <View
+                        style={{flexDirection: 'row', alignItems: 'center'}}>
+                        <Text style={{marginRight: 5}}>€ </Text>
+                        <TextInput
+                          value={String(privatePriceValue)}
+                          editable={privatePrice ? true : false}
+                          keyboardType="number-pad"
+                          style={{
+                            padding: 10,
+                            width: wp('45%'),
+                            borderRadius: 5,
+                            backgroundColor: privatePrice ? '#fff' : '#E9ECEF',
+                          }}
+                          onChangeText={value => this.changePriceFun(value)}
+                        />
+                        <Text style={{marginLeft: 5}}>STK</Text>
+                      </View>
+                    </View>
+                    <View
+                      style={{
+                        marginTop: hp('3%'),
+                      }}>
+                      <View
+                        style={{
+                          width: wp('30%'),
+                          flexDirection: 'row',
+                          alignItems: 'center',
+                          marginBottom: hp('2%'),
+                        }}>
+                        <View style={{}}>
+                          <CheckBox
+                            value={discountPrice}
+                            onValueChange={() =>
+                              this.setState({
+                                discountPrice: !discountPrice,
+                                privatePrice: false,
+                                privatePriceValue: '',
+                                priceFinal: this.state.priceFinalBackup,
+                              })
+                            }
+                            style={{
+                              backgroundColor: '#E9ECEF',
+                              height: 20,
+                              width: 20,
+                            }}
+                          />
+                        </View>
+                        <Text style={{marginLeft: 10}}>Discount: </Text>
+                      </View>
+                      <View
+                        style={{flexDirection: 'row', alignItems: 'center'}}>
+                        <TextInput
+                          value={String(discountPriceValue)}
+                          editable={discountPrice ? true : false}
+                          keyboardType="number-pad"
+                          style={{
+                            padding: 10,
+                            width: wp('50%'),
+                            borderRadius: 5,
+                            backgroundColor: discountPrice ? '#fff' : '#E9ECEF',
+                          }}
+                          onChangeText={value => this.changeDiscountFun(value)}
+                        />
+                        <Text style={{marginLeft: 5}}>%</Text>
+                      </View>
+                    </View>
+                  </View>
+                  <View>
+                    <ScrollView
+                      horizontal
+                      showsHorizontalScrollIndicator={false}>
+                      <View>
+                        <View
+                          style={{flexDirection: 'row', marginTop: hp('3%')}}>
+                          <View style={{width: wp('40%')}}>
+                            <Text>Order * 1</Text>
+                          </View>
+                          <View style={{width: wp('40%')}}>
+                            <Text>{translate('Quantity')}</Text>
+                          </View>
+                          <View style={{width: wp('40%')}}>
+                            <Text>Unit</Text>
+                          </View>
+                        </View>
+                        <View>
+                          <View
+                            style={{
+                              flexDirection: 'row',
+                              alignItems: 'center',
+                              marginTop: hp('3%'),
+                            }}>
+                            <View
+                              style={{
+                                width: wp('40%'),
+                              }}>
+                              <Text>Grainz suggested: </Text>
+                            </View>
+                            <View
+                              style={{
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                                width: wp('40%'),
+                              }}>
+                              <TextInput
+                                value={String(pageData.grainzVolume)}
+                                editable={false}
+                                style={{
+                                  padding: 10,
+                                  width: wp('25%'),
+                                  borderRadius: 5,
+                                  backgroundColor: '#fff',
+                                }}
+                              />
+                            </View>
+                            <View
+                              style={{
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                                width: wp('40%'),
+                              }}>
+                              <TextInput
+                                value={pageData.grainzUnit}
+                                editable={false}
+                                style={{
+                                  padding: 10,
+                                  width: wp('25%'),
+                                  borderRadius: 5,
+                                  backgroundColor: '#fff',
+                                }}
+                              />
+                            </View>
+                          </View>
+                          <View
+                            style={{
+                              flexDirection: 'row',
+                              alignItems: 'center',
+                              marginTop: hp('3%'),
+                            }}>
+                            <View
+                              style={{
+                                width: wp('40%'),
+                              }}>
+                              <Text>User Defined: </Text>
+                            </View>
+                            <View
+                              style={{
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                                width: wp('40%'),
+                              }}>
+                              <TextInput
+                                value={String(userDefinedQuantity)}
+                                style={{
+                                  padding: 10,
+                                  width: wp('25%'),
+                                  borderRadius: 5,
+                                  backgroundColor: '#fff',
+                                }}
+                                onChangeText={value =>
+                                  this.setState({
+                                    userDefinedQuantity: value,
+                                  })
+                                }
+                              />
+                            </View>
+                            <View
+                              style={{
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                                width: wp('40%'),
+                              }}>
+                              <TextInput
+                                value={userDefinedUnit}
+                                // editable={false}
+                                style={{
+                                  borderRadius: 5,
+                                  backgroundColor: '#fff',
+                                  padding: 10,
+                                  width: wp('25%'),
+                                }}
+                                onChangeText={value =>
+                                  this.setState({
+                                    userDefinedUnit: value,
+                                  })
+                                }
+                              />
+                            </View>
+                          </View>
+                        </View>
+                      </View>
+                    </ScrollView>
+                  </View>
+                </View>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    marginHorizontal: wp('10%'),
+                  }}>
+                  <View style={{}}>
+                    <TouchableOpacity
+                      onPress={() =>
+                        this.setState({
+                          orderingThreeModal: false,
+                          pageData: '',
+                          priceFinal: '',
+                          priceFinalBackup: '',
+                          userDefinedQuantity: '',
+                          userDefinedUnit: '',
+                        })
+                      }
+                      style={{
+                        height: hp('6%'),
+                        width: wp('25%'),
+                        backgroundColor: '#E7943B',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        marginTop: 20,
+                        borderRadius: 5,
+                      }}>
+                      <View style={{}}>
+                        <Text style={{color: 'white'}}>Cancel</Text>
+                      </View>
+                    </TouchableOpacity>
+                  </View>
+                  <View style={{}}>
+                    <TouchableOpacity
+                      onPress={() => this.saveProductConfigFun()}
+                      style={{
+                        height: hp('6%'),
+                        width: wp('25%'),
+                        backgroundColor: '#94C036',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        marginTop: 20,
+                        borderRadius: 5,
+                      }}>
+                      <View style={{}}>
+                        <Text style={{color: 'white', marginLeft: 5}}>
+                          Save
+                        </Text>
+                      </View>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              </ScrollView>
+            </View>
+          </Modal>
+
+          {inventoryStatus ? null : (
+            <View style={{}}>
+              <ScrollView>
+                {modalSupplierLoader ? (
+                  <ActivityIndicator size="large" color="#94C036" />
+                ) : (
+                  <View
+                    style={{
+                      padding: hp('2%'),
+                    }}>
+                    <ScrollView
+                      horizontal
+                      showsHorizontalScrollIndicator={false}>
+                      <View>
+                        <ScrollView
+                          horizontal
+                          showsHorizontalScrollIndicator={false}>
+                          <View>
+                            <View
+                              style={{
+                                paddingVertical: 15,
+                                paddingHorizontal: 20,
+                                flexDirection: 'row',
+                                justifyContent: 'space-between',
+                                backgroundColor: '#EFFBCF',
+                              }}>
+                              <View
+                                style={{
+                                  width: wp('40%'),
+                                }}>
+                                <Text>{translate('Quantity')}</Text>
+                              </View>
+
+                              <View
+                                style={{
+                                  width: wp('40%'),
+                                  marginLeft: wp('5%'),
+                                }}>
+                                <Text>{translate('Product Name')}</Text>
+                              </View>
+                              {/* <View
+                                style={{
+                                  width: wp('30%'),
+                                  marginLeft: wp('5%'),
+                                }}>
+                                <Text>Code</Text>
+                              </View>
+                              <View
+                                style={{
+                                  width: wp('30%'),
+                                }}>
+                                <Text>Stock</Text>
+                              </View> */}
+                              <View
+                                style={{
+                                  width: wp('30%'),
+                                  marginLeft: wp('5%'),
+                                }}>
+                                <Text>{translate('Price')}</Text>
+                              </View>
+                              {/* <View
+                                style={{
+                                  width: wp('30%'),
+                                  marginLeft: wp('5%'),
+                                }}>
+                                <Text style={{}}>In Stock?</Text>
+                              </View> */}
+                              {/* <View
+                                style={{
+                                  width: wp('30%'),
+                                  marginLeft: wp('5%'),
+                                }}></View> */}
+                            </View>
+                            <View>
+                              {modalData && modalData.length > 0 ? (
+                                modalData.map((item, index) => {
+                                  return (
+                                    <View
+                                      key={index}
+                                      style={{
+                                        paddingVertical: 10,
+                                        paddingHorizontal: 20,
+                                        flexDirection: 'row',
+                                        backgroundColor:
+                                          index % 2 === 0
+                                            ? '#FFFFFF'
+                                            : '#F7F8F5',
+                                      }}>
+                                      <View
+                                        style={{
+                                          width: wp('40%'),
+                                          flexDirection: 'row',
+                                          alignItems: 'center',
+                                          justifyContent: 'flex-start',
+                                        }}>
+                                        {item.isMapped ? (
+                                          <TouchableOpacity
+                                            onPress={() =>
+                                              this.editQuantityFun(
+                                                index,
+                                                'quantityProduct',
+                                                item,
+                                                'minus',
+                                              )
+                                            }
+                                            style={{
+                                              backgroundColor: '#ED3833',
+                                              width: 30,
+                                              padding: 10,
+                                              alignItems: 'center',
+                                              marginRight: 2,
+                                              borderRadius: 5,
+                                            }}>
+                                            <Text
+                                              style={{
+                                                color: '#fff',
+                                              }}>
+                                              -
+                                            </Text>
+                                          </TouchableOpacity>
+                                        ) : null}
+                                        {item.isMapped ? (
+                                          <TextInput
+                                            placeholder="0"
+                                            editable={false}
+                                            keyboardType="number-pad"
+                                            value={String(item.quantityProduct)}
+                                            style={{
+                                              borderWidth: 1,
+                                              borderRadius: 6,
+                                              padding: 10,
+                                              width: wp('15%'),
+                                            }}
+                                            // onChangeText={value =>
+                                            //   this.editQuantityFun(
+                                            //     index,
+                                            //     'quantityProduct',
+                                            //     value,
+                                            //     item,
+                                            //   )
+                                            // }
+                                          />
+                                        ) : (
+                                          <TouchableOpacity
+                                            onPress={() =>
+                                              this.mapAlertShow(item)
+                                            }
+                                            style={{
+                                              borderRadius: 6,
+                                              padding: 10,
+                                              width: wp('22%'),
+                                              backgroundColor: '#94C036',
+                                              alignItems: 'center',
+                                            }}>
+                                            <Text
+                                              style={{
+                                                color: '#fff',
+                                                fontFamily: 'Inter-Regular',
+                                              }}>
+                                              Map
+                                            </Text>
+                                          </TouchableOpacity>
+                                        )}
+
+                                        {item.isMapped ? (
+                                          <TouchableOpacity
+                                            onPress={() =>
+                                              this.editQuantityFun(
+                                                index,
+                                                'quantityProduct',
+                                                item,
+                                                'add',
+                                              )
+                                            }
+                                            style={{
+                                              backgroundColor: '#94C036',
+                                              width: 30,
+                                              padding: 10,
+                                              alignItems: 'center',
+                                              marginLeft: 2,
+                                              borderRadius: 5,
+                                            }}>
+                                            <Text
+                                              style={{
+                                                color: '#fff',
+                                              }}>
+                                              +
+                                            </Text>
+                                          </TouchableOpacity>
+                                        ) : null}
+                                      </View>
+
+                                      <TouchableOpacity
+                                        onPress={() => this.openModalFun(item)}
+                                        style={{
+                                          width: wp('40%'),
+                                          marginLeft: wp('5%'),
+                                          justifyContent: 'center',
+                                        }}>
+                                        <Text
+                                          style={{
+                                            fontFamily: item.isMapped
+                                              ? 'Inter-SemiBold'
+                                              : 'Inter-Regular',
+                                            color: item.isMapped
+                                              ? 'black'
+                                              : 'grey',
+                                          }}>
+                                          {item.name}
+                                        </Text>
+                                      </TouchableOpacity>
+                                      {/* <View
+                                        style={{
+                                          width: wp('30%'),
+                                          marginLeft: wp('5%'),
+                                          justifyContent: 'center',
+                                        }}>
+                                        <Text>{item.code}</Text>
+                                      </View>
+                                      <View
+                                        style={{
+                                          width: wp('30%'),
+                                          justifyContent: 'center',
+                                        }}>
+                                        <Text>
+                                          {item.grainzVolume} {item.unit}
+                                        </Text>
+                                      </View> */}
+                                      <View
+                                        style={{
+                                          width: wp('30%'),
+                                          marginLeft: wp('5%'),
+                                          justifyContent: 'center',
+                                        }}>
+                                        <Text>
+                                          {Number(item.price).toFixed(2)} € /{' '}
+                                          {item.unit}
+                                        </Text>
+                                      </View>
+                                      {/* <View
+                                        style={{
+                                          width: wp('30%'),
+                                          marginLeft: wp('5%'),
+                                          justifyContent: 'center',
+                                        }}>
+                                        <CheckBox
+                                          disabled={true}
+                                          value={item.isInStock}
+                                          // onValueChange={() =>
+                                          //   this.setState({htvaIsSelected: !htvaIsSelected})
+                                          // }
+                                          style={{
+                                            height: 20,
+                                            width: 20,
+                                          }}
+                                        />
+                                      </View> */}
+                                      {/* {item.isMapped ? (
+                                        <TouchableOpacity
+                                          onPress={() => this.actionFun(item)}
+                                          style={{
+                                            width: wp('30%'),
+                                            marginLeft: wp('5%'),
+                                            justifyContent: 'center',
+                                          }}>
+                                          <View
+                                            style={{
+                                              backgroundColor: '#94C036',
+                                              padding: 10,
+                                              alignItems: 'center',
+                                              borderRadius: 5,
+                                            }}>
+                                            <Text
+                                              style={{
+                                                fontFamily: 'Inter-Regular',
+                                                fontSize: 15,
+                                                color: '#fff',
+                                              }}>
+                                              UnMap
+                                            </Text>
+                                          </View>
+                                        </TouchableOpacity>
+                                      ) : (
+                                        <TouchableOpacity
+                                          onPress={() => this.actionFun(item)}
+                                          style={{
+                                            width: wp('30%'),
+                                            marginLeft: wp('5%'),
+                                            justifyContent: 'center',
+                                          }}>
+                                          <View
+                                            style={{
+                                              backgroundColor: '#94C036',
+                                              padding: 10,
+                                              alignItems: 'center',
+                                              borderRadius: 5,
+                                            }}>
+                                            <Text
+                                              style={{
+                                                fontFamily: 'Inter-Regular',
+                                                fontSize: 15,
+                                                color: '#fff',
+                                              }}>
+                                              Map
+                                            </Text>
+                                          </View>
+                                        </TouchableOpacity>
+                                      )} */}
+                                    </View>
+                                  );
+                                })
+                              ) : (
+                                <View style={{marginTop: hp('3%')}}>
+                                  <Text style={{color: 'red', fontSize: 20}}>
+                                    {translate('No data available')}
+                                  </Text>
+                                </View>
+                              )}
+                            </View>
+                          </View>
+                        </ScrollView>
+                      </View>
+                    </ScrollView>
+                  </View>
+                )}
+              </ScrollView>
             </View>
           )}
         </ScrollView>

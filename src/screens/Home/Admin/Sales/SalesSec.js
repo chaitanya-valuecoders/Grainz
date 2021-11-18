@@ -188,21 +188,21 @@ class SalesSec extends Component {
                               width: wp('30%'),
                               alignItems: 'center',
                             }}>
-                            <Text>$TVAC</Text>
+                            <Text>€TVAC</Text>
                           </View>
                           <View
                             style={{
                               width: wp('30%'),
                               alignItems: 'center',
                             }}>
-                            <Text>$TVA</Text>
+                            <Text>€TVA</Text>
                           </View>
                           <View
                             style={{
                               width: wp('30%'),
                               alignItems: 'center',
                             }}>
-                            <Text>$HTVA</Text>
+                            <Text>€HTVA</Text>
                           </View>
                         </View>
                         <View>
@@ -254,7 +254,7 @@ class SalesSec extends Component {
                                         alignItems: 'center',
                                       }}>
                                       <Text>
-                                        ${' '}
+                                        €{' '}
                                         {Number(
                                           item.totalPriceFormatted,
                                         ).toFixed(2)}
@@ -266,7 +266,7 @@ class SalesSec extends Component {
                                         alignItems: 'center',
                                       }}>
                                       <Text>
-                                        ${' '}
+                                        €{' '}
                                         {Number(
                                           item.vatAmountFormatted,
                                         ).toFixed(2)}
@@ -278,7 +278,7 @@ class SalesSec extends Component {
                                         alignItems: 'center',
                                       }}>
                                       <Text>
-                                        ${' '}
+                                        €{' '}
                                         {Number(
                                           item.priceExcludingVATFormatted,
                                         ).toFixed(2)}

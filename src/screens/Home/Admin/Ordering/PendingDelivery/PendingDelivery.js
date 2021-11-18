@@ -617,7 +617,7 @@ class PendingDelivery extends Component {
                                         alignItems: 'center',
                                       }}>
                                       <Text>
-                                        $ {item && Number(item.htva).toFixed(2)}
+                                        € {item && Number(item.htva).toFixed(2)}
                                       </Text>
                                     </View>
                                   </TouchableOpacity>

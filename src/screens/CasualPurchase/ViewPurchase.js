@@ -278,7 +278,7 @@ class ViewPurchase extends Component {
                 style={styles.listSubHeading}
                 onPress={() => this.arrangeListFun('HTVA')}>
                 <Text style={styles.listTextStyling}>
-                  $ {translate('Total')} HTVA
+                  € {translate('Total')} HTVA
                 </Text>
                 <View>
                   <Image

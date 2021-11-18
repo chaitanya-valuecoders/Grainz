@@ -1067,7 +1067,7 @@ class EditDraftOrder extends Component {
                                 color: '#161C27',
                                 fontFamily: 'Inter-SemiBold',
                               }}>
-                              HTVA $
+                              HTVA €
                             </Text>
                           </View>
                         </View>
@@ -1160,7 +1160,7 @@ class EditDraftOrder extends Component {
                                       marginLeft: wp('5%'),
                                     }}>
                                     <Text>
-                                      $ {Number(item.value).toFixed(2)}
+                                      € {Number(item.value).toFixed(2)}
                                     </Text>
                                   </View>
                                 </View>
@@ -1200,7 +1200,7 @@ class EditDraftOrder extends Component {
                                 marginLeft: wp('5%'),
                               }}>
                               <Text>
-                                ${' '}
+                                €{' '}
                                 {Number(draftsOrderData.totalValue).toFixed(2)}
                               </Text>
                             </View>
