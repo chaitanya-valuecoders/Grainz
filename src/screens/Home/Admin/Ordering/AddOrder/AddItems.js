@@ -29,6 +29,8 @@ import {
   addBasketApi,
   updateBasketApi,
   updateInventoryProductApi,
+  addDraftApi,
+  getBasketApi,
 } from '../../../../../connectivity/api';
 import Accordion from 'react-native-collapsible/Accordion';
 import styles from '../style';
@@ -36,6 +38,7 @@ import RNPickerSelect from 'react-native-picker-select';
 import Modal from 'react-native-modal';
 import moment from 'moment';
 import CheckBox from '@react-native-community/checkbox';
+import {ARRAY} from '../../../../../constants/dummy';
 
 import {translate} from '../../../../../utils/translations';
 
@@ -46,7 +49,7 @@ class AddItems extends Component {
       token: '',
       modalVisible: false,
       firstName: '',
-      activeSections: [],
+      activeSections: ARRAY,
       SECTIONS: [],
       SECTIONS_HORIZONTAL: [],
       recipeLoader: true,
@@ -93,6 +96,10 @@ class AddItems extends Component {
       privatePrice: true,
       discountPrice: false,
       discountPriceValue: '',
+      apiOrderDate: new Date().toISOString(),
+      apiDeliveryDate: '',
+      placedByValue: '',
+      finalApiData: [],
     };
   }
 
@@ -213,7 +220,6 @@ class AddItems extends Component {
       this.setState(
         {
           supplierId: supplierValue,
-          activeSections: [],
           supplierStatus: false,
           inventoryStatus: true,
           screenType: screen,
@@ -256,25 +262,61 @@ class AddItems extends Component {
           marginTop: hp('2%'),
           alignItems: 'center',
           borderRadius: 6,
+          justifyContent: 'space-around',
         }}>
-        <Image
+        <View
           style={{
-            height: 18,
-            width: 18,
-            resizeMode: 'contain',
-            marginLeft: wp('2%'),
-          }}
-          source={isActive ? img.upArrowIcon : img.arrowRightIcon}
-        />
-        <Text
-          style={{
-            color: '#492813',
-            fontSize: 15,
-            marginLeft: wp('2%'),
-            fontFamily: 'Inter-Regular',
+            flex: 1,
+            flexDirection: 'row',
+            alignItems: 'center',
           }}>
-          {section.title}
-        </Text>
+          <Image
+            style={{
+              height: 18,
+              width: 18,
+              resizeMode: 'contain',
+              marginLeft: wp('3%'),
+            }}
+            source={isActive ? img.upArrowIcon : img.arrowRightIcon}
+          />
+          <Text
+            style={{
+              color: '#492813',
+              fontSize: 15,
+              marginLeft: wp('2%'),
+              fontFamily: 'Inter-Regular',
+            }}>
+            {section.title}
+          </Text>
+        </View>
+        <View
+          style={{
+            flex: 1,
+          }}>
+          {section.content[0] && section.content[0].deltaNew > 0 ? (
+            <Text
+              numberOfLines={1}
+              style={{
+                color: 'red',
+                fontSize: 12,
+                marginRight: wp('3%'),
+                alignSelf: 'flex-end',
+              }}>
+              Δ {section.content[0] && section.content[0].deltaNew.toFixed(2)}{' '}
+              {section.content[0] && section.content[0].unit}
+            </Text>
+          ) : (
+            <Text
+              style={{
+                color: 'black',
+                marginRight: wp('3%'),
+                fontSize: 12,
+                alignSelf: 'flex-end',
+              }}>
+              ( Δ 0 {section.content[0] && section.content[0].unit} )
+            </Text>
+          )}
+        </View>
       </View>
     );
   };
@@ -299,9 +341,9 @@ class AddItems extends Component {
   };
 
   editQuantityFunThird = (index, type, data, valueType, section) => {
-    const {inventoryStatus} = this.state;
-
+    const {inventoryStatus, finalBasketData} = this.state;
     if (inventoryStatus) {
+      const headerIndex = section.headerIndex;
       const valueSec =
         data.quantityProduct === '' ? Number(0) : Number(data.quantityProduct);
       const valueMinus = valueSec - Number(1);
@@ -314,7 +356,6 @@ class AddItems extends Component {
         value !== ''
           ? Number(data.delta) - Number(value) * Number(data.volume)
           : deltaOriginal;
-
       let newArr = section.content.map((item, i) =>
         index === i
           ? {
@@ -328,15 +369,37 @@ class AddItems extends Component {
               ['deltaNew']: newDeltaVal,
             },
       );
-      var filteredArray = newArr.filter(function (itm) {
-        if (itm.quantityProduct !== '') {
-          return itm.isSelected === true;
-        }
+
+      let LastArr = SECTIONS.map((item, i) =>
+        headerIndex === i
+          ? {
+              ...item,
+              ['content']: newArr,
+            }
+          : {
+              ...item,
+            },
+      );
+
+      console.log('LastArr--> ', LastArr);
+
+      const finalArr = LastArr.map((item, index) => {
+        const firstArr = item.content.filter(function (itm) {
+          if (itm.quantityProduct !== '') {
+            return itm.isSelected === true;
+          }
+        });
+        return firstArr;
       });
 
-      const finalArr = [];
-      filteredArray.map(item => {
-        finalArr.push({
+      console.log('finAAA', finalArr);
+
+      var merged = [].concat.apply([], finalArr);
+      console.log('merged', merged);
+
+      const basketArr = [];
+      merged.map(item => {
+        basketArr.push({
           inventoryId: item.id,
           inventoryProductMappingId: item.inventoryProductMappingId,
           unitPrice: item.productPrice,
@@ -350,18 +413,15 @@ class AddItems extends Component {
           value: Number(
             item.quantityProduct * item.productPrice * item.packSize,
           ),
+          headerIndex: headerIndex,
         });
       });
 
-      let finalArrSec = {
-        title: data.name,
-        content: newArr,
-      };
-
-      const finalSECIONS = SECTIONS.splice(activeSections[0], 1, finalArrSec);
+      console.log('basketArr-->', basketArr);
 
       this.setState({
-        finalBasketData: [...finalArr],
+        SECTIONS: [...LastArr],
+        finalBasketData: [...basketArr],
       });
     } else {
       const valueSec =
@@ -424,15 +484,46 @@ class AddItems extends Component {
                 style={{
                   paddingHorizontal: 10,
                   marginBottom:
-                    index === section.content.length - 1 ? 40 : null,
+                    index === section.content.length - 1 ? 30 : null,
                 }}>
                 <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                  <View style={{width: wp('25%')}}>
+                    <TouchableOpacity
+                      onPress={() => this.openModalFun(item)}
+                      style={{
+                        width: wp('25%'),
+                        marginLeft: wp('3%'),
+                      }}>
+                      <Text>{item.productName}</Text>
+                      <Text
+                        numberOfLines={1}
+                        style={{
+                          marginTop: 10,
+                          fontSize: 12,
+                        }}>
+                        ( {item.volume} {item.unit} )
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                  <View
+                    style={{
+                      width: wp('25%'),
+                      justifyContent: 'center',
+                      marginLeft: wp('6%'),
+                    }}>
+                    <Text>
+                      {item.comparePrice} / {item.compareUnit}
+                    </Text>
+                  </View>
                   <View
                     style={{
                       width: wp('30%'),
                       flexDirection: 'row',
                       alignItems: 'center',
-                      justifyContent: 'flex-start',
+                      justifyContent: 'center',
+                      borderWidth: 1,
+                      borderRadius: 5,
+                      height: hp('5%'),
                     }}>
                     <TouchableOpacity
                       onPress={() =>
@@ -445,32 +536,42 @@ class AddItems extends Component {
                         )
                       }
                       style={{
-                        backgroundColor: '#ED3833',
-                        width: 25,
-                        padding: 10,
+                        width: wp('10%'),
+                        height: hp('5%'),
                         alignItems: 'center',
-                        marginRight: 2,
-                        borderRadius: 5,
+                        justifyContent: 'center',
                       }}>
-                      <Text
-                        style={{
-                          color: '#fff',
-                        }}>
-                        -
-                      </Text>
+                      <Text style={{}}>-</Text>
                     </TouchableOpacity>
-                    <TextInput
+                    <View
+                      style={{
+                        width: wp('10%'),
+                        height: hp('5%'),
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        borderRightWidth: 1,
+                        borderLeftWidth: 1,
+                      }}>
+                      <Text style={{color: 'black', fontSize: 15}}>
+                        {item.quantityProduct > 0
+                          ? String(item.quantityProduct)
+                          : 0}
+                      </Text>
+                    </View>
+                    {/* <TextInput
                       placeholder="0"
                       editable={false}
                       keyboardType="number-pad"
                       value={String(item.quantityProduct)}
                       style={{
-                        borderWidth: 1,
-                        borderRadius: 5,
-                        padding: 10,
-                        width: wp('10%'),
+                        borderRightWidth: 1,
+                        borderLeftWidth: 1,
+                        width: wp('12%'),
+                        height: hp('5%'),
+                        backgroundColor: 'pink',
+                        alignSelf: 'center',
                       }}
-                    />
+                    /> */}
                     <TouchableOpacity
                       onPress={() =>
                         this.editQuantityFun(
@@ -482,59 +583,13 @@ class AddItems extends Component {
                         )
                       }
                       style={{
-                        backgroundColor: '#94C036',
-                        width: 25,
-                        padding: 10,
+                        width: wp('10%'),
+                        height: hp('5%'),
                         alignItems: 'center',
-                        marginLeft: 2,
-                        borderRadius: 5,
+                        justifyContent: 'center',
                       }}>
-                      <Text
-                        style={{
-                          color: '#fff',
-                        }}>
-                        +
-                      </Text>
+                      <Text style={{color: 'black', fontSize: 15}}>+</Text>
                     </TouchableOpacity>
-                  </View>
-                  <View style={{width: wp('25%')}}>
-                    <TouchableOpacity
-                      onPress={() => this.openModalFun(item)}
-                      style={{
-                        width: wp('25%'),
-                        marginLeft: wp('3%'),
-                      }}>
-                      <Text>{item.productName}</Text>
-                      {item.deltaNew > 0 ? (
-                        <Text
-                          numberOfLines={1}
-                          style={{
-                            color: 'red',
-                            marginTop: 5,
-                            fontSize: 12,
-                          }}>
-                          ( Δ {item.deltaNew.toFixed(2)} {item.unit} )
-                        </Text>
-                      ) : (
-                        <Text
-                          style={{
-                            color: 'black',
-                            marginTop: 5,
-                          }}>
-                          ( Δ 0 {item.unit} )
-                        </Text>
-                      )}
-                    </TouchableOpacity>
-                  </View>
-                  <View
-                    style={{
-                      width: wp('25%'),
-                      justifyContent: 'center',
-                      marginLeft: wp('6%'),
-                    }}>
-                    <Text>
-                      {item.comparePrice} / {item.compareUnit}
-                    </Text>
                   </View>
                 </View>
                 <View>
@@ -945,6 +1000,7 @@ class AddItems extends Component {
 
     let finalArray = Object.keys(final).map((item, index) => {
       return {
+        headerIndex: index,
         title: item,
         content: final[item],
       };
@@ -1020,9 +1076,9 @@ class AddItems extends Component {
           .then(res => {
             this.setState(
               {
-                basketLoader: false,
+                basketId: res.data && res.data.id,
               },
-              () => this.navigateToBasket(res),
+              () => this.getBasketDataFun(),
             );
           })
           .catch(err => {
@@ -1062,12 +1118,7 @@ class AddItems extends Component {
                 () => this.navigateToEditDraft(res),
               );
             } else {
-              this.setState(
-                {
-                  basketLoader: false,
-                },
-                () => this.navigateToBasket(res),
-              );
+              this.getBasketDataFun();
             }
           })
           .catch(err => {
@@ -1093,21 +1144,116 @@ class AddItems extends Component {
     }
   };
 
+  getBasketDataFun = () => {
+    const {basketId} = this.state;
+    getBasketApi(basketId)
+      .then(res => {
+        this.setState(
+          {
+            modalData: res.data && res.data.shopingBasketItemList,
+            modalLoader: false,
+            totalHTVAVal: res.data && res.data.totalValue,
+            placedByValue: res.data && res.data.placedBy,
+            loaderCompStatus: false,
+          },
+          () => this.createApiData(),
+        );
+      })
+      .catch(err => {
+        Alert.alert(`Error - ${err.response.status}`, 'Something went wrong', [
+          {
+            text: 'Okay',
+            // onPress: () => this.props.navigation.goBack(),
+          },
+        ]);
+      });
+  };
+
+  createApiData = () => {
+    const {modalData} = this.state;
+    const finalArr = [];
+    modalData.map(item => {
+      finalArr.push({
+        id: item.id,
+        inventoryId: item.inventoryId,
+        inventoryProductMappingId: item.inventoryProductMappingId,
+        unitPrice: item.unitPrice,
+        quantity: item.quantity,
+        action: 'string',
+        value: item.value,
+      });
+    });
+    this.setState(
+      {
+        finalApiData: [...finalArr],
+      },
+      () => this.saveDraftFun(),
+    );
+  };
+
+  navigateToEditDraft = res => {
+    const {basketId, productId, supplierName} = this.state;
+    this.props.navigation.navigate('EditDraftOrderScreen', {
+      productId,
+      basketId,
+      supplierName,
+    });
+  };
+
   closeBasketLoader = () => {
     this.setState({
       basketLoader: false,
     });
   };
 
-  navigateToBasket = res => {
-    const {supplierId, productId, supplierName} = this.state;
+  navigateToBasket = () => {
+    const {supplierId, productId, supplierName, basketId} = this.state;
     this.props.navigation.navigate('BasketOrderScreen', {
-      finalData: res.data && res.data.id,
+      finalData: basketId,
       supplierId,
       itemType: 'Inventory',
       productId,
       supplierName,
     });
+  };
+
+  saveDraftFun = () => {
+    const {
+      apiDeliveryDate,
+      apiOrderDate,
+      placedByValue,
+      supplierId,
+      basketId,
+      finalApiData,
+    } = this.state;
+    let payload = {
+      id: basketId,
+      supplierId: supplierId,
+      orderDate: apiOrderDate,
+      deliveryDate: apiDeliveryDate,
+      placedBy: placedByValue,
+      shopingBasketItemList: finalApiData,
+    };
+
+    console.log('Payload', payload);
+    addDraftApi(payload)
+      .then(res => {
+        this.setState(
+          {
+            loaderCompStatus: false,
+            basketLoader: false,
+          },
+          () => this.navigateToBasket(),
+        );
+      })
+      .catch(err => {
+        Alert.alert(`Error - ${err.response.status}`, 'Something went wrong', [
+          {
+            text: 'Okay',
+            // onPress: () => this.closeLoaderComp(),
+          },
+        ]);
+      });
   };
 
   render() {
@@ -1131,7 +1277,6 @@ class AddItems extends Component {
       modalData,
       basketLoader,
       orderingThreeModal,
-      viewModalStatus,
       todayDate,
       supplierName,
       pageData,
@@ -1142,7 +1287,10 @@ class AddItems extends Component {
       discountPriceValue,
       userDefinedQuantity,
       userDefinedUnit,
+      finalBasketData,
     } = this.state;
+
+    console.log('basketId', basketId);
 
     return (
       <View style={styles.container}>
@@ -1513,461 +1661,6 @@ class AddItems extends Component {
               )}
             </View>
           </View>
-
-          <Modal isVisible={viewModalStatus} backdropOpacity={0.35}>
-            <View
-              style={{
-                width: wp('80%'),
-                height: hp('75%'),
-                backgroundColor: '#F0F4FE',
-                alignSelf: 'center',
-                borderRadius: 14,
-              }}>
-              <View
-                style={{
-                  backgroundColor: '#7EA52D',
-                  height: hp('6%'),
-                  flexDirection: 'row',
-                  borderTopLeftRadius: 6,
-                  borderTopRightRadius: 6,
-                }}>
-                <View
-                  style={{
-                    flex: 3,
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}>
-                  <Text
-                    style={{
-                      fontSize: 16,
-                      color: '#fff',
-                      fontFamily: 'Inter-Regular',
-                    }}>
-                    {translate('Order Line Item')}
-                  </Text>
-                </View>
-                <View
-                  style={{
-                    flex: 1,
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}>
-                  <TouchableOpacity
-                    onPress={() =>
-                      this.setState({
-                        viewModalStatus: false,
-                        pageData: '',
-                      })
-                    }>
-                    <Image
-                      source={img.cancelIcon}
-                      style={{
-                        height: 22,
-                        width: 22,
-                        tintColor: 'white',
-                        resizeMode: 'contain',
-                      }}
-                    />
-                  </TouchableOpacity>
-                </View>
-              </View>
-              <ScrollView
-                style={{marginBottom: hp('5%')}}
-                showsVerticalScrollIndicator={false}>
-                <View style={{marginTop: hp('3%'), marginHorizontal: wp('5%')}}>
-                  <View>
-                    <View
-                      style={{
-                        marginTop: hp('3%'),
-                      }}>
-                      <View
-                        style={{
-                          marginBottom: hp('2%'),
-                        }}>
-                        <Text
-                          style={{fontFamily: 'Inter-Regular', fontSize: 15}}>
-                          Date :
-                        </Text>
-                      </View>
-                      <View style={{}}>
-                        <TextInput
-                          editable={false}
-                          value={moment(todayDate).format('L')}
-                          placeholder="Date"
-                          style={{
-                            padding: 10,
-                            width: wp('70%'),
-                            borderRadius: 5,
-                            backgroundColor: '#fff',
-                          }}
-                        />
-                      </View>
-                    </View>
-                    <View
-                      style={{
-                        marginTop: hp('3%'),
-                      }}>
-                      <View
-                        style={{
-                          marginBottom: hp('2%'),
-                        }}>
-                        <Text
-                          style={{fontFamily: 'Inter-Regular', fontSize: 15}}>
-                          Supplier :
-                        </Text>
-                      </View>
-                      <View style={{}}>
-                        <TextInput
-                          editable={false}
-                          value={supplierName}
-                          placeholder="Supplier"
-                          style={{
-                            padding: 10,
-                            width: wp('70%'),
-                            borderRadius: 5,
-                            backgroundColor: '#fff',
-                          }}
-                        />
-                      </View>
-                    </View>
-
-                    <View
-                      style={{
-                        marginTop: hp('3%'),
-                      }}>
-                      <View
-                        style={{
-                          marginBottom: hp('2%'),
-                        }}>
-                        <Text
-                          style={{fontFamily: 'Inter-Regular', fontSize: 15}}>
-                          {translate('Product Name')} :{' '}
-                        </Text>
-                      </View>
-                      <View style={{}}>
-                        <TextInput
-                          value={pageData.productName}
-                          editable={false}
-                          placeholder="Product Name"
-                          style={{
-                            padding: 10,
-                            width: wp('70%'),
-                            borderRadius: 5,
-                            backgroundColor: '#fff',
-                          }}
-                        />
-                      </View>
-                    </View>
-                    <View
-                      style={{
-                        marginTop: hp('3%'),
-                      }}>
-                      <View
-                        style={{
-                          marginBottom: hp('2%'),
-                        }}>
-                        <Text
-                          style={{fontFamily: 'Inter-Regular', fontSize: 15}}>
-                          Pack Size:{' '}
-                        </Text>
-                      </View>
-                      <View style={{}}>
-                        <TextInput
-                          value={String(pageData.packSize)}
-                          editable={false}
-                          placeholder="Pack Size"
-                          style={{
-                            padding: 10,
-                            width: wp('70%'),
-                            borderRadius: 5,
-                            backgroundColor: '#fff',
-                          }}
-                        />
-                      </View>
-                    </View>
-                    <View
-                      style={{
-                        marginTop: hp('3%'),
-                      }}>
-                      <View
-                        style={{
-                          marginBottom: hp('2%'),
-                        }}>
-                        <Text
-                          style={{fontFamily: 'Inter-Regular', fontSize: 15}}>
-                          {translate('Price')} :{' '}
-                        </Text>
-                      </View>
-                      <View style={{}}>
-                        <TextInput
-                          value={
-                            String(pageData.productPrice) +
-                            ' / ' +
-                            String(pageData.productUnit)
-                          }
-                          editable={false}
-                          placeholder="Price"
-                          style={{
-                            padding: 10,
-                            width: wp('70%'),
-                            borderRadius: 5,
-                            backgroundColor: '#fff',
-                          }}
-                        />
-                      </View>
-                    </View>
-
-                    <View
-                      style={{
-                        marginTop: hp('3%'),
-                      }}>
-                      <View
-                        style={{
-                          marginBottom: hp('2%'),
-                        }}>
-                        <Text
-                          style={{fontFamily: 'Inter-Regular', fontSize: 15}}>
-                          Order value :{' '}
-                        </Text>
-                      </View>
-                      <View style={{}}>
-                        <TextInput
-                          value={`€ ${Number(priceFinal).toFixed(2)}`}
-                          editable={false}
-                          placeholder="Price"
-                          style={{
-                            padding: 10,
-                            width: wp('70%'),
-                            borderRadius: 5,
-                            backgroundColor: '#fff',
-                          }}
-                        />
-                      </View>
-                    </View>
-                    <View
-                      style={{
-                        marginTop: hp('3%'),
-                      }}>
-                      <View
-                        style={{
-                          marginBottom: hp('2%'),
-                        }}>
-                        <Text
-                          style={{fontFamily: 'Inter-Regular', fontSize: 15}}>
-                          Inventory Item:{' '}
-                        </Text>
-                      </View>
-                      <View style={{}}>
-                        <TextInput
-                          value={pageData.name}
-                          editable={false}
-                          placeholder="Inventory Item"
-                          style={{
-                            padding: 10,
-                            width: wp('70%'),
-                            borderRadius: 5,
-                            backgroundColor: '#fff',
-                          }}
-                        />
-                      </View>
-                    </View>
-                    <View
-                      style={{
-                        marginTop: hp('3%'),
-                      }}>
-                      <View
-                        style={{
-                          marginBottom: hp('2%'),
-                        }}>
-                        <Text
-                          style={{fontFamily: 'Inter-Regular', fontSize: 15}}>
-                          Inventory Unit (default):{' '}
-                        </Text>
-                      </View>
-                      <View style={{}}>
-                        <TextInput
-                          value={pageData.unit}
-                          editable={false}
-                          placeholder="Inventory Unit"
-                          style={{
-                            padding: 10,
-                            width: wp('70%'),
-                            borderRadius: 5,
-                            backgroundColor: '#fff',
-                          }}
-                        />
-                      </View>
-                    </View>
-                    <View
-                      style={{
-                        marginTop: hp('3%'),
-                      }}>
-                      <View
-                        style={{
-                          marginBottom: hp('2%'),
-                        }}>
-                        <Text
-                          style={{fontFamily: 'Inter-Regular', fontSize: 15}}>
-                          Delta :{' '}
-                        </Text>
-                      </View>
-                      <View style={{}}>
-                        <TextInput
-                          value={String(pageData.delta)}
-                          editable={false}
-                          placeholder="Delta"
-                          style={{
-                            padding: 10,
-                            width: wp('70%'),
-                            borderRadius: 5,
-                            backgroundColor: '#fff',
-                          }}
-                        />
-                      </View>
-                    </View>
-                    <View
-                      style={{
-                        marginTop: hp('3%'),
-                      }}>
-                      <View
-                        style={{
-                          marginBottom: hp('2%'),
-                        }}>
-                        <Text
-                          style={{fontFamily: 'Inter-Regular', fontSize: 15}}>
-                          This order :{' '}
-                        </Text>
-                      </View>
-                      <View style={{}}>
-                        <TextInput
-                          value={String(pageData.delta)}
-                          editable={false}
-                          placeholder="This order"
-                          style={{
-                            padding: 10,
-                            width: wp('70%'),
-                            borderRadius: 5,
-                            backgroundColor: '#fff',
-                          }}
-                        />
-                      </View>
-                    </View>
-                    <View
-                      style={{
-                        marginTop: hp('3%'),
-                      }}>
-                      <View
-                        style={{
-                          marginBottom: hp('2%'),
-                        }}>
-                        <Text
-                          style={{fontFamily: 'Inter-Regular', fontSize: 15}}>
-                          Current Level :{' '}
-                        </Text>
-                      </View>
-                      <View style={{}}>
-                        <TextInput
-                          value={String(pageData.delta)}
-                          editable={false}
-                          placeholder="Current Level"
-                          style={{
-                            padding: 10,
-                            width: wp('70%'),
-                            borderRadius: 5,
-                            backgroundColor: '#fff',
-                          }}
-                        />
-                      </View>
-                    </View>
-                    <View
-                      style={{
-                        marginTop: hp('3%'),
-                      }}>
-                      <View
-                        style={{
-                          marginBottom: hp('2%'),
-                        }}>
-                        <Text
-                          style={{fontFamily: 'Inter-Regular', fontSize: 15}}>
-                          On Order :
-                        </Text>
-                      </View>
-                      <View style={{}}>
-                        <TextInput
-                          value={String(pageData.delta)}
-                          editable={false}
-                          placeholder="On Order"
-                          style={{
-                            padding: 10,
-                            width: wp('70%'),
-                            borderRadius: 5,
-                            backgroundColor: '#fff',
-                          }}
-                        />
-                      </View>
-                    </View>
-                    <View
-                      style={{
-                        marginTop: hp('3%'),
-                      }}>
-                      <View
-                        style={{
-                          marginBottom: hp('2%'),
-                        }}>
-                        <Text
-                          style={{fontFamily: 'Inter-Regular', fontSize: 15}}>
-                          Target :
-                        </Text>
-                      </View>
-                      <View style={{}}>
-                        <TextInput
-                          value={String(pageData.reorderLevel)}
-                          editable={false}
-                          placeholder="Target"
-                          style={{
-                            padding: 10,
-                            width: wp('70%'),
-                            borderRadius: 5,
-                            backgroundColor: '#fff',
-                          }}
-                        />
-                      </View>
-                    </View>
-                  </View>
-                </View>
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    marginHorizontal: wp('10%'),
-                    justifyContent: 'center',
-                  }}>
-                  <View style={{}}>
-                    <TouchableOpacity
-                      onPress={() =>
-                        this.setState({
-                          viewModalStatus: false,
-                          pageData: '',
-                        })
-                      }
-                      style={{
-                        height: hp('6%'),
-                        width: wp('25%'),
-                        backgroundColor: '#E7943B',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        marginTop: 20,
-                        borderRadius: 5,
-                      }}>
-                      <View style={{}}>
-                        <Text style={{color: 'white'}}>Close</Text>
-                      </View>
-                    </TouchableOpacity>
-                  </View>
-                </View>
-              </ScrollView>
-            </View>
-          </Modal>
 
           <Modal isVisible={orderingThreeModal} backdropOpacity={0.35}>
             <View
@@ -2541,296 +2234,171 @@ class AddItems extends Component {
                               }}>
                               <View
                                 style={{
-                                  width: wp('40%'),
+                                  width: wp('25%'),
                                 }}>
-                                <Text>{translate('Quantity')}</Text>
-                              </View>
-
-                              <View
-                                style={{
-                                  width: wp('40%'),
-                                  marginLeft: wp('5%'),
-                                }}>
-                                <Text>{translate('Product Name')}</Text>
-                              </View>
-                              {/* <View
-                                style={{
-                                  width: wp('30%'),
-                                  marginLeft: wp('5%'),
-                                }}>
-                                <Text>Code</Text>
+                                <Text
+                                  style={{
+                                    fontSize: 12,
+                                    fontFamily: 'Inter-SemiBold',
+                                  }}>
+                                  {translate('Product Name')}
+                                </Text>
                               </View>
                               <View
                                 style={{
-                                  width: wp('30%'),
+                                  width: wp('25%'),
+                                  marginLeft: wp('5%'),
                                 }}>
-                                <Text>Stock</Text>
-                              </View> */}
+                                <Text
+                                  style={{
+                                    fontSize: 12,
+                                    fontFamily: 'Inter-SemiBold',
+                                  }}>
+                                  {translate('Price')}
+                                </Text>
+                              </View>
                               <View
                                 style={{
                                   width: wp('30%'),
-                                  marginLeft: wp('5%'),
                                 }}>
-                                <Text>{translate('Price')}</Text>
+                                <Text
+                                  style={{
+                                    fontSize: 12,
+                                    fontFamily: 'Inter-SemiBold',
+                                  }}>
+                                  {translate('Quantity')}
+                                </Text>
                               </View>
-                              {/* <View
-                                style={{
-                                  width: wp('30%'),
-                                  marginLeft: wp('5%'),
-                                }}>
-                                <Text style={{}}>In Stock?</Text>
-                              </View> */}
-                              {/* <View
-                                style={{
-                                  width: wp('30%'),
-                                  marginLeft: wp('5%'),
-                                }}></View> */}
                             </View>
                             <View>
-                              {modalData && modalData.length > 0 ? (
-                                modalData.map((item, index) => {
-                                  return (
-                                    <View
-                                      key={index}
-                                      style={{
-                                        paddingVertical: 10,
-                                        paddingHorizontal: 20,
-                                        flexDirection: 'row',
-                                        backgroundColor:
-                                          index % 2 === 0
-                                            ? '#FFFFFF'
-                                            : '#F7F8F5',
-                                      }}>
-                                      <View
-                                        style={{
-                                          width: wp('40%'),
-                                          flexDirection: 'row',
-                                          alignItems: 'center',
-                                          justifyContent: 'flex-start',
-                                        }}>
+                              {modalData && modalData.length > 0
+                                ? modalData.map((item, index) => {
+                                    return (
+                                      <View key={index}>
                                         {item.isMapped ? (
-                                          <TouchableOpacity
-                                            onPress={() =>
-                                              this.editQuantityFun(
-                                                index,
-                                                'quantityProduct',
-                                                item,
-                                                'minus',
-                                              )
-                                            }
-                                            style={{
-                                              backgroundColor: '#ED3833',
-                                              width: 30,
-                                              padding: 10,
-                                              alignItems: 'center',
-                                              marginRight: 2,
-                                              borderRadius: 5,
-                                            }}>
-                                            <Text
-                                              style={{
-                                                color: '#fff',
-                                              }}>
-                                              -
-                                            </Text>
-                                          </TouchableOpacity>
-                                        ) : null}
-                                        {item.isMapped ? (
-                                          <TextInput
-                                            placeholder="0"
-                                            editable={false}
-                                            keyboardType="number-pad"
-                                            value={String(item.quantityProduct)}
-                                            style={{
-                                              borderWidth: 1,
-                                              borderRadius: 6,
-                                              padding: 10,
-                                              width: wp('15%'),
-                                            }}
-                                            // onChangeText={value =>
-                                            //   this.editQuantityFun(
-                                            //     index,
-                                            //     'quantityProduct',
-                                            //     value,
-                                            //     item,
-                                            //   )
-                                            // }
-                                          />
-                                        ) : (
-                                          <TouchableOpacity
-                                            onPress={() =>
-                                              this.mapAlertShow(item)
-                                            }
-                                            style={{
-                                              borderRadius: 6,
-                                              padding: 10,
-                                              width: wp('22%'),
-                                              backgroundColor: '#94C036',
-                                              alignItems: 'center',
-                                            }}>
-                                            <Text
-                                              style={{
-                                                color: '#fff',
-                                                fontFamily: 'Inter-Regular',
-                                              }}>
-                                              Map
-                                            </Text>
-                                          </TouchableOpacity>
-                                        )}
-
-                                        {item.isMapped ? (
-                                          <TouchableOpacity
-                                            onPress={() =>
-                                              this.editQuantityFun(
-                                                index,
-                                                'quantityProduct',
-                                                item,
-                                                'add',
-                                              )
-                                            }
-                                            style={{
-                                              backgroundColor: '#94C036',
-                                              width: 30,
-                                              padding: 10,
-                                              alignItems: 'center',
-                                              marginLeft: 2,
-                                              borderRadius: 5,
-                                            }}>
-                                            <Text
-                                              style={{
-                                                color: '#fff',
-                                              }}>
-                                              +
-                                            </Text>
-                                          </TouchableOpacity>
-                                        ) : null}
-                                      </View>
-
-                                      <TouchableOpacity
-                                        onPress={() => this.openModalFun(item)}
-                                        style={{
-                                          width: wp('40%'),
-                                          marginLeft: wp('5%'),
-                                          justifyContent: 'center',
-                                        }}>
-                                        <Text
-                                          style={{
-                                            fontFamily: item.isMapped
-                                              ? 'Inter-SemiBold'
-                                              : 'Inter-Regular',
-                                            color: item.isMapped
-                                              ? 'black'
-                                              : 'grey',
-                                          }}>
-                                          {item.name}
-                                        </Text>
-                                      </TouchableOpacity>
-                                      {/* <View
-                                        style={{
-                                          width: wp('30%'),
-                                          marginLeft: wp('5%'),
-                                          justifyContent: 'center',
-                                        }}>
-                                        <Text>{item.code}</Text>
-                                      </View>
-                                      <View
-                                        style={{
-                                          width: wp('30%'),
-                                          justifyContent: 'center',
-                                        }}>
-                                        <Text>
-                                          {item.grainzVolume} {item.unit}
-                                        </Text>
-                                      </View> */}
-                                      <View
-                                        style={{
-                                          width: wp('30%'),
-                                          marginLeft: wp('5%'),
-                                          justifyContent: 'center',
-                                        }}>
-                                        <Text>
-                                          {Number(item.price).toFixed(2)} € /{' '}
-                                          {item.unit}
-                                        </Text>
-                                      </View>
-                                      {/* <View
-                                        style={{
-                                          width: wp('30%'),
-                                          marginLeft: wp('5%'),
-                                          justifyContent: 'center',
-                                        }}>
-                                        <CheckBox
-                                          disabled={true}
-                                          value={item.isInStock}
-                                          // onValueChange={() =>
-                                          //   this.setState({htvaIsSelected: !htvaIsSelected})
-                                          // }
-                                          style={{
-                                            height: 20,
-                                            width: 20,
-                                          }}
-                                        />
-                                      </View> */}
-                                      {/* {item.isMapped ? (
-                                        <TouchableOpacity
-                                          onPress={() => this.actionFun(item)}
-                                          style={{
-                                            width: wp('30%'),
-                                            marginLeft: wp('5%'),
-                                            justifyContent: 'center',
-                                          }}>
                                           <View
                                             style={{
-                                              backgroundColor: '#94C036',
-                                              padding: 10,
-                                              alignItems: 'center',
-                                              borderRadius: 5,
+                                              paddingVertical: 10,
+                                              paddingHorizontal: 20,
+                                              flexDirection: 'row',
+                                              backgroundColor:
+                                                index % 2 === 0
+                                                  ? '#FFFFFF'
+                                                  : '#F7F8F5',
                                             }}>
-                                            <Text
+                                            <TouchableOpacity
+                                              onPress={() =>
+                                                this.openModalFun(item)
+                                              }
                                               style={{
-                                                fontFamily: 'Inter-Regular',
-                                                fontSize: 15,
-                                                color: '#fff',
+                                                width: wp('25%'),
+                                                justifyContent: 'center',
                                               }}>
-                                              UnMap
-                                            </Text>
-                                          </View>
-                                        </TouchableOpacity>
-                                      ) : (
-                                        <TouchableOpacity
-                                          onPress={() => this.actionFun(item)}
-                                          style={{
-                                            width: wp('30%'),
-                                            marginLeft: wp('5%'),
-                                            justifyContent: 'center',
-                                          }}>
-                                          <View
-                                            style={{
-                                              backgroundColor: '#94C036',
-                                              padding: 10,
-                                              alignItems: 'center',
-                                              borderRadius: 5,
-                                            }}>
-                                            <Text
+                                              <Text
+                                                style={{
+                                                  fontSize: 12,
+                                                  fontFamily: 'Inter-Regular',
+                                                  fontFamily: item.isMapped
+                                                    ? 'Inter-SemiBold'
+                                                    : 'Inter-Regular',
+                                                  color: item.isMapped
+                                                    ? 'black'
+                                                    : 'grey',
+                                                }}>
+                                                {item.name}
+                                              </Text>
+                                            </TouchableOpacity>
+
+                                            <View
                                               style={{
-                                                fontFamily: 'Inter-Regular',
-                                                fontSize: 15,
-                                                color: '#fff',
+                                                width: wp('25%'),
+                                                marginLeft: wp('2%'),
+                                                justifyContent: 'center',
                                               }}>
-                                              Map
-                                            </Text>
+                                              <Text
+                                                style={{
+                                                  fontSize: 12,
+                                                  fontFamily: 'Inter-Regular',
+                                                }}>
+                                                {Number(item.price).toFixed(2)}{' '}
+                                                € / {item.unit}
+                                              </Text>
+                                            </View>
+
+                                            <View
+                                              style={{
+                                                width: wp('30%'),
+                                                flexDirection: 'row',
+                                                alignItems: 'center',
+                                                justifyContent: 'flex-start',
+                                                borderWidth: 1,
+                                                borderRadius: 5,
+                                                height: hp('5%'),
+                                              }}>
+                                              <TouchableOpacity
+                                                onPress={() =>
+                                                  this.editQuantityFun(
+                                                    index,
+                                                    'quantityProduct',
+                                                    item,
+                                                    'minus',
+                                                  )
+                                                }
+                                                style={{
+                                                  width: wp('10%'),
+                                                  height: hp('5%'),
+                                                  alignItems: 'center',
+                                                  justifyContent: 'center',
+                                                }}>
+                                                <Text style={{}}>-</Text>
+                                              </TouchableOpacity>
+                                              <View
+                                                style={{
+                                                  width: wp('10%'),
+                                                  height: hp('5%'),
+                                                  alignItems: 'center',
+                                                  justifyContent: 'center',
+                                                  borderRightWidth: 1,
+                                                  borderLeftWidth: 1,
+                                                }}>
+                                                <Text
+                                                  style={{
+                                                    color: 'black',
+                                                    fontSize: 12,
+                                                    fontFamily: 'Inter-Regular',
+                                                  }}>
+                                                  {item.quantityProduct > 0
+                                                    ? String(
+                                                        item.quantityProduct,
+                                                      )
+                                                    : 0}
+                                                </Text>
+                                              </View>
+
+                                              <TouchableOpacity
+                                                onPress={() =>
+                                                  this.editQuantityFun(
+                                                    index,
+                                                    'quantityProduct',
+                                                    item,
+                                                    'add',
+                                                  )
+                                                }
+                                                style={{
+                                                  width: wp('10%'),
+                                                  height: hp('5%'),
+                                                  alignItems: 'center',
+                                                  justifyContent: 'center',
+                                                }}>
+                                                <Text style={{}}>+</Text>
+                                              </TouchableOpacity>
+                                            </View>
                                           </View>
-                                        </TouchableOpacity>
-                                      )} */}
-                                    </View>
-                                  );
-                                })
-                              ) : (
-                                <View style={{marginTop: hp('3%')}}>
-                                  <Text style={{color: 'red', fontSize: 20}}>
-                                    {translate('No data available')}
-                                  </Text>
-                                </View>
-                              )}
+                                        ) : null}
+                                      </View>
+                                    );
+                                  })
+                                : null}
                             </View>
                           </View>
                         </ScrollView>
