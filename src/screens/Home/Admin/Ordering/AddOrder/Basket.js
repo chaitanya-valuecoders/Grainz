@@ -55,7 +55,6 @@ class Basket extends Component {
       actionModalStatus: false,
       buttons: [],
       apiOrderDate: '',
-      placedByValue: '',
       supplierId: '',
       finalApiData: [],
       modalVisible: false,
