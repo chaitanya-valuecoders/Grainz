@@ -160,6 +160,7 @@ class Basket extends Component {
     const {basketId} = this.state;
     getBasketApi(basketId)
       .then(res => {
+        console.log('res', res);
         this.setState(
           {
             modalData: res.data && res.data.shopingBasketItemList,
@@ -862,6 +863,7 @@ class Basket extends Component {
       mailTitleValue,
       supplierName,
       loaderCompStatus,
+      basketId,
     } = this.state;
 
     return (
@@ -885,11 +887,17 @@ class Basket extends Component {
                 <Text style={styles.adminTextStyle}>Basket</Text>
               </View>
               <TouchableOpacity
-                onPress={() => this.props.navigation.goBack()}
+                // onPress={() =>
+                //   this.props.navigation.navigate('AddItemsOrderScreen', {
+                //     basketId: basketId,
+                //     screen: 'Update',
+                //   })
+                // }
+                onPress={() =>
+                  this.props.navigation.navigate('OrderingAdminScreen')
+                }
                 style={styles.goBackContainer}>
-                <Text style={styles.goBackTextStyle}>
-                  {translate('Go Back')}
-                </Text>
+                <Text style={styles.goBackTextStyle}>{translate('Home')}</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -1145,6 +1153,7 @@ class Basket extends Component {
                           <View>
                             {modalData && modalData.length > 0 ? (
                               modalData.map((item, index) => {
+                                console.log('item', item);
                                 return (
                                   <View key={index}>
                                     <View

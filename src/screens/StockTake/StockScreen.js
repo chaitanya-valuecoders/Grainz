@@ -377,17 +377,17 @@ class StockScreen extends Component {
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             <View style={styles.renderContentContainer}>
               <View style={styles.renderContentSubContainer}>
-                <View style={styles.boxSizeNew}>
+                <TouchableOpacity
+                  style={styles.boxSizeNew}
+                  onPress={() => this.arrangeListFun('NAME')}>
                   <Text style={styles.boxTextHeadingStyling}>Name</Text>
-                  <TouchableOpacity
-                    style={{padding: 5}}
-                    onPress={() => this.arrangeListFun('NAME')}>
+                  <View style={{padding: 5}}>
                     <Image
                       style={styles.listImageStyling}
                       source={img.doubleArrowIconNew}
                     />
-                  </TouchableOpacity>
-                </View>
+                  </View>
+                </TouchableOpacity>
                 <View
                   style={{
                     ...styles.boxSize,

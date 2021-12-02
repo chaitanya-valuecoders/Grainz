@@ -180,7 +180,7 @@ class HistoryData extends Component {
           {categoryLoader ? (
             <ActivityIndicator size="large" color="#94C036" />
           ) : (
-            <ScrollView nestedScrollEnabled>
+            <View>
               {section && section.children.length > 0 ? (
                 section.children.map((item, index) => {
                   let finaUnitVal =
@@ -276,7 +276,7 @@ class HistoryData extends Component {
                   </Text>
                 </View>
               )}
-            </ScrollView>
+            </View>
           )}
         </View>
       </ScrollView>

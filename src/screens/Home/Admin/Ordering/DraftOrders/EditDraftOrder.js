@@ -562,6 +562,7 @@ class EditDraftOrder extends Component {
 
     getBasketApi(basketId)
       .then(res => {
+        console.log('res', res);
         this.setState(
           {
             draftsOrderData: res.data,
@@ -710,6 +711,8 @@ class EditDraftOrder extends Component {
         ]);
       });
   };
+
+  deleteOrderFun = () => {};
 
   render() {
     const {
@@ -1266,6 +1269,33 @@ class EditDraftOrder extends Component {
               numColumns={3}
             />
           </View>
+          {/* <View style={{justifyContent: 'center', alignItems: 'center'}}>
+            <TouchableOpacity
+              onPress={() => this.deleteOrderFun()}
+              style={{
+                height: hp('6%'),
+                width: wp('80%'),
+                backgroundColor: 'red',
+                justifyContent: 'center',
+                alignItems: 'center',
+                marginTop: hp('3%'),
+                borderRadius: 100,
+              }}>
+              <View
+                style={{
+                  alignItems: 'center',
+                }}>
+                <Text
+                  style={{
+                    color: 'white',
+                    marginLeft: 10,
+                    fontFamily: 'Inter-SemiBold',
+                  }}>
+                  {translate('Delete')}
+                </Text>
+              </View>
+            </TouchableOpacity>
+          </View> */}
           <View style={{justifyContent: 'center', alignItems: 'center'}}>
             <TouchableOpacity
               onPress={() => this.sendFun()}

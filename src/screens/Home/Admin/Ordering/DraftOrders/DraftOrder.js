@@ -350,7 +350,8 @@ class DraftOrder extends Component {
                         borderTopRightRadius: 5,
                         paddingHorizontal: wp('3%'),
                       }}>
-                      <View
+                      <TouchableOpacity
+                        onPress={() => this.arrangeListFun('SUPPLIER')}
                         style={{
                           flex: 1,
                           justifyContent: 'center',
@@ -364,8 +365,7 @@ class DraftOrder extends Component {
                           }}>
                           {translate('Supplier')}
                         </Text>
-                        <TouchableOpacity
-                          onPress={() => this.arrangeListFun('SUPPLIER')}>
+                        <View>
                           <Image
                             style={{
                               width: 13,
@@ -375,9 +375,10 @@ class DraftOrder extends Component {
                             }}
                             source={img.doubleArrowIconNew}
                           />
-                        </TouchableOpacity>
-                      </View>
-                      <View
+                        </View>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        onPress={() => this.arrangeListFun('DATE')}
                         style={{
                           flex: 1,
                           justifyContent: 'center',
@@ -392,8 +393,7 @@ class DraftOrder extends Component {
                           }}>
                           {translate('Order date')}
                         </Text>
-                        <TouchableOpacity
-                          onPress={() => this.arrangeListFun('DATE')}>
+                        <View>
                           <Image
                             style={{
                               width: 13,
@@ -403,9 +403,10 @@ class DraftOrder extends Component {
                             }}
                             source={img.doubleArrowIconNew}
                           />
-                        </TouchableOpacity>
-                      </View>
-                      <View
+                        </View>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        onPress={() => this.arrangeListFun('HTVA')}
                         style={{
                           flex: 1,
                           justifyContent: 'center',
@@ -420,8 +421,7 @@ class DraftOrder extends Component {
                           }}>
                           {translate('Value')}
                         </Text>
-                        <TouchableOpacity
-                          onPress={() => this.arrangeListFun('HTVA')}>
+                        <View>
                           <Image
                             style={{
                               width: 13,
@@ -431,8 +431,8 @@ class DraftOrder extends Component {
                             }}
                             source={img.doubleArrowIconNew}
                           />
-                        </TouchableOpacity>
-                      </View>
+                        </View>
+                      </TouchableOpacity>
                     </View>
                     {draftsOrderData &&
                       draftsOrderData.map((item, index) => {

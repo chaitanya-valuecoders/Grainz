@@ -188,10 +188,14 @@ class AddBuilder extends Component {
   };
 
   addMepListFun = () => {
-    const {selectectedItems, productionDate} = this.state;
+    const {selectectedItems, productionDate, applyClickStatus} = this.state;
 
-    if (productionDate === '' || selectectedItems.length === 0) {
-      alert('Please select recipe');
+    if (
+      productionDate === '' ||
+      selectectedItems.length === 0 ||
+      applyClickStatus === false
+    ) {
+      alert('Please select and apply recipe');
     } else {
       this.setState(
         {

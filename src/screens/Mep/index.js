@@ -60,6 +60,7 @@ class index extends Component {
       buttonsSubHeader: [],
       allDoneStatus: false,
       collapseStatus: true,
+      collapseStatusMain: true,
     };
   }
 
@@ -242,6 +243,14 @@ class index extends Component {
   onPressCollapseFun = () => {
     this.setState({
       activeSections: [],
+      collapseStatusMain: true,
+    });
+  };
+
+  onPressUnCollapseFun = () => {
+    this.setState({
+      activeSections: ARRAY,
+      collapseStatusMain: false,
     });
   };
 
@@ -739,6 +748,7 @@ class index extends Component {
       notes,
       buttonsSubHeader,
       collapseStatus,
+      collapseStatusMain,
     } = this.state;
     const finalDateData = moment(sectionData.productionDate).format(
       'dddd, MMM DD YYYY',
@@ -992,289 +1002,294 @@ class index extends Component {
                     {detailsLoader ? (
                       <ActivityIndicator color="#94C036" size="large" />
                     ) : (
-                      <ScrollView showsVerticalScrollIndicator={false}>
-                        <View style={{padding: hp('5%')}}>
-                          <View style={{}}>
+                      <View style={{flex: 1}}>
+                        <ScrollView showsVerticalScrollIndicator={false}>
+                          <View style={{padding: hp('5%')}}>
                             <View style={{}}>
-                              <Text
-                                style={{
-                                  color: '#7F7F7F',
-                                  fontSize: 16,
-                                  fontWeight: 'bold',
-                                  marginBottom: 5,
-                                  fontFamily: 'Inter-Regular',
-                                }}>
-                                {sectionData.name}
-                              </Text>
-                              <View
-                                style={{
-                                  marginTop: hp('1%'),
-                                  flexDirection: 'row',
-                                  alignItems: 'center',
-                                  marginVertical: hp('2%'),
-                                }}>
-                                <Switch
-                                  style={{width: '20%'}}
-                                  trackColor={{
-                                    false: '#767577',
-                                    true: '#94C036',
-                                  }}
-                                  value={!sectionData.isPrepared}
-                                  onValueChange={() =>
-                                    this.toggleSwitchNotif(sectionData)
-                                  }
-                                  thumbColor="#fff"
-                                />
+                              <View style={{}}>
                                 <Text
                                   style={{
                                     color: '#7F7F7F',
-                                    marginLeft: wp('4%'),
-                                    fontWeight: '900',
+                                    fontSize: 16,
+                                    fontWeight: 'bold',
+                                    marginBottom: 5,
+                                    fontFamily: 'Inter-Regular',
                                   }}>
-                                  {!sectionData.isPrepared ? 'Make me' : 'Done'}
+                                  {sectionData.name}
+                                </Text>
+                                <View
+                                  style={{
+                                    marginTop: hp('1%'),
+                                    flexDirection: 'row',
+                                    alignItems: 'center',
+                                    marginVertical: hp('2%'),
+                                  }}>
+                                  <Switch
+                                    style={{width: '20%'}}
+                                    trackColor={{
+                                      false: '#767577',
+                                      true: '#94C036',
+                                    }}
+                                    value={!sectionData.isPrepared}
+                                    onValueChange={() =>
+                                      this.toggleSwitchNotif(sectionData)
+                                    }
+                                    thumbColor="#fff"
+                                  />
+                                  <Text
+                                    style={{
+                                      color: '#7F7F7F',
+                                      marginLeft: wp('4%'),
+                                      fontWeight: '900',
+                                    }}>
+                                    {!sectionData.isPrepared
+                                      ? 'Make me'
+                                      : 'Done'}
+                                  </Text>
+                                </View>
+                              </View>
+
+                              <TouchableOpacity
+                                style={{
+                                  height: hp('5%'),
+                                  width: wp('62%'),
+                                  backgroundColor: 'red',
+                                  alignSelf: 'center',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  flexDirection: 'row',
+                                  borderRadius: 100,
+                                }}
+                                onPress={() => this.deleteMepFun()}>
+                                <Image
+                                  source={img.cancelIcon}
+                                  style={{
+                                    height: 22,
+                                    width: 22,
+                                    tintColor: 'white',
+                                    resizeMode: 'contain',
+                                  }}
+                                />
+                                <Text
+                                  style={{
+                                    color: '#fff',
+                                    fontSize: 16,
+                                    fontWeight: 'bold',
+                                    marginLeft: 10,
+                                    fontFamily: 'Inter-Regular',
+                                  }}>
+                                  Delete
+                                </Text>
+                              </TouchableOpacity>
+                              <View
+                                style={{
+                                  marginTop: hp('3%'),
+                                }}>
+                                <Text
+                                  style={{
+                                    fontFamily: 'Inter-Regular',
+                                    color: '#151B26',
+                                  }}>
+                                  Requested By
                                 </Text>
                               </View>
-                            </View>
-
-                            <TouchableOpacity
-                              style={{
-                                height: hp('5%'),
-                                width: wp('62%'),
-                                backgroundColor: 'red',
-                                alignSelf: 'center',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                flexDirection: 'row',
-                                borderRadius: 100,
-                              }}
-                              onPress={() => this.deleteMepFun()}>
-                              <Image
-                                source={img.cancelIcon}
+                              <View
                                 style={{
-                                  height: 22,
-                                  width: 22,
-                                  tintColor: 'white',
-                                  resizeMode: 'contain',
-                                }}
-                              />
-                              <Text
-                                style={{
-                                  color: '#fff',
-                                  fontSize: 16,
-                                  fontWeight: 'bold',
-                                  marginLeft: 10,
-                                  fontFamily: 'Inter-Regular',
+                                  borderWidth: 1,
+                                  padding: Platform.OS === 'ios' ? 10 : 3,
+                                  marginTop: hp('2%'),
+                                  borderColor: '#C9CCD7',
+                                  backgroundColor: '#EEEEEE',
+                                  borderRadius: 6,
                                 }}>
-                                Delete
-                              </Text>
-                            </TouchableOpacity>
-                            <View
-                              style={{
-                                marginTop: hp('3%'),
-                              }}>
-                              <Text
+                                <TextInput
+                                  value={sectionData.requestedBy}
+                                  editable={false}
+                                />
+                              </View>
+                              <View
                                 style={{
-                                  fontFamily: 'Inter-Regular',
-                                  color: '#151B26',
+                                  borderWidth: 1,
+                                  padding: Platform.OS === 'ios' ? 10 : 3,
+                                  marginTop: hp('2%'),
+                                  borderColor: '#C9CCD7',
+                                  backgroundColor: '#EEEEEE',
+                                  borderRadius: 6,
                                 }}>
-                                Requested By
-                              </Text>
-                            </View>
-                            <View
-                              style={{
-                                borderWidth: 1,
-                                padding: Platform.OS === 'ios' ? 10 : 3,
-                                marginTop: hp('2%'),
-                                borderColor: '#C9CCD7',
-                                backgroundColor: '#EEEEEE',
-                                borderRadius: 6,
-                              }}>
-                              <TextInput
-                                value={sectionData.requestedBy}
-                                editable={false}
-                              />
-                            </View>
-                            <View
-                              style={{
-                                borderWidth: 1,
-                                padding: Platform.OS === 'ios' ? 10 : 3,
-                                marginTop: hp('2%'),
-                                borderColor: '#C9CCD7',
-                                backgroundColor: '#EEEEEE',
-                                borderRadius: 6,
-                              }}>
-                              <TextInput
-                                editable={false}
-                                value={finalDateData}
-                              />
-                            </View>
-                            <View
-                              style={{
-                                marginTop: hp('3%'),
-                              }}>
-                              <Text
+                                <TextInput
+                                  editable={false}
+                                  value={finalDateData}
+                                />
+                              </View>
+                              <View
                                 style={{
-                                  fontFamily: 'Inter-Regular',
-                                  color: '#151B26',
+                                  marginTop: hp('3%'),
                                 }}>
-                                Made By
-                              </Text>
-                            </View>
-                            <View
-                              style={{
-                                borderWidth: 1,
-                                padding: 10,
-                                marginTop: hp('2%'),
-                                borderColor: '#C9CCD7',
-                                backgroundColor: '#EEEEEE',
-                                borderRadius: 6,
-                              }}>
-                              <TextInput
-                                value={sectionData.madeBy}
-                                editable={false}
-                              />
-                            </View>
-                            <View
-                              style={{
-                                borderWidth: 1,
-                                padding: Platform.OS === 'ios' ? 10 : 3,
-                                marginTop: hp('2%'),
-                                borderColor: '#C9CCD7',
-                                backgroundColor: '#EEEEEE',
-                                borderRadius: 6,
-                              }}>
-                              <TextInput
-                                value={sectionData.madeBy}
-                                editable={false}
-                              />
-                            </View>
-                            <View
-                              style={{
-                                marginTop: hp('3%'),
-                              }}>
-                              <Text
+                                <Text
+                                  style={{
+                                    fontFamily: 'Inter-Regular',
+                                    color: '#151B26',
+                                  }}>
+                                  Made By
+                                </Text>
+                              </View>
+                              <View
                                 style={{
-                                  fontFamily: 'Inter-Regular',
-                                  color: '#151B26',
+                                  borderWidth: 1,
+                                  padding: 10,
+                                  marginTop: hp('2%'),
+                                  borderColor: '#C9CCD7',
+                                  backgroundColor: '#EEEEEE',
+                                  borderRadius: 6,
                                 }}>
-                                {translate('Quantity')}
-                              </Text>
-                            </View>
-                            <View
-                              style={{
-                                borderWidth: 1,
-                                padding: Platform.OS === 'ios' ? 10 : 3,
-                                marginTop: hp('2%'),
-                                borderColor: '#C9CCD7',
-                                borderRadius: 6,
-                              }}>
-                              <TextInput
-                                placeholder="Quantity"
-                                onChangeText={val =>
-                                  this.setState({
-                                    quantity: val,
-                                  })
-                                }
-                                value={quantity}
-                              />
-                            </View>
-                            <View
-                              style={{
-                                borderWidth: 1,
-                                padding: Platform.OS === 'ios' ? 10 : 3,
-                                marginTop: hp('2%'),
-                                borderColor: '#C9CCD7',
-                                backgroundColor: '#EEEEEE',
-                                borderRadius: 6,
-                              }}>
-                              <TextInput
-                                value={sectionData.unit}
-                                editable={false}
-                              />
-                            </View>
-                            <View
-                              style={{
-                                marginTop: hp('3%'),
-                              }}>
-                              <Text
+                                <TextInput
+                                  value={sectionData.madeBy}
+                                  editable={false}
+                                />
+                              </View>
+                              <View
                                 style={{
-                                  fontFamily: 'Inter-Regular',
-                                  color: '#151B26',
+                                  borderWidth: 1,
+                                  padding: Platform.OS === 'ios' ? 10 : 3,
+                                  marginTop: hp('2%'),
+                                  borderColor: '#C9CCD7',
+                                  backgroundColor: '#EEEEEE',
+                                  borderRadius: 6,
                                 }}>
-                                Note
-                              </Text>
-                            </View>
-                            <View
-                              style={{
-                                borderWidth: 1,
-                                padding: Platform.OS === 'ios' ? 10 : 3,
-                                marginTop: hp('2%'),
-                                height: hp('20%'),
-                                borderColor: '#C9CCD7',
-                                borderRadius: 6,
-                              }}>
-                              <TextInput
-                                placeholder="Note"
-                                onChangeText={value =>
-                                  this.setState({
-                                    notes: value,
-                                  })
-                                }
-                                value={notes}
-                              />
+                                <TextInput
+                                  value={sectionData.madeBy}
+                                  editable={false}
+                                />
+                              </View>
+                              <View
+                                style={{
+                                  marginTop: hp('3%'),
+                                }}>
+                                <Text
+                                  style={{
+                                    fontFamily: 'Inter-Regular',
+                                    color: '#151B26',
+                                  }}>
+                                  {translate('Quantity')}
+                                </Text>
+                              </View>
+                              <View
+                                style={{
+                                  borderWidth: 1,
+                                  padding: Platform.OS === 'ios' ? 10 : 3,
+                                  marginTop: hp('2%'),
+                                  borderColor: '#C9CCD7',
+                                  borderRadius: 6,
+                                }}>
+                                <TextInput
+                                  placeholder="Quantity"
+                                  onChangeText={val =>
+                                    this.setState({
+                                      quantity: val,
+                                    })
+                                  }
+                                  value={quantity}
+                                />
+                              </View>
+                              <View
+                                style={{
+                                  borderWidth: 1,
+                                  padding: Platform.OS === 'ios' ? 10 : 3,
+                                  marginTop: hp('2%'),
+                                  borderColor: '#C9CCD7',
+                                  backgroundColor: '#EEEEEE',
+                                  borderRadius: 6,
+                                }}>
+                                <TextInput
+                                  value={sectionData.unit}
+                                  editable={false}
+                                />
+                              </View>
+                              <View
+                                style={{
+                                  marginTop: hp('3%'),
+                                }}>
+                                <Text
+                                  style={{
+                                    fontFamily: 'Inter-Regular',
+                                    color: '#151B26',
+                                  }}>
+                                  Note
+                                </Text>
+                              </View>
+                              <View
+                                style={{
+                                  borderWidth: 1,
+                                  padding: Platform.OS === 'ios' ? 10 : 3,
+                                  marginTop: hp('2%'),
+                                  height: hp('20%'),
+                                  borderColor: '#C9CCD7',
+                                  borderRadius: 6,
+                                }}>
+                                <TextInput
+                                  placeholder="Note"
+                                  onChangeText={value =>
+                                    this.setState({
+                                      notes: value,
+                                    })
+                                  }
+                                  value={notes}
+                                />
+                              </View>
                             </View>
                           </View>
-
-                          <View
+                        </ScrollView>
+                        <View
+                          style={{
+                            flexDirection: 'row',
+                            justifyContent: 'space-between',
+                            marginTop: hp('3%'),
+                            paddingHorizontal: hp('5%'),
+                            paddingVertical: hp('2%'),
+                          }}>
+                          <TouchableOpacity
+                            onPress={() => this.updateRecipeDetailsFun()}
                             style={{
-                              flexDirection: 'row',
-                              justifyContent: 'space-between',
-                              marginTop: hp('3%'),
+                              width: wp('30%'),
+                              height: hp('5%'),
+                              backgroundColor: '#94C036',
+                              justifyContent: 'center',
+                              alignItems: 'center',
+                              borderRadius: 100,
                             }}>
-                            <TouchableOpacity
-                              onPress={() => this.updateRecipeDetailsFun()}
+                            <Text
                               style={{
-                                width: wp('30%'),
-                                height: hp('5%'),
-                                backgroundColor: '#94C036',
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                                borderRadius: 100,
+                                color: '#fff',
+                                fontSize: 15,
+                                fontWeight: 'bold',
                               }}>
-                              <Text
-                                style={{
-                                  color: '#fff',
-                                  fontSize: 15,
-                                  fontWeight: 'bold',
-                                }}>
-                                Save
-                              </Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                              onPress={() =>
-                                this.setModalVisibleRecipeDetailsClose(false)
-                              }
+                              Save
+                            </Text>
+                          </TouchableOpacity>
+                          <TouchableOpacity
+                            onPress={() =>
+                              this.setModalVisibleRecipeDetailsClose(false)
+                            }
+                            style={{
+                              width: wp('30%'),
+                              height: hp('5%'),
+                              justifyContent: 'center',
+                              alignItems: 'center',
+                              borderRadius: 100,
+                              borderWidth: 1,
+                              borderColor: '#482813',
+                            }}>
+                            <Text
                               style={{
-                                width: wp('30%'),
-                                height: hp('5%'),
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                                borderRadius: 100,
-                                borderWidth: 1,
-                                borderColor: '#482813',
+                                color: '#482813',
+                                fontSize: 15,
+                                fontWeight: 'bold',
                               }}>
-                              <Text
-                                style={{
-                                  color: '#482813',
-                                  fontSize: 15,
-                                  fontWeight: 'bold',
-                                }}>
-                                {translate('Close')}
-                              </Text>
-                            </TouchableOpacity>
-                          </View>
+                              {translate('Close')}
+                            </Text>
+                          </TouchableOpacity>
                         </View>
-                      </ScrollView>
+                      </View>
                     )}
                   </View>
                 </Modal>
@@ -1328,13 +1343,23 @@ class index extends Component {
                 marginHorizontal: wp('5%'),
                 marginTop: hp('2%'),
               }}>
-              <TouchableOpacity
-                style={{flex: 1}}
-                onPress={() => this.onPressCollapseFun()}>
-                <Text style={styles.adminTextStyle}>
-                  {translate('Collapse All')}
-                </Text>
-              </TouchableOpacity>
+              {collapseStatusMain ? (
+                <TouchableOpacity
+                  style={{flex: 1}}
+                  onPress={() => this.onPressUnCollapseFun()}>
+                  <Text style={styles.adminTextStyle}>
+                    {translate('Uncollapse All')}
+                  </Text>
+                </TouchableOpacity>
+              ) : (
+                <TouchableOpacity
+                  style={{flex: 1}}
+                  onPress={() => this.onPressCollapseFun()}>
+                  <Text style={styles.adminTextStyle}>
+                    {translate('Collapse All')}
+                  </Text>
+                </TouchableOpacity>
+              )}
               <TouchableOpacity
                 onPress={() => this.setModalVisible(true)}
                 style={styles.goBackContainer}>

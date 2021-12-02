@@ -830,17 +830,18 @@ export const getSupplierCatalogApi = async id => {
   );
 };
 
-export const getSupplierProductsApi = async (id, catName) => {
+export const getSupplierProductsApi = async (id, catName, orderId) => {
   const token = await AsyncStorage.getItem('@appToken');
-  return axios.get(
-    baseURL +
-      `/Product/Products by category and supplier id?SupplierId=${id}&Category=${catName}`,
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+  const finalURL = orderId
+    ? `/Product/Products by category and supplier id?SupplierId=${id}&Category=${catName}&shopingBasketId=${orderId}`
+    : `/Product/Products by category and supplier id?SupplierId=${id}&Category=${catName}`;
+
+  console.log('FINALURL--> SUPPLIER', finalURL);
+  return axios.get(baseURL + finalURL, {
+    headers: {
+      Authorization: `Bearer ${token}`,
     },
-  );
+  });
 };
 
 export const unMapProductAdminApi = async payload => {
@@ -899,17 +900,18 @@ export const getInventoryBySupplierIdApi = async id => {
   );
 };
 
-export const getInsideInventoryNewApi = async (catId, supId) => {
+export const getInsideInventoryNewApi = async (catId, supId, orderId) => {
   const token = await AsyncStorage.getItem('@appToken');
-  return axios.get(
-    baseURL +
-      `/inventory/inventories by category and supplier?CategoryId=${catId}&SupplieId=${supId}`,
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+  const finalURL = orderId
+    ? `/inventory/inventories by category and supplier?CategoryId=${catId}&SupplieId=${supId}&shopingBasketId=${orderId}`
+    : `/inventory/inventories by category and supplier?CategoryId=${catId}&SupplieId=${supId}`;
+
+  console.log('FINALURL', finalURL);
+  return axios.get(baseURL + finalURL, {
+    headers: {
+      Authorization: `Bearer ${token}`,
     },
-  );
+  });
 };
 
 export const addBasketApi = async payload => {

@@ -100,6 +100,8 @@ class AddItems extends Component {
       apiDeliveryDate: '',
       placedByValue: '',
       finalApiData: [],
+      SECTIONS_BACKUP: [],
+      modalDataBackup: [],
     };
   }
 
@@ -400,6 +402,7 @@ class AddItems extends Component {
       const basketArr = [];
       merged.map(item => {
         basketArr.push({
+          id: item.orderItemId ? item.orderItemId : null,
           inventoryId: item.id,
           inventoryProductMappingId: item.inventoryProductMappingId,
           unitPrice: item.productPrice,
@@ -407,9 +410,9 @@ class AddItems extends Component {
           action:
             screenType === 'New'
               ? 'New'
-              : screenType === 'Update'
-              ? 'New'
-              : 'String',
+              : screenType === 'Update' && item.orderItemId !== null
+              ? 'Update'
+              : 'New',
           value: Number(
             item.quantityProduct * item.productPrice * item.packSize,
           ),
@@ -451,6 +454,7 @@ class AddItems extends Component {
         const finalArr = [];
         filteredArray.map(item => {
           finalArr.push({
+            id: item.orderItemId ? item.orderItemId : null,
             inventoryId:
               item.inventoryMapping && item.inventoryMapping.inventoryId,
             inventoryProductMappingId:
@@ -460,14 +464,15 @@ class AddItems extends Component {
             action:
               screenType === 'New'
                 ? 'New'
-                : screenType === 'Update'
-                ? 'New'
-                : 'String',
+                : screenType === 'Update' && item.orderItemId !== null
+                ? 'Update'
+                : 'New',
             value: Number(item.quantityProduct * item.price * item.packSize),
           });
         });
         this.setState({
           modalData: [...newArr],
+          modalDataBackup: [...newArr],
           finalBasketData: [...finalArr],
         });
       }
@@ -732,89 +737,89 @@ class AddItems extends Component {
     });
   };
 
-  hitInventorySearch = () => {
-    this.setState(
-      {
-        searchLoader: true,
-      },
-      () => this.hitSearchApiInventory(),
-    );
-  };
+  // hitInventorySearch = () => {
+  //   this.setState(
+  //     {
+  //       searchLoader: true,
+  //     },
+  //     () => this.hitSearchApiInventory(),
+  //   );
+  // };
 
-  hitSearchApiInventory = txt => {
-    const {
-      supplierId,
-      searchItemInventory,
-      screenType,
-      basketId,
-      navigateType,
-      supplierName,
-    } = this.state;
-    searchInventoryItemLApi(supplierId, searchItemInventory)
-      .then(res => {
-        this.setState(
-          {
-            searchLoader: false,
-          },
-          () =>
-            this.props.navigation.navigate('SearchInventoryScreen', {
-              searchType: 'Inventory',
-              searchData: res.data,
-              supplierId,
-              screenType,
-              basketId,
-              navigateType,
-              supplierName,
-            }),
-        );
-      })
-      .catch(err => {
-        Alert.alert(`Error - ${err.response.status}`, 'Something went wrong', [
-          {
-            text: 'Okay',
-            onPress: () => this.props.navigation.goBack(),
-          },
-        ]);
-      });
-  };
+  // hitSearchApiInventory = txt => {
+  //   const {
+  //     supplierId,
+  //     searchItemInventory,
+  //     screenType,
+  //     basketId,
+  //     navigateType,
+  //     supplierName,
+  //   } = this.state;
+  //   searchInventoryItemLApi(supplierId, searchItemInventory)
+  //     .then(res => {
+  //       this.setState(
+  //         {
+  //           searchLoader: false,
+  //         },
+  //         () =>
+  //           this.props.navigation.navigate('SearchInventoryScreen', {
+  //             searchType: 'Inventory',
+  //             searchData: res.data,
+  //             supplierId,
+  //             screenType,
+  //             basketId,
+  //             navigateType,
+  //             supplierName,
+  //           }),
+  //       );
+  //     })
+  //     .catch(err => {
+  //       Alert.alert(`Error - ${err.response.status}`, 'Something went wrong', [
+  //         {
+  //           text: 'Okay',
+  //           onPress: () => this.props.navigation.goBack(),
+  //         },
+  //       ]);
+  //     });
+  // };
 
-  hitSupplierSearch = () => {
-    this.setState(
-      {
-        searchLoader: true,
-      },
-      () =>
-        setTimeout(() => {
-          this.hitSearchApiSupplier();
-        }, 300),
-    );
-  };
+  // hitSupplierSearch = () => {
+  //   this.setState(
+  //     {
+  //       searchLoader: true,
+  //     },
+  //     () =>
+  //       setTimeout(() => {
+  //         this.hitSearchApiSupplier();
+  //       }, 300),
+  //   );
+  // };
 
-  hitSearchApiSupplier = () => {
-    const {
-      supplierId,
-      searchItemSupplier,
-      screenType,
-      basketId,
-      navigateType,
-      supplierName,
-    } = this.state;
-    this.setState(
-      {
-        searchLoader: false,
-      },
-      () =>
-        this.props.navigation.navigate('SearchSupplierScreen', {
-          searchType: 'Supplier',
-          supplierId,
-          screenType,
-          basketId,
-          navigateType,
-          supplierName,
-          searchItemSupplier,
-        }),
-    );
-  };
+  // hitSearchApiSupplier = () => {
+  //   const {
+  //     supplierId,
+  //     searchItemSupplier,
+  //     screenType,
+  //     basketId,
+  //     navigateType,
+  //     supplierName,
+  //   } = this.state;
+  //   this.setState(
+  //     {
+  //       searchLoader: false,
+  //     },
+  //     () =>
+  //       this.props.navigation.navigate('SearchSupplierScreen', {
+  //         searchType: 'Supplier',
+  //         supplierId,
+  //         screenType,
+  //         basketId,
+  //         navigateType,
+  //         supplierName,
+  //         searchItemSupplier,
+  //       }),
+  //   );
+  // };
 
   inventoryFun = () => {
     this.setState(
@@ -942,18 +947,20 @@ class AddItems extends Component {
   };
 
   getInsideInventoryFun = () => {
-    const {catId, supplierId} = this.state;
+    const {catId, supplierId, basketId} = this.state;
+    const finalBasketId = basketId ? basketId : null;
     this.setState(
       {
         modalLoader: true,
       },
       () =>
-        getInsideInventoryNewApi(catId, supplierId)
+        getInsideInventoryNewApi(catId, supplierId, finalBasketId)
           .then(res => {
+            console.log('res', res);
             const finalArr = res.data;
             finalArr.forEach(function (item) {
-              item.isSelected = false;
-              item.quantityProduct = '';
+              item.isSelected = item.quantityProduct ? true : false;
+              item.quantityProduct = item.quantityProduct;
               item.deltaNew = item.delta;
             });
 
@@ -1014,22 +1021,24 @@ class AddItems extends Component {
   };
 
   getInsideSupplierFun = () => {
-    const {supplierId, catName} = this.state;
+    const {supplierId, catName, basketId} = this.state;
+    const finalBasketId = basketId ? basketId : null;
     this.setState(
       {
         modalSupplierLoader: true,
       },
       () =>
-        getSupplierProductsApi(supplierId, catName)
+        getSupplierProductsApi(supplierId, catName, finalBasketId)
           .then(res => {
             const finalArr = res.data;
             finalArr.forEach(function (item) {
-              item.isSelected = false;
-              item.quantityProduct = '';
+              item.isSelected = item.quantityProduct ? true : false;
+              item.quantityProduct = item.quantityProduct;
             });
 
             this.setState({
               modalData: [...finalArr],
+              modalDataBackup: [...finalArr],
               modalSupplierLoader: false,
             });
           })
@@ -1072,6 +1081,7 @@ class AddItems extends Component {
           supplierId: supplierId,
           shopingBasketItemList: finalBasketData,
         };
+        console.log('Payload--> New', payload);
         addBasketApi(payload)
           .then(res => {
             this.setState(
@@ -1107,7 +1117,8 @@ class AddItems extends Component {
         shopingBasketItemList: finalBasketData,
         id: basketId,
       };
-      if (finalBasketData.length > 0) {
+      console.log('Payload--> ELSE', payload);
+      if (finalBasketData.length > 0 || basketId) {
         updateBasketApi(payload)
           .then(res => {
             if (navigateType === 'EditDraft') {
@@ -1118,7 +1129,12 @@ class AddItems extends Component {
                 () => this.navigateToEditDraft(res),
               );
             } else {
-              this.getBasketDataFun();
+              this.setState(
+                {
+                  basketLoader: false,
+                },
+                () => this.navigateToBasket(),
+              );
             }
           })
           .catch(err => {
@@ -1128,6 +1144,10 @@ class AddItems extends Component {
               [
                 {
                   text: 'Okay',
+                  onPress: () =>
+                    this.setState({
+                      basketLoader: false,
+                    }),
                 },
               ],
             );
@@ -1148,6 +1168,7 @@ class AddItems extends Component {
     const {basketId} = this.state;
     getBasketApi(basketId)
       .then(res => {
+        console.log('res', res);
         this.setState(
           {
             modalData: res.data && res.data.shopingBasketItemList,
@@ -1235,7 +1256,7 @@ class AddItems extends Component {
       shopingBasketItemList: finalApiData,
     };
 
-    console.log('Payload', payload);
+    // console.log('Payload', payload);
     addDraftApi(payload)
       .then(res => {
         this.setState(
@@ -1254,6 +1275,56 @@ class AddItems extends Component {
           },
         ]);
       });
+  };
+
+  searchFunInventory = txt => {
+    this.setState(
+      {
+        searchItemInventory: txt,
+      },
+      () => this.filterDataInventory(txt),
+    );
+  };
+
+  filterDataInventory = text => {
+    //passing the inserted text in textinput
+    const newData = this.state.SECTIONS_BACKUP.filter(function (item) {
+      //applying filter for the inserted text in search bar
+      const itemData = item.title ? item.title.toUpperCase() : ''.toUpperCase();
+      const textData = text.toUpperCase();
+      return itemData.indexOf(textData) > -1;
+    });
+    this.setState({
+      //setting the filtered newData on datasource
+      //After setting the data it will automatically re-render the view
+      SECTIONS: newData,
+      searchItemInventory: text,
+    });
+  };
+
+  searchFunSupplier = txt => {
+    this.setState(
+      {
+        searchItemSupplier: txt,
+      },
+      () => this.filterDataSupplier(txt),
+    );
+  };
+
+  filterDataSupplier = text => {
+    //passing the inserted text in textinput
+    const newData = this.state.modalDataBackup.filter(function (item) {
+      //applying filter for the inserted text in search bar
+      const itemData = item.name ? item.name.toUpperCase() : ''.toUpperCase();
+      const textData = text.toUpperCase();
+      return itemData.indexOf(textData) > -1;
+    });
+    this.setState({
+      //setting the filtered newData on datasource
+      //After setting the data it will automatically re-render the view
+      modalData: newData,
+      searchItemSupplier: text,
+    });
   };
 
   render() {
@@ -1288,6 +1359,7 @@ class AddItems extends Component {
       userDefinedQuantity,
       userDefinedUnit,
       finalBasketData,
+      modalDataBackup,
     } = this.state;
 
     console.log('basketId', basketId);
@@ -1454,111 +1526,6 @@ class AddItems extends Component {
               </View>
             </View>
           ) : null}
-          {/* {inventoryStatus ? (
-            <View
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                height: hp('7%'),
-                width: wp('90%'),
-                alignSelf: 'center',
-                justifyContent: 'space-between',
-                marginTop: hp('2%'),
-                borderRadius: 100,
-                backgroundColor: '#fff',
-              }}>
-              <TextInput
-                placeholder="Search"
-                value={searchItemInventory}
-                style={{
-                  padding: 15,
-                  width: wp('75%'),
-                }}
-                onChangeText={value =>
-                  this.setState({
-                    searchItemInventory: value,
-                  })
-                }
-              />
-
-              <TouchableOpacity
-                onPress={() => this.hitInventorySearch()}
-                style={{
-                  backgroundColor: '#94C036',
-                  padding: 13,
-                  borderTopRightRadius: 100,
-                  borderBottomRightRadius: 100,
-                  marginLeft: 5,
-                }}>
-                {searchLoader ? (
-                  <ActivityIndicator color="#fff" size="small" />
-                ) : (
-                  <Image
-                    style={{
-                      height: 18,
-                      width: 18,
-                      resizeMode: 'contain',
-                      marginRight: wp('5%'),
-                      tintColor: '#fff',
-                    }}
-                    source={img.searchIcon}
-                  />
-                )}
-              </TouchableOpacity>
-            </View>
-          ) : (
-            <View
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                height: hp('7%'),
-                width: wp('90%'),
-                alignSelf: 'center',
-                justifyContent: 'space-between',
-                marginTop: hp('2%'),
-                borderRadius: 100,
-                backgroundColor: '#fff',
-              }}>
-              <TextInput
-                placeholder="Search"
-                value={searchItemSupplier}
-                style={{
-                  padding: 15,
-                  width: wp('75%'),
-                }}
-                onChangeText={value =>
-                  this.setState({
-                    searchItemSupplier: value,
-                  })
-                }
-              />
-
-              <TouchableOpacity
-                onPress={() => this.hitSupplierSearch()}
-                style={{
-                  backgroundColor: '#94C036',
-                  padding: 13,
-                  borderTopRightRadius: 100,
-                  borderBottomRightRadius: 100,
-                  marginLeft: 5,
-                }}>
-                {searchLoader ? (
-                  <ActivityIndicator color="#fff" size="small" />
-                ) : (
-                  <Image
-                    style={{
-                      height: 18,
-                      width: 18,
-                      resizeMode: 'contain',
-                      marginRight: wp('5%'),
-                      tintColor: '#fff',
-                    }}
-                    source={img.searchIcon}
-                  />
-                )}
-              </TouchableOpacity>
-            </View>
-          )} */}
 
           <View style={{marginTop: hp('2%'), marginHorizontal: wp('5%')}}>
             <ScrollView horizontal style={{}}>
@@ -1644,8 +1611,110 @@ class AddItems extends Component {
             </View>
           ) : null}
 
+          {SECTIONS.length > 0 || modalData.length > 0 ? (
+            <View>
+              {inventoryStatus ? (
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    height: hp('7%'),
+                    width: wp('90%'),
+                    alignSelf: 'center',
+                    justifyContent: 'space-between',
+                    marginVertical: hp('2%'),
+                    borderRadius: 100,
+                    backgroundColor: '#fff',
+                  }}>
+                  <TextInput
+                    placeholder="Search"
+                    value={searchItemInventory}
+                    style={{
+                      padding: 15,
+                      width: wp('75%'),
+                    }}
+                    onChangeText={value => this.searchFunInventory(value)}
+                  />
+                  {/* 
+              <TouchableOpacity
+                onPress={() => this.hitInventorySearch()}
+                style={{
+                  backgroundColor: '#94C036',
+                  padding: 13,
+                  borderTopRightRadius: 100,
+                  borderBottomRightRadius: 100,
+                  marginLeft: 5,
+                }}>
+                {searchLoader ? (
+                  <ActivityIndicator color="#fff" size="small" />
+                ) : (
+                  <Image
+                    style={{
+                      height: 18,
+                      width: 18,
+                      resizeMode: 'contain',
+                      marginRight: wp('5%'),
+                      tintColor: '#fff',
+                    }}
+                    source={img.searchIcon}
+                  />
+                )}
+              </TouchableOpacity> */}
+                </View>
+              ) : (
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    height: hp('7%'),
+                    width: wp('90%'),
+                    alignSelf: 'center',
+                    justifyContent: 'space-between',
+                    marginVertical: hp('2%'),
+                    borderRadius: 100,
+                    backgroundColor: '#fff',
+                  }}>
+                  <TextInput
+                    placeholder="Search"
+                    value={searchItemSupplier}
+                    style={{
+                      padding: 15,
+                      width: wp('75%'),
+                    }}
+                    onChangeText={value => this.searchFunSupplier(value)}
+                  />
+                  {/* 
+              <TouchableOpacity
+                onPress={() => this.hitSupplierSearch()}
+                style={{
+                  backgroundColor: '#94C036',
+                  padding: 13,
+                  borderTopRightRadius: 100,
+                  borderBottomRightRadius: 100,
+                  marginLeft: 5,
+                }}>
+                {searchLoader ? (
+                  <ActivityIndicator color="#fff" size="small" />
+                ) : (
+                  <Image
+                    style={{
+                      height: 18,
+                      width: 18,
+                      resizeMode: 'contain',
+                      marginRight: wp('5%'),
+                      tintColor: '#fff',
+                    }}
+                    source={img.searchIcon}
+                  />
+                )}
+              </TouchableOpacity> */}
+                </View>
+              )}
+            </View>
+          ) : null}
+
           <View style={{}}>
-            <View style={{marginHorizontal: wp('5%'), marginTop: hp('1%')}}>
+            <View style={{marginHorizontal: wp('5%')}}>
               {modalLoader ? (
                 <ActivityIndicator size="large" color="#94C036" />
               ) : (

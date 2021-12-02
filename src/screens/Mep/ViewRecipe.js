@@ -135,17 +135,59 @@ class ViewRecipe extends Component {
   };
 
   editCustomPriceFun = (index, type, value, modalDataNew) => {
-    const {modalData, batchValue, batchQuantity} = this.state;
+    if (index === 'index') {
+      this.setState(
+        {
+          batchValue: value,
+        },
+        () => this.editTotalPriceFun(index, type, value, modalDataNew),
+      );
+    } else {
+      const {modalData, batchValue, batchQuantity} = this.state;
+      let finalValue = parseFloat(value);
+      let finalQuantity = parseFloat(modalDataNew[index].quantity);
+      let finalBatchQuantity = parseFloat(modalDataNew[index].quantity);
+      let difference = finalValue / finalQuantity;
+      let finalBatchValue = batchQuantity * difference;
+
+      let newArr = modalData.map((item, i) =>
+        index === i
+          ? {
+              ...item,
+              [type]: value,
+            }
+          : {
+              ...item,
+              [type]:
+                difference * item.quantity
+                  ? (difference * item.quantity).toFixed(2)
+                  : null,
+            },
+      );
+
+      this.setState({
+        modalData: [...newArr],
+        batchValue: finalBatchValue ? finalBatchValue.toFixed(2) : '0',
+      });
+    }
+  };
+
+  editTotalPriceFun = (index, type, value, modalDataNew) => {
+    const {modalData, batchQuantity, batchValue} = this.state;
+
     let finalValue = parseFloat(value);
-    let finalQuantity = parseFloat(modalDataNew[index].quantity);
-    let difference = finalValue / finalQuantity;
+    let finalBatchQuantity = batchQuantity;
+    let difference = finalValue / finalBatchQuantity;
     let finalBatchValue = batchQuantity * difference;
 
     let newArr = modalData.map((item, i) =>
       index === i
         ? {
             ...item,
-            [type]: value,
+            [type]:
+              difference * item.quantity
+                ? (difference * item.quantity).toFixed(2)
+                : null,
           }
         : {
             ...item,
@@ -158,7 +200,6 @@ class ViewRecipe extends Component {
 
     this.setState({
       modalData: [...newArr],
-      batchValue: finalBatchValue ? finalBatchValue.toFixed(2) : '0',
     });
   };
 
@@ -473,7 +514,14 @@ class ViewRecipe extends Component {
                               }}>
                               <TextInput
                                 placeholder="0"
-                                editable={false}
+                                onChangeText={value => {
+                                  this.editCustomPriceFun(
+                                    'index',
+                                    'customPrice',
+                                    value,
+                                    modalData,
+                                  );
+                                }}
                                 style={{
                                   borderWidth: 0.8,
                                   paddingVertical: 8,
