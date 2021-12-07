@@ -152,19 +152,32 @@ class HistoryData extends Component {
         <View style={styles.renderContentContainer}>
           <View style={styles.renderContentSubContainer}>
             <View style={styles.boxSize}>
-              <Text style={styles.boxTextHeadingStyling}>Name</Text>
+              <Text style={styles.boxTextHeadingStyling}>
+                {translate('Name')}
+              </Text>
             </View>
             <View
               style={{
-                width: wp('25'),
+                width: wp('20'),
                 justifyContent: 'center',
                 paddingTop: 10,
-                marginLeft: wp('2%'),
+                marginLeft: wp('1%'),
               }}>
-              <Text style={styles.boxTextHeadingStyling}>System says</Text>
+              <Text style={styles.boxTextHeadingStyling}>
+                {translate('Stock Take')}
+              </Text>
             </View>
+            <View
+              style={{
+                width: wp('7%'),
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginLeft: wp('2%'),
+              }}></View>
             <View style={{...styles.boxSize, marginLeft: wp('2%')}}>
-              <Text style={styles.boxTextHeadingStyling}>Stock Take</Text>
+              <Text style={{...styles.boxTextHeadingStyling}}>
+                {translate('System says')}
+              </Text>
             </View>
             <View
               style={{
@@ -173,9 +186,9 @@ class HistoryData extends Component {
                 paddingTop: 10,
                 marginLeft: wp('2%'),
               }}></View>
-            <View style={{...styles.boxSize, marginLeft: wp('2%')}}>
+            {/* <View style={{...styles.boxSize, marginLeft: wp('2%')}}>
               <Text style={styles.boxTextHeadingStyling}>Correction</Text>
-            </View>
+            </View> */}
           </View>
           {categoryLoader ? (
             <ActivityIndicator size="large" color="#94C036" />
@@ -204,6 +217,40 @@ class HistoryData extends Component {
                             {item.name && item.name}
                           </Text>
                         </View>
+                        <TouchableOpacity
+                          onPress={() => this.editUnitsFun(item)}
+                          style={{
+                            ...styles.boxSizeSec,
+                            marginLeft: wp('1%'),
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            backgroundColor: item.quantity
+                              ? '#E9ECEF'
+                              : '#FDF851',
+                            height: 35,
+                            alignSelf: 'center',
+                          }}>
+                          <Text style={styles.boxTextDataStyling}>
+                            {item.quantity}
+                          </Text>
+                        </TouchableOpacity>
+                        <View
+                          style={{
+                            width: wp('7%'),
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            marginLeft: wp('2%'),
+                          }}>
+                          <Text
+                            style={{
+                              fontSize: 12,
+                              color: '#161C27',
+                              fontFamily: 'Inter-Regular',
+                            }}>
+                            {filteredUnit[0]}
+                          </Text>
+                        </View>
+
                         <View
                           style={{
                             width: wp('25'),
@@ -219,47 +266,13 @@ class HistoryData extends Component {
                               {filteredUnit[0]}
                             </Text>
                           ) : null}
-                        </View>
-                        <TouchableOpacity
-                          onPress={() => this.editUnitsFun(item)}
-                          style={{
-                            ...styles.boxSizeSec,
-                            marginLeft: wp('2%'),
-                            flexDirection: 'row',
-                            alignItems: 'center',
-                            backgroundColor: item.quantity
-                              ? '#E9ECEF'
-                              : '#FDF851',
-                            paddingVertical: 10,
-                          }}>
-                          <Text style={styles.boxTextDataStyling}>
-                            {item.quantity}
-                          </Text>
-                        </TouchableOpacity>
-                        <View
-                          style={{
-                            width: wp('7%'),
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            marginLeft: wp('2%'),
-                          }}>
-                          <Text
-                            style={{
-                              fontSize: 14,
-                              color: '#161C27',
-                              fontFamily: 'Inter-Regular',
-                            }}>
-                            {filteredUnit[0]}
-                          </Text>
-                        </View>
-
-                        <View
-                          style={{...styles.boxSizeSec, marginLeft: wp('2%')}}>
                           {item.correction ? (
                             <Text
                               style={{
                                 ...styles.boxTextDataStyling,
                                 color: item.correction > 0 ? '#94C01F' : 'red',
+                                marginTop: 10,
+                                marginLeft: 5,
                               }}>
                               {item.correction} {filteredUnit[0]}
                             </Text>

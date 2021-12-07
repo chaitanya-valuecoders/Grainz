@@ -41,6 +41,8 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import {translate} from '../../utils/translations';
 import ImagePicker from 'react-native-image-crop-picker';
 import styles from './style';
+import ModalPicker from '../../components/ModalPicker';
+import RNPickerSelect from 'react-native-picker-select';
 
 var minTime = new Date();
 minTime.setHours(0);
@@ -62,7 +64,7 @@ class EditPurchase extends Component {
       productionDate: '',
       purchaseLines: [0],
       htva: false,
-      htvaIsSelected: true,
+      htvaIsSelected: false,
       auditIsSelected: false,
       note: '',
       supplierList: [],
@@ -81,13 +83,12 @@ class EditPurchase extends Component {
       supplieReference: '',
       itemsTypesArr: [],
       departmentName: '',
-      loading: false,
+      loading: true,
       items: [],
       selectedItems: [],
       selectedItemObjects: '',
       yourOrderItems: [],
       newOrderItems: [],
-      departmentName: '',
       testItem: null,
       orderTotal: null,
       photo: null,
@@ -104,6 +105,9 @@ class EditPurchase extends Component {
       imageDataEdit: '',
       buttonsSubHeader: [],
       recipeLoader: true,
+      placeHolderTextDept: 'Select Supplier',
+      dataListLoader: false,
+      selectedTextUser: '',
     };
   }
 
@@ -195,6 +199,7 @@ class EditPurchase extends Component {
       productionDate: order.orderDate,
       auditIsSelected: order.isAuditComplete,
       note: order.notes,
+      selectedTextUser: order.supplierName,
     });
     list = [];
 
@@ -218,7 +223,7 @@ class EditPurchase extends Component {
   }
 
   getFinalArray = item => {
-    const {orderItemsFinal} = this.state;
+    // const {orderItemsFinal} = this.state;
     let objSec = {};
     let newlist = [];
     objSec = {
@@ -237,7 +242,7 @@ class EditPurchase extends Component {
 
     newlist.push(objSec);
     this.setState({
-      orderItemsFinal: [...orderItemsFinal, ...newlist],
+      // orderItemsFinal: [...orderItemsFinal, ...newlist],
     });
   };
 
@@ -246,6 +251,13 @@ class EditPurchase extends Component {
 
     getInventoryByIdApi(id)
       .then(res => {
+        const finalUnits = res.data.units.map((subItem, subIndex) => {
+          return {
+            label: subItem.name,
+            value: subItem.id,
+          };
+        });
+
         total = total + item.orderValue;
         obj = {
           action: 'Update',
@@ -262,6 +274,7 @@ class EditPurchase extends Component {
           unitPrice: item.unitPrice && item.unitPrice.toString(),
           name: res.data.name,
           departmentName: res.data.departmentName,
+          units: finalUnits,
         };
 
         list.push(obj);
@@ -269,6 +282,7 @@ class EditPurchase extends Component {
           orderTotal: total,
           yourOrderItems: list,
           editDataLoader: false,
+          departmentName: res.data.departmentName,
         });
       })
       .catch(error => console.warn('invIdError', error));
@@ -287,6 +301,7 @@ class EditPurchase extends Component {
       editDisabled: false,
       editColor: '#FFFFFF',
       swapButton: true,
+      departmentName: '',
     });
   }
 
@@ -297,20 +312,22 @@ class EditPurchase extends Component {
       supplierId,
       productionDate,
       orderId,
-      orderItemsFinal,
+      // orderItemsFinal,
       imageName,
       imageDesc,
       imageData,
       imageDataEdit,
       yourOrderItems,
+      htvaIsSelected,
     } = this.state;
     let payload = {
       id: orderId,
       supplierId: supplierId,
+      isHTVA: htvaIsSelected,
       isAuditComplete: auditIsSelected,
       orderDate: productionDate,
       notes: note,
-      orderItems: orderItemsFinal,
+      orderItems: yourOrderItems,
       images: [],
       images: imageDataEdit
         ? [
@@ -339,33 +356,37 @@ class EditPurchase extends Component {
         : [],
     };
 
-    if (yourOrderItems.length > 0) {
-      this.setState(
-        {
-          updateLoader: true,
-        },
-        () =>
-          updateOrderApi(payload)
-            .then(res => {
-              this.setState(
-                {
+    // console.log('payload', payload);
+
+    if (this.payloadValidation()) {
+      if (yourOrderItems.length > 0) {
+        this.setState(
+          {
+            updateLoader: true,
+          },
+          () =>
+            updateOrderApi(payload)
+              .then(res => {
+                this.setState(
+                  {
+                    updateLoader: false,
+                  },
+                  () => this.goBackFun(),
+                );
+                // Alert.alert('Grainz', 'Order updated successfully', [
+                //   {text: 'OK', onPress: () => this.goBackFun()},
+                // ]);
+              })
+              .catch(error => {
+                this.setState({
                   updateLoader: false,
-                },
-                () => this.goBackFun(),
-              );
-              // Alert.alert('Grainz', 'Order updated successfully', [
-              //   {text: 'OK', onPress: () => this.goBackFun()},
-              // ]);
-            })
-            .catch(error => {
-              this.setState({
-                updateLoader: false,
-              });
-              console.warn('updateFailed', error.response);
-            }),
-      );
-    } else {
-      alert('Please add atleast one item');
+                });
+                console.warn('updateFailed', error.response);
+              }),
+        );
+      } else {
+        alert('Please add atleast one item');
+      }
     }
   }
 
@@ -475,13 +496,13 @@ class EditPurchase extends Component {
   }
 
   deletePurchaseLine(index, type) {
-    let temp = this.state.yourOrderItems;
-    temp.splice(index, 1);
-    this.setState({yourOrderItems: temp});
+    // this.setState({yourOrderItems: temp});
 
-    const {orderItemsFinal} = this.state;
+    const {yourOrderItems} = this.state;
+    // const {orderItemsFinal} = this.state;
 
-    let newArr = orderItemsFinal.map((item, i) =>
+    // let newArr = orderItemsFinal.map((item, i) =>
+    let newArr = yourOrderItems.map((item, i) =>
       index === i
         ? {
             ...item,
@@ -489,22 +510,18 @@ class EditPurchase extends Component {
           }
         : item,
     );
+
+    // let temp = this.state.yourOrderItems;
+    // temp.splice(index, 1);
+
     this.setState({
-      orderItemsFinal: [...newArr],
+      // orderItemsFinal: [...newArr],
+      yourOrderItems: [...newArr],
     });
 
     // let temp = this.state.purchaseLines;
     // temp.pop();
     // this.setState({purchaseLines: temp});
-  }
-
-  showSupplierList() {
-    this.setState({showSuppliers: !this.state.showSuppliers});
-  }
-
-  selectSupplier(param, id, ref) {
-    this.setState({supplier: param, supplierId: id, supplieReference: ref});
-    this.showSupplierList();
   }
 
   getManualData = () => {
@@ -539,6 +556,8 @@ class EditPurchase extends Component {
           };
         });
 
+        console.log('finArr', finalArray);
+
         this.setState({
           items: [...finalArray],
           loading: false,
@@ -570,65 +589,152 @@ class EditPurchase extends Component {
     this.props.navigation.goBack();
   };
 
-  selectDepartementNameFun = (index, type, item) => {
-    const {yourOrderItems} = this.state;
-    const value = item.value;
+  // selectDepartementNameFun = (index, type, item) => {
+  //   const {yourOrderItems} = this.state;
+  //   const value = item.value;
 
-    let newArr = yourOrderItems.map(
-      (item, i) =>
-        index === i
-          ? {
-              ...item,
-              [type]: value,
-            }
-          : item,
-      //   if (index === i) {
-      //     if (type === 'quantityOrdered') {
-      //       return item.quantityOrdered === value;
-      //     }
-      //   }
-    );
+  //   let newArr = yourOrderItems.map(
+  //     (item, i) =>
+  //       index === i
+  //         ? {
+  //             ...item,
+  //             [type]: value,
+  //           }
+  //         : item,
+  //     //   if (index === i) {
+  //     //     if (type === 'quantityOrdered') {
+  //     //       return item.quantityOrdered === value;
+  //     //     }
+  //     //   }
+  //   );
+  //   this.setState(
+  //     {
+  //       yourOrderItems: [...newArr],
+  //       orderItemsFinal: [...newArr],
+  //       departmentName: item.value,
+  //       loading: true,
+  //       viewStatus: true,
+  //     },
+  //     () => this.getManualData(),
+  //   );
+  // };
+
+  selectDepartementNameFun = value => {
+    if (value) {
+      this.setState(
+        {
+          departmentName: value,
+          loading: true,
+          items: [],
+          selectedItemObjects: [],
+          selectedItems: [],
+        },
+        () => this.getManualData(),
+      );
+    }
+  };
+
+  payloadValidation = () => {
+    let formIsValid = true;
+    const {yourOrderItems} = this.state;
+    if (yourOrderItems.length > 0) {
+      for (let i of yourOrderItems) {
+        if (i.quantityOrdered === '') {
+          i.error = 'Quantity is required';
+          formIsValid = false;
+          // this.setState({
+          //   quantityError: 'Quantity is required',
+          // });
+        } else if (i.unitPrice === '') {
+          i.error = 'Price is required';
+          formIsValid = false;
+          // this.setState({
+          //   priceError: 'Price is required',
+          // });
+        }
+      }
+    }
+    this.setState({
+      yourOrderItems,
+    });
+    return formIsValid;
+  };
+
+  onSelectedItemObjectsChange = async (type, value, finalValue) => {
+    const {orderItemsFinal} = this.state;
+
+    let finalArray = finalValue.map((item, index) => {
+      const finalUnits = item.units.map((subItem, subIndex) => {
+        return {
+          label: subItem.name,
+          value: subItem.id,
+        };
+      });
+
+      return {
+        action: 'New',
+        id: '',
+        inventoryId: item.id,
+        inventoryProductMappingId: '',
+        isCorrect: false,
+        notes: '',
+        position: index + 1,
+        quantityOrdered: '',
+        tdcVolume: 0,
+        unitId: item.units[0].id,
+        unitPrice: '',
+        name: item.name,
+        units: finalUnits,
+      };
+    });
+
+    // let finalArrayUnit = finalValue.map((item, index) => {
+    //   console.log('item', item);
+    //   return {
+    //     label: item,
+    //     value: item,
+    //   };
+    // });
+
     this.setState(
       {
-        yourOrderItems: [...newArr],
-        orderItemsFinal: [...newArr],
-        departmentName: item.value,
-        loading: true,
-        viewStatus: true,
+        selectedItemObjects: finalValue,
+        yourOrderItems: [...finalArray],
       },
-      () => this.getManualData(),
+      // ,
+      // () => this.addDataFun(index, type, value, finalValue),
     );
   };
 
-  onSelectedItemObjectsChange = (
-    index,
-    type,
-    selectedItemObjects,
-    id,
-    invId,
-  ) => {
-    const {yourOrderItems} = this.state;
+  // onSelectedItemObjectsChange = (
+  //   index,
+  //   type,
+  //   selectedItemObjects,
+  //   id,
+  //   invId,
+  // ) => {
+  //   const {yourOrderItems} = this.state;
 
-    const value = selectedItemObjects[0].name;
-    const unitId = selectedItemObjects[0].units[0].id;
-    const inventoryId = selectedItemObjects[0].units[0].inventoryId;
+  //   const value = selectedItemObjects[0].name;
+  //   const unitId = selectedItemObjects[0].units[0].id;
+  //   const inventoryId = selectedItemObjects[0].units[0].inventoryId;
 
-    let newArr = yourOrderItems.map((item, i) =>
-      index === i
-        ? {
-            ...item,
-            [type]: value,
-            [id]: unitId,
-            [invId]: inventoryId,
-          }
-        : item,
-    );
-    this.setState({
-      selectedItemObjects,
-      yourOrderItems: [...newArr],
-      orderItemsFinal: [...newArr],
-    });
-  };
+  //   let newArr = yourOrderItems.map((item, i) =>
+  //     index === i
+  //       ? {
+  //           ...item,
+  //           [type]: value,
+  //           [id]: unitId,
+  //           [invId]: inventoryId,
+  //         }
+  //       : item,
+  //   );
+  //   this.setState({
+  //     selectedItemObjects,
+  //     yourOrderItems: [...newArr],
+  //     // orderItemsFinal: [...newArr],
+  //   });
+  // };
 
   editQuantityPriceFun = (index, type, value) => {
     const {yourOrderItems} = this.state;
@@ -643,7 +749,7 @@ class EditPurchase extends Component {
     );
     this.setState({
       yourOrderItems: [...newArr],
-      orderItemsFinal: [...newArr],
+      // orderItemsFinal: [...newArr],
     });
   };
 
@@ -668,6 +774,43 @@ class EditPurchase extends Component {
       imageShow: true,
     });
   };
+
+  selectUserNameFun = item => {
+    this.setState({
+      supplier: item.name,
+      selectedTextUser: item.name,
+      supplierId: item.id,
+      supplieReference: item.reference,
+    });
+  };
+
+  addDataFun = (index, type, value, finalValue) => {
+    const {yourOrderItems, selectedItemObjects} = this.state;
+    // const finalUnitId =
+    //   selectedItemObjects && selectedItemObjects[0].units[0].id;
+    let newArr = yourOrderItems.map((item, i) =>
+      index === i
+        ? {
+            ...item,
+            [type]: value,
+            // ['unitId']: finalUnitId,
+            // ['position']: index,
+          }
+        : item,
+    );
+    this.setState({
+      yourOrderItems: [...newArr],
+    });
+  };
+
+  // showSupplierList() {
+  //   this.setState({showSuppliers: !this.state.showSuppliers});
+  // }
+
+  // selectSupplier(param, id, ref) {
+  //   this.setState({supplier: param, supplierId: id, supplieReference: ref});
+  //   this.showSupplierList();
+  // }
 
   render() {
     const {
@@ -710,7 +853,12 @@ class EditPurchase extends Component {
       buttonsSubHeader,
       recipeLoader,
       orderItemsFinal,
+      placeHolderTextDept,
+      dataListLoader,
+      selectedTextUser,
+      selectedItems,
     } = this.state;
+    console.log('selectedItems', selectedItems);
 
     return (
       <View style={styles.container}>
@@ -855,32 +1003,132 @@ class EditPurchase extends Component {
                 minimumDate={minTime}
               />
 
-              <View style={{}}>
+              {editDisabled ? (
                 <View style={{}}>
-                  <TouchableOpacity
-                    disabled={editDisabled}
-                    onPress={() => this.showSupplierList()}
+                  <View style={{}}>
+                    <TouchableOpacity
+                      disabled={editDisabled}
+                      onPress={() => this.showSupplierList()}
+                      style={{
+                        padding: 15,
+                        marginBottom: hp('3%'),
+                        flexDirection: 'row',
+                        justifyContent: 'space-between',
+                        backgroundColor: '#fff',
+                        borderRadius: 6,
+                      }}>
+                      <Text>{supplier}</Text>
+                      <Image
+                        source={img.arrowDownIcon}
+                        style={{
+                          width: 20,
+                          height: 20,
+                          resizeMode: 'contain',
+                        }}
+                      />
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              ) : (
+                <View style={{marginBottom: hp('3%')}}>
+                  <ModalPicker
+                    dataListLoader={dataListLoader}
+                    placeHolderLabel={placeHolderTextDept}
+                    placeHolderLabelColor="grey"
+                    dataSource={supplierList}
+                    selectedLabel={selectedTextUser}
+                    onSelectFun={item => this.selectUserNameFun(item)}
+                  />
+                </View>
+              )}
+
+              <View
+                style={{
+                  marginBottom: hp('3%'),
+                  width: wp('70%'),
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                }}>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    borderRadius: 5,
+                    backgroundColor: '#fff',
+                  }}>
+                  <View
                     style={{
-                      padding: 15,
-                      marginBottom: hp('3%'),
-                      flexDirection: 'row',
-                      justifyContent: 'space-between',
-                      backgroundColor: '#fff',
-                      borderRadius: 6,
+                      alignSelf: 'center',
+                      justifyContent: 'center',
+                      width: wp('80%'),
                     }}>
-                    <Text>{supplier}</Text>
+                    <RNPickerSelect
+                      disabled={editDisabled}
+                      placeholder={{
+                        label: 'Select Department*',
+                        value: null,
+                        color: 'black',
+                      }}
+                      placeholderTextColor="red"
+                      onValueChange={value => {
+                        this.selectDepartementNameFun(value);
+                      }}
+                      style={{
+                        inputIOS: {
+                          fontSize: 14,
+                          paddingHorizontal: '3%',
+                          color: '#161C27',
+                          width: '100%',
+                          alignSelf: 'center',
+                          paddingVertical: 15,
+                        },
+                        inputAndroid: {
+                          fontSize: 14,
+                          paddingHorizontal: '3%',
+                          color: '#161C27',
+                          width: '100%',
+                          alignSelf: 'center',
+                        },
+                        iconContainer: {
+                          top: '40%',
+                        },
+                      }}
+                      items={[
+                        {
+                          label: 'Bar',
+                          value: 'Bar',
+                        },
+                        {
+                          label: 'Restaurant',
+                          value: 'Restaurant',
+                        },
+                        {
+                          label: 'Retail',
+                          value: 'Retail',
+                        },
+                        {
+                          label: 'Other',
+                          value: 'Other',
+                        },
+                      ]}
+                      value={departmentName}
+                      useNativeAndroidPickerStyle={false}
+                    />
+                  </View>
+                  <View style={{marginRight: wp('5%')}}>
                     <Image
                       source={img.arrowDownIcon}
+                      resizeMode="contain"
                       style={{
-                        width: 20,
-                        height: 20,
+                        height: 18,
+                        width: 18,
                         resizeMode: 'contain',
+                        marginTop: Platform.OS === 'ios' ? 15 : 15,
                       }}
                     />
-                  </TouchableOpacity>
+                  </View>
                 </View>
               </View>
-              <View style={{flex: 2}}>
+              {/* <View style={{flex: 2}}>
                 {showSuppliers ? (
                   <View
                     style={{
@@ -908,12 +1156,243 @@ class EditPurchase extends Component {
                     })}
                   </View>
                 ) : null}
-              </View>
+              </View> */}
+              {editDisabled ? null : (
+                <View style={{marginBottom: hp('3%')}}>
+                  <SectionedMultiSelect
+                    styles={{
+                      container: {
+                        paddingTop: hp('2%'),
+                        marginTop: hp('7%'),
+                      },
+                      selectToggle: {
+                        backgroundColor: '#fff',
+                        paddingVertical: 14,
+                        paddingHorizontal: 5,
+                        borderRadius: 6,
+                      },
+                    }}
+                    loadingComponent={
+                      <View
+                        style={{
+                          flex: 1,
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                        }}>
+                        <ActivityIndicator size="large" color="#94C036" />
+                      </View>
+                    }
+                    loading={loading}
+                    // hideSearch={true}
+                    // single={true}
+                    items={items}
+                    IconRenderer={Icon}
+                    uniqueKey="id"
+                    subKey="children"
+                    showDropDowns={true}
+                    readOnlyHeadings={true}
+                    // onConfirm={() => this.storeDataFun()}
+                    onSelectedItemObjectsChange={value =>
+                      this.onSelectedItemObjectsChange(
+                        'inventoryId',
+                        value[0],
+                        value,
+                      )
+                    }
+                    // onSelectedItemsChange={value =>
+                    //   this.addDataFun(
+                    //     index,
+                    //     'inventoryId',
+                    //     value[0],
+                    //     value,
+                    //   )
+                    // }
+                    onSelectedItemsChange={this.onSelectedItemsChange}
+                    selectedItems={this.state.selectedItems}
+                    // selectedItems={[item.inventoryId]}
+                  />
+                </View>
+              )}
               <View>
-                {yourOrderItems.map((ele, index) => {
+                {yourOrderItems.map((item, index) => {
                   return (
                     <View style={{marginBottom: hp('3%')}}>
-                      <View>
+                      {item.action !== 'Delete' ? (
+                        <View>
+                          {!editDisabled ? (
+                            <View
+                              style={{
+                                marginLeft: -11,
+                                zIndex: 10,
+                              }}>
+                              <TouchableOpacity
+                                disabled={editDisabled}
+                                onPress={() =>
+                                  this.deletePurchaseLine(index, 'action')
+                                }>
+                                <Image
+                                  source={img.cancelIcon}
+                                  style={{
+                                    width: 25,
+                                    height: 25,
+                                    resizeMode: 'contain',
+                                  }}
+                                />
+                              </TouchableOpacity>
+                            </View>
+                          ) : null}
+                          <View
+                            style={{
+                              flexDirection: 'row',
+                              alignItems: 'center',
+                              flex: 1,
+                            }}>
+                            <View
+                              style={{
+                                flex: 0.7,
+                              }}>
+                              <Text>{item.name}</Text>
+                            </View>
+                            <View
+                              style={{
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                                flex: 2,
+                                marginLeft: wp('2%'),
+                              }}>
+                              <View>
+                                <TextInput
+                                  editable={!editDisabled}
+                                  placeholder="Quantity"
+                                  style={{
+                                    padding: 12,
+                                    borderTopLeftRadius: 5,
+                                    borderBottomLeftRadius: 5,
+                                    backgroundColor: '#fff',
+                                    width: wp('20%'),
+                                  }}
+                                  keyboardType="number-pad"
+                                  value={item.quantityOrdered}
+                                  onChangeText={value =>
+                                    this.addDataFun(
+                                      index,
+                                      'quantityOrdered',
+                                      value,
+                                    )
+                                  }
+                                />
+                              </View>
+                              <View
+                                style={{
+                                  flexDirection: 'row',
+                                  alignItems: 'center',
+                                }}>
+                                <View
+                                  style={{
+                                    flexDirection: 'row',
+                                    borderTopRightRadius: 5,
+                                    borderBottomRightRadius: 5,
+                                    backgroundColor: '#68AFFF',
+                                  }}>
+                                  <View
+                                    style={{
+                                      alignSelf: 'center',
+                                      justifyContent: 'center',
+                                      width: wp('15%'),
+                                    }}>
+                                    <RNPickerSelect
+                                      disabled={editDisabled}
+                                      placeholder={{
+                                        label: 'Unit*',
+                                        value: null,
+                                        color: '#fff',
+                                      }}
+                                      placeholderTextColor="#fff"
+                                      onValueChange={value => {
+                                        this.addDataFun(index, 'unitId', value);
+                                      }}
+                                      style={{
+                                        inputIOS: {
+                                          fontSize: 14,
+                                          paddingHorizontal: '3%',
+                                          width: '100%',
+                                          alignSelf: 'center',
+                                          paddingVertical: 12,
+                                          marginLeft: 10,
+                                          color: '#fff',
+                                        },
+                                        inputAndroid: {
+                                          fontSize: 14,
+                                          paddingHorizontal: '3%',
+                                          color: '#fff',
+                                          width: '100%',
+                                          alignSelf: 'center',
+                                        },
+                                        iconContainer: {
+                                          top: '40%',
+                                        },
+                                      }}
+                                      items={item.units}
+                                      value={item.unitId}
+                                      useNativeAndroidPickerStyle={false}
+                                    />
+                                  </View>
+                                  <View style={{marginRight: wp('4%')}}>
+                                    <Image
+                                      source={img.arrowDownIcon}
+                                      resizeMode="contain"
+                                      style={{
+                                        height: 15,
+                                        width: 15,
+                                        resizeMode: 'contain',
+                                        tintColor: '#fff',
+                                        marginTop:
+                                          Platform.OS === 'ios' ? 12 : 15,
+                                      }}
+                                    />
+                                  </View>
+                                </View>
+                              </View>
+                            </View>
+
+                            <View
+                              style={{
+                                flex: 1,
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                              }}>
+                              <Text style={{}}>€</Text>
+                              <TextInput
+                                editable={!editDisabled}
+                                placeholder="Price"
+                                style={{
+                                  padding: 15,
+                                  marginLeft: wp('2%'),
+                                  width: wp('18%'),
+                                  backgroundColor: '#fff',
+                                  borderRadius: 6,
+                                }}
+                                onChangeText={value =>
+                                  this.addDataFun(index, 'unitPrice', value)
+                                }
+                                value={item.unitPrice}
+                              />
+                            </View>
+                          </View>
+                          {item.error ? (
+                            <View>
+                              <Text
+                                style={{
+                                  color: 'red',
+                                  fontSize: 12,
+                                  fontFamily: 'Inter-Regular',
+                                  marginTop: 5,
+                                }}>
+                                {item.error}
+                              </Text>
+                            </View>
+                          ) : null}
+                          {/* <View>
                         {!editDisabled ? (
                           <View
                             style={{
@@ -1105,12 +1584,14 @@ class EditPurchase extends Component {
                             </View>
                           </View>
                         </View>
-                      </View>
+                      </View> */}
+                        </View>
+                      ) : null}
                     </View>
                   );
                 })}
               </View>
-              <View>
+              {/* <View>
                 {editDisabled ? null : (
                   <View>
                     <TouchableOpacity
@@ -1145,7 +1626,7 @@ class EditPurchase extends Component {
                     </TouchableOpacity>
                   </View>
                 )}
-              </View>
+              </View> */}
               <View style={{}}>
                 <View
                   style={{
@@ -1188,7 +1669,7 @@ class EditPurchase extends Component {
                       fontSize: 15,
                       color: '#151B26',
                     }}>
-                    {translate('HTVA')}?
+                    {translate('Ex-VAT')}?
                   </Text>
                   <CheckBox
                     disabled={editDisabled}
@@ -1313,7 +1794,7 @@ class EditPurchase extends Component {
                     placeholder="Notes"
                     editable={!editDisabled}
                     style={{
-                      paddingVertical: '40%',
+                      paddingVertical: '30%',
                       paddingLeft: 10,
                       paddingTop: 10,
                     }}
@@ -1324,64 +1805,6 @@ class EditPurchase extends Component {
                   />
                 </View>
               </View>
-              {editDisabled ? null : (
-                <View>
-                  <View
-                    style={{
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      marginTop: hp('3%'),
-                    }}>
-                    <TouchableOpacity
-                      onPress={() => this.updateCasualPurchase()}
-                      style={{
-                        width: wp('30%'),
-                        height: hp('5%'),
-                        alignSelf: 'flex-end',
-                        backgroundColor: '#94C036',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        borderRadius: 100,
-                      }}>
-                      <Text
-                        style={{
-                          color: '#fff',
-                          fontSize: 15,
-                          fontWeight: 'bold',
-                        }}>
-                        {updateLoader ? (
-                          <ActivityIndicator size="small" color="#fff" />
-                        ) : (
-                          translate('Save')
-                        )}
-                      </Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      onPress={() => this.props.navigation.goBack()}
-                      style={{
-                        width: wp('30%'),
-                        height: hp('5%'),
-                        alignSelf: 'flex-end',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        marginLeft: wp('2%'),
-                        borderRadius: 100,
-                        borderWidth: 1,
-                        borderColor: '#482813',
-                      }}>
-                      <Text
-                        style={{
-                          color: '#482813',
-                          fontSize: 15,
-                          fontWeight: 'bold',
-                        }}>
-                        {translate('Cancel')}
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
-                </View>
-              )}
             </View>
           )}
           <Modal isVisible={imageModalStatus} backdropOpacity={0.35}>
@@ -1520,6 +1943,64 @@ class EditPurchase extends Component {
             </View>
           </Modal>
         </ScrollView>
+        {editDisabled ? null : (
+          <View>
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'center',
+                paddingVertical: 15,
+              }}>
+              <TouchableOpacity
+                onPress={() => this.updateCasualPurchase()}
+                style={{
+                  width: wp('30%'),
+                  height: hp('5%'),
+                  alignSelf: 'flex-end',
+                  backgroundColor: '#94C036',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  borderRadius: 100,
+                }}>
+                <Text
+                  style={{
+                    color: '#fff',
+                    fontSize: 15,
+                    fontWeight: 'bold',
+                  }}>
+                  {updateLoader ? (
+                    <ActivityIndicator size="small" color="#fff" />
+                  ) : (
+                    translate('Save')
+                  )}
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => this.props.navigation.goBack()}
+                style={{
+                  width: wp('30%'),
+                  height: hp('5%'),
+                  alignSelf: 'flex-end',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  marginLeft: wp('2%'),
+                  borderRadius: 100,
+                  borderWidth: 1,
+                  borderColor: '#482813',
+                }}>
+                <Text
+                  style={{
+                    color: '#482813',
+                    fontSize: 15,
+                    fontWeight: 'bold',
+                  }}>
+                  {translate('Cancel')}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
       </View>
     );
   }

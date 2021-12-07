@@ -112,16 +112,19 @@ const styles = StyleSheet.create({
     paddingBottom: 15,
     marginHorizontal: wp('5%'),
   },
-  boxSize: {width: wp('25%'), justifyContent: 'center', paddingTop: 10},
+  boxSize: {width: wp('20%'), justifyContent: 'center', paddingTop: 10},
   boxSizeNew: {
     width: wp('25%'),
     paddingTop: 10,
     flexDirection: 'row',
     alignItems: 'center',
   },
-  boxSizeSec: {width: wp('25%'), justifyContent: 'center'},
+  boxSizeSec: {
+    width: wp('20%'),
+    justifyContent: 'center',
+  },
   boxTextHeadingStyling: {
-    fontSize: 14,
+    fontSize: 12,
     color: '#161C27',
     fontFamily: 'Inter-SemiBold',
   },
@@ -133,7 +136,7 @@ const styles = StyleSheet.create({
     borderTopColor: '#0000001A',
   },
   boxTextDataStyling: {
-    fontSize: 14,
+    fontSize: 12,
     color: '#161C27',
     fontFamily: 'Inter-Regular',
   },

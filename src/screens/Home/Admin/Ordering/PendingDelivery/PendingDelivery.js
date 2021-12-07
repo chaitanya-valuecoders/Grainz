@@ -562,7 +562,10 @@ class PendingDelivery extends Component {
                                         alignItems: 'center',
                                       }}>
                                       <Text
-                                        style={{textAlign: 'center'}}
+                                        style={{
+                                          textAlign: 'center',
+                                          color: item.isRed ? 'red' : 'black',
+                                        }}
                                         numberOfLines={1}>
                                         {item.orderReference}
                                       </Text>
@@ -572,30 +575,23 @@ class PendingDelivery extends Component {
                                         width: wp('30%'),
                                         alignItems: 'center',
                                       }}>
-                                      {item.isRed ? (
-                                        <Text
-                                          numberOfLines={1}
-                                          style={{
-                                            color: 'red',
-                                          }}>
-                                          {item.supplierName}
-                                        </Text>
-                                      ) : (
-                                        <Text
-                                          numberOfLines={1}
-                                          style={{
-                                            color: '#22262A',
-                                          }}>
-                                          {item.supplierName}
-                                        </Text>
-                                      )}
+                                      <Text
+                                        numberOfLines={1}
+                                        style={{
+                                          color: item.isRed ? 'red' : 'black',
+                                        }}>
+                                        {item.supplierName}
+                                      </Text>
                                     </View>
                                     <View
                                       style={{
                                         width: wp('30%'),
                                         alignItems: 'center',
                                       }}>
-                                      <Text>
+                                      <Text
+                                        style={{
+                                          color: item.isRed ? 'red' : 'black',
+                                        }}>
                                         {type === 'Pending'
                                           ? moment(item.deliveryDate).format(
                                               'DD/MM/YY',
@@ -616,7 +612,10 @@ class PendingDelivery extends Component {
                                         width: wp('30%'),
                                         alignItems: 'center',
                                       }}>
-                                      <Text>
+                                      <Text
+                                        style={{
+                                          color: item.isRed ? 'red' : 'black',
+                                        }}>
                                         € {item && Number(item.htva).toFixed(2)}
                                       </Text>
                                     </View>

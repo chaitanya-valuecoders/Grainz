@@ -380,7 +380,9 @@ class StockScreen extends Component {
                 <TouchableOpacity
                   style={styles.boxSizeNew}
                   onPress={() => this.arrangeListFun('NAME')}>
-                  <Text style={styles.boxTextHeadingStyling}>Name</Text>
+                  <Text style={styles.boxTextHeadingStyling}>
+                    {translate('Name')}
+                  </Text>
                   <View style={{padding: 5}}>
                     <Image
                       style={styles.listImageStyling}
@@ -393,14 +395,18 @@ class StockScreen extends Component {
                     ...styles.boxSize,
                     marginLeft: wp('3%'),
                   }}>
-                  <Text style={styles.boxTextHeadingStyling}>Stock Take</Text>
+                  <Text style={styles.boxTextHeadingStyling}>
+                    {translate('Stock Take')}
+                  </Text>
                 </View>
                 <View
                   style={{
                     width: wp('12%'),
                   }}></View>
                 <View style={{...styles.boxSize, marginLeft: wp('2%')}}>
-                  <Text style={styles.boxTextHeadingStyling}>System says</Text>
+                  <Text style={styles.boxTextHeadingStyling}>
+                    {translate('System says')}
+                  </Text>
                 </View>
                 {/* <View style={{...styles.boxSize, marginLeft: wp('2%')}}>
                   <Text style={styles.boxTextHeadingStyling}>Correction</Text>
