@@ -180,7 +180,7 @@ class AddItems extends Component {
         Alert.alert(`Error - ${err.response.status}`, 'Something went wrong', [
           {
             text: 'Okay',
-            onPress: () => this.props.navigation.goBack(),
+            // onPress: () => this.props.navigation.goBack(),
           },
         ]);
       });
@@ -208,7 +208,7 @@ class AddItems extends Component {
         Alert.alert(`Error - ${err.response.status}`, 'Something went wrong', [
           {
             text: 'Okay',
-            onPress: () => this.props.navigation.goBack(),
+            // onPress: () => this.props.navigation.goBack(),
           },
         ]);
       });
@@ -978,7 +978,7 @@ class AddItems extends Component {
               [
                 {
                   text: 'Okay',
-                  onPress: () => this.props.navigation.goBack(),
+                  // onPress: () => this.props.navigation.goBack(),
                 },
               ],
             );

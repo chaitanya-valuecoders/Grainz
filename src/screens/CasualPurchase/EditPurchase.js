@@ -1219,7 +1219,7 @@ class EditPurchase extends Component {
                     <View style={{marginBottom: hp('3%')}}>
                       {item.action !== 'Delete' ? (
                         <View>
-                          {!editDisabled ? (
+                          {!editDisabled && selectedItems.length === 0 ? (
                             <View
                               style={{
                                 marginLeft: -11,

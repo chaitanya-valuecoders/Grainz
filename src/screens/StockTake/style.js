@@ -106,7 +106,11 @@ const styles = StyleSheet.create({
     marginLeft: wp('2%'),
     fontFamily: 'Inter-Regular',
   },
-  renderContentContainer: {backgroundColor: '#fff', marginVertical: hp('3%')},
+  renderContentContainer: {
+    backgroundColor: '#fff',
+    marginVertical: hp('3%'),
+    marginHorizontal: wp('5%'),
+  },
   renderContentSubContainer: {
     flexDirection: 'row',
     paddingBottom: 15,

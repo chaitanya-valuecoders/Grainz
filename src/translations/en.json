@@ -230,7 +230,7 @@
     "Delivery date": "Delivery date",
     "Sent": "Sent",
     "Product": "Product",
-    "ordered": "ordered",
+    "Ordered": "Ordered",
     "Invoiced": "Invoiced",
     "Invoice": "Invoice",
     "Pack": "Pack",
@@ -766,5 +766,6 @@
     "Date Range": "Date Range",
     "Select location(s)":"Select location(s)",
     "Choose image from gallery": "Choose image from gallery",
-    "Click Photo" : "Click Photo"
+    "Click Photo" : "Click Photo",
+    "Order Value Ex-VAT" : "Order Value Ex-VAT"
 }

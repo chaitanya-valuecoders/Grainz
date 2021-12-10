@@ -83,6 +83,7 @@ class ViewReviewOrder extends Component {
       basketId: '',
       supplierName: '',
       listId: '',
+      showMoreStatus: false,
       choicesProp: [
         {
           choiceCode: 'Y',
@@ -854,6 +855,7 @@ class ViewReviewOrder extends Component {
       isAuditStatus,
       totalValue,
       isCheckedEditableStatus,
+      showMoreStatus,
     } = this.state;
 
     return (
@@ -884,85 +886,6 @@ class ViewReviewOrder extends Component {
             <ScrollView style={{}} showsVerticalScrollIndicator={false}>
               <View style={{padding: hp('3%')}}>
                 <View style={{}}>
-                  <View
-                    style={{
-                      marginBottom: hp('3%'),
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                    }}>
-                    <View style={{flex: 1}}>
-                      <Text
-                        style={{
-                          fontFamily: 'Inter-Regular',
-                          marginLeft: 5,
-                        }}>
-                        Supplier :
-                      </Text>
-                    </View>
-                    <View style={{flex: 2}}>
-                      <TextInput
-                        editable={false}
-                        placeholder="Supplier"
-                        value={pageData.supplierName}
-                        style={{
-                          padding: 14,
-                          justifyContent: 'space-between',
-                          elevation: 3,
-                          shadowOpacity: 2.0,
-                          shadowColor: 'rgba(0, 0, 0, 0.05)',
-                          shadowOffset: {
-                            width: 2,
-                            height: 2,
-                          },
-                          shadowRadius: 10,
-                          borderRadius: 5,
-                          backgroundColor: '#E9ECEF',
-                          borderWidth: 0.2,
-                        }}
-                      />
-                    </View>
-                  </View>
-                  <View
-                    style={{
-                      marginBottom: hp('3%'),
-                      alignItems: 'center',
-                      flexDirection: 'row',
-                    }}>
-                    <View style={{flex: 1}}>
-                      <Text
-                        style={{
-                          fontFamily: 'Inter-Regular',
-                          marginLeft: 5,
-                        }}>
-                        Order Date :
-                      </Text>
-                    </View>
-                    <View style={{flex: 2}}>
-                      <TextInput
-                        editable={false}
-                        placeholder="Order Date"
-                        value={
-                          pageData.orderDate &&
-                          moment(pageData.orderDate).format('L')
-                        }
-                        style={{
-                          padding: 14,
-                          justifyContent: 'space-between',
-                          elevation: 3,
-                          shadowOpacity: 2.0,
-                          shadowColor: 'rgba(0, 0, 0, 0.05)',
-                          shadowOffset: {
-                            width: 2,
-                            height: 2,
-                          },
-                          shadowRadius: 10,
-                          borderRadius: 5,
-                          backgroundColor: '#E9ECEF',
-                          borderWidth: 0.2,
-                        }}
-                      />
-                    </View>
-                  </View>
                   <View
                     style={{
                       marginBottom: hp('3%'),
@@ -1068,328 +991,435 @@ class ViewReviewOrder extends Component {
                     </View>
                   </View>
 
-                  <View
+                  <TouchableOpacity
+                    onPress={() =>
+                      this.setState({
+                        showMoreStatus: !showMoreStatus,
+                      })
+                    }
                     style={{
-                      marginBottom: hp('3%'),
+                      flex: 1,
+                      marginBottom: hp('2%'),
                       alignItems: 'center',
-                      flexDirection: 'row',
+                      backgroundColor: '#EFFBCF',
+                      justifyContent: 'center',
+                      paddingVertical: 10,
                     }}>
                     <View style={{flex: 1}}>
                       <Text
                         style={{
-                          fontFamily: 'Inter-Regular',
-                          marginLeft: 5,
+                          fontFamily: 'Inter-SemiBold',
                         }}>
-                        Order reference :
+                        {showMoreStatus ? 'Show Less' : 'Show More'}
                       </Text>
                     </View>
-                    <View style={{flex: 2}}>
-                      <TextInput
-                        placeholder="Order reference"
-                        value={pageData.orderReference}
-                        editable={false}
+                  </TouchableOpacity>
+
+                  {showMoreStatus ? (
+                    <View>
+                      <View
                         style={{
-                          padding: 14,
-                          justifyContent: 'space-between',
-                          elevation: 3,
-                          shadowOpacity: 2.0,
-                          shadowColor: 'rgba(0, 0, 0, 0.05)',
-                          shadowOffset: {
-                            width: 2,
-                            height: 2,
-                          },
-                          shadowRadius: 10,
-                          borderRadius: 5,
-                          backgroundColor: '#E9ECEF',
-                          borderWidth: 0.2,
-                        }}
-                      />
-                    </View>
-                  </View>
-                  <View
-                    style={{
-                      marginBottom: hp('3%'),
-                      alignItems: 'center',
-                      flexDirection: 'row',
-                    }}>
-                    <View style={{flex: 1}}>
-                      <Text
-                        style={{
-                          fontFamily: 'Inter-Regular',
-                          marginLeft: 5,
+                          marginBottom: hp('3%'),
+                          flexDirection: 'row',
+                          alignItems: 'center',
                         }}>
-                        Invoice number :
-                      </Text>
-                    </View>
-                    <View style={{flex: 2}}>
-                      <TextInput
-                        placeholder="Invoice number"
-                        value={pageInvoiceNumber}
+                        <View style={{flex: 1}}>
+                          <Text
+                            style={{
+                              fontFamily: 'Inter-Regular',
+                              marginLeft: 5,
+                            }}>
+                            Supplier :
+                          </Text>
+                        </View>
+                        <View style={{flex: 2}}>
+                          <TextInput
+                            editable={false}
+                            placeholder="Supplier"
+                            value={pageData.supplierName}
+                            style={{
+                              padding: 14,
+                              justifyContent: 'space-between',
+                              elevation: 3,
+                              shadowOpacity: 2.0,
+                              shadowColor: 'rgba(0, 0, 0, 0.05)',
+                              shadowOffset: {
+                                width: 2,
+                                height: 2,
+                              },
+                              shadowRadius: 10,
+                              borderRadius: 5,
+                              backgroundColor: '#E9ECEF',
+                              borderWidth: 0.2,
+                            }}
+                          />
+                        </View>
+                      </View>
+                      <View
                         style={{
-                          padding: 14,
-                          justifyContent: 'space-between',
-                          elevation: 3,
-                          shadowOpacity: 2.0,
-                          shadowColor: 'rgba(0, 0, 0, 0.05)',
-                          shadowOffset: {
-                            width: 2,
-                            height: 2,
-                          },
-                          shadowRadius: 10,
-                          borderRadius: 5,
-                          backgroundColor: '#fff',
-                        }}
-                        onChangeText={value =>
-                          this.setState({
-                            pageInvoiceNumber: value,
-                          })
-                        }
-                      />
-                    </View>
-                  </View>
-                  <View
-                    style={{
-                      marginBottom: hp('3%'),
-                      alignItems: 'center',
-                      flexDirection: 'row',
-                    }}>
-                    <View style={{flex: 1}}>
-                      <Text
-                        style={{
-                          fontFamily: 'Inter-Regular',
-                          marginLeft: 5,
+                          marginBottom: hp('3%'),
+                          alignItems: 'center',
+                          flexDirection: 'row',
                         }}>
-                        Delivery note reference :
-                      </Text>
-                    </View>
-                    <View style={{flex: 2}}>
-                      <TextInput
-                        placeholder="Delivery note reference"
-                        value={pageDeliveryNoteReference}
+                        <View style={{flex: 1}}>
+                          <Text
+                            style={{
+                              fontFamily: 'Inter-Regular',
+                              marginLeft: 5,
+                            }}>
+                            Order Date :
+                          </Text>
+                        </View>
+                        <View style={{flex: 2}}>
+                          <TextInput
+                            editable={false}
+                            placeholder="Order Date"
+                            value={
+                              pageData.orderDate &&
+                              moment(pageData.orderDate).format('L')
+                            }
+                            style={{
+                              padding: 14,
+                              justifyContent: 'space-between',
+                              elevation: 3,
+                              shadowOpacity: 2.0,
+                              shadowColor: 'rgba(0, 0, 0, 0.05)',
+                              shadowOffset: {
+                                width: 2,
+                                height: 2,
+                              },
+                              shadowRadius: 10,
+                              borderRadius: 5,
+                              backgroundColor: '#E9ECEF',
+                              borderWidth: 0.2,
+                            }}
+                          />
+                        </View>
+                      </View>
+                      <View
                         style={{
-                          padding: 14,
-                          justifyContent: 'space-between',
-                          elevation: 3,
-                          shadowOpacity: 2.0,
-                          shadowColor: 'rgba(0, 0, 0, 0.05)',
-                          shadowOffset: {
-                            width: 2,
-                            height: 2,
-                          },
-                          shadowRadius: 10,
-                          borderRadius: 5,
-                          backgroundColor: '#fff',
-                        }}
-                        onChangeText={value =>
-                          this.setState({
-                            pageDeliveryNoteReference: value,
-                          })
-                        }
-                      />
-                    </View>
-                  </View>
-                  <View
-                    style={{
-                      marginBottom: hp('3%'),
-                      alignItems: 'center',
-                      flexDirection: 'row',
-                    }}>
-                    <View style={{flex: 1}}>
-                      <Text
-                        style={{
-                          fontFamily: 'Inter-Regular',
-                          marginLeft: 5,
+                          marginBottom: hp('3%'),
+                          alignItems: 'center',
+                          flexDirection: 'row',
                         }}>
-                        Ambient Temperature :
-                      </Text>
-                    </View>
-                    <View style={{flex: 2}}>
-                      <TextInput
-                        placeholder="Ambient Temperature"
-                        value={pageAmbientTemp && String(pageAmbientTemp)}
+                        <View style={{flex: 1}}>
+                          <Text
+                            style={{
+                              fontFamily: 'Inter-Regular',
+                              marginLeft: 5,
+                            }}>
+                            Order reference :
+                          </Text>
+                        </View>
+                        <View style={{flex: 2}}>
+                          <TextInput
+                            placeholder="Order reference"
+                            value={pageData.orderReference}
+                            editable={false}
+                            style={{
+                              padding: 14,
+                              justifyContent: 'space-between',
+                              elevation: 3,
+                              shadowOpacity: 2.0,
+                              shadowColor: 'rgba(0, 0, 0, 0.05)',
+                              shadowOffset: {
+                                width: 2,
+                                height: 2,
+                              },
+                              shadowRadius: 10,
+                              borderRadius: 5,
+                              backgroundColor: '#E9ECEF',
+                              borderWidth: 0.2,
+                            }}
+                          />
+                        </View>
+                      </View>
+                      <View
                         style={{
-                          padding: 14,
-                          justifyContent: 'space-between',
-                          elevation: 3,
-                          shadowOpacity: 2.0,
-                          shadowColor: 'rgba(0, 0, 0, 0.05)',
-                          shadowOffset: {
-                            width: 2,
-                            height: 2,
-                          },
-                          shadowRadius: 10,
-                          borderRadius: 5,
-                          backgroundColor: '#fff',
-                        }}
-                        onChangeText={value =>
-                          this.setState({
-                            pageAmbientTemp: value,
-                          })
-                        }
-                      />
-                    </View>
-                  </View>
-                  <View
-                    style={{
-                      marginBottom: hp('3%'),
-                      alignItems: 'center',
-                      flexDirection: 'row',
-                    }}>
-                    <View style={{flex: 1}}>
-                      <Text
-                        style={{
-                          fontFamily: 'Inter-Regular',
-                          marginLeft: 5,
+                          marginBottom: hp('3%'),
+                          alignItems: 'center',
+                          flexDirection: 'row',
                         }}>
-                        Chilled Temperature :
-                      </Text>
-                    </View>
-                    <View style={{flex: 2}}>
-                      <TextInput
-                        placeholder="Chilled Temperature"
-                        value={pageChilledTemp && String(pageChilledTemp)}
+                        <View style={{flex: 1}}>
+                          <Text
+                            style={{
+                              fontFamily: 'Inter-Regular',
+                              marginLeft: 5,
+                            }}>
+                            Invoice number :
+                          </Text>
+                        </View>
+                        <View style={{flex: 2}}>
+                          <TextInput
+                            placeholder="Invoice number"
+                            value={pageInvoiceNumber}
+                            style={{
+                              padding: 14,
+                              justifyContent: 'space-between',
+                              elevation: 3,
+                              shadowOpacity: 2.0,
+                              shadowColor: 'rgba(0, 0, 0, 0.05)',
+                              shadowOffset: {
+                                width: 2,
+                                height: 2,
+                              },
+                              shadowRadius: 10,
+                              borderRadius: 5,
+                              backgroundColor: '#fff',
+                            }}
+                            onChangeText={value =>
+                              this.setState({
+                                pageInvoiceNumber: value,
+                              })
+                            }
+                          />
+                        </View>
+                      </View>
+                      <View
                         style={{
-                          padding: 14,
-                          justifyContent: 'space-between',
-                          elevation: 3,
-                          shadowOpacity: 2.0,
-                          shadowColor: 'rgba(0, 0, 0, 0.05)',
-                          shadowOffset: {
-                            width: 2,
-                            height: 2,
-                          },
-                          shadowRadius: 10,
-                          borderRadius: 5,
-                          backgroundColor: '#fff',
-                        }}
-                        onChangeText={value =>
-                          this.setState({
-                            pageChilledTemp: value,
-                          })
-                        }
-                      />
-                    </View>
-                  </View>
-                  <View
-                    style={{
-                      marginBottom: hp('3%'),
-                      alignItems: 'center',
-                      flexDirection: 'row',
-                    }}>
-                    <View style={{flex: 1}}>
-                      <Text
-                        style={{
-                          fontFamily: 'Inter-Regular',
-                          marginLeft: 5,
+                          marginBottom: hp('3%'),
+                          alignItems: 'center',
+                          flexDirection: 'row',
                         }}>
-                        Frozen Temperature :
-                      </Text>
-                    </View>
-                    <View style={{flex: 2}}>
-                      <TextInput
-                        placeholder="Frozen Temperature"
-                        value={pageFrozenTemp && String(pageFrozenTemp)}
+                        <View style={{flex: 1}}>
+                          <Text
+                            style={{
+                              fontFamily: 'Inter-Regular',
+                              marginLeft: 5,
+                            }}>
+                            Delivery note reference :
+                          </Text>
+                        </View>
+                        <View style={{flex: 2}}>
+                          <TextInput
+                            placeholder="Delivery note reference"
+                            value={pageDeliveryNoteReference}
+                            style={{
+                              padding: 14,
+                              justifyContent: 'space-between',
+                              elevation: 3,
+                              shadowOpacity: 2.0,
+                              shadowColor: 'rgba(0, 0, 0, 0.05)',
+                              shadowOffset: {
+                                width: 2,
+                                height: 2,
+                              },
+                              shadowRadius: 10,
+                              borderRadius: 5,
+                              backgroundColor: '#fff',
+                            }}
+                            onChangeText={value =>
+                              this.setState({
+                                pageDeliveryNoteReference: value,
+                              })
+                            }
+                          />
+                        </View>
+                      </View>
+                      <View
                         style={{
-                          padding: 14,
-                          justifyContent: 'space-between',
-                          elevation: 3,
-                          shadowOpacity: 2.0,
-                          shadowColor: 'rgba(0, 0, 0, 0.05)',
-                          shadowOffset: {
-                            width: 2,
-                            height: 2,
-                          },
-                          shadowRadius: 10,
-                          borderRadius: 5,
-                          backgroundColor: '#fff',
-                        }}
-                        onChangeText={value =>
-                          this.setState({
-                            pageFrozenTemp: value,
-                          })
-                        }
-                      />
-                    </View>
-                  </View>
-                  <View
-                    style={{
-                      marginBottom: hp('3%'),
-                      alignItems: 'center',
-                      flexDirection: 'row',
-                    }}>
-                    <View style={{flex: 1}}>
-                      <Text
-                        style={{
-                          fontFamily: 'Inter-Regular',
-                          marginLeft: 5,
+                          marginBottom: hp('3%'),
+                          alignItems: 'center',
+                          flexDirection: 'row',
                         }}>
-                        Notes :
-                      </Text>
-                    </View>
-                    <View style={{flex: 2}}>
-                      <TextInput
-                        placeholder="Notes"
-                        value={pageNotes}
+                        <View style={{flex: 1}}>
+                          <Text
+                            style={{
+                              fontFamily: 'Inter-Regular',
+                              marginLeft: 5,
+                            }}>
+                            Ambient Temperature :
+                          </Text>
+                        </View>
+                        <View style={{flex: 2}}>
+                          <TextInput
+                            placeholder="Ambient Temperature"
+                            value={pageAmbientTemp && String(pageAmbientTemp)}
+                            style={{
+                              padding: 14,
+                              justifyContent: 'space-between',
+                              elevation: 3,
+                              shadowOpacity: 2.0,
+                              shadowColor: 'rgba(0, 0, 0, 0.05)',
+                              shadowOffset: {
+                                width: 2,
+                                height: 2,
+                              },
+                              shadowRadius: 10,
+                              borderRadius: 5,
+                              backgroundColor: '#fff',
+                            }}
+                            onChangeText={value =>
+                              this.setState({
+                                pageAmbientTemp: value,
+                              })
+                            }
+                          />
+                        </View>
+                      </View>
+                      <View
                         style={{
-                          padding: 14,
-                          justifyContent: 'space-between',
-                          elevation: 3,
-                          shadowOpacity: 2.0,
-                          shadowColor: 'rgba(0, 0, 0, 0.05)',
-                          shadowOffset: {
-                            width: 2,
-                            height: 2,
-                          },
-                          shadowRadius: 10,
-                          borderRadius: 5,
-                          backgroundColor: '#fff',
-                        }}
-                        onChangeText={value =>
-                          this.setState({
-                            pageNotes: value,
-                          })
-                        }
-                      />
-                    </View>
-                  </View>
-                  <View
-                    style={{
-                      marginBottom: hp('3%'),
-                      alignItems: 'center',
-                      flexDirection: 'row',
-                    }}>
-                    <View style={{flex: 1}}>
-                      <Text
-                        style={{
-                          fontFamily: 'Inter-Regular',
-                          marginLeft: 5,
+                          marginBottom: hp('3%'),
+                          alignItems: 'center',
+                          flexDirection: 'row',
                         }}>
-                        Placed by :
-                      </Text>
-                    </View>
-                    <View style={{flex: 2}}>
-                      <TextInput
-                        placeholder="Placed by"
-                        value={pageData.placedByNAme}
-                        editable={false}
+                        <View style={{flex: 1}}>
+                          <Text
+                            style={{
+                              fontFamily: 'Inter-Regular',
+                              marginLeft: 5,
+                            }}>
+                            Chilled Temperature :
+                          </Text>
+                        </View>
+                        <View style={{flex: 2}}>
+                          <TextInput
+                            placeholder="Chilled Temperature"
+                            value={pageChilledTemp && String(pageChilledTemp)}
+                            style={{
+                              padding: 14,
+                              justifyContent: 'space-between',
+                              elevation: 3,
+                              shadowOpacity: 2.0,
+                              shadowColor: 'rgba(0, 0, 0, 0.05)',
+                              shadowOffset: {
+                                width: 2,
+                                height: 2,
+                              },
+                              shadowRadius: 10,
+                              borderRadius: 5,
+                              backgroundColor: '#fff',
+                            }}
+                            onChangeText={value =>
+                              this.setState({
+                                pageChilledTemp: value,
+                              })
+                            }
+                          />
+                        </View>
+                      </View>
+                      <View
                         style={{
-                          padding: 14,
-                          justifyContent: 'space-between',
-                          elevation: 3,
-                          shadowOpacity: 2.0,
-                          shadowColor: 'rgba(0, 0, 0, 0.05)',
-                          shadowOffset: {
-                            width: 2,
-                            height: 2,
-                          },
-                          shadowRadius: 10,
-                          borderRadius: 5,
-                          backgroundColor: '#E9ECEF',
-                          borderWidth: 0.2,
-                        }}
-                      />
+                          marginBottom: hp('3%'),
+                          alignItems: 'center',
+                          flexDirection: 'row',
+                        }}>
+                        <View style={{flex: 1}}>
+                          <Text
+                            style={{
+                              fontFamily: 'Inter-Regular',
+                              marginLeft: 5,
+                            }}>
+                            Frozen Temperature :
+                          </Text>
+                        </View>
+                        <View style={{flex: 2}}>
+                          <TextInput
+                            placeholder="Frozen Temperature"
+                            value={pageFrozenTemp && String(pageFrozenTemp)}
+                            style={{
+                              padding: 14,
+                              justifyContent: 'space-between',
+                              elevation: 3,
+                              shadowOpacity: 2.0,
+                              shadowColor: 'rgba(0, 0, 0, 0.05)',
+                              shadowOffset: {
+                                width: 2,
+                                height: 2,
+                              },
+                              shadowRadius: 10,
+                              borderRadius: 5,
+                              backgroundColor: '#fff',
+                            }}
+                            onChangeText={value =>
+                              this.setState({
+                                pageFrozenTemp: value,
+                              })
+                            }
+                          />
+                        </View>
+                      </View>
+                      <View
+                        style={{
+                          marginBottom: hp('3%'),
+                          alignItems: 'center',
+                          flexDirection: 'row',
+                        }}>
+                        <View style={{flex: 1}}>
+                          <Text
+                            style={{
+                              fontFamily: 'Inter-Regular',
+                              marginLeft: 5,
+                            }}>
+                            Notes :
+                          </Text>
+                        </View>
+                        <View style={{flex: 2}}>
+                          <TextInput
+                            placeholder="Notes"
+                            value={pageNotes}
+                            style={{
+                              padding: 14,
+                              justifyContent: 'space-between',
+                              elevation: 3,
+                              shadowOpacity: 2.0,
+                              shadowColor: 'rgba(0, 0, 0, 0.05)',
+                              shadowOffset: {
+                                width: 2,
+                                height: 2,
+                              },
+                              shadowRadius: 10,
+                              borderRadius: 5,
+                              backgroundColor: '#fff',
+                            }}
+                            onChangeText={value =>
+                              this.setState({
+                                pageNotes: value,
+                              })
+                            }
+                          />
+                        </View>
+                      </View>
+                      <View
+                        style={{
+                          marginBottom: hp('3%'),
+                          alignItems: 'center',
+                          flexDirection: 'row',
+                        }}>
+                        <View style={{flex: 1}}>
+                          <Text
+                            style={{
+                              fontFamily: 'Inter-Regular',
+                              marginLeft: 5,
+                            }}>
+                            Placed by :
+                          </Text>
+                        </View>
+                        <View style={{flex: 2}}>
+                          <TextInput
+                            placeholder="Placed by"
+                            value={pageData.placedByNAme}
+                            editable={false}
+                            style={{
+                              padding: 14,
+                              justifyContent: 'space-between',
+                              elevation: 3,
+                              shadowOpacity: 2.0,
+                              shadowColor: 'rgba(0, 0, 0, 0.05)',
+                              shadowOffset: {
+                                width: 2,
+                                height: 2,
+                              },
+                              shadowRadius: 10,
+                              borderRadius: 5,
+                              backgroundColor: '#E9ECEF',
+                              borderWidth: 0.2,
+                            }}
+                          />
+                        </View>
+                      </View>
                     </View>
-                  </View>
+                  ) : null}
                 </View>
 
                 <ScrollView horizontal showsHorizontalScrollIndicator={false}>
@@ -1438,7 +1468,7 @@ class ViewReviewOrder extends Component {
                         <Text
                           style={{
                             color: '#161C27',
-                            fontSize: 14,
+                            fontSize: 12,
                             fontFamily: 'Inter-SemiBold',
                           }}>
                           Inventory item
@@ -1468,7 +1498,7 @@ class ViewReviewOrder extends Component {
                         <Text
                           style={{
                             color: '#161C27',
-                            fontSize: 14,
+                            fontSize: 12,
                             fontFamily: 'Inter-SemiBold',
                           }}>
                           {translate('Quantity')}
@@ -1483,7 +1513,7 @@ class ViewReviewOrder extends Component {
                         <Text
                           style={{
                             color: '#161C27',
-                            fontSize: 14,
+                            fontSize: 12,
                             fontFamily: 'Inter-SemiBold',
                           }}>
                           € HTVA
@@ -1546,7 +1576,7 @@ class ViewReviewOrder extends Component {
                                 <Text
                                   style={{
                                     color: '#161C27',
-                                    fontSize: 14,
+                                    fontSize: 12,
                                     fontFamily: 'Inter-SemiBold',
                                     marginBottom: 8,
                                   }}>
@@ -1556,7 +1586,7 @@ class ViewReviewOrder extends Component {
                                 <Text
                                   style={{
                                     color: '#161C27',
-                                    fontSize: 14,
+                                    fontSize: 12,
                                     fontFamily: 'Inter-Regular',
                                   }}>
                                   {item.productName}
@@ -1570,7 +1600,7 @@ class ViewReviewOrder extends Component {
                                 <Text
                                   style={{
                                     color: '#161C27',
-                                    fontSize: 14,
+                                    fontSize: 12,
                                     fontFamily: 'Inter-Regular',
                                   }}>
                                   {item.arrivedDate &&
@@ -1585,7 +1615,7 @@ class ViewReviewOrder extends Component {
                                 <Text
                                   style={{
                                     color: '#161C27',
-                                    fontSize: 14,
+                                    fontSize: 12,
                                     fontFamily: 'Inter-SemiBold',
                                     marginBottom: 8,
                                   }}>
@@ -1594,10 +1624,23 @@ class ViewReviewOrder extends Component {
                                 <Text
                                   style={{
                                     color: '#161C27',
-                                    fontSize: 14,
+                                    fontSize: 12,
                                     fontFamily: 'Inter-Regular',
                                   }}>
-                                  {`${item.quantityOrdered} X ${item.packSize}/${item.unit}`}
+                                  {item.displayQuantity}
+                                  {/* {`${item.quantityOrdered} X ${item.packSize}/${item.unit}`} */}
+                                </Text>
+                                <Text
+                                  style={{
+                                    color: 'red',
+                                    fontSize: 12,
+                                    fontFamily: 'Inter-Regular',
+                                    marginTop: 8,
+                                  }}>
+                                  {item.displayWarningQuantity
+                                    ? item.displayWarningQuantity
+                                    : null}
+                                  {/* {`${item.quantityOrdered} X ${item.packSize}/${item.unit}`} */}
                                 </Text>
                               </View>
                               <View
@@ -1608,7 +1651,7 @@ class ViewReviewOrder extends Component {
                                 <Text
                                   style={{
                                     color: '#161C27',
-                                    fontSize: 14,
+                                    fontSize: 12,
                                     fontFamily: 'Inter-Regular',
                                   }}>
                                   € {Number(item.orderValue).toFixed(2)}
@@ -1880,7 +1923,7 @@ class ViewReviewOrder extends Component {
                             <Text
                               style={{
                                 color: '#161C27',
-                                fontSize: 14,
+                                fontSize: 12,
                                 fontFamily: 'Inter-SemiBold',
                               }}>
                               #
@@ -1894,7 +1937,7 @@ class ViewReviewOrder extends Component {
                             <Text
                               style={{
                                 color: '#161C27',
-                                fontSize: 14,
+                                fontSize: 12,
                                 fontFamily: 'Inter-SemiBold',
                                 textAlign: 'center',
                               }}>
@@ -1919,7 +1962,7 @@ class ViewReviewOrder extends Component {
                               <Text
                                 style={{
                                   color: '#161C27',
-                                  fontSize: 14,
+                                  fontSize: 12,
                                   fontFamily: 'Inter-SemiBold',
                                 }}>
                                 Ordered
@@ -1987,7 +2030,7 @@ class ViewReviewOrder extends Component {
                               <Text
                                 style={{
                                   color: '#161C27',
-                                  fontSize: 14,
+                                  fontSize: 12,
                                   fontFamily: 'Inter-SemiBold',
                                 }}>
                                 Delivered
@@ -2069,7 +2112,7 @@ class ViewReviewOrder extends Component {
                               <Text
                                 style={{
                                   color: '#161C27',
-                                  fontSize: 14,
+                                  fontSize: 12,
                                   fontFamily: 'Inter-SemiBold',
                                   marginBottom: 8,
                                 }}>
@@ -2152,7 +2195,7 @@ class ViewReviewOrder extends Component {
                               <Text
                                 style={{
                                   color: '#161C27',
-                                  fontSize: 14,
+                                  fontSize: 12,
                                   fontFamily: 'Inter-SemiBold',
                                 }}>
                                 {translate('Price')}
@@ -2201,7 +2244,7 @@ class ViewReviewOrder extends Component {
                               <Text
                                 style={{
                                   color: '#161C27',
-                                  fontSize: 14,
+                                  fontSize: 12,
                                   fontFamily: 'Inter-SemiBold',
                                   textAlign: 'center',
                                 }}>
@@ -2285,7 +2328,7 @@ class ViewReviewOrder extends Component {
                               <Text
                                 style={{
                                   color: '#161C27',
-                                  fontSize: 14,
+                                  fontSize: 12,
                                   fontFamily: 'Inter-SemiBold',
                                 }}>
                                 Notes

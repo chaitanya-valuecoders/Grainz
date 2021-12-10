@@ -485,7 +485,7 @@ class StockScreen extends Component {
                                 }}>
                                 <Text
                                   style={{
-                                    fontSize: 14,
+                                    fontSize: 12,
                                     color: '#161C27',
                                     fontFamily: 'Inter-Regular',
                                   }}>

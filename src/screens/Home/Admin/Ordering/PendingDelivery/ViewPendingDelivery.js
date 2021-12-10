@@ -34,6 +34,7 @@ import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import LoaderComp from '../../../../../components/Loader';
 import TriStateToggleSwitch from 'rn-tri-toggle-switch';
 import Modal from 'react-native-modal';
+import ImagePicker from 'react-native-image-crop-picker';
 
 class ViewPendingDelivery extends Component {
   constructor(props) {
@@ -50,6 +51,7 @@ class ViewPendingDelivery extends Component {
       isDatePickerVisibleDeliveryDate: false,
       finalDeliveryDate: '',
       apiDeliveryDate: '',
+      imageData: '',
       isDatePickerVisibleArrivalDate: false,
       finalArrivalDate: '',
       apiArrivalDate: '',
@@ -83,6 +85,9 @@ class ViewPendingDelivery extends Component {
       totalValue: '',
       basketId: '',
       listId: '',
+      showMoreStatus: false,
+      chooseImageModalStatus: false,
+      imageModalStatus: false,
       choicesProp: [
         {
           choiceCode: 'Y',
@@ -706,6 +711,7 @@ class ViewPendingDelivery extends Component {
   };
 
   showEditModal = (item, index) => {
+    console.log('item', item);
     this.setState({
       modalData: item,
       modalVisibleEditElement: true,
@@ -715,9 +721,17 @@ class ViewPendingDelivery extends Component {
       modalUserQuantityDelivered: item.userQuantityDelivered,
       modalQuantityInvoiced: item.quantityInvoiced,
       modalUserQuantityInvoiced: item.userQuantityInvoiced,
-      modalPricePaid: item.pricePaid,
+      modalPricePaid: item.orderValue.toFixed(2),
       modalNotes: item.notes,
       finalArrivalDateSpecific: item.arrivedDate,
+      volume: item.inventoryMapping
+        ? item.inventoryMapping.volume
+        : item.grainzVolume,
+
+      packSize: item.inventoryMapping
+        ? item.inventoryMapping.packSize
+        : item.packSize,
+      unitPrizeModal: item.unitPrice,
     });
   };
 
@@ -773,6 +787,7 @@ class ViewPendingDelivery extends Component {
       isCorrect: modalData.isCorrect,
       notes: modalNotes,
       orderId: modalData.orderId,
+      orderValue: modalPricePaid,
       orderedInventoryVolume: modalOrderedInventoryVolume,
       pricePaid: modalPricePaid,
       quantityDelivered: Number(modalQuantityDelivered),
@@ -824,8 +839,73 @@ class ViewPendingDelivery extends Component {
     });
   };
 
+  handleChoosePhoto() {
+    this.setState({
+      chooseImageModalStatus: true,
+    });
+  }
+
+  setModalVisibleImage = () => {
+    this.setState({
+      imageModalStatus: false,
+      chooseImageModalStatus: false,
+    });
+  };
+
+  choosePhotoFun = () => {
+    this.setState(
+      {
+        chooseImageModalStatus: false,
+      },
+      () =>
+        setTimeout(() => {
+          ImagePicker.openPicker({
+            width: 300,
+            height: 400,
+            includeBase64: true,
+            cropping: true,
+          }).then(image => {
+            this.setState({
+              imageModalStatus: true,
+              imageData: image,
+            });
+          });
+        }, 500),
+    );
+  };
+
+  clickPhotoFun = () => {
+    this.setState(
+      {
+        chooseImageModalStatus: false,
+      },
+      () =>
+        setTimeout(() => {
+          ImagePicker.openCamera({
+            width: 300,
+            height: 400,
+            cropping: true,
+          }).then(image => {
+            this.setState({
+              imageModalStatus: true,
+              imageData: image,
+            });
+          });
+        }, 500),
+    );
+  };
+
+  deleteImageFun = () => {
+    this.setState({
+      imageModalStatus: false,
+      imageData: '',
+      imageShow: false,
+    });
+  };
+
   render() {
     const {
+      chooseImageModalStatus,
       buttonsSubHeader,
       loader,
       managerName,
@@ -860,6 +940,14 @@ class ViewPendingDelivery extends Component {
       isCheckedStatus,
       isCheckedEditableStatus,
       totalValue,
+      showMoreStatus,
+      imageModalStatus,
+      imageData,
+      imageName,
+      imageDesc,
+      volume,
+      packSize,
+      unitPrizeModal,
     } = this.state;
 
     return (
@@ -890,85 +978,6 @@ class ViewPendingDelivery extends Component {
             <ScrollView style={{}} showsVerticalScrollIndicator={false}>
               <View style={{padding: hp('3%')}}>
                 <View style={{}}>
-                  <View
-                    style={{
-                      marginBottom: hp('3%'),
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                    }}>
-                    <View style={{flex: 1}}>
-                      <Text
-                        style={{
-                          fontFamily: 'Inter-Regular',
-                          marginLeft: 5,
-                        }}>
-                        Supplier :
-                      </Text>
-                    </View>
-                    <View style={{flex: 2}}>
-                      <TextInput
-                        editable={false}
-                        placeholder="Supplier"
-                        value={pageData.supplierName}
-                        style={{
-                          padding: 14,
-                          justifyContent: 'space-between',
-                          elevation: 3,
-                          shadowOpacity: 2.0,
-                          shadowColor: 'rgba(0, 0, 0, 0.05)',
-                          shadowOffset: {
-                            width: 2,
-                            height: 2,
-                          },
-                          shadowRadius: 10,
-                          borderRadius: 5,
-                          backgroundColor: '#E9ECEF',
-                          borderWidth: 0.2,
-                        }}
-                      />
-                    </View>
-                  </View>
-                  <View
-                    style={{
-                      marginBottom: hp('3%'),
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                    }}>
-                    <View style={{flex: 1}}>
-                      <Text
-                        style={{
-                          fontFamily: 'Inter-Regular',
-                          marginLeft: 5,
-                        }}>
-                        Order Date :
-                      </Text>
-                    </View>
-                    <View style={{flex: 2}}>
-                      <TextInput
-                        editable={false}
-                        placeholder="Order Date"
-                        value={
-                          pageData.orderDate &&
-                          moment(pageData.orderDate).format('L')
-                        }
-                        style={{
-                          padding: 14,
-                          justifyContent: 'space-between',
-                          elevation: 3,
-                          shadowOpacity: 2.0,
-                          shadowColor: 'rgba(0, 0, 0, 0.05)',
-                          shadowOffset: {
-                            width: 2,
-                            height: 2,
-                          },
-                          shadowRadius: 10,
-                          borderRadius: 5,
-                          backgroundColor: '#E9ECEF',
-                          borderWidth: 0.2,
-                        }}
-                      />
-                    </View>
-                  </View>
                   <View
                     style={{
                       marginBottom: hp('3%'),
@@ -1073,329 +1082,434 @@ class ViewPendingDelivery extends Component {
                       />
                     </View>
                   </View>
-
-                  <View
+                  <TouchableOpacity
+                    onPress={() =>
+                      this.setState({
+                        showMoreStatus: !showMoreStatus,
+                      })
+                    }
                     style={{
-                      marginBottom: hp('3%'),
-                      flexDirection: 'row',
+                      flex: 1,
+                      marginBottom: hp('2%'),
                       alignItems: 'center',
+                      backgroundColor: '#EFFBCF',
+                      justifyContent: 'center',
+                      paddingVertical: 10,
                     }}>
                     <View style={{flex: 1}}>
                       <Text
                         style={{
-                          fontFamily: 'Inter-Regular',
-                          marginLeft: 5,
+                          fontFamily: 'Inter-SemiBold',
                         }}>
-                        Order reference :
+                        {showMoreStatus ? 'Show Less' : 'Show More'}
                       </Text>
                     </View>
-                    <View style={{flex: 2}}>
-                      <TextInput
-                        placeholder="Order reference"
-                        value={pageData.orderReference}
-                        editable={false}
+                  </TouchableOpacity>
+                  {showMoreStatus ? (
+                    <View>
+                      <View
                         style={{
-                          padding: 14,
-                          justifyContent: 'space-between',
-                          elevation: 3,
-                          shadowOpacity: 2.0,
-                          shadowColor: 'rgba(0, 0, 0, 0.05)',
-                          shadowOffset: {
-                            width: 2,
-                            height: 2,
-                          },
-                          shadowRadius: 10,
-                          borderRadius: 5,
-                          backgroundColor: '#E9ECEF',
-                          borderWidth: 0.2,
-                        }}
-                      />
-                    </View>
-                  </View>
-                  <View
-                    style={{
-                      marginBottom: hp('3%'),
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                    }}>
-                    <View style={{flex: 1}}>
-                      <Text
-                        style={{
-                          fontFamily: 'Inter-Regular',
-                          marginLeft: 5,
+                          marginBottom: hp('3%'),
+                          flexDirection: 'row',
+                          alignItems: 'center',
                         }}>
-                        Invoice number :
-                      </Text>
-                    </View>
-                    <View style={{flex: 2}}>
-                      <TextInput
-                        placeholder="Invoice number"
-                        value={pageInvoiceNumber}
+                        <View style={{flex: 1}}>
+                          <Text
+                            style={{
+                              fontFamily: 'Inter-Regular',
+                              marginLeft: 5,
+                            }}>
+                            Order reference :
+                          </Text>
+                        </View>
+                        <View style={{flex: 2}}>
+                          <TextInput
+                            placeholder="Order reference"
+                            value={pageData.orderReference}
+                            editable={false}
+                            style={{
+                              padding: 14,
+                              justifyContent: 'space-between',
+                              elevation: 3,
+                              shadowOpacity: 2.0,
+                              shadowColor: 'rgba(0, 0, 0, 0.05)',
+                              shadowOffset: {
+                                width: 2,
+                                height: 2,
+                              },
+                              shadowRadius: 10,
+                              borderRadius: 5,
+                              backgroundColor: '#E9ECEF',
+                              borderWidth: 0.2,
+                            }}
+                          />
+                        </View>
+                      </View>
+                      <View
                         style={{
-                          padding: 14,
-                          justifyContent: 'space-between',
-                          elevation: 3,
-                          shadowOpacity: 2.0,
-                          shadowColor: 'rgba(0, 0, 0, 0.05)',
-                          shadowOffset: {
-                            width: 2,
-                            height: 2,
-                          },
-                          shadowRadius: 10,
-                          borderRadius: 5,
-                          backgroundColor: '#fff',
-                        }}
-                        onChangeText={value =>
-                          this.setState({
-                            pageInvoiceNumber: value,
-                          })
-                        }
-                      />
-                    </View>
-                  </View>
-                  <View
-                    style={{
-                      marginBottom: hp('3%'),
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                    }}>
-                    <View style={{flex: 1}}>
-                      <Text
-                        style={{
-                          fontFamily: 'Inter-Regular',
-                          marginLeft: 5,
+                          marginBottom: hp('3%'),
+                          flexDirection: 'row',
+                          alignItems: 'center',
                         }}>
-                        Delivery note reference :
-                      </Text>
-                    </View>
-                    <View style={{flex: 2}}>
-                      <TextInput
-                        placeholder="Delivery note reference"
-                        value={pageDeliveryNoteReference}
+                        <View style={{flex: 1}}>
+                          <Text
+                            style={{
+                              fontFamily: 'Inter-Regular',
+                              marginLeft: 5,
+                            }}>
+                            Placed by :
+                          </Text>
+                        </View>
+                        <View style={{flex: 2}}>
+                          <TextInput
+                            placeholder="Placed by"
+                            value={pageData.placedByNAme}
+                            editable={false}
+                            style={{
+                              padding: 14,
+                              justifyContent: 'space-between',
+                              elevation: 3,
+                              shadowOpacity: 2.0,
+                              shadowColor: 'rgba(0, 0, 0, 0.05)',
+                              shadowOffset: {
+                                width: 2,
+                                height: 2,
+                              },
+                              shadowRadius: 10,
+                              borderRadius: 5,
+                              backgroundColor: '#E9ECEF',
+                              borderWidth: 0.2,
+                            }}
+                          />
+                        </View>
+                      </View>
+                      <View
                         style={{
-                          padding: 14,
-                          justifyContent: 'space-between',
-                          elevation: 3,
-                          shadowOpacity: 2.0,
-                          shadowColor: 'rgba(0, 0, 0, 0.05)',
-                          shadowOffset: {
-                            width: 2,
-                            height: 2,
-                          },
-                          shadowRadius: 10,
-                          borderRadius: 5,
-                          backgroundColor: '#fff',
-                        }}
-                        onChangeText={value =>
-                          this.setState({
-                            pageDeliveryNoteReference: value,
-                          })
-                        }
-                      />
-                    </View>
-                  </View>
-                  <View
-                    style={{
-                      marginBottom: hp('3%'),
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                    }}>
-                    <View style={{flex: 1}}>
-                      <Text
-                        style={{
-                          fontFamily: 'Inter-Regular',
-                          marginLeft: 5,
+                          marginBottom: hp('3%'),
+                          flexDirection: 'row',
+                          alignItems: 'center',
                         }}>
-                        Ambient Temperature :
-                      </Text>
-                    </View>
-                    <View style={{flex: 2}}>
-                      <TextInput
-                        placeholder="Ambient Temperature"
-                        value={pageAmbientTemp && String(pageAmbientTemp)}
+                        <View style={{flex: 1}}>
+                          <Text
+                            style={{
+                              fontFamily: 'Inter-Regular',
+                              marginLeft: 5,
+                            }}>
+                            Supplier :
+                          </Text>
+                        </View>
+                        <View style={{flex: 2}}>
+                          <TextInput
+                            editable={false}
+                            placeholder="Supplier"
+                            value={pageData.supplierName}
+                            style={{
+                              padding: 14,
+                              justifyContent: 'space-between',
+                              elevation: 3,
+                              shadowOpacity: 2.0,
+                              shadowColor: 'rgba(0, 0, 0, 0.05)',
+                              shadowOffset: {
+                                width: 2,
+                                height: 2,
+                              },
+                              shadowRadius: 10,
+                              borderRadius: 5,
+                              backgroundColor: '#E9ECEF',
+                              borderWidth: 0.2,
+                            }}
+                          />
+                        </View>
+                      </View>
+                      <View
                         style={{
-                          padding: 14,
-                          justifyContent: 'space-between',
-                          elevation: 3,
-                          shadowOpacity: 2.0,
-                          shadowColor: 'rgba(0, 0, 0, 0.05)',
-                          shadowOffset: {
-                            width: 2,
-                            height: 2,
-                          },
-                          shadowRadius: 10,
-                          borderRadius: 5,
-                          backgroundColor: '#fff',
-                        }}
-                        onChangeText={value =>
-                          this.setState({
-                            pageAmbientTemp: value,
-                          })
-                        }
-                      />
-                    </View>
-                  </View>
-                  <View
-                    style={{
-                      marginBottom: hp('3%'),
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                    }}>
-                    <View style={{flex: 1}}>
-                      <Text
-                        style={{
-                          fontFamily: 'Inter-Regular',
-                          marginLeft: 5,
+                          marginBottom: hp('3%'),
+                          flexDirection: 'row',
+                          alignItems: 'center',
                         }}>
-                        Chilled Temperature :
-                      </Text>
-                    </View>
-                    <View style={{flex: 2}}>
-                      <TextInput
-                        placeholder="Chilled Temperature"
-                        value={pageChilledTemp && String(pageChilledTemp)}
+                        <View style={{flex: 1}}>
+                          <Text
+                            style={{
+                              fontFamily: 'Inter-Regular',
+                              marginLeft: 5,
+                            }}>
+                            Order Date :
+                          </Text>
+                        </View>
+                        <View style={{flex: 2}}>
+                          <TextInput
+                            editable={false}
+                            placeholder="Order Date"
+                            value={
+                              pageData.orderDate &&
+                              moment(pageData.orderDate).format('L')
+                            }
+                            style={{
+                              padding: 14,
+                              justifyContent: 'space-between',
+                              elevation: 3,
+                              shadowOpacity: 2.0,
+                              shadowColor: 'rgba(0, 0, 0, 0.05)',
+                              shadowOffset: {
+                                width: 2,
+                                height: 2,
+                              },
+                              shadowRadius: 10,
+                              borderRadius: 5,
+                              backgroundColor: '#E9ECEF',
+                              borderWidth: 0.2,
+                            }}
+                          />
+                        </View>
+                      </View>
+                      <View
                         style={{
-                          padding: 14,
-                          justifyContent: 'space-between',
-                          elevation: 3,
-                          shadowOpacity: 2.0,
-                          shadowColor: 'rgba(0, 0, 0, 0.05)',
-                          shadowOffset: {
-                            width: 2,
-                            height: 2,
-                          },
-                          shadowRadius: 10,
-                          borderRadius: 5,
-                          backgroundColor: '#fff',
-                        }}
-                        onChangeText={value =>
-                          this.setState({
-                            pageChilledTemp: value,
-                          })
-                        }
-                      />
-                    </View>
-                  </View>
-                  <View
-                    style={{
-                      marginBottom: hp('3%'),
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                    }}>
-                    <View style={{flex: 1}}>
-                      <Text
-                        style={{
-                          fontFamily: 'Inter-Regular',
-                          marginLeft: 5,
+                          marginBottom: hp('3%'),
+                          flexDirection: 'row',
+                          alignItems: 'center',
                         }}>
-                        Frozen Temperature :
-                      </Text>
-                    </View>
-                    <View style={{flex: 2}}>
-                      <TextInput
-                        placeholder="Frozen Temperature"
-                        value={pageFrozenTemp && String(pageFrozenTemp)}
+                        <View style={{flex: 1}}>
+                          <Text
+                            style={{
+                              fontFamily: 'Inter-Regular',
+                              marginLeft: 5,
+                            }}>
+                            Invoice number :
+                          </Text>
+                        </View>
+                        <View style={{flex: 2}}>
+                          <TextInput
+                            placeholder="Invoice number"
+                            value={pageInvoiceNumber}
+                            style={{
+                              padding: 14,
+                              justifyContent: 'space-between',
+                              elevation: 3,
+                              shadowOpacity: 2.0,
+                              shadowColor: 'rgba(0, 0, 0, 0.05)',
+                              shadowOffset: {
+                                width: 2,
+                                height: 2,
+                              },
+                              shadowRadius: 10,
+                              borderRadius: 5,
+                              backgroundColor: '#fff',
+                            }}
+                            onChangeText={value =>
+                              this.setState({
+                                pageInvoiceNumber: value,
+                              })
+                            }
+                          />
+                        </View>
+                      </View>
+                      <View
                         style={{
-                          padding: 14,
-                          justifyContent: 'space-between',
-                          elevation: 3,
-                          shadowOpacity: 2.0,
-                          shadowColor: 'rgba(0, 0, 0, 0.05)',
-                          shadowOffset: {
-                            width: 2,
-                            height: 2,
-                          },
-                          shadowRadius: 10,
-                          borderRadius: 5,
-                          backgroundColor: '#fff',
-                        }}
-                        onChangeText={value =>
-                          this.setState({
-                            pageFrozenTemp: value,
-                          })
-                        }
-                      />
-                    </View>
-                  </View>
-                  <View
-                    style={{
-                      marginBottom: hp('3%'),
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                    }}>
-                    <View style={{flex: 1}}>
-                      <Text
-                        style={{
-                          fontFamily: 'Inter-Regular',
-                          marginLeft: 5,
+                          marginBottom: hp('3%'),
+                          flexDirection: 'row',
+                          alignItems: 'center',
                         }}>
-                        Notes :
-                      </Text>
-                    </View>
-                    <View style={{flex: 2}}>
-                      <TextInput
-                        placeholder="Notes"
-                        value={pageNotes}
+                        <View style={{flex: 1}}>
+                          <Text
+                            style={{
+                              fontFamily: 'Inter-Regular',
+                              marginLeft: 5,
+                            }}>
+                            Delivery note reference :
+                          </Text>
+                        </View>
+                        <View style={{flex: 2}}>
+                          <TextInput
+                            placeholder="Delivery note reference"
+                            value={pageDeliveryNoteReference}
+                            style={{
+                              padding: 14,
+                              justifyContent: 'space-between',
+                              elevation: 3,
+                              shadowOpacity: 2.0,
+                              shadowColor: 'rgba(0, 0, 0, 0.05)',
+                              shadowOffset: {
+                                width: 2,
+                                height: 2,
+                              },
+                              shadowRadius: 10,
+                              borderRadius: 5,
+                              backgroundColor: '#fff',
+                            }}
+                            onChangeText={value =>
+                              this.setState({
+                                pageDeliveryNoteReference: value,
+                              })
+                            }
+                          />
+                        </View>
+                      </View>
+                      <View
                         style={{
-                          padding: 14,
-                          justifyContent: 'space-between',
-                          elevation: 3,
-                          shadowOpacity: 2.0,
-                          shadowColor: 'rgba(0, 0, 0, 0.05)',
-                          shadowOffset: {
-                            width: 2,
-                            height: 2,
-                          },
-                          shadowRadius: 10,
-                          borderRadius: 5,
-                          backgroundColor: '#fff',
-                        }}
-                        onChangeText={value =>
-                          this.setState({
-                            pageNotes: value,
-                          })
-                        }
-                      />
-                    </View>
-                  </View>
-                  <View
-                    style={{
-                      marginBottom: hp('3%'),
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                    }}>
-                    <View style={{flex: 1}}>
-                      <Text
-                        style={{
-                          fontFamily: 'Inter-Regular',
-                          marginLeft: 5,
+                          marginBottom: hp('3%'),
+                          flexDirection: 'row',
+                          alignItems: 'center',
                         }}>
-                        Placed by :
-                      </Text>
-                    </View>
-                    <View style={{flex: 2}}>
-                      <TextInput
-                        placeholder="Placed by"
-                        value={pageData.placedByNAme}
-                        editable={false}
+                        <View style={{flex: 1}}>
+                          <Text
+                            style={{
+                              fontFamily: 'Inter-Regular',
+                              marginLeft: 5,
+                            }}>
+                            Ambient Temperature :
+                          </Text>
+                        </View>
+                        <View style={{flex: 2}}>
+                          <TextInput
+                            placeholder="Ambient Temperature"
+                            value={pageAmbientTemp && String(pageAmbientTemp)}
+                            style={{
+                              padding: 14,
+                              justifyContent: 'space-between',
+                              elevation: 3,
+                              shadowOpacity: 2.0,
+                              shadowColor: 'rgba(0, 0, 0, 0.05)',
+                              shadowOffset: {
+                                width: 2,
+                                height: 2,
+                              },
+                              shadowRadius: 10,
+                              borderRadius: 5,
+                              backgroundColor: '#fff',
+                            }}
+                            onChangeText={value =>
+                              this.setState({
+                                pageAmbientTemp: value,
+                              })
+                            }
+                          />
+                        </View>
+                      </View>
+                      <View
                         style={{
-                          padding: 14,
-                          justifyContent: 'space-between',
-                          elevation: 3,
-                          shadowOpacity: 2.0,
-                          shadowColor: 'rgba(0, 0, 0, 0.05)',
-                          shadowOffset: {
-                            width: 2,
-                            height: 2,
-                          },
-                          shadowRadius: 10,
-                          borderRadius: 5,
-                          backgroundColor: '#E9ECEF',
-                          borderWidth: 0.2,
-                        }}
-                      />
+                          marginBottom: hp('3%'),
+                          flexDirection: 'row',
+                          alignItems: 'center',
+                        }}>
+                        <View style={{flex: 1}}>
+                          <Text
+                            style={{
+                              fontFamily: 'Inter-Regular',
+                              marginLeft: 5,
+                            }}>
+                            Chilled Temperature :
+                          </Text>
+                        </View>
+                        <View style={{flex: 2}}>
+                          <TextInput
+                            placeholder="Chilled Temperature"
+                            value={pageChilledTemp && String(pageChilledTemp)}
+                            style={{
+                              padding: 14,
+                              justifyContent: 'space-between',
+                              elevation: 3,
+                              shadowOpacity: 2.0,
+                              shadowColor: 'rgba(0, 0, 0, 0.05)',
+                              shadowOffset: {
+                                width: 2,
+                                height: 2,
+                              },
+                              shadowRadius: 10,
+                              borderRadius: 5,
+                              backgroundColor: '#fff',
+                            }}
+                            onChangeText={value =>
+                              this.setState({
+                                pageChilledTemp: value,
+                              })
+                            }
+                          />
+                        </View>
+                      </View>
+                      <View
+                        style={{
+                          marginBottom: hp('3%'),
+                          flexDirection: 'row',
+                          alignItems: 'center',
+                        }}>
+                        <View style={{flex: 1}}>
+                          <Text
+                            style={{
+                              fontFamily: 'Inter-Regular',
+                              marginLeft: 5,
+                            }}>
+                            Frozen Temperature :
+                          </Text>
+                        </View>
+                        <View style={{flex: 2}}>
+                          <TextInput
+                            placeholder="Frozen Temperature"
+                            value={pageFrozenTemp && String(pageFrozenTemp)}
+                            style={{
+                              padding: 14,
+                              justifyContent: 'space-between',
+                              elevation: 3,
+                              shadowOpacity: 2.0,
+                              shadowColor: 'rgba(0, 0, 0, 0.05)',
+                              shadowOffset: {
+                                width: 2,
+                                height: 2,
+                              },
+                              shadowRadius: 10,
+                              borderRadius: 5,
+                              backgroundColor: '#fff',
+                            }}
+                            onChangeText={value =>
+                              this.setState({
+                                pageFrozenTemp: value,
+                              })
+                            }
+                          />
+                        </View>
+                      </View>
+                      <View
+                        style={{
+                          marginBottom: hp('3%'),
+                          flexDirection: 'row',
+                          alignItems: 'center',
+                        }}>
+                        <View style={{flex: 1}}>
+                          <Text
+                            style={{
+                              fontFamily: 'Inter-Regular',
+                              marginLeft: 5,
+                            }}>
+                            Notes :
+                          </Text>
+                        </View>
+                        <View style={{flex: 2}}>
+                          <TextInput
+                            placeholder="Notes"
+                            value={pageNotes}
+                            style={{
+                              padding: 14,
+                              justifyContent: 'space-between',
+                              elevation: 3,
+                              shadowOpacity: 2.0,
+                              shadowColor: 'rgba(0, 0, 0, 0.05)',
+                              shadowOffset: {
+                                width: 2,
+                                height: 2,
+                              },
+                              shadowRadius: 10,
+                              borderRadius: 5,
+                              backgroundColor: '#fff',
+                            }}
+                            onChangeText={value =>
+                              this.setState({
+                                pageNotes: value,
+                              })
+                            }
+                          />
+                        </View>
+                      </View>
                     </View>
-                  </View>
+                  ) : null}
                 </View>
 
                 <ScrollView horizontal showsHorizontalScrollIndicator={false}>
@@ -1445,7 +1559,7 @@ class ViewPendingDelivery extends Component {
                         <Text
                           style={{
                             color: '#161C27',
-                            fontSize: 13,
+                            fontSize: 12,
                             fontFamily: 'Inter-SemiBold',
                           }}>
                           Inventory item
@@ -1460,7 +1574,7 @@ class ViewPendingDelivery extends Component {
                         <Text
                           style={{
                             color: '#161C27',
-                            fontSize: 13,
+                            fontSize: 12,
                             fontFamily: 'Inter-SemiBold',
                           }}>
                           Arrived date
@@ -1475,7 +1589,7 @@ class ViewPendingDelivery extends Component {
                         <Text
                           style={{
                             color: '#161C27',
-                            fontSize: 13,
+                            fontSize: 12,
                             fontFamily: 'Inter-SemiBold',
                           }}>
                           {translate('Quantity')}
@@ -1489,7 +1603,7 @@ class ViewPendingDelivery extends Component {
                         <Text
                           style={{
                             color: '#161C27',
-                            fontSize: 13,
+                            fontSize: 12,
                             fontFamily: 'Inter-SemiBold',
                           }}>
                           € HTVA
@@ -1505,7 +1619,7 @@ class ViewPendingDelivery extends Component {
                         <Text
                           style={{
                             color: '#161C27',
-                            fontSize: 13,
+                            fontSize: 12,
                             fontFamily: 'Inter-SemiBold',
                           }}>
                           Action
@@ -1562,7 +1676,7 @@ class ViewPendingDelivery extends Component {
                                 <Text
                                   style={{
                                     color: '#161C27',
-                                    fontSize: 13,
+                                    fontSize: 12,
                                     fontFamily: 'Inter-SemiBold',
                                     marginBottom: 8,
                                   }}>
@@ -1572,7 +1686,7 @@ class ViewPendingDelivery extends Component {
                                 <Text
                                   style={{
                                     color: '#161C27',
-                                    fontSize: 13,
+                                    fontSize: 12,
                                     fontFamily: 'Inter-Regular',
                                   }}>
                                   {item.productName}
@@ -1586,7 +1700,7 @@ class ViewPendingDelivery extends Component {
                                 <Text
                                   style={{
                                     color: '#161C27',
-                                    fontSize: 13,
+                                    fontSize: 12,
                                     fontFamily: 'Inter-Regular',
                                   }}>
                                   {item.arrivedDate &&
@@ -1601,7 +1715,7 @@ class ViewPendingDelivery extends Component {
                                 <Text
                                   style={{
                                     color: '#161C27',
-                                    fontSize: 13,
+                                    fontSize: 12,
                                     fontFamily: 'Inter-SemiBold',
                                     marginBottom: 8,
                                   }}>
@@ -1610,10 +1724,23 @@ class ViewPendingDelivery extends Component {
                                 <Text
                                   style={{
                                     color: '#161C27',
-                                    fontSize: 13,
+                                    fontSize: 12,
                                     fontFamily: 'Inter-Regular',
                                   }}>
-                                  {`${item.quantityOrdered} X ${item.packSize}/${item.unit}`}
+                                  {item.displayQuantity}
+                                  {/* {`${item.quantityOrdered} X ${item.packSize}/${item.unit}`} */}
+                                </Text>
+                                <Text
+                                  style={{
+                                    color: 'red',
+                                    fontSize: 12,
+                                    fontFamily: 'Inter-Regular',
+                                    marginTop: 8,
+                                  }}>
+                                  {item.displayWarningQuantity
+                                    ? item.displayWarningQuantity
+                                    : null}
+                                  {/* {`${item.quantityOrdered} X ${item.packSize}/${item.unit}`} */}
                                 </Text>
                               </View>
                               <View
@@ -1623,7 +1750,7 @@ class ViewPendingDelivery extends Component {
                                 <Text
                                   style={{
                                     color: '#161C27',
-                                    fontSize: 13,
+                                    fontSize: 12,
                                     fontFamily: 'Inter-Regular',
                                   }}>
                                   € {Number(item.orderValue).toFixed(2)}
@@ -1727,6 +1854,35 @@ class ViewPendingDelivery extends Component {
                   </View>
                 </View>
               </View>
+
+              {/* <View>
+                <View
+                  style={{
+                    justifyContent: 'center',
+                    marginTop: hp('2%'),
+                    alignItems: 'center',
+                  }}>
+                  <TouchableOpacity
+                    onPress={() => this.handleChoosePhoto()}
+                    style={{
+                      width: wp('60%'),
+                      height: hp('5%'),
+                      backgroundColor: '#94C036',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      borderRadius: 100,
+                    }}>
+                    <Text
+                      style={{
+                        color: '#fff',
+                        fontSize: 15,
+                        fontWeight: 'bold',
+                      }}>
+                      {translate('Add image')}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </View> */}
 
               <View>
                 <View
@@ -1911,7 +2067,7 @@ class ViewPendingDelivery extends Component {
                                 fontFamily: 'Inter-SemiBold',
                                 textAlign: 'center',
                               }}>
-                              Inventory Volume
+                              {translate('Inventory')} Volume
                             </Text>
                           </View>
                         </View>
@@ -1935,7 +2091,7 @@ class ViewPendingDelivery extends Component {
                                   fontSize: 14,
                                   fontFamily: 'Inter-SemiBold',
                                 }}>
-                                Ordered
+                                {translate('Ordered')}
                               </Text>
                             </View>
                             <View
@@ -1964,9 +2120,7 @@ class ViewPendingDelivery extends Component {
                               }}>
                               <TextInput
                                 placeholder="Volume"
-                                value={Number(
-                                  modalOrderedInventoryVolume,
-                                ).toFixed(2)}
+                                value={String(volume * modalQuantityOrdered)}
                                 editable={false}
                                 style={{
                                   borderRadius: 5,
@@ -2003,7 +2157,7 @@ class ViewPendingDelivery extends Component {
                                   fontSize: 14,
                                   fontFamily: 'Inter-SemiBold',
                                 }}>
-                                Delivered
+                                {translate('Delivered')}
                               </Text>
                             </View>
                             <View
@@ -2026,8 +2180,7 @@ class ViewPendingDelivery extends Component {
                                 onChangeText={value =>
                                   this.setState({
                                     modalQuantityDelivered: value,
-                                    modalUserQuantityDelivered:
-                                      value * modalOrderedInventoryVolume,
+                                    modalUserQuantityDelivered: value * volume,
                                   })
                                 }
                               />
@@ -2054,6 +2207,10 @@ class ViewPendingDelivery extends Component {
                                 onChangeText={value =>
                                   this.setState({
                                     modalUserQuantityDelivered: value,
+                                    modalQuantityDelivered:
+                                      (value /
+                                        Number(volume * modalQuantityOrdered)) *
+                                      modalQuantityOrdered,
                                   })
                                 }
                               />
@@ -2086,7 +2243,7 @@ class ViewPendingDelivery extends Component {
                                   fontFamily: 'Inter-SemiBold',
                                   marginBottom: 8,
                                 }}>
-                                Invoiced
+                                {translate('Invoiced')}
                               </Text>
                             </View>
                             <View
@@ -2109,8 +2266,12 @@ class ViewPendingDelivery extends Component {
                                 onChangeText={value =>
                                   this.setState({
                                     modalQuantityInvoiced: value,
-                                    modalUserQuantityInvoiced:
-                                      value * modalOrderedInventoryVolume,
+                                    modalUserQuantityInvoiced: value * volume,
+                                    modalPricePaid: (
+                                      value *
+                                      packSize *
+                                      unitPrizeModal
+                                    ).toFixed(2),
                                   })
                                 }
                               />
@@ -2137,6 +2298,10 @@ class ViewPendingDelivery extends Component {
                                 onChangeText={value =>
                                   this.setState({
                                     modalUserQuantityInvoiced: value,
+                                    modalQuantityInvoiced:
+                                      (value /
+                                        Number(volume * modalQuantityOrdered)) *
+                                      modalQuantityOrdered,
                                   })
                                 }
                               />
@@ -2168,7 +2333,7 @@ class ViewPendingDelivery extends Component {
                                   fontSize: 14,
                                   fontFamily: 'Inter-SemiBold',
                                 }}>
-                                {translate('Price')}
+                                {translate('Order Value Ex-VAT')}
                               </Text>
                             </View>
                             <View
@@ -2177,12 +2342,13 @@ class ViewPendingDelivery extends Component {
                                 alignItems: 'center',
                               }}>
                               <TextInput
-                                placeholder="Price"
+                                placeholder={translate('Order Value Ex-VAT')}
                                 style={{
                                   borderWidth: 0.5,
                                   borderRadius: 5,
                                   padding: 8,
-                                  width: 100,
+                                  width: 150,
+                                  marginLeft: wp('15%'),
                                 }}
                                 value={modalPricePaid && String(modalPricePaid)}
                                 onChangeText={value =>
@@ -2218,7 +2384,7 @@ class ViewPendingDelivery extends Component {
                                   fontFamily: 'Inter-SemiBold',
                                   textAlign: 'center',
                                 }}>
-                                Arrived Date
+                                {translate('Arrived date')}
                               </Text>
                             </View>
                             <View
@@ -2301,7 +2467,7 @@ class ViewPendingDelivery extends Component {
                                   fontSize: 14,
                                   fontFamily: 'Inter-SemiBold',
                                 }}>
-                                Notes
+                                {translate('Notes')}
                               </Text>
                             </View>
                             <View
@@ -2337,59 +2503,283 @@ class ViewPendingDelivery extends Component {
                         </View>
                       </View>
                     </ScrollView>
-                    <View>
-                      <View
+                  </View>
+                </ScrollView>
+                <View>
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      paddingVertical: 15,
+                    }}>
+                    <TouchableOpacity
+                      onPress={() => this.saveFunInventoryItem()}
+                      style={{
+                        width: wp('30%'),
+                        height: hp('5%'),
+                        alignSelf: 'flex-end',
+                        backgroundColor: '#94C036',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        borderRadius: 100,
+                      }}>
+                      <Text
                         style={{
-                          flexDirection: 'row',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          marginTop: hp('3%'),
-                          marginBottom: hp('4%'),
+                          color: '#fff',
+                          fontSize: 15,
+                          fontWeight: 'bold',
                         }}>
-                        <TouchableOpacity
-                          onPress={() => this.saveFunInventoryItem()}
-                          style={{
-                            width: wp('30%'),
-                            height: hp('5%'),
-                            alignSelf: 'flex-end',
-                            backgroundColor: '#94C036',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            borderRadius: 100,
-                          }}>
-                          <Text
-                            style={{
-                              color: '#fff',
-                              fontSize: 15,
-                              fontWeight: 'bold',
-                            }}>
-                            {translate('Save')}
-                          </Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                          onPress={() => this.setModalVisibleFalse()}
-                          style={{
-                            width: wp('30%'),
-                            height: hp('5%'),
-                            alignSelf: 'flex-end',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            marginLeft: wp('2%'),
-                            borderRadius: 100,
-                            borderWidth: 1,
-                            borderColor: '#482813',
-                          }}>
-                          <Text
-                            style={{
-                              color: '#482813',
-                              fontSize: 15,
-                              fontWeight: 'bold',
-                            }}>
-                            {translate('Close')}
-                          </Text>
-                        </TouchableOpacity>
-                      </View>
+                        {translate('Save')}
+                      </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      onPress={() => this.setModalVisibleFalse()}
+                      style={{
+                        width: wp('30%'),
+                        height: hp('5%'),
+                        alignSelf: 'flex-end',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        marginLeft: wp('2%'),
+                        borderRadius: 100,
+                        borderWidth: 1,
+                        borderColor: '#482813',
+                      }}>
+                      <Text
+                        style={{
+                          color: '#482813',
+                          fontSize: 15,
+                          fontWeight: 'bold',
+                        }}>
+                        {translate('Close')}
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              </View>
+            </Modal>
+            <Modal isVisible={chooseImageModalStatus} backdropOpacity={0.35}>
+              <View
+                style={{
+                  width: wp('80%'),
+                  height: hp('25%'),
+                  backgroundColor: '#fff',
+                  alignSelf: 'center',
+                }}>
+                <View
+                  style={{
+                    backgroundColor: '#412916',
+                    height: hp('7%'),
+                    flexDirection: 'row',
+                  }}>
+                  <View
+                    style={{
+                      flex: 3,
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}>
+                    <Text style={{fontSize: 16, color: '#fff'}}>
+                      {translate('Add image')}
+                    </Text>
+                  </View>
+                  <View
+                    style={{
+                      flex: 1,
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}>
+                    <TouchableOpacity
+                      onPress={() => this.setModalVisibleImage(false)}>
+                      <Image
+                        source={img.cancelIcon}
+                        style={{
+                          height: 22,
+                          width: 22,
+                          tintColor: 'white',
+                          resizeMode: 'contain',
+                        }}
+                      />
+                    </TouchableOpacity>
+                  </View>
+                </View>
+                <ScrollView>
+                  <View style={{padding: hp('3%')}}>
+                    <TouchableOpacity
+                      onPress={() => this.choosePhotoFun()}
+                      style={{
+                        width: wp('70%'),
+                        height: hp('5%'),
+                        alignSelf: 'flex-end',
+                        backgroundColor: 'red',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                      }}>
+                      <Text
+                        style={{
+                          color: '#fff',
+                          fontSize: 15,
+                          fontWeight: 'bold',
+                        }}>
+                        {translate('Choose image from gallery')}
+                      </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      onPress={() => this.clickPhotoFun()}
+                      style={{
+                        width: wp('70%'),
+                        height: hp('5%'),
+                        alignSelf: 'flex-end',
+                        backgroundColor: '#94C036',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        marginTop: 10,
+                      }}>
+                      <Text
+                        style={{
+                          color: '#fff',
+                          fontSize: 15,
+                          fontWeight: 'bold',
+                        }}>
+                        {translate('Click Photo')}
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                </ScrollView>
+              </View>
+            </Modal>
+
+            <Modal isVisible={imageModalStatus} backdropOpacity={0.35}>
+              <View
+                style={{
+                  width: wp('80%'),
+                  height: hp('70%'),
+                  backgroundColor: '#fff',
+                  alignSelf: 'center',
+                }}>
+                <View
+                  style={{
+                    backgroundColor: '#412916',
+                    height: hp('7%'),
+                    flexDirection: 'row',
+                  }}>
+                  <View
+                    style={{
+                      flex: 3,
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}>
+                    <Text style={{fontSize: 16, color: '#fff'}}>
+                      {translate('Manual Log small')} -{' '}
+                      {translate('Add new item')}
+                    </Text>
+                  </View>
+                  <View
+                    style={{
+                      flex: 1,
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}>
+                    <TouchableOpacity
+                      onPress={() => this.setModalVisibleImage(false)}>
+                      <Image
+                        source={img.cancelIcon}
+                        style={{
+                          height: 22,
+                          width: 22,
+                          tintColor: 'white',
+                          resizeMode: 'contain',
+                        }}
+                      />
+                    </TouchableOpacity>
+                  </View>
+                </View>
+                <ScrollView>
+                  <View style={{padding: hp('3%')}}>
+                    <View>
+                      <Image
+                        style={{
+                          width: wp('60%'),
+                          height: 100,
+                          resizeMode: 'cover',
+                        }}
+                        source={{uri: imageData.path}}
+                      />
                     </View>
+                    <View style={{}}>
+                      <TextInput
+                        placeholder="Enter Name"
+                        value={imageName}
+                        style={{
+                          borderWidth: 1,
+                          padding: 12,
+                          marginBottom: hp('3%'),
+                          justifyContent: 'space-between',
+                          marginTop: 20,
+                        }}
+                        onChangeText={value => {
+                          this.setState({
+                            imageName: value,
+                          });
+                        }}
+                      />
+                    </View>
+                    <View style={{}}>
+                      <TextInput
+                        placeholder="Enter Description"
+                        value={imageDesc}
+                        style={{
+                          borderWidth: 1,
+                          padding: 12,
+                          marginBottom: hp('3%'),
+                          justifyContent: 'space-between',
+                        }}
+                        onChangeText={value => {
+                          this.setState({
+                            imageDesc: value,
+                          });
+                        }}
+                      />
+                    </View>
+                    <TouchableOpacity
+                      onPress={() => this.deleteImageFun()}
+                      style={{
+                        width: wp('70%'),
+                        height: hp('5%'),
+                        alignSelf: 'flex-end',
+                        backgroundColor: 'red',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                      }}>
+                      <Text
+                        style={{
+                          color: '#fff',
+                          fontSize: 15,
+                          fontWeight: 'bold',
+                        }}>
+                        {translate('Delete')}
+                      </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      onPress={() => this.saveImageFun()}
+                      style={{
+                        width: wp('70%'),
+                        height: hp('5%'),
+                        alignSelf: 'flex-end',
+                        backgroundColor: '#94C036',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        marginTop: 10,
+                      }}>
+                      <Text
+                        style={{
+                          color: '#fff',
+                          fontSize: 15,
+                          fontWeight: 'bold',
+                        }}>
+                        {translate('Save')}
+                      </Text>
+                    </TouchableOpacity>
                   </View>
                 </ScrollView>
               </View>

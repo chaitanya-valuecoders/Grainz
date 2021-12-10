@@ -98,12 +98,12 @@ class index extends Component {
               icon: img.orderingIcon,
               screen: 'OrderingAdminScreen',
             },
-            {
-              id: 6,
-              name: translate('Dashboard'),
-              icon: img.dashboardIcon,
-              screen: 'DashboardScreen',
-            },
+            // {
+            //   id: 6,
+            //   name: translate('Dashboard'),
+            //   icon: img.dashboardIcon,
+            //   screen: 'DashboardScreen',
+            // },
             // {name: translate('Events'), icon: img.addIcon, screen: 'EventsScreen'},
           ],
           buttonsSubHeader: [

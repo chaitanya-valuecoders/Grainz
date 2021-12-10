@@ -26,6 +26,7 @@ import {
 } from '../../../../../connectivity/api';
 import moment from 'moment';
 import styles from '../style';
+import Modal from 'react-native-modal';
 
 import {translate} from '../../../../../utils/translations';
 
@@ -45,6 +46,12 @@ class PendingDelivery extends Component {
       arrangeStatusSupplier: 0,
       arrangeStatusDate: 0,
       arrangeStatusHTVA: 0,
+      mailModalVisible: false,
+      mailTitleValue: '',
+      toRecipientValue: '',
+      ccRecipientValue: '',
+      mailMessageValue: '',
+      loaderCompStatus: false,
     };
   }
 
@@ -339,6 +346,63 @@ class PendingDelivery extends Component {
     }
   };
 
+  openMailFun = item => {
+    this.setState({
+      mailModalVisible: true,
+    });
+  };
+
+  closeMailModal = () => {
+    this.setState({
+      mailModalVisible: false,
+    });
+  };
+
+  sendMailFun = () => {
+    this.setState(
+      {
+        loaderCompStatus: false,
+      },
+      () => this.sendMailFunSec(),
+    );
+  };
+
+  sendMailFunSec = () => {
+    const {
+      basketId,
+      toRecipientValue,
+      mailMessageValue,
+      ccRecipientValue,
+      mailTitleValue,
+    } = this.state;
+    let payload = {
+      emailDetails: {
+        ccRecipients: ccRecipientValue,
+        subject: mailTitleValue,
+        text: mailMessageValue,
+        toRecipient: toRecipientValue,
+      },
+      shopingBasketId: basketId,
+    };
+
+    console.log('Payload', payload);
+
+    // sendOrderApi(payload)
+    //   .then(res => {
+    //     this.setState({
+    //       mailModalVisible: false,
+    //       loaderCompStatus: false,
+    //     });
+    //   })
+    //   .catch(err => {
+    //     Alert.alert(`Error - ${err.response.status}`, 'Something went wrong', [
+    //       {
+    //         text: 'Okay',
+    //       },
+    //     ]);
+    //   });
+  };
+
   render() {
     const {
       buttonsSubHeader,
@@ -348,6 +412,12 @@ class PendingDelivery extends Component {
       listId,
       searchItem,
       type,
+      mailModalVisible,
+      mailTitleValue,
+      toRecipientValue,
+      ccRecipientValue,
+      mailMessageValue,
+      loaderCompStatus,
     } = this.state;
 
     return (
@@ -458,9 +528,92 @@ class PendingDelivery extends Component {
                                 color: '#161C27',
                                 fontFamily: 'Inter-SemiBold',
                               }}>
-                              Order#
+                              {translate('Order')}#
                             </Text>
                           </View>
+                          <TouchableOpacity
+                            onPress={() => this.arrangeListFun('SUPPLIER')}
+                            style={{
+                              width: wp('30%'),
+                              alignItems: 'center',
+                              flexDirection: 'row',
+                              justifyContent: 'center',
+                            }}>
+                            <Text
+                              style={{
+                                color: '#161C27',
+                                fontFamily: 'Inter-SemiBold',
+                              }}>
+                              {translate('Supplier')}
+                            </Text>
+                            <View>
+                              <Image
+                                style={{
+                                  width: 13,
+                                  height: 13,
+                                  resizeMode: 'contain',
+                                  marginLeft: 5,
+                                }}
+                                source={img.doubleArrowIconNew}
+                              />
+                            </View>
+                          </TouchableOpacity>
+                          <TouchableOpacity
+                            onPress={() => this.arrangeListFun('DATE')}
+                            style={{
+                              width: wp('30%'),
+                              alignItems: 'center',
+                              flexDirection: 'row',
+                              justifyContent: 'center',
+                            }}>
+                            <Text
+                              style={{
+                                color: '#161C27',
+                                fontFamily: 'Inter-SemiBold',
+                              }}>
+                              {listId === 2
+                                ? translate('Delivery date')
+                                : translate('Order date')}
+                            </Text>
+                            <View>
+                              <Image
+                                style={{
+                                  width: 13,
+                                  height: 13,
+                                  resizeMode: 'contain',
+                                  marginLeft: 5,
+                                }}
+                                source={img.doubleArrowIconNew}
+                              />
+                            </View>
+                          </TouchableOpacity>
+                          <TouchableOpacity
+                            onPress={() => this.arrangeListFun('HTVA')}
+                            style={{
+                              width: wp('30%'),
+                              alignItems: 'center',
+                              flexDirection: 'row',
+                              justifyContent: 'center',
+                            }}>
+                            <Text
+                              style={{
+                                color: '#161C27',
+                                fontFamily: 'Inter-SemiBold',
+                              }}>
+                              {translate('HTVA')}
+                            </Text>
+                            <View>
+                              <Image
+                                style={{
+                                  width: 13,
+                                  height: 13,
+                                  resizeMode: 'contain',
+                                  marginLeft: 5,
+                                }}
+                                source={img.doubleArrowIconNew}
+                              />
+                            </View>
+                          </TouchableOpacity>
                           <View
                             style={{
                               width: wp('30%'),
@@ -473,82 +626,15 @@ class PendingDelivery extends Component {
                                 color: '#161C27',
                                 fontFamily: 'Inter-SemiBold',
                               }}>
-                              Supplier
+                              {translate('Action')}
                             </Text>
-                            <TouchableOpacity
-                              onPress={() => this.arrangeListFun('SUPPLIER')}>
-                              <Image
-                                style={{
-                                  width: 13,
-                                  height: 13,
-                                  resizeMode: 'contain',
-                                  marginLeft: 5,
-                                }}
-                                source={img.doubleArrowIconNew}
-                              />
-                            </TouchableOpacity>
-                          </View>
-                          <View
-                            style={{
-                              width: wp('30%'),
-                              alignItems: 'center',
-                              flexDirection: 'row',
-                              justifyContent: 'center',
-                            }}>
-                            <Text
-                              style={{
-                                color: '#161C27',
-                                fontFamily: 'Inter-SemiBold',
-                              }}>
-                              {listId === 2 ? 'Delivery date' : 'Order date'}
-                            </Text>
-                            <TouchableOpacity
-                              onPress={() => this.arrangeListFun('DATE')}>
-                              <Image
-                                style={{
-                                  width: 13,
-                                  height: 13,
-                                  resizeMode: 'contain',
-                                  marginLeft: 5,
-                                }}
-                                source={img.doubleArrowIconNew}
-                              />
-                            </TouchableOpacity>
-                          </View>
-                          <View
-                            style={{
-                              width: wp('30%'),
-                              alignItems: 'center',
-                              flexDirection: 'row',
-                              justifyContent: 'center',
-                            }}>
-                            <Text
-                              style={{
-                                color: '#161C27',
-                                fontFamily: 'Inter-SemiBold',
-                              }}>
-                              Total HTVA
-                            </Text>
-                            <TouchableOpacity
-                              onPress={() => this.arrangeListFun('HTVA')}>
-                              <Image
-                                style={{
-                                  width: 13,
-                                  height: 13,
-                                  resizeMode: 'contain',
-                                  marginLeft: 5,
-                                }}
-                                source={img.doubleArrowIconNew}
-                              />
-                            </TouchableOpacity>
                           </View>
                         </View>
                         <View>
                           {deliveryPendingData && deliveryPendingData.length > 0
                             ? deliveryPendingData.map((item, index) => {
                                 return (
-                                  <TouchableOpacity
-                                    onPress={() => this.viewFun(item)}
+                                  <View
                                     style={{
                                       paddingVertical: 10,
                                       paddingHorizontal: 5,
@@ -556,70 +642,93 @@ class PendingDelivery extends Component {
                                       backgroundColor:
                                         index % 2 === 0 ? '#FFFFFF' : '#F7F8F5',
                                     }}>
-                                    <View
+                                    <TouchableOpacity
+                                      onPress={() => this.viewFun(item)}
+                                      style={{
+                                        flexDirection: 'row',
+                                        alignItems: 'center',
+                                      }}>
+                                      <View
+                                        style={{
+                                          width: wp('30%'),
+                                          alignItems: 'center',
+                                        }}>
+                                        <Text
+                                          style={{
+                                            textAlign: 'center',
+                                            color: item.isRed ? 'red' : 'black',
+                                          }}
+                                          numberOfLines={1}>
+                                          {item.orderReference}
+                                        </Text>
+                                      </View>
+                                      <View
+                                        style={{
+                                          width: wp('30%'),
+                                          alignItems: 'center',
+                                        }}>
+                                        <Text
+                                          numberOfLines={1}
+                                          style={{
+                                            color: item.isRed ? 'red' : 'black',
+                                          }}>
+                                          {item.supplierName}
+                                        </Text>
+                                      </View>
+                                      <View
+                                        style={{
+                                          width: wp('30%'),
+                                          alignItems: 'center',
+                                        }}>
+                                        <Text
+                                          style={{
+                                            color: item.isRed ? 'red' : 'black',
+                                          }}>
+                                          {type === 'Pending'
+                                            ? moment(item.deliveryDate).format(
+                                                'DD/MM/YY',
+                                              )
+                                            : type === 'Review'
+                                            ? moment(item.orderDate).format(
+                                                'DD/MM/YY',
+                                              )
+                                            : type === 'History'
+                                            ? moment(item.orderDate).format(
+                                                'DD/MM/YY',
+                                              )
+                                            : null}
+                                        </Text>
+                                      </View>
+                                      <View
+                                        style={{
+                                          width: wp('30%'),
+                                          alignItems: 'center',
+                                        }}>
+                                        <Text
+                                          style={{
+                                            color: item.isRed ? 'red' : 'black',
+                                          }}>
+                                          €{' '}
+                                          {item && Number(item.htva).toFixed(2)}
+                                        </Text>
+                                      </View>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity
+                                      onPress={() => this.openMailFun(item)}
                                       style={{
                                         width: wp('30%'),
                                         alignItems: 'center',
                                       }}>
-                                      <Text
+                                      <Image
                                         style={{
-                                          textAlign: 'center',
-                                          color: item.isRed ? 'red' : 'black',
+                                          height: 35,
+                                          width: 35,
+                                          resizeMode: 'contain',
                                         }}
-                                        numberOfLines={1}>
-                                        {item.orderReference}
-                                      </Text>
-                                    </View>
-                                    <View
-                                      style={{
-                                        width: wp('30%'),
-                                        alignItems: 'center',
-                                      }}>
-                                      <Text
-                                        numberOfLines={1}
-                                        style={{
-                                          color: item.isRed ? 'red' : 'black',
-                                        }}>
-                                        {item.supplierName}
-                                      </Text>
-                                    </View>
-                                    <View
-                                      style={{
-                                        width: wp('30%'),
-                                        alignItems: 'center',
-                                      }}>
-                                      <Text
-                                        style={{
-                                          color: item.isRed ? 'red' : 'black',
-                                        }}>
-                                        {type === 'Pending'
-                                          ? moment(item.deliveryDate).format(
-                                              'DD/MM/YY',
-                                            )
-                                          : type === 'Review'
-                                          ? moment(item.orderDate).format(
-                                              'DD/MM/YY',
-                                            )
-                                          : type === 'History'
-                                          ? moment(item.orderDate).format(
-                                              'DD/MM/YY',
-                                            )
-                                          : null}
-                                      </Text>
-                                    </View>
-                                    <View
-                                      style={{
-                                        width: wp('30%'),
-                                        alignItems: 'center',
-                                      }}>
-                                      <Text
-                                        style={{
-                                          color: item.isRed ? 'red' : 'black',
-                                        }}>
-                                        € {item && Number(item.htva).toFixed(2)}
-                                      </Text>
-                                    </View>
-                                  </TouchableOpacity>
+                                        source={img.emailIcon}
+                                      />
+                                    </TouchableOpacity>
+                                  </View>
                                 );
                               })
                             : null}
@@ -632,6 +741,177 @@ class PendingDelivery extends Component {
             </View>
           )}
         </ScrollView>
+        <Modal isVisible={mailModalVisible} backdropOpacity={0.35}>
+          <View
+            style={{
+              width: wp('80%'),
+              height: hp('60%'),
+              backgroundColor: '#F0F4FE',
+              alignSelf: 'center',
+              borderRadius: 6,
+            }}>
+            <View
+              style={{
+                backgroundColor: '#87AF30',
+                height: hp('6%'),
+                flexDirection: 'row',
+                borderTopRightRadius: 6,
+                borderTopLeftRadius: 6,
+              }}>
+              <View
+                style={{
+                  flex: 1,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}>
+                <Text style={{fontSize: 16, color: '#fff'}}>Send Mail</Text>
+              </View>
+            </View>
+            <ScrollView showsVerticalScrollIndicator={false}>
+              <View
+                style={{
+                  padding: hp('3%'),
+                }}>
+                <View style={{}}>
+                  <View style={{}}>
+                    <TextInput
+                      value={mailTitleValue}
+                      placeholder="Title"
+                      style={{
+                        padding: 15,
+                        width: '100%',
+                        backgroundColor: '#fff',
+                        borderRadius: 5,
+                      }}
+                      onChangeText={value =>
+                        this.setState({
+                          mailTitleValue: value,
+                        })
+                      }
+                    />
+                  </View>
+                  <View style={{marginTop: hp('3%')}}>
+                    <TextInput
+                      value={toRecipientValue}
+                      placeholder="To"
+                      style={{
+                        padding: 15,
+                        width: '100%',
+                        backgroundColor: '#fff',
+                        borderRadius: 5,
+                      }}
+                      onChangeText={value =>
+                        this.setState({
+                          toRecipientValue: value,
+                        })
+                      }
+                    />
+                  </View>
+                  <View style={{marginTop: hp('3%')}}>
+                    <TextInput
+                      value={ccRecipientValue}
+                      placeholder="CC"
+                      style={{
+                        padding: 15,
+                        width: '100%',
+                        backgroundColor: '#fff',
+                        borderRadius: 5,
+                      }}
+                      onChangeText={value =>
+                        this.setState({
+                          ccRecipientValue: value,
+                        })
+                      }
+                    />
+                  </View>
+
+                  <View style={{marginTop: hp('3%')}}>
+                    <TextInput
+                      value={mailMessageValue}
+                      placeholder="Message"
+                      style={{
+                        padding: 15,
+                        width: '100%',
+                        backgroundColor: '#fff',
+                        borderRadius: 5,
+                      }}
+                      onChangeText={value =>
+                        this.setState({
+                          mailMessageValue: value,
+                        })
+                      }
+                    />
+                  </View>
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      marginTop: hp('4%'),
+                    }}>
+                    {loaderCompStatus ? (
+                      <View
+                        style={{
+                          width: wp('30%'),
+                          height: hp('5%'),
+                          alignSelf: 'flex-end',
+                          backgroundColor: '#94C036',
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                          borderRadius: 100,
+                        }}>
+                        <ActivityIndicator size="small" color="#fff" />
+                      </View>
+                    ) : (
+                      <TouchableOpacity
+                        onPress={() => this.sendMailFun()}
+                        style={{
+                          width: wp('30%'),
+                          height: hp('5%'),
+                          alignSelf: 'flex-end',
+                          backgroundColor: '#94C036',
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                          borderRadius: 100,
+                        }}>
+                        <Text
+                          style={{
+                            color: '#fff',
+                            fontSize: 15,
+                            fontWeight: 'bold',
+                          }}>
+                          {translate('Confirm')}
+                        </Text>
+                      </TouchableOpacity>
+                    )}
+                    <TouchableOpacity
+                      onPress={() => this.closeMailModal()}
+                      style={{
+                        width: wp('30%'),
+                        height: hp('5%'),
+                        alignSelf: 'flex-end',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        marginLeft: wp('2%'),
+                        borderRadius: 100,
+                        borderColor: '#482813',
+                        borderWidth: 1,
+                      }}>
+                      <Text
+                        style={{
+                          color: '#482813',
+                          fontSize: 15,
+                          fontWeight: 'bold',
+                        }}>
+                        {translate('Close')}
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              </View>
+            </ScrollView>
+          </View>
+        </Modal>
       </View>
     );
   }
