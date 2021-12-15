@@ -33,6 +33,7 @@ import {
   viewShoppingBasketApi,
   downloadPDFApi,
   viewHTMLApi,
+  updateDraftOrderNewApi,
 } from '../../../../../connectivity/api';
 import CheckBox from '@react-native-community/checkbox';
 import Modal from 'react-native-modal';
@@ -273,6 +274,7 @@ class Basket extends Component {
       finalApiData,
       basketId,
       apiDeliveryDate,
+      totalHTVAVal,
     } = this.state;
     if (
       apiOrderDate &&
@@ -287,9 +289,11 @@ class Basket extends Component {
         orderDate: apiOrderDate,
         deliveryDate: apiDeliveryDate,
         placedBy: placedByValue,
+        totalValue: totalHTVAVal,
         shopingBasketItemList: finalApiData,
       };
-      addDraftApi(payload)
+      console.log('payload', payload);
+      updateDraftOrderNewApi(payload)
         .then(res => {
           this.setState({
             mailModalVisible: true,
@@ -396,6 +400,7 @@ class Basket extends Component {
       finalApiData,
       basketId,
       modalData,
+      totalHTVAVal,
     } = this.state;
     let payload = {
       id: basketId,
@@ -403,10 +408,12 @@ class Basket extends Component {
       orderDate: apiOrderDate,
       deliveryDate: apiDeliveryDate,
       placedBy: placedByValue,
+      totalValue: totalHTVAVal,
       shopingBasketItemList: finalApiData,
     };
+    console.log('payload', payload);
     if (apiOrderDate && placedByValue && supplierId && finalApiData) {
-      addDraftApi(payload)
+      updateDraftOrderNewApi(payload)
         .then(res => {
           this.setState(
             {
@@ -477,6 +484,7 @@ class Basket extends Component {
       finalApiData,
       basketId,
       apiDeliveryDate,
+      totalHTVAVal,
     } = this.state;
     let payload = {
       id: basketId,
@@ -484,8 +492,10 @@ class Basket extends Component {
       orderDate: apiOrderDate,
       deliveryDate: apiDeliveryDate,
       placedBy: placedByValue,
+      totalValue: totalHTVAVal,
       shopingBasketItemList: finalApiData,
     };
+
     if (
       apiDeliveryDate &&
       placedByValue &&
@@ -494,7 +504,7 @@ class Basket extends Component {
       finalApiData &&
       supplierId
     ) {
-      addDraftApi(payload)
+      updateDraftOrderNewApi(payload)
         .then(res => {
           this.viewFunSec();
         })

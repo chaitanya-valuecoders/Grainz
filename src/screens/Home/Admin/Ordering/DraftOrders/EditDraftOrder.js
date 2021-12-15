@@ -125,6 +125,7 @@ class EditDraftOrder extends Component {
         totalValue: draftsOrderData.totalValue,
         shopingBasketItemList: finalApiData,
       };
+      console.log('payload', payload);
       updateDraftOrderNewApi(payload)
         .then(res => {
           this.setState(
@@ -184,6 +185,7 @@ class EditDraftOrder extends Component {
       totalValue: draftsOrderData.totalValue,
       shopingBasketItemList: finalApiData,
     };
+    console.log('payload', payload);
     updateDraftOrderNewApi(payload)
       .then(res => {
         this.setState({

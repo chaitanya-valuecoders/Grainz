@@ -323,21 +323,184 @@ class AddItems extends Component {
     );
   };
 
-  editQuantityFun = (index, type, data, valueType, section) => {
+  editQuantityFun = (index, type, data, valueType, section, value) => {
     this.setState(
       {
         inventoryId: data.id,
       },
-      () => this.editQuantityFunSec(index, type, data, valueType, section),
+      () =>
+        this.editQuantityFunSec(index, type, data, valueType, section, value),
     );
   };
 
-  editQuantityFunSec = (index, type, data, valueType, section) => {
+  editQuantityFunSec = (index, type, data, valueType, section, value) => {
+    console.log('vaaaaa', value);
     if (valueType === 'add') {
       this.editQuantityFunThird(index, type, data, valueType, section);
-    } else {
+    } else if (valueType === 'minus') {
       if (data.quantityProduct > 0) {
         this.editQuantityFunThird(index, type, data, valueType, section);
+      }
+    } else if (valueType === 'input') {
+      this.editQuantityFunFourth(index, type, data, valueType, section, value);
+    }
+  };
+
+  editQuantityFunFourth = (
+    index,
+    type,
+    data,
+    valueType,
+    section,
+    valueData,
+  ) => {
+    console.log('valueData', valueData);
+
+    const {inventoryStatus, finalBasketData} = this.state;
+    if (inventoryStatus) {
+      const headerIndex = section.headerIndex;
+      // const valueSec =
+      //   data.quantityProduct === '' || valueData === ''
+      //     ? Number(0)
+      //     : Number(data.quantityProduct);
+      // console.log('valueSec', valueSec);
+
+      const valueMinus = Number(valueData);
+      console.log('valueMinus', valueMinus);
+
+      const valueAdd = Number(valueData);
+      console.log('valueAdd', valueAdd);
+
+      const value = valueType === 'input' ? valueAdd : valueMinus;
+      console.log('Value', value);
+      const {screenType, SECTIONS, activeSections} = this.state;
+      const deltaOriginal = Number(data.delta);
+      const isSelectedValue = value !== '' && value > 0 ? true : false;
+      const newDeltaVal =
+        value !== ''
+          ? Number(data.delta) - Number(value) * Number(data.volume)
+          : deltaOriginal;
+      let newArr = section.content.map((item, i) =>
+        index === i
+          ? {
+              ...item,
+              [type]: value,
+              ['isSelected']: isSelectedValue,
+              ['deltaNew']: newDeltaVal,
+            }
+          : {
+              ...item,
+              ['deltaNew']: newDeltaVal,
+            },
+      );
+
+      let LastArr = SECTIONS.map((item, i) =>
+        headerIndex === i
+          ? {
+              ...item,
+              ['content']: newArr,
+            }
+          : {
+              ...item,
+            },
+      );
+
+      console.log('LastArr--> ', LastArr);
+
+      const finalArr = LastArr.map((item, index) => {
+        const firstArr = item.content.filter(function (itm) {
+          if (itm.quantityProduct !== '') {
+            return itm.isSelected === true;
+          }
+        });
+        return firstArr;
+      });
+
+      console.log('finAAA', finalArr);
+
+      var merged = [].concat.apply([], finalArr);
+      console.log('merged', merged);
+
+      const basketArr = [];
+      merged.map(item => {
+        basketArr.push({
+          id: item.orderItemId ? item.orderItemId : null,
+          inventoryId: item.id,
+          inventoryProductMappingId: item.inventoryProductMappingId,
+          unitPrice: item.productPrice,
+          quantity: Number(item.quantityProduct),
+          action:
+            screenType === 'New'
+              ? 'New'
+              : screenType === 'Update' && item.orderItemId !== null
+              ? 'Update'
+              : 'New',
+          value: Number(
+            item.quantityProduct * item.productPrice * item.packSize,
+          ),
+          headerIndex: headerIndex,
+        });
+      });
+
+      console.log('basketArr-->', basketArr);
+
+      this.setState({
+        SECTIONS: [...LastArr],
+        finalBasketData: [...basketArr],
+      });
+    } else {
+      const valueMinus = Number(valueData);
+      console.log('valueMinus-->', valueMinus);
+
+      const valueAdd = Number(valueData);
+      console.log('valueAdd-->', valueAdd);
+
+      const value = valueType === 'input' ? valueAdd : valueMinus;
+      console.log('value-->', value);
+
+      const {modalData, screenType} = this.state;
+      const isSelectedValue = value !== '' && value > 0 ? true : false;
+      if (data.isMapped === true) {
+        let newArr = modalData.map((item, i) =>
+          index === i
+            ? {
+                ...item,
+                [type]: value,
+                ['isSelected']: isSelectedValue,
+              }
+            : item,
+        );
+
+        var filteredArray = newArr.filter(function (itm) {
+          if (itm.quantityProduct !== '') {
+            return itm.isSelected === true;
+          }
+        });
+
+        const finalArr = [];
+        filteredArray.map(item => {
+          finalArr.push({
+            id: item.orderItemId ? item.orderItemId : null,
+            inventoryId:
+              item.inventoryMapping && item.inventoryMapping.inventoryId,
+            inventoryProductMappingId:
+              item.inventoryMapping && item.inventoryMapping.id,
+            unitPrice: item.price,
+            quantity: Number(item.quantityProduct),
+            action:
+              screenType === 'New'
+                ? 'New'
+                : screenType === 'Update' && item.orderItemId !== null
+                ? 'Update'
+                : 'New',
+            value: Number(item.quantityProduct * item.price * item.packSize),
+          });
+        });
+        this.setState({
+          modalData: [...newArr],
+          modalDataBackup: [...newArr],
+          finalBasketData: [...finalArr],
+        });
       }
     }
   };
@@ -348,9 +511,17 @@ class AddItems extends Component {
       const headerIndex = section.headerIndex;
       const valueSec =
         data.quantityProduct === '' ? Number(0) : Number(data.quantityProduct);
+      console.log('valueSec--> ', valueSec);
+
       const valueMinus = valueSec - Number(1);
+      console.log('valueMinus--> ', valueMinus);
+
       const valueAdd = Number(1) + valueSec;
+      console.log('valueAdd--> ', valueAdd);
+
       const value = valueType === 'add' ? valueAdd : valueMinus;
+      console.log('value--> ', value);
+
       const {screenType, SECTIONS, activeSections} = this.state;
       const deltaOriginal = Number(data.delta);
       const isSelectedValue = value !== '' && value > 0 ? true : false;
@@ -557,26 +728,37 @@ class AddItems extends Component {
                         borderRightWidth: 1,
                         borderLeftWidth: 1,
                       }}>
-                      <Text style={{color: 'black', fontSize: 15}}>
+                      <TextInput
+                        placeholder="0"
+                        keyboardType="number-pad"
+                        value={
+                          item.quantityProduct
+                            ? String(item.quantityProduct)
+                            : ''
+                        }
+                        style={{
+                          width: wp('10%'),
+                          height: hp('5%'),
+                          paddingLeft: 6,
+                        }}
+                        onChangeText={value =>
+                          this.editQuantityFun(
+                            index,
+                            'quantityProduct',
+                            item,
+                            'input',
+                            section,
+                            value,
+                          )
+                        }
+                      />
+                      {/* <Text style={{color: 'black', fontSize: 15}}>
                         {item.quantityProduct > 0
                           ? String(item.quantityProduct)
                           : 0}
-                      </Text>
+                      </Text> */}
                     </View>
-                    {/* <TextInput
-                      placeholder="0"
-                      editable={false}
-                      keyboardType="number-pad"
-                      value={String(item.quantityProduct)}
-                      style={{
-                        borderRightWidth: 1,
-                        borderLeftWidth: 1,
-                        width: wp('12%'),
-                        height: hp('5%'),
-                        backgroundColor: 'pink',
-                        alignSelf: 'center',
-                      }}
-                    /> */}
+
                     <TouchableOpacity
                       onPress={() =>
                         this.editQuantityFun(
@@ -2430,7 +2612,33 @@ class AddItems extends Component {
                                                   borderRightWidth: 1,
                                                   borderLeftWidth: 1,
                                                 }}>
-                                                <Text
+                                                <TextInput
+                                                  placeholder="0"
+                                                  keyboardType="number-pad"
+                                                  value={
+                                                    item.quantityProduct
+                                                      ? String(
+                                                          item.quantityProduct,
+                                                        )
+                                                      : ''
+                                                  }
+                                                  style={{
+                                                    width: wp('10%'),
+                                                    height: hp('5%'),
+                                                    paddingLeft: 6,
+                                                  }}
+                                                  onChangeText={value =>
+                                                    this.editQuantityFun(
+                                                      index,
+                                                      'quantityProduct',
+                                                      item,
+                                                      'input',
+                                                      value,
+                                                      value,
+                                                    )
+                                                  }
+                                                />
+                                                {/* <Text
                                                   style={{
                                                     color: 'black',
                                                     fontSize: 12,
@@ -2441,7 +2649,7 @@ class AddItems extends Component {
                                                         item.quantityProduct,
                                                       )
                                                     : 0}
-                                                </Text>
+                                                </Text> */}
                                               </View>
 
                                               <TouchableOpacity

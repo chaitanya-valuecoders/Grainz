@@ -301,22 +301,79 @@ class SupplierListNewOrderLine extends Component {
       });
   };
 
-  editQuantityFun = (index, type, data, valueType) => {
+  editQuantityFun = (index, type, data, valueType, value) => {
     this.setState(
       {
         inventoryId: data.id,
       },
-      () => this.editQuantityFunSec(index, type, data, valueType),
+      () => this.editQuantityFunSec(index, type, data, valueType, value),
     );
   };
 
-  editQuantityFunSec = (index, type, data, valueType) => {
+  editQuantityFunSec = (index, type, data, valueType, value) => {
     if (valueType === 'add') {
       this.editQuantityFunThird(index, type, data, valueType);
-    } else {
+    } else if (valueType === 'minus') {
       if (data.quantityProduct > 0) {
         this.editQuantityFunThird(index, type, data, valueType);
       }
+    } else if (valueType === 'input') {
+      this.editQuantityFunFourth(index, type, data, valueType, value);
+    }
+  };
+
+  editQuantityFunFourth = (index, type, data, valueType, valueData) => {
+    const {productId} = this.state;
+
+    const valueMinus = Number(valueData);
+    const valueAdd = Number(valueData);
+    const value = valueType === 'input' ? valueAdd : valueMinus;
+    const {modalData} = this.state;
+    const isSelectedValue = value !== '' && value > 0 ? true : false;
+    if (data.isMapped === true) {
+      let newArr = modalData.map((item, i) =>
+        index === i
+          ? {
+              ...item,
+              [type]: value,
+              ['isSelected']: isSelectedValue,
+            }
+          : item,
+      );
+
+      var filteredArray = newArr.filter(function (itm) {
+        if (itm.quantityProduct !== '') {
+          return itm.isSelected === true;
+        }
+      });
+
+      const finalArr = [];
+      filteredArray.map(item => {
+        // console.log('item', item);
+        finalArr.push({
+          // id: item.inventoryMapping && item.inventoryMapping.id,
+          inventoryId:
+            item.inventoryMapping && item.inventoryMapping.inventoryId,
+          inventoryProductMappingId:
+            item.inventoryMapping && item.inventoryMapping.id,
+          isCorrect: null,
+          notes: null,
+          orderId: productId,
+          orderValue: Number(item.quantityProduct * item.price * item.packSize),
+          position: null,
+          pricePaid: null,
+          quantityDelivered: null,
+          quantityInvoiced: null,
+          quantityOrdered: Number(item.quantityProduct),
+          unitPrice: item.price,
+          userQuantityDelivered: null,
+          userQuantityInvoiced: null,
+        });
+      });
+      this.setState({
+        modalData: [...newArr],
+        finalBasketData: [...finalArr],
+      });
     }
   };
 
@@ -863,18 +920,25 @@ class SupplierListNewOrderLine extends Component {
                               }}>
                               <View
                                 style={{
-                                  width: wp('40%'),
+                                  width: wp('25%'),
                                 }}>
-                                <Text>{translate('Quantity')}</Text>
+                                <Text>{translate('Product Name')}</Text>
                               </View>
 
                               <View
                                 style={{
-                                  width: wp('40%'),
+                                  width: wp('25%'),
                                   marginLeft: wp('5%'),
                                 }}>
-                                <Text>{translate('Product Name')}</Text>
+                                <Text>{translate('Price')}</Text>
                               </View>
+                              <View
+                                style={{
+                                  width: wp('30%'),
+                                }}>
+                                <Text>{translate('Quantity')}</Text>
+                              </View>
+
                               {/* <View
                                 style={{
                                   width: wp('30%'),
@@ -888,13 +952,7 @@ class SupplierListNewOrderLine extends Component {
                                 }}>
                                 <Text>Stock</Text>
                               </View> */}
-                              <View
-                                style={{
-                                  width: wp('30%'),
-                                  marginLeft: wp('5%'),
-                                }}>
-                                <Text>{translate('Price')}</Text>
-                              </View>
+
                               {/* <View
                                 style={{
                                   width: wp('30%'),
@@ -912,18 +970,141 @@ class SupplierListNewOrderLine extends Component {
                               {modalData && modalData.length > 0 ? (
                                 modalData.map((item, index) => {
                                   return (
-                                    <View
-                                      key={index}
-                                      style={{
-                                        paddingVertical: 10,
-                                        paddingHorizontal: 20,
-                                        flexDirection: 'row',
-                                        backgroundColor:
-                                          index % 2 === 0
-                                            ? '#FFFFFF'
-                                            : '#F7F8F5',
-                                      }}>
-                                      <View
+                                    <View key={index}>
+                                      {item.isMapped ? (
+                                        <View
+                                          style={{
+                                            paddingVertical: 10,
+                                            paddingHorizontal: 20,
+                                            flexDirection: 'row',
+                                            backgroundColor:
+                                              index % 2 === 0
+                                                ? '#FFFFFF'
+                                                : '#F7F8F5',
+                                          }}>
+                                          <TouchableOpacity
+                                            onPress={() =>
+                                              this.openModalFun(item)
+                                            }
+                                            style={{
+                                              width: wp('25%'),
+                                              justifyContent: 'center',
+                                            }}>
+                                            <Text
+                                              style={{
+                                                fontSize: 12,
+                                                fontFamily: 'Inter-Regular',
+                                                fontFamily: item.isMapped
+                                                  ? 'Inter-SemiBold'
+                                                  : 'Inter-Regular',
+                                                color: item.isMapped
+                                                  ? 'black'
+                                                  : 'grey',
+                                              }}>
+                                              {item.name}
+                                            </Text>
+                                          </TouchableOpacity>
+
+                                          <View
+                                            style={{
+                                              width: wp('25%'),
+                                              marginLeft: wp('2%'),
+                                              justifyContent: 'center',
+                                            }}>
+                                            <Text
+                                              style={{
+                                                fontSize: 12,
+                                                fontFamily: 'Inter-Regular',
+                                              }}>
+                                              {Number(item.price).toFixed(2)} €
+                                              / {item.unit}
+                                            </Text>
+                                          </View>
+
+                                          <View
+                                            style={{
+                                              width: wp('30%'),
+                                              flexDirection: 'row',
+                                              alignItems: 'center',
+                                              justifyContent: 'flex-start',
+                                              borderWidth: 1,
+                                              borderRadius: 5,
+                                              height: hp('5%'),
+                                            }}>
+                                            <TouchableOpacity
+                                              onPress={() =>
+                                                this.editQuantityFun(
+                                                  index,
+                                                  'quantityProduct',
+                                                  item,
+                                                  'minus',
+                                                )
+                                              }
+                                              style={{
+                                                width: wp('10%'),
+                                                height: hp('5%'),
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                              }}>
+                                              <Text style={{}}>-</Text>
+                                            </TouchableOpacity>
+                                            <View
+                                              style={{
+                                                width: wp('10%'),
+                                                height: hp('5%'),
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                borderRightWidth: 1,
+                                                borderLeftWidth: 1,
+                                              }}>
+                                              <TextInput
+                                                placeholder="0"
+                                                keyboardType="number-pad"
+                                                value={
+                                                  item.quantityProduct
+                                                    ? String(
+                                                        item.quantityProduct,
+                                                      )
+                                                    : ''
+                                                }
+                                                style={{
+                                                  width: wp('10%'),
+                                                  height: hp('5%'),
+                                                  paddingLeft: 6,
+                                                }}
+                                                onChangeText={value =>
+                                                  this.editQuantityFun(
+                                                    index,
+                                                    'quantityProduct',
+                                                    item,
+                                                    'input',
+                                                    value,
+                                                  )
+                                                }
+                                              />
+                                            </View>
+
+                                            <TouchableOpacity
+                                              onPress={() =>
+                                                this.editQuantityFun(
+                                                  index,
+                                                  'quantityProduct',
+                                                  item,
+                                                  'add',
+                                                )
+                                              }
+                                              style={{
+                                                width: wp('10%'),
+                                                height: hp('5%'),
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                              }}>
+                                              <Text style={{}}>+</Text>
+                                            </TouchableOpacity>
+                                          </View>
+                                        </View>
+                                      ) : null}
+                                      {/* <View
                                         style={{
                                           width: wp('40%'),
                                           flexDirection: 'row',
@@ -1025,8 +1206,8 @@ class SupplierListNewOrderLine extends Component {
                                             </Text>
                                           </TouchableOpacity>
                                         ) : null}
-                                      </View>
-
+                                      </View> */}
+                                      {/* 
                                       <TouchableOpacity
                                         onPress={() => this.openModalFun(item)}
                                         style={{
@@ -1045,7 +1226,7 @@ class SupplierListNewOrderLine extends Component {
                                           }}>
                                           {item.name}
                                         </Text>
-                                      </TouchableOpacity>
+                                      </TouchableOpacity> */}
                                       {/* <View
                                         style={{
                                           width: wp('30%'),
@@ -1063,7 +1244,7 @@ class SupplierListNewOrderLine extends Component {
                                           {item.grainzVolume} {item.unit}
                                         </Text>
                                       </View> */}
-                                      <View
+                                      {/* <View
                                         style={{
                                           width: wp('30%'),
                                           marginLeft: wp('5%'),
@@ -1073,7 +1254,7 @@ class SupplierListNewOrderLine extends Component {
                                           {Number(item.price).toFixed(2)} € /{' '}
                                           {item.unit}
                                         </Text>
-                                      </View>
+                                      </View> */}
                                       {/* <View
                                         style={{
                                           width: wp('30%'),
