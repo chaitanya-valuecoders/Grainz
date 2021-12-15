@@ -1068,7 +1068,6 @@ class EditPurchase extends Component {
                         value: null,
                         color: 'black',
                       }}
-                      placeholderTextColor="red"
                       onValueChange={value => {
                         this.selectDepartementNameFun(value);
                       }}
@@ -1305,9 +1304,8 @@ class EditPurchase extends Component {
                                       placeholder={{
                                         label: 'Unit*',
                                         value: null,
-                                        color: '#fff',
+                                        color: 'black',
                                       }}
-                                      placeholderTextColor="#fff"
                                       onValueChange={value => {
                                         this.addDataFun(index, 'unitId', value);
                                       }}
@@ -1324,7 +1322,7 @@ class EditPurchase extends Component {
                                         inputAndroid: {
                                           fontSize: 14,
                                           paddingHorizontal: '3%',
-                                          color: '#fff',
+                                          color: '#161C27',
                                           width: '100%',
                                           alignSelf: 'center',
                                         },

@@ -1079,9 +1079,8 @@ class index extends Component {
                                       placeholder={{
                                         label: 'Unit*',
                                         value: null,
-                                        color: '#fff',
+                                        color: 'black',
                                       }}
-                                      placeholderTextColor="#fff"
                                       onValueChange={value => {
                                         this.selectQuantityFun(value);
                                       }}
@@ -1098,7 +1097,7 @@ class index extends Component {
                                         inputAndroid: {
                                           fontSize: 14,
                                           paddingHorizontal: '3%',
-                                          color: '#fff',
+                                          color: '#161C27',
                                           width: '100%',
                                           alignSelf: 'center',
                                         },

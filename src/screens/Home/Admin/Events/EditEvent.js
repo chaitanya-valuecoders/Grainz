@@ -1331,7 +1331,6 @@ class EditEvent extends Component {
                                           value: null,
                                           color: 'black',
                                         }}
-                                        placeholderTextColor="red"
                                         onValueChange={value => {
                                           this.editOfferItemsFun(
                                             index,
