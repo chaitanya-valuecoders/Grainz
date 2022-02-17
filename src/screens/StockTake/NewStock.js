@@ -14,11 +14,7 @@ import img from '../../constants/images';
 import SubHeader from '../../components/SubHeader';
 import Header from '../../components/Header';
 import {UserTokenAction} from '../../redux/actions/UserTokenAction';
-import {
-  getMyProfileApi,
-  getDepartmentsApi,
-  lookupInventoryApi,
-} from '../../connectivity/api';
+import {getMyProfileApi, getDepartmentsApi} from '../../connectivity/api';
 import styles from './style';
 import CheckBox from '@react-native-community/checkbox';
 import {
@@ -52,7 +48,6 @@ class NewStock extends Component {
       categoriesStatus: true,
       topValue: '10',
       departmentArr: [],
-      categoryArr: [],
       pageDate: todayDate,
     };
   }
@@ -123,41 +118,20 @@ class NewStock extends Component {
       });
   };
 
-  getCategoryData = departmentId => {
-    lookupInventoryApi(departmentId)
-      .then(res => {
-        let finalUsersList = res.data.map((item, index) => {
-          return {
-            label: item.name,
-            value: item.id,
-          };
-        });
-        this.setState({
-          categoryArr: finalUsersList,
-        });
-      })
-      .catch(err => {
-        console.log('ERR MEP', err);
-      });
-  };
-
   myProfile = () => {
     this.props.navigation.navigate('MyProfile');
   };
 
   selectDepartementNameFun = value => {
-    this.setState(
-      {
-        departmentName: value,
-      },
-      () => this.getCategoryData(value),
-    );
+    this.setState({
+      departmentName: value,
+    });
   };
 
   categoryStatusFun = () => {
     const {departmentName, categoriesStatus} = this.state;
     this.setState({
-      categoriesStatus: !categoriesStatus,
+      categoriesStatus: true,
       topValueStatus: false,
     });
   };
@@ -174,7 +148,7 @@ class NewStock extends Component {
           topValueStatus,
         });
       } else {
-        this.props.navigation.navigate('StockScreen', {
+        this.props.navigation.navigate('CategoryStockScreen', {
           departmentId: departmentName,
           topValue,
           pageDate,
@@ -197,7 +171,6 @@ class NewStock extends Component {
       categoriesStatus,
       topValue,
       departmentArr,
-      categoryArr,
     } = this.state;
 
     return (
@@ -362,20 +335,22 @@ class NewStock extends Component {
                 marginVertical: hp('4%'),
                 marginHorizontal: wp('5%'),
               }}>
-              <View
+              <TouchableOpacity
+                onPress={() => this.categoryStatusFun()}
                 style={{
                   flexDirection: 'row',
                   flex: 1,
                   alignItems: 'center',
                 }}>
                 <CheckBox
+                  disabled={true}
                   value={categoriesStatus}
                   style={{
                     height: 20,
                     width: 20,
                     padding: 12,
                   }}
-                  onValueChange={() => this.categoryStatusFun()}
+                  // onValueChange={() => this.categoryStatusFun()}
                 />
                 <Text
                   style={{
@@ -386,26 +361,33 @@ class NewStock extends Component {
                   }}>
                   {translate('Categories')}
                 </Text>
-              </View>
-              <View
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() =>
+                  this.setState({
+                    topValueStatus: true,
+                    categoriesStatus: false,
+                  })
+                }
                 style={{
                   flexDirection: 'row',
                   flex: 1,
                   alignItems: 'center',
                 }}>
                 <CheckBox
+                  disabled={true}
                   value={topValueStatus}
                   style={{
                     height: 20,
                     width: 20,
                     padding: 12,
                   }}
-                  onValueChange={() =>
-                    this.setState({
-                      topValueStatus: !topValueStatus,
-                      categoriesStatus: false,
-                    })
-                  }
+                  // onValueChange={() =>
+                  //   this.setState({
+                  //     topValueStatus: !topValueStatus,
+                  //     categoriesStatus: false,
+                  //   })
+                  // }
                 />
                 <Text
                   style={{
@@ -436,7 +418,7 @@ class NewStock extends Component {
                     })
                   }
                 />
-              </View>
+              </TouchableOpacity>
             </View>
 
             <TouchableOpacity

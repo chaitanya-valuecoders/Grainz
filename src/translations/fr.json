@@ -851,5 +851,16 @@
     "Select location(s)":"Select location(s)",
     "Choose image from gallery": "Choose image from gallery",
     "Click Photo" : "Click Photo",
-    "Order Value Ex-VAT" : "Order Value Ex-VAT"
+    "Order Value Ex-VAT" : "Order Value Ex-VAT",
+    "IntroFirstText" : "L’Intelligence Artificielle pour l’Horeca. Commandez auprès de vos fournisseurs, gérez vos stocks et contrôlez vos coûts. On vous propose des outils qui simplifient les tâches de tous les employés. Grainz fonctionne sur téléphone, tablette & ordinateur et offre des rapports fiables, générés automatiquement.",
+    "What is Grainz?" : "Grainz, c’est quoi?",
+    "What are the benefits?" : "Les avantages?",
+    "Who can use it?" : "Qui peut l’utiliser?",
+    "IntroSecText": "Les restaurants, bars, hôtels & traiteurs, peu importe le business model.",
+    "IntroThirdText" : "1. Optimiser les marges\n2. Réduire le travail administratif\n3. Minimiser les erreurs humaines\n4. Automatiser les tâches\n5. Gérer plusieurs établissements en toute facilité et à distance",
+    "Skip": "Sauter",
+    "About You": "About You",
+    "in case role is other, please specify here":"in case role is other, please specify here",
+    "About Your Business" : "About Your Business",
+    "Submit" : "Submit"
 }

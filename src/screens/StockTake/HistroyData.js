@@ -41,6 +41,7 @@ class HistoryData extends Component {
       topValueStatus: true,
       historyDate: '',
       activeSections: [],
+      arrangeStatusName: 0,
     };
   }
 
@@ -133,6 +134,68 @@ class HistoryData extends Component {
     this.props.navigation.navigate('MyProfile');
   };
 
+  arrangeListFun = funType => {
+    if (funType === 'NAME') {
+      this.setState(
+        {
+          arrangeStatusName: Number(1) + this.state.arrangeStatusName,
+        },
+        () => this.arrangeListFunSec('NAME'),
+      );
+    }
+  };
+
+  arrangeListFunSec = type => {
+    const {arrangeStatusName} = this.state;
+    const finalData = type === 'NAME' ? arrangeStatusName : null;
+    if (finalData % 2 == 0) {
+      this.reverseFun();
+    } else {
+      this.descendingOrderFun(type);
+    }
+  };
+
+  reverseFun = () => {
+    const {catArray} = this.state;
+    console.log('catAA', catArray);
+    const finalData = catArray.reverse();
+
+    this.setState({
+      catArray: finalData,
+    });
+  };
+
+  descendingOrderFun = type => {
+    const {catArray} = this.state;
+    console.log('catAA', catArray);
+
+    if (type === 'NAME') {
+      function dynamicSort(property) {
+        var sortOrder = 1;
+
+        if (property[0] === '-') {
+          sortOrder = -1;
+          property = property.substr(1);
+        }
+
+        return function (a, b) {
+          if (sortOrder == -1) {
+            return b[property].localeCompare(a[property]);
+          } else {
+            return a[property].localeCompare(b[property]);
+          }
+        };
+      }
+      const finalKeyValue = type === 'NAME' ? 'name' : null;
+
+      const finalData = catArray.sort(dynamicSort(finalKeyValue));
+
+      this.setState({
+        catArray: finalData,
+      });
+    }
+  };
+
   _renderHeader = (section, index, isActive) => {
     return (
       <View style={styles.renderHeaderContainer}>
@@ -148,151 +211,168 @@ class HistoryData extends Component {
   _renderContent = section => {
     const {categoryLoader} = this.state;
     return (
-      <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-        <View style={styles.renderContentContainer}>
-          <View style={styles.renderContentSubContainer}>
-            <View style={styles.boxSize}>
-              <Text style={styles.boxTextHeadingStyling}>
-                {translate('Name')}
-              </Text>
+      // <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+      <View
+        style={{
+          backgroundColor: '#fff',
+          marginVertical: hp('3%'),
+        }}>
+        <View style={styles.renderContentSubContainer}>
+          <TouchableOpacity
+            onPress={() => this.arrangeListFun('NAME')}
+            style={{
+              width: wp('20%'),
+              justifyContent: 'center',
+              paddingTop: 10,
+              flexDirection: 'row',
+              alignItems: 'center',
+            }}>
+            <Text style={styles.boxTextHeadingStyling}>
+              {translate('Name')}
+            </Text>
+            <View style={{padding: 5}}>
+              <Image
+                style={styles.listImageStyling}
+                source={img.doubleArrowIconNew}
+              />
             </View>
-            <View
-              style={{
-                width: wp('20'),
-                justifyContent: 'center',
-                paddingTop: 10,
-                marginLeft: wp('1%'),
-              }}>
-              <Text style={styles.boxTextHeadingStyling}>
-                {translate('Stock Take')}
-              </Text>
-            </View>
-            <View
-              style={{
-                width: wp('7%'),
-                alignItems: 'center',
-                justifyContent: 'center',
-                marginLeft: wp('2%'),
-              }}></View>
-            <View style={{...styles.boxSize, marginLeft: wp('2%')}}>
-              <Text style={{...styles.boxTextHeadingStyling}}>
-                {translate('System says')}
-              </Text>
-            </View>
-            <View
-              style={{
-                width: wp('7%'),
-                justifyContent: 'center',
-                paddingTop: 10,
-                marginLeft: wp('2%'),
-              }}></View>
-            {/* <View style={{...styles.boxSize, marginLeft: wp('2%')}}>
+          </TouchableOpacity>
+
+          <View
+            style={{
+              width: wp('20'),
+              justifyContent: 'center',
+              paddingTop: 10,
+              marginLeft: wp('1%'),
+            }}>
+            <Text style={styles.boxTextHeadingStyling}>
+              {translate('Stock Take')}
+            </Text>
+          </View>
+          <View
+            style={{
+              width: wp('7%'),
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginLeft: wp('2%'),
+            }}></View>
+          <View style={{...styles.boxSize, marginLeft: wp('2%')}}>
+            <Text style={{...styles.boxTextHeadingStyling}}>
+              {translate('System says')}
+            </Text>
+          </View>
+          <View
+            style={{
+              width: wp('7%'),
+              justifyContent: 'center',
+              paddingTop: 10,
+              marginLeft: wp('2%'),
+            }}></View>
+          {/* <View style={{...styles.boxSize, marginLeft: wp('2%')}}>
               <Text style={styles.boxTextHeadingStyling}>Correction</Text>
             </View> */}
-          </View>
-          {categoryLoader ? (
-            <ActivityIndicator size="large" color="#94C036" />
-          ) : (
-            <View>
-              {section && section.children.length > 0 ? (
-                section.children.map((item, index) => {
-                  let finaUnitVal =
-                    item &&
-                    item.units.map((subItem, subIndex) => {
-                      if (subItem.isDefault === true) {
-                        return subItem.name;
-                      }
-                    });
-                  const filteredUnit = finaUnitVal.filter(elm => elm);
-                  return (
+        </View>
+        {categoryLoader ? (
+          <ActivityIndicator size="large" color="#94C036" />
+        ) : (
+          <View>
+            {section && section.children.length > 0 ? (
+              section.children.map((item, index) => {
+                let finaUnitVal =
+                  item &&
+                  item.units.map((subItem, subIndex) => {
+                    if (subItem.isDefault === true) {
+                      return subItem.name;
+                    }
+                  });
+                const filteredUnit = finaUnitVal.filter(elm => elm);
+                return (
+                  <View key={index} style={styles.renderHeaderContentContainer}>
                     <View
-                      key={index}
-                      style={styles.renderHeaderContentContainer}>
+                      style={{
+                        flexDirection: 'row',
+                      }}>
+                      <View style={styles.boxSizeSec}>
+                        <Text style={styles.boxTextDataStyling}>
+                          {item.name && item.name}
+                        </Text>
+                      </View>
+                      <TouchableOpacity
+                        // onPress={() => this.editUnitsFun(item)}
+                        style={{
+                          ...styles.boxSizeSec,
+                          marginLeft: wp('1%'),
+                          flexDirection: 'row',
+                          alignItems: 'center',
+                          backgroundColor: item.quantity
+                            ? '#E9ECEF'
+                            : '#FDF851',
+                          height: 35,
+                          alignSelf: 'center',
+                        }}>
+                        <Text style={styles.boxTextDataStyling}>
+                          {item.quantity}
+                        </Text>
+                      </TouchableOpacity>
                       <View
                         style={{
-                          flexDirection: 'row',
+                          width: wp('7%'),
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          marginLeft: wp('2%'),
                         }}>
-                        <View style={styles.boxSizeSec}>
-                          <Text style={styles.boxTextDataStyling}>
-                            {item.name && item.name}
-                          </Text>
-                        </View>
-                        <TouchableOpacity
-                          onPress={() => this.editUnitsFun(item)}
+                        <Text
                           style={{
-                            ...styles.boxSizeSec,
-                            marginLeft: wp('1%'),
-                            flexDirection: 'row',
-                            alignItems: 'center',
-                            backgroundColor: item.quantity
-                              ? '#E9ECEF'
-                              : '#FDF851',
-                            height: 35,
-                            alignSelf: 'center',
+                            fontSize: 12,
+                            color: '#161C27',
+                            fontFamily: 'Inter-Regular',
                           }}>
-                          <Text style={styles.boxTextDataStyling}>
-                            {item.quantity}
-                          </Text>
-                        </TouchableOpacity>
-                        <View
-                          style={{
-                            width: wp('7%'),
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            marginLeft: wp('2%'),
-                          }}>
+                          {filteredUnit[0]}
+                        </Text>
+                      </View>
+
+                      <View
+                        style={{
+                          width: wp('25'),
+                          justifyContent: 'center',
+                          paddingTop: 10,
+                          marginLeft: wp('2%'),
+                        }}>
+                        {item.systemSays ? (
                           <Text
-                            style={{
-                              fontSize: 12,
-                              color: '#161C27',
-                              fontFamily: 'Inter-Regular',
-                            }}>
+                            style={styles.boxTextDataStyling}
+                            numberOfLines={1}>
+                            {item.systemSays && item.systemSays.toFixed(2)}{' '}
                             {filteredUnit[0]}
                           </Text>
-                        </View>
-
-                        <View
-                          style={{
-                            width: wp('25'),
-                            justifyContent: 'center',
-                            paddingTop: 10,
-                            marginLeft: wp('2%'),
-                          }}>
-                          {item.systemSays ? (
-                            <Text
-                              style={styles.boxTextDataStyling}
-                              numberOfLines={1}>
-                              {item.systemSays && item.systemSays.toFixed(2)}{' '}
-                              {filteredUnit[0]}
-                            </Text>
-                          ) : null}
-                          {item.correction ? (
-                            <Text
-                              style={{
-                                ...styles.boxTextDataStyling,
-                                color: item.correction > 0 ? '#94C01F' : 'red',
-                                marginTop: 10,
-                                marginLeft: 5,
-                              }}>
-                              {item.correction} {filteredUnit[0]}
-                            </Text>
-                          ) : null}
-                        </View>
+                        ) : null}
+                        {item.correction ? (
+                          <Text
+                            style={{
+                              ...styles.boxTextDataStyling,
+                              color: item.correction > 0 ? '#94C01F' : 'red',
+                              marginTop: 10,
+                              marginLeft: 5,
+                            }}>
+                            {item.correction} {filteredUnit[0]}
+                          </Text>
+                        ) : null}
                       </View>
                     </View>
-                  );
-                })
-              ) : (
-                <View style={styles.notAvailableContainer}>
-                  <Text style={styles.notAvailableStyling}>
-                    {translate('No data available')}
-                  </Text>
-                </View>
-              )}
-            </View>
-          )}
-        </View>
-      </ScrollView>
+                  </View>
+                );
+              })
+            ) : (
+              <View style={styles.notAvailableContainer}>
+                <Text style={styles.notAvailableStyling}>
+                  {translate('No data available')}
+                </Text>
+              </View>
+            )}
+          </View>
+        )}
+      </View>
+      // </ScrollView>
     );
   };
 

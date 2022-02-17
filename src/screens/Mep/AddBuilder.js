@@ -57,6 +57,7 @@ class AddBuilder extends Component {
       buttonsSubHeader: [],
       buttonLoader: false,
       applyClickStatus: false,
+      buttonStatus: false,
       selectectedItemsNew: [],
     };
   }
@@ -103,39 +104,6 @@ class AddBuilder extends Component {
 
   myProfile = () => {
     this.props.navigation.navigate('MyProfile');
-  };
-
-  onPressApplyFun = () => {
-    const {selectectedItems, productionDate} = this.state;
-    if (productionDate === '' || selectectedItems.length === 0) {
-      alert('Please select recipe');
-    }
-    this.setState(
-      {
-        isShownPicker: false,
-        applyClickStatus: true,
-      },
-      () => this.createpayloadFun(),
-    );
-  };
-
-  createpayloadFun = () => {
-    let newData = [];
-    const {selectectedItems, productionDate} = this.state;
-    selectectedItems.map(item => {
-      const obj = {};
-      obj.isSelected = true;
-      obj.notes = '';
-      obj.productionDate = productionDate;
-      obj.quantity = item.quantity;
-      obj.recipeId = item.value;
-      obj.name = item.label;
-      obj.unit = item.unit;
-      newData = [...newData, obj];
-    });
-    this.setState({
-      selectectedItemsNew: newData,
-    });
   };
 
   hideDatePicker = () => {
@@ -225,14 +193,53 @@ class AddBuilder extends Component {
   };
 
   openRecipeDropDown = () => {
-    const {finalDate, isShownPicker} = this.state;
+    const {finalDate, isShownPicker, buttonStatus} = this.state;
     if (finalDate) {
-      this.setState({
-        isShownPicker: !isShownPicker,
-      });
+      this.setState(
+        {
+          isShownPicker: !isShownPicker,
+          applyClickStatus: true,
+          buttonStatus: !buttonStatus,
+        },
+        () => this.createpayloadFun(),
+      );
     } else {
       alert('Please select date first.');
     }
+  };
+
+  // onPressApplyFun = () => {
+  //   const {selectectedItems, productionDate} = this.state;
+  //   if (productionDate === '' || selectectedItems.length === 0) {
+  //     alert('Please select recipe');
+  //   } else {
+  //     this.setState(
+  //       {
+  //         isShownPicker: false,
+  //         applyClickStatus: true,
+  //       },
+  //       () => this.createpayloadFun(),
+  //     );
+  //   }
+  // };
+
+  createpayloadFun = () => {
+    let newData = [];
+    const {selectectedItems, productionDate} = this.state;
+    selectectedItems.map(item => {
+      const obj = {};
+      obj.isSelected = true;
+      obj.notes = '';
+      obj.productionDate = productionDate;
+      obj.quantity = item.quantity;
+      obj.recipeId = item.value;
+      obj.name = item.label;
+      obj.unit = item.unit;
+      newData = [...newData, obj];
+    });
+    this.setState({
+      selectectedItemsNew: newData,
+    });
   };
 
   editQuantityFun = (index, type, value) => {
@@ -251,6 +258,17 @@ class AddBuilder extends Component {
     });
   };
 
+  removeItemFun = index => {
+    const {selectectedItemsNew, selectectedItems} = this.state;
+
+    let temp = selectectedItemsNew;
+    let tempSec = selectectedItems;
+
+    temp.splice(index, 1);
+    tempSec.splice(index, 1);
+    this.setState({selectectedItemsNew: temp, selectectedItems: tempSec});
+  };
+
   render() {
     const {
       recipeLoader,
@@ -264,8 +282,9 @@ class AddBuilder extends Component {
       buttonLoader,
       applyClickStatus,
       selectectedItemsNew,
+      buttonStatus,
     } = this.state;
-
+    console.log('applyClickStatus', applyClickStatus);
     return (
       <View style={styles.container}>
         <Header
@@ -339,7 +358,24 @@ class AddBuilder extends Component {
                               borderRadius: 6,
                               flexDirection: 'row',
                             }}>
-                            {selectectedItems.length > 0 ? (
+                            {buttonStatus ? (
+                              <Text
+                                style={{
+                                  // color: '#D6D7D9',
+                                  color: 'black',
+                                }}>
+                                {translate('Apply')}
+                              </Text>
+                            ) : (
+                              <Text
+                                style={{
+                                  // color: '#D6D7D9',
+                                  color: 'black',
+                                }}>
+                                {translate('Select recipe')}
+                              </Text>
+                            )}
+                            {/* {selectectedItems.length > 0 ? (
                               <View>
                                 <View>
                                   {selectectedItems.map(item => {
@@ -355,7 +391,7 @@ class AddBuilder extends Component {
                               <Text style={{color: '#D6D7D9'}}>
                                 Select recipe
                               </Text>
-                            )}
+                            )} */}
 
                             <Image
                               source={img.arrowDownIcon}
@@ -399,6 +435,24 @@ class AddBuilder extends Component {
                                     alignItems: 'center',
                                     marginTop: hp('2%'),
                                   }}>
+                                  <View
+                                    style={{
+                                      zIndex: 10,
+                                      marginBottom: 20,
+                                    }}>
+                                    <TouchableOpacity
+                                      onPress={() => this.removeItemFun(index)}>
+                                      <Image
+                                        source={img.cancelIcon}
+                                        style={{
+                                          width: 25,
+                                          height: 25,
+                                          resizeMode: 'contain',
+                                          tintColor: 'red',
+                                        }}
+                                      />
+                                    </TouchableOpacity>
+                                  </View>
                                   <View style={{flex: 1}}>
                                     <Text
                                       style={{
@@ -484,36 +538,38 @@ class AddBuilder extends Component {
                           </View>
                         ) : null}
 
-                        <View>
-                          <View
-                            style={{
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              marginTop: hp('5%'),
-                            }}>
-                            <TouchableOpacity
-                              onPress={() => {
-                                this.onPressApplyFun();
-                              }}
+                        {/* {applyClickStatus ? null : (
+                          <View>
+                            <View
                               style={{
-                                width: wp('30%'),
-                                height: hp('5%'),
-                                backgroundColor: '#94C036',
-                                justifyContent: 'center',
                                 alignItems: 'center',
-                                borderRadius: 100,
+                                justifyContent: 'center',
+                                marginTop: hp('5%'),
                               }}>
-                              <Text
+                              <TouchableOpacity
+                                onPress={() => {
+                                  this.onPressApplyFun();
+                                }}
                                 style={{
-                                  color: '#fff',
-                                  fontSize: 15,
-                                  fontWeight: 'bold',
+                                  width: wp('30%'),
+                                  height: hp('5%'),
+                                  backgroundColor: '#94C036',
+                                  justifyContent: 'center',
+                                  alignItems: 'center',
+                                  borderRadius: 100,
                                 }}>
-                                {translate('Apply')}
-                              </Text>
-                            </TouchableOpacity>
+                                <Text
+                                  style={{
+                                    color: '#fff',
+                                    fontSize: 15,
+                                    fontWeight: 'bold',
+                                  }}>
+                                  {translate('Apply')}
+                                </Text>
+                              </TouchableOpacity>
+                            </View>
                           </View>
-                        </View>
+                        )} */}
 
                         <View>
                           <View

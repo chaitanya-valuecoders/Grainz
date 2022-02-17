@@ -378,7 +378,7 @@ class StockScreen extends Component {
             <View style={styles.renderContentContainer}>
               <View style={styles.renderContentSubContainer}>
                 <TouchableOpacity
-                  style={styles.boxSizeNew}
+                  style={{...styles.boxSizeNew}}
                   onPress={() => this.arrangeListFun('NAME')}>
                   <Text style={styles.boxTextHeadingStyling}>
                     {translate('Name')}
@@ -415,7 +415,9 @@ class StockScreen extends Component {
               {categoryLoader ? (
                 <ActivityIndicator size="large" color="#94C036" />
               ) : (
-                <ScrollView nestedScrollEnabled>
+                <ScrollView
+                  nestedScrollEnabled
+                  showsVerticalScrollIndicator={false}>
                   {catArray && catArray.length > 0 ? (
                     catArray.map((item, index) => {
                       console.log('item', item);
@@ -437,7 +439,10 @@ class StockScreen extends Component {
                                 flexDirection: 'row',
                               }}>
                               <View
-                                style={styles.boxSizeSec}
+                                style={{
+                                  width: wp('25%'),
+                                  justifyContent: 'center',
+                                }}
                                 // onPress={() =>
                                 //   this.expandScreenFun(item, index)
                                 // }
@@ -510,10 +515,9 @@ class StockScreen extends Component {
                                     style={{
                                       fontSize: 12,
                                       color:
-                                        item.correction > 0 ? '#161C27' : 'red',
+                                        item.correction > 0 ? '#94C01F' : 'red',
                                       fontFamily: 'Inter-Regular',
                                       marginTop: hp('2%'),
-                                      marginLeft: wp('2%'),
                                     }}>
                                     ({item.correction}) {filteredUnit[0]}
                                   </Text>

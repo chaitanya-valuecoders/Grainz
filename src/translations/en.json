@@ -767,5 +767,17 @@
     "Select location(s)":"Select location(s)",
     "Choose image from gallery": "Choose image from gallery",
     "Click Photo" : "Click Photo",
-    "Order Value Ex-VAT" : "Order Value Ex-VAT"
+    "Order Value Ex-VAT" : "Order Value Ex-VAT",
+    "Select recipe" : "Select recipe",
+    "IntroFirstText" : "Artificial Intelligence for the hospitality sector. You can order from suppliers, manage inventory and control costs. We have tools to simplify tasks for all employees. Grainz works on tablets, smart phones & laptops and has perfect management reporting – generated automatically.",
+    "What is Grainz?": "What is Grainz?",
+    "What are the benefits?" : "What are the benefits?",
+    "Who can use it?" : "Who can use it?",
+    "IntroSecText": "Restaurants, bars, hotels & catering companies with all business models.",
+    "IntroThirdText" : "1. Optimise margins\n2. Reduce admin time\n3. Minimise human error\n4. Automate tasks\n5. Control multiple location remotely",
+    "Skip" :"Skip",
+    "About You": "About You",
+    "in case role is other, please specify here":"in case role is other, please specify here",
+    "About Your Business" : "About Your Business",
+    "Submit" : "Submit"
 }

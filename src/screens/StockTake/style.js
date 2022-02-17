@@ -116,7 +116,11 @@ const styles = StyleSheet.create({
     paddingBottom: 15,
     marginHorizontal: wp('5%'),
   },
-  boxSize: {width: wp('20%'), justifyContent: 'center', paddingTop: 10},
+  boxSize: {
+    width: wp('20%'),
+    justifyContent: 'center',
+    paddingTop: 10,
+  },
   boxSizeNew: {
     width: wp('25%'),
     paddingTop: 10,

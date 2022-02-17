@@ -40,6 +40,12 @@ export async function getMyProfileApi() {
   });
 }
 
+export async function getCountriesApi() {
+  return axios.get(baseURL + '/Lookup/GetCountries', {
+    headers: {},
+  });
+}
+
 export async function getPendingMepsApi() {
   const token = await AsyncStorage.getItem('@appToken');
   return axios.get(baseURL + '/Recipe/pending meps', {
@@ -313,7 +319,7 @@ export async function getNewStockTakeApi(id, date) {
 export async function lookupInventoryApi(depatId) {
   let url =
     baseURL +
-    `/Lookup/Inventory categories by department?DepartmentId=${depatId}`;
+    `/Lookup/Inventory categories by department?DepartmentId=${depatId}&IncludeEmpty=false`;
   const token = await AsyncStorage.getItem('@appToken');
   return axios.get(url, {
     headers: {
@@ -1069,5 +1075,11 @@ export const revenuePostReportApi = async payload => {
     headers: {
       Authorization: `Bearer ${token}`,
     },
+  });
+};
+
+export const createProspectApi = async payload => {
+  return axios.post(baseURL + `/Prospect/create prospect`, payload, {
+    headers: {},
   });
 };

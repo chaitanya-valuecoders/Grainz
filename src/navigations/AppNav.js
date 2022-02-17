@@ -71,6 +71,9 @@ import DashboardScreen from '../screens/Dashboard';
 import AddNewOrderLineScreen from '../screens/Home/Admin/Ordering/PendingDelivery/AddNewOrderLine';
 import SupplierListNewOrderLineScreen from '../screens/Home/Admin/Ordering/PendingDelivery/SupplierListNewOrderLine';
 import EditHistoryOrderScreen from '../screens/Home/Admin/Ordering/HistoryOrder/EditHistoryOrder';
+import CategoryStockScreen from '../screens/StockTake/CategoryStockScreen';
+import AddManualLogScreen from '../screens/ManualLog/AddManualLog';
+import EditManualLogScreen from '../screens/ManualLog/EditManualLog';
 
 const AppNav = createStackNavigator();
 
@@ -84,9 +87,18 @@ export default function AppNavFun() {
         component={AddNewOrderLineScreen}
       />
       <AppNav.Screen
+        name="EditManualLogScreen"
+        component={EditManualLogScreen}
+      />
+      <AppNav.Screen
         name="EditHistoryOrderScreen"
         component={EditHistoryOrderScreen}
       />
+      <AppNav.Screen
+        name="CategoryStockScreen"
+        component={CategoryStockScreen}
+      />
+      <AppNav.Screen name="AddManualLogScreen" component={AddManualLogScreen} />
       <AppNav.Screen
         name="SupplierListNewOrderLineScreen"
         component={SupplierListNewOrderLineScreen}

@@ -56,4 +56,6 @@ export default {
   logOutIcon: require('../assests/Images/logOutIcon.png'),
   dashboardIcon: require('../assests/Images/dashboard.png'),
   emailIcon: require('../assests/Images/emailIcon.png'),
+  introFirstIcon: require('../assests/Images/introFirstIcon.png'),
+  introSecIcon: require('../assests/Images/introSecIcon.png'),
 };
