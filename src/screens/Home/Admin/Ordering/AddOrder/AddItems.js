@@ -102,6 +102,8 @@ class AddItems extends Component {
       finalApiData: [],
       SECTIONS_BACKUP: [],
       modalDataBackup: [],
+      draftStatus: false,
+      innerIndex: 0,
     };
   }
 
@@ -249,6 +251,15 @@ class AddItems extends Component {
   };
 
   _renderHeader = (section, index, isActive) => {
+    const {innerIndex} = this.state;
+    // console.log('innerIndex', innerIndex);
+
+    const finalAmt = section.content.reduce(
+      (n, {totalQuantity}) => n + totalQuantity,
+      0,
+    );
+    // console.log('finalAmt', finalAmt);
+
     return (
       <View
         style={{
@@ -319,6 +330,22 @@ class AddItems extends Component {
             </Text>
           )}
         </View>
+        <View
+          style={{
+            flex: 0.8,
+          }}>
+          <Text
+            numberOfLines={1}
+            style={{
+              color: 'black',
+              fontSize: 12,
+              marginRight: wp('3%'),
+              alignSelf: 'flex-end',
+            }}>
+            Q: {finalAmt}
+            {section.content[0] && section.content[0].unit}
+          </Text>
+        </View>
       </View>
     );
   };
@@ -327,6 +354,7 @@ class AddItems extends Component {
     this.setState(
       {
         inventoryId: data.id,
+        innerIndex: index,
       },
       () =>
         this.editQuantityFunSec(index, type, data, valueType, section, value),
@@ -334,7 +362,7 @@ class AddItems extends Component {
   };
 
   editQuantityFunSec = (index, type, data, valueType, section, value) => {
-    console.log('vaaaaa', value);
+    // console.log('vaaaaa', value);
     if (valueType === 'add') {
       this.editQuantityFunThird(index, type, data, valueType, section);
     } else if (valueType === 'minus') {
@@ -354,7 +382,7 @@ class AddItems extends Component {
     section,
     valueData,
   ) => {
-    console.log('valueData', valueData);
+    // console.log('valueData', valueData);
 
     const {inventoryStatus, finalBasketData} = this.state;
     if (inventoryStatus) {
@@ -366,13 +394,13 @@ class AddItems extends Component {
       // console.log('valueSec', valueSec);
 
       const valueMinus = Number(valueData);
-      console.log('valueMinus', valueMinus);
+      // console.log('valueMinus', valueMinus);
 
       const valueAdd = Number(valueData);
-      console.log('valueAdd', valueAdd);
+      // console.log('valueAdd', valueAdd);
 
       const value = valueType === 'input' ? valueAdd : valueMinus;
-      console.log('Value', value);
+      // console.log('Value', value);
       const {screenType, SECTIONS, activeSections} = this.state;
       const deltaOriginal = Number(data.delta);
       const isSelectedValue = value !== '' && value > 0 ? true : false;
@@ -380,6 +408,18 @@ class AddItems extends Component {
         value !== ''
           ? Number(data.delta) - Number(value) * Number(data.volume)
           : deltaOriginal;
+      const newAddTotalQuantity =
+        Number(data.volume) * (data.quantityProduct === null ? 1 : valueData);
+      // console.log('newAddTotalQuantity', newAddTotalQuantity);
+
+      // const newMinusTotalQuantity =
+      //   Number(data.volume) * (data.quantityProduct === null ? 1 : valueData);
+      // console.log('newMinusTotalQuantity', newMinusTotalQuantity);
+
+      const finalTotalQuantity = newAddTotalQuantity;
+      // valueType === 'input' ? newAddTotalQuantity : newMinusTotalQuantity;
+      // console.log('finalTotalQuantity', finalTotalQuantity);
+
       let newArr = section.content.map((item, i) =>
         index === i
           ? {
@@ -387,10 +427,12 @@ class AddItems extends Component {
               [type]: value,
               ['isSelected']: isSelectedValue,
               ['deltaNew']: newDeltaVal,
+              ['totalQuantity']: finalTotalQuantity,
             }
           : {
               ...item,
               ['deltaNew']: newDeltaVal,
+              // ['totalQuantity']: finalTotalQuantity,
             },
       );
 
@@ -405,7 +447,7 @@ class AddItems extends Component {
             },
       );
 
-      console.log('LastArr--> ', LastArr);
+      // console.log('LastArr--> ', LastArr);
 
       const finalArr = LastArr.map((item, index) => {
         const firstArr = item.content.filter(function (itm) {
@@ -416,10 +458,10 @@ class AddItems extends Component {
         return firstArr;
       });
 
-      console.log('finAAA', finalArr);
+      // console.log('finAAA', finalArr);
 
       var merged = [].concat.apply([], finalArr);
-      console.log('merged', merged);
+      // console.log('merged', merged);
 
       const basketArr = [];
       merged.map(item => {
@@ -442,21 +484,22 @@ class AddItems extends Component {
         });
       });
 
-      console.log('basketArr-->', basketArr);
+      // console.log('basketArr-->', basketArr);
 
       this.setState({
         SECTIONS: [...LastArr],
         finalBasketData: [...basketArr],
+        draftStatus: false,
       });
     } else {
       const valueMinus = Number(valueData);
-      console.log('valueMinus-->', valueMinus);
+      // console.log('valueMinus-->', valueMinus);
 
       const valueAdd = Number(valueData);
-      console.log('valueAdd-->', valueAdd);
+      // console.log('valueAdd-->', valueAdd);
 
       const value = valueType === 'input' ? valueAdd : valueMinus;
-      console.log('value-->', value);
+      // console.log('value-->', value);
 
       const {modalData, screenType} = this.state;
       const isSelectedValue = value !== '' && value > 0 ? true : false;
@@ -500,6 +543,7 @@ class AddItems extends Component {
           modalData: [...newArr],
           modalDataBackup: [...newArr],
           finalBasketData: [...finalArr],
+          draftStatus: false,
         });
       }
     }
@@ -511,16 +555,16 @@ class AddItems extends Component {
       const headerIndex = section.headerIndex;
       const valueSec =
         data.quantityProduct === '' ? Number(0) : Number(data.quantityProduct);
-      console.log('valueSec--> ', valueSec);
+      // console.log('valueSec--> ', valueSec);
 
       const valueMinus = valueSec - Number(1);
-      console.log('valueMinus--> ', valueMinus);
+      // console.log('valueMinus--> ', valueMinus);
 
       const valueAdd = Number(1) + valueSec;
-      console.log('valueAdd--> ', valueAdd);
+      // console.log('valueAdd--> ', valueAdd);
 
       const value = valueType === 'add' ? valueAdd : valueMinus;
-      console.log('value--> ', value);
+      // console.log('value--> ', value);
 
       const {screenType, SECTIONS, activeSections} = this.state;
       const deltaOriginal = Number(data.delta);
@@ -529,6 +573,20 @@ class AddItems extends Component {
         value !== ''
           ? Number(data.delta) - Number(value) * Number(data.volume)
           : deltaOriginal;
+      const newAddTotalQuantity =
+        Number(data.volume) *
+        (data.quantityProduct === null ? 1 : Number(data.quantityProduct) + 1);
+
+      const newMinusTotalQuantity =
+        Number(data.totalQuantity) - Number(data.volume);
+
+      const finalTotalQuantity =
+        valueType === 'add' ? newAddTotalQuantity : newMinusTotalQuantity;
+
+      // console.log('data.quantityProduct', data.quantityProduct);
+      // console.log('newTotalQuantity', newTotalQuantity);
+      // console.log(' Number(data.volume)', Number(data.volume));
+
       let newArr = section.content.map((item, i) =>
         index === i
           ? {
@@ -536,10 +594,12 @@ class AddItems extends Component {
               [type]: value,
               ['isSelected']: isSelectedValue,
               ['deltaNew']: newDeltaVal,
+              ['totalQuantity']: finalTotalQuantity,
             }
           : {
               ...item,
               ['deltaNew']: newDeltaVal,
+              // ['totalQuantity']: finalTotalQuantity,
             },
       );
 
@@ -554,7 +614,7 @@ class AddItems extends Component {
             },
       );
 
-      console.log('LastArr--> ', LastArr);
+      // console.log('LastArr--> ', LastArr);
 
       const finalArr = LastArr.map((item, index) => {
         const firstArr = item.content.filter(function (itm) {
@@ -565,10 +625,10 @@ class AddItems extends Component {
         return firstArr;
       });
 
-      console.log('finAAA', finalArr);
+      // console.log('finAAA', finalArr);
 
       var merged = [].concat.apply([], finalArr);
-      console.log('merged', merged);
+      // console.log('merged', merged);
 
       const basketArr = [];
       merged.map(item => {
@@ -591,11 +651,12 @@ class AddItems extends Component {
         });
       });
 
-      console.log('basketArr-->', basketArr);
+      // console.log('basketArr-->', basketArr);
 
       this.setState({
         SECTIONS: [...LastArr],
         finalBasketData: [...basketArr],
+        draftStatus: false,
       });
     } else {
       const valueSec =
@@ -645,12 +706,14 @@ class AddItems extends Component {
           modalData: [...newArr],
           modalDataBackup: [...newArr],
           finalBasketData: [...finalArr],
+          draftStatus: false,
         });
       }
     }
   };
 
   _renderContent = section => {
+    // console.log('sec', section);
     return (
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
         <View style={{backgroundColor: '#fff'}}>
@@ -1138,12 +1201,13 @@ class AddItems extends Component {
       () =>
         getInsideInventoryNewApi(catId, supplierId, finalBasketId)
           .then(res => {
-            console.log('res', res);
+            // console.log('res', res);
             const finalArr = res.data;
             finalArr.forEach(function (item) {
               item.isSelected = item.quantityProduct ? true : false;
               item.quantityProduct = item.quantityProduct;
               item.deltaNew = item.delta;
+              item.totalQuantity = null;
             });
 
             this.setState(
@@ -1187,11 +1251,44 @@ class AddItems extends Component {
 
     let final = extract();
 
+    // console.log('fina', final);
+
+    // function dynamicSort(property) {
+    //   var sortOrder = 1;
+
+    //   if (property[0] === '-') {
+    //     sortOrder = -1;
+    //     property = property.substr(1);
+    //   }
+
+    //   return function (a, b) {
+    //     if (sortOrder == -1) {
+    //       return b[property].localeCompare(a[property]);
+    //     } else {
+    //       return a[property].localeCompare(b[property]);
+    //     }
+    //   };
+    // }
+
+    function dynamicSort(property) {
+      var sortOrder = 1;
+      if (property[0] === '-') {
+        sortOrder = -1;
+        property = property.substr(1);
+      }
+      return function (a, b) {
+        var result =
+          a[property] < b[property] ? -1 : a[property] > b[property] ? 1 : 0;
+        return result * sortOrder;
+      };
+    }
+
     let finalArray = Object.keys(final).map((item, index) => {
+      // console.log('finaIT---', final[item]);
       return {
         headerIndex: index,
         title: item,
-        content: final[item],
+        content: final[item].sort(dynamicSort('comparePrice')),
       };
     });
 
@@ -1258,12 +1355,13 @@ class AddItems extends Component {
       supplierName,
     } = this.state;
     if (screenType === 'New') {
+      console.log('NEWWW');
       if (finalBasketData.length > 0) {
         let payload = {
           supplierId: supplierId,
           shopingBasketItemList: finalBasketData,
         };
-        console.log('Payload--> New', payload);
+        // console.log('Payload--> New', payload);
         addBasketApi(payload)
           .then(res => {
             this.setState(
@@ -1299,7 +1397,8 @@ class AddItems extends Component {
         shopingBasketItemList: finalBasketData,
         id: basketId,
       };
-      console.log('Payload--> ELSE', payload);
+      console.log('UPDATEEE');
+      // console.log('Payload--> ELSE', payload);
       if (finalBasketData.length > 0 || basketId) {
         updateBasketApi(payload)
           .then(res => {
@@ -1314,6 +1413,7 @@ class AddItems extends Component {
               this.setState(
                 {
                   basketLoader: false,
+                  draftStatus: true,
                 },
                 () => this.navigateToBasket(),
               );
@@ -1350,7 +1450,7 @@ class AddItems extends Component {
     const {basketId} = this.state;
     getBasketApi(basketId)
       .then(res => {
-        console.log('res', res);
+        // console.log('res', res);
         this.setState(
           {
             modalData: res.data && res.data.shopingBasketItemList,
@@ -1411,13 +1511,13 @@ class AddItems extends Component {
 
   navigateToBasket = () => {
     const {supplierId, productId, supplierName, basketId} = this.state;
-    this.props.navigation.navigate('BasketOrderScreen', {
-      finalData: basketId,
-      supplierId,
-      itemType: 'Inventory',
-      productId,
-      supplierName,
-    });
+    // this.props.navigation.navigate('BasketOrderScreen', {
+    //   finalData: basketId,
+    //   supplierId,
+    //   itemType: 'Inventory',
+    //   productId,
+    //   supplierName,
+    // });
   };
 
   saveDraftFun = () => {
@@ -1445,6 +1545,8 @@ class AddItems extends Component {
           {
             loaderCompStatus: false,
             basketLoader: false,
+            draftStatus: true,
+            screenType: 'Update',
           },
           () => this.navigateToBasket(),
         );
@@ -1509,6 +1611,47 @@ class AddItems extends Component {
     });
   };
 
+  closeBasketFun = () => {
+    const {
+      supplierId,
+      productId,
+      supplierName,
+      basketId,
+      draftStatus,
+      finalBasketData,
+    } = this.state;
+
+    if (draftStatus) {
+      this.props.navigation.navigate('BasketOrderScreen', {
+        finalData: basketId,
+        supplierId,
+        itemType: 'Inventory',
+        productId,
+        supplierName,
+      });
+    } else {
+      if (finalBasketData.length > 0) {
+        Alert.alert(`Grainz`, 'Do you want to save the changes?', [
+          {
+            text: 'Yes',
+            onPress: () => this.saveChangesFun(),
+          },
+          {
+            text: 'No',
+            onPress: () =>
+              this.props.navigation.navigate('OrderingAdminScreen'),
+          },
+        ]);
+      } else {
+        this.props.navigation.navigate('OrderingAdminScreen');
+      }
+    }
+  };
+
+  saveChangesFun = () => {
+    this.addToBasketFun();
+  };
+
   render() {
     const {
       recipeLoader,
@@ -1542,9 +1685,10 @@ class AddItems extends Component {
       userDefinedUnit,
       finalBasketData,
       modalDataBackup,
+      innerIndex,
     } = this.state;
 
-    console.log('basketId', basketId);
+    console.log('finalBasketData', finalBasketData);
 
     return (
       <View style={styles.container}>
@@ -1790,6 +1934,37 @@ class AddItems extends Component {
                   </View>
                 </TouchableOpacity>
               )}
+            </View>
+          ) : null}
+
+          {SECTIONS.length > 0 || modalData.length > 0 ? (
+            <View style={{justifyContent: 'center', alignItems: 'center'}}>
+              <TouchableOpacity
+                onPress={() => this.closeBasketFun()}
+                style={{
+                  height: hp('6%'),
+                  width: wp('80%'),
+                  backgroundColor: '#94C036',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  marginTop: hp('2%'),
+                  borderRadius: 100,
+                  marginBottom: hp('2%'),
+                }}>
+                <View
+                  style={{
+                    alignItems: 'center',
+                  }}>
+                  <Text
+                    style={{
+                      color: 'white',
+                      marginLeft: 10,
+                      fontFamily: 'Inter-SemiBold',
+                    }}>
+                    {translate('Close')}
+                  </Text>
+                </View>
+              </TouchableOpacity>
             </View>
           ) : null}
 

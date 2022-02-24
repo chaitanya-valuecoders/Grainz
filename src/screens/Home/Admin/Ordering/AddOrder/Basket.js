@@ -61,6 +61,7 @@ class Basket extends Component {
       modalVisible: false,
       supplierValue: '',
       finalOrderDate: '',
+      finalOrderMinDate: '',
       isDatePickerVisibleOrderDate: false,
       finalDeliveryDate: '',
       placedByValue: '',
@@ -149,6 +150,7 @@ class Basket extends Component {
         basketId: finalData,
         modalLoader: true,
         finalOrderDate: moment(new Date()).format('DD-MM-YY'),
+        finalOrderMinDate: new Date(),
         apiOrderDate: new Date().toISOString(),
         productId,
         supplierName,
@@ -586,9 +588,11 @@ class Basket extends Component {
 
   handleConfirmOrderDate = date => {
     let newdate = moment(date).format('DD-MM-YY');
+    let newMinDate = date;
     let apiOrderDate = date.toISOString();
     this.setState({
       finalOrderDate: newdate,
+      finalOrderMinDate: newMinDate,
       apiOrderDate,
     });
     this.hideDatePickerOrderDate();
@@ -603,10 +607,7 @@ class Basket extends Component {
   handleConfirmDeliveryDate = date => {
     const {finalOrderDate} = this.state;
     const finalDeliveryDate = moment(date).format('DD-MM-YY');
-    if (
-      finalDeliveryDate < finalOrderDate ||
-      finalDeliveryDate === finalOrderDate
-    ) {
+    if (finalDeliveryDate < finalOrderDate) {
       alert('Delivery date cannot be less than or equal to order date');
     } else {
       let newdate = moment(date).format('DD-MM-YY');
@@ -874,6 +875,7 @@ class Basket extends Component {
       supplierName,
       loaderCompStatus,
       basketId,
+      finalOrderMinDate,
     } = this.state;
 
     return (
@@ -1011,6 +1013,7 @@ class Basket extends Component {
                     mode={'date'}
                     onConfirm={this.handleConfirmDeliveryDate}
                     onCancel={this.hideDatePickerDeliveryDate}
+                    minimumDate={finalOrderMinDate}
                   />
                 </View>
               </View>

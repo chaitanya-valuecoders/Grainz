@@ -71,6 +71,7 @@ class EditDraftOrder extends Component {
       mailTitleValue: '',
       mailModalVisible: false,
       loaderCompStatus: false,
+      finalOrderMinDate: '',
     };
   }
 
@@ -438,9 +439,11 @@ class EditDraftOrder extends Component {
 
   handleConfirmOrderDate = date => {
     let newdate = moment(date).format('MM/DD/YYYY');
+    let newMinDate = date;
     let apiOrderDate = date.toISOString();
     this.setState({
       finalOrderDate: newdate,
+      finalOrderMinDate: newMinDate,
       apiOrderDate,
     });
     this.hideDatePickerOrderDate();
@@ -572,6 +575,7 @@ class EditDraftOrder extends Component {
             modalLoaderDrafts: false,
             supplierValue: res.data && res.data.supplierId,
             finalOrderDate: moment(res.data && res.data.orderDate).format('L'),
+            finalOrderMinDate: new Date(),
             finalDeliveryDate:
               res.data.deliveryDate &&
               moment(res.data && res.data.deliveryDate).format('L'),
@@ -743,6 +747,7 @@ class EditDraftOrder extends Component {
       ccRecipientValue,
       mailTitleValue,
       loaderCompStatus,
+      finalOrderMinDate,
     } = this.state;
 
     return (
@@ -916,6 +921,7 @@ class EditDraftOrder extends Component {
                   mode={'date'}
                   onConfirm={this.handleConfirmDeliveryDate}
                   onCancel={this.hideDatePickerDeliveryDate}
+                  minimumDate={finalOrderMinDate}
                 />
               </View>
             </View>
