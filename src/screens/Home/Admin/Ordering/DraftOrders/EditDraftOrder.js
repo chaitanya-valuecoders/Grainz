@@ -64,7 +64,7 @@ class EditDraftOrder extends Component {
       inventoryData: [],
       basketId: '',
       finalArrData: [],
-      editStatus: false,
+      editStatus: true,
       toRecipientValue: '',
       mailMessageValue: '',
       ccRecipientValue: '',
@@ -214,7 +214,8 @@ class EditDraftOrder extends Component {
               id: 0,
             },
             {
-              name: 'Update draft',
+              name: 'Update',
+              // name: 'Update draft',
               icon: img.draftIcon,
               id: 1,
             },
@@ -655,6 +656,7 @@ class EditDraftOrder extends Component {
       shopingBasketItemList: finalApiData,
       id: basketId,
     };
+    console.log('payload', payload);
     updateBasketApi(payload)
       .then(res => {
         this.setState(
@@ -1084,7 +1086,8 @@ class EditDraftOrder extends Component {
                         {inventoryData &&
                           inventoryData.map((item, index) => {
                             return (
-                              <View>
+                              <TouchableOpacity
+                                onLongPress={() => this.actionFun(item, index)}>
                                 <View
                                   style={{
                                     flexDirection: 'row',
@@ -1122,29 +1125,47 @@ class EditDraftOrder extends Component {
                                         marginLeft: wp('5%'),
                                         justifyContent: 'center',
                                       }}>
-                                      <TextInput
-                                        value={String(item.quantity)}
+                                      <Text style={{marginBottom: 5}}>
+                                        {item.calculatedQuantity.toFixed(2)}{' '}
+                                        {item.unit}
+                                      </Text>
+
+                                      <View
                                         style={{
-                                          borderWidth: 1,
-                                          borderRadius: 6,
-                                          padding: 10,
-                                          width: wp('22%'),
-                                        }}
-                                        onChangeText={value =>
-                                          this.editQuantityFun(
-                                            index,
-                                            'quantity',
-                                            value,
-                                            item,
-                                          )
-                                        }
-                                      />
+                                          flexDirection: 'row',
+                                          alignItems: 'center',
+                                        }}>
+                                        <TextInput
+                                          value={String(item.quantity)}
+                                          keyboardType="numeric"
+                                          style={{
+                                            borderWidth: 1,
+                                            borderRadius: 6,
+                                            padding: 10,
+                                            width: wp('10%'),
+                                          }}
+                                          onChangeText={value =>
+                                            this.editQuantityFun(
+                                              index,
+                                              'quantity',
+                                              value,
+                                              item,
+                                            )
+                                          }
+                                        />
+                                        <Text>
+                                          {' '}
+                                          X{' '}
+                                          {item.inventoryMapping &&
+                                            item.inventoryMapping.packSize}
+                                          /
+                                          {item.inventoryMapping &&
+                                            item.inventoryMapping.productUnit}
+                                        </Text>
+                                      </View>
                                     </View>
                                   ) : (
-                                    <TouchableOpacity
-                                      onLongPress={() =>
-                                        this.actionFun(item, index)
-                                      }
+                                    <View
                                       style={{
                                         width: wp('30%'),
                                         justifyContent: 'center',
@@ -1161,7 +1182,7 @@ class EditDraftOrder extends Component {
                                         item.inventoryMapping &&
                                         item.inventoryMapping.productUnit
                                       }`}</Text>
-                                    </TouchableOpacity>
+                                    </View>
                                   )}
                                   <View
                                     style={{
@@ -1174,7 +1195,7 @@ class EditDraftOrder extends Component {
                                     </Text>
                                   </View>
                                 </View>
-                              </View>
+                              </TouchableOpacity>
                             );
                           })}
 
