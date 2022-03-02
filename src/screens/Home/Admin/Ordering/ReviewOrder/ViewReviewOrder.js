@@ -84,6 +84,7 @@ class ViewReviewOrder extends Component {
       supplierName: '',
       listId: '',
       showMoreStatus: false,
+      listIndex: '',
       choicesProp: [
         {
           choiceCode: 'Y',
@@ -162,6 +163,7 @@ class ViewReviewOrder extends Component {
     getOrderByIdApi(productId)
       .then(res => {
         const {data} = res;
+        console.log('data', data);
         this.setState(
           {
             pageData: data,
@@ -187,7 +189,7 @@ class ViewReviewOrder extends Component {
         Alert.alert(`Error - ${err.response.status}`, 'Something went wrong', [
           {
             text: 'Okay',
-            onPress: () => this.props.navigation.goBack(),
+            // onPress: () => this.props.navigation.goBack(),
           },
         ]);
       });
@@ -716,16 +718,50 @@ class ViewReviewOrder extends Component {
     });
   };
 
+  openAccordianFun = (index, item) => {
+    const {listIndex} = this.state;
+    if (listIndex || listIndex === 0) {
+      this.setState({
+        modalData: item,
+        modalOrderedInventoryVolume: item.grainzVolume,
+        modalQuantityOrdered: item.quantityOrdered,
+        modalQuantityDelivered: item.quantityDelivered,
+        modalUserQuantityDelivered: item.userQuantityDelivered,
+        modalQuantityInvoiced: item.quantityInvoiced,
+        modalUserQuantityInvoiced: item.userQuantityInvoiced,
+        modalPricePaid: item.pricePaid,
+        modalNotes: item.notes,
+        finalArrivalDateSpecific: item.arrivedDate,
+        listIndex: '',
+      });
+    } else {
+      this.setState({
+        modalData: item,
+        modalOrderedInventoryVolume: item.grainzVolume,
+        modalQuantityOrdered: item.quantityOrdered,
+        modalQuantityDelivered: item.quantityDelivered,
+        modalUserQuantityDelivered: item.userQuantityDelivered,
+        modalQuantityInvoiced: item.quantityInvoiced,
+        modalUserQuantityInvoiced: item.userQuantityInvoiced,
+        modalPricePaid: item.pricePaid,
+        modalNotes: item.notes,
+        finalArrivalDateSpecific: item.arrivedDate,
+        listIndex: index,
+      });
+    }
+  };
+
   setModalVisibleFalse = () => {
     this.setState({
       modalVisibleEditElement: false,
+      listIndex: '',
     });
   };
 
   saveFunInventoryItem = () => {
     this.setState(
       {
-        modalVisibleEditElement: false,
+        listIndex: '',
       },
       () =>
         setTimeout(() => {
@@ -758,6 +794,7 @@ class ViewReviewOrder extends Component {
       modalUserQuantityInvoiced,
       modalPricePaid,
       modalNotes,
+      totalValue,
     } = this.state;
     let payload = {
       arrivedDate: finalArrivalDateSpecific,
@@ -768,14 +805,16 @@ class ViewReviewOrder extends Component {
       isCorrect: modalData.isCorrect,
       notes: modalNotes,
       orderId: modalData.orderId,
+      orderValue: totalValue,
       orderedInventoryVolume: modalOrderedInventoryVolume,
-      pricePaid: modalPricePaid,
+      // pricePaid: modalPricePaid,
       quantityDelivered: Number(modalQuantityDelivered),
       quantityInvoiced: Number(modalQuantityInvoiced),
       quantityOrdered: modalQuantityOrdered,
       userQuantityDelivered: Number(modalUserQuantityDelivered),
       userQuantityInvoiced: Number(modalUserQuantityInvoiced),
     };
+    console.log('payload', payload);
     processPendingOrderItemApi(payload)
       .then(res => {
         this.setState(
@@ -799,10 +838,11 @@ class ViewReviewOrder extends Component {
         // ]);
       })
       .catch(err => {
+        console.log('errr', err.response);
         Alert.alert(`Error - ${err.response.status}`, 'Something went wrong', [
           {
             text: 'Okay',
-            onPress: () => this.props.navigation.goBack(),
+            // onPress: () => this.props.navigation.goBack(),
           },
         ]);
       });
@@ -856,6 +896,7 @@ class ViewReviewOrder extends Component {
       totalValue,
       isCheckedEditableStatus,
       showMoreStatus,
+      listIndex,
     } = this.state;
 
     return (
@@ -1461,9 +1502,9 @@ class ViewReviewOrder extends Component {
                       </View>
                       <View
                         style={{
-                          width: wp('50%'),
+                          width: wp('30%'),
                           justifyContent: 'center',
-                          marginLeft: wp('5%'),
+                          marginLeft: wp('1%'),
                         }}>
                         <Text
                           style={{
@@ -1506,7 +1547,7 @@ class ViewReviewOrder extends Component {
                       </View>
                       <View
                         style={{
-                          width: wp('30%'),
+                          width: wp('25%'),
                           marginLeft: wp('5%'),
                           justifyContent: 'center',
                         }}>
@@ -1521,78 +1562,92 @@ class ViewReviewOrder extends Component {
                       </View>
                       <View
                         style={{
-                          width: wp('30%'),
+                          width: wp('12%'),
                           justifyContent: 'center',
                           marginLeft: wp('5%'),
-                        }}></View>
+                        }}>
+                        <Text
+                          style={{
+                            color: '#161C27',
+                            fontSize: 12,
+                            fontFamily: 'Inter-SemiBold',
+                          }}>
+                          Action
+                        </Text>
+                      </View>
                     </View>
                     <View>
                       {pageData && pageOrderItems.length > 0 ? (
                         pageOrderItems.map((item, index) => {
                           return (
-                            <View
-                              key={index}
-                              style={{
-                                paddingVertical: 10,
-                                paddingHorizontal: 20,
-                                flexDirection: 'row',
-                                backgroundColor: '#fff',
-                              }}>
-                              <View
-                                style={{
-                                  width: wp('30%'),
-                                  justifyContent: 'flex-start',
-                                  alignItems: 'flex-start',
-                                }}>
-                                <TriStateToggleSwitch
-                                  initialValue={
-                                    item.isCorrect === false
-                                      ? 'N'
-                                      : item.isCorrect === true
-                                      ? 'Y'
-                                      : 'Null'
-                                  }
-                                  width={80}
-                                  height={30}
-                                  selectedNoneBgColor={'#999999'}
-                                  selectedLeftBgColor={'#75CF41'}
-                                  selectedRightBgColor={'#D72E30'}
-                                  fontColor={'#fff'}
-                                  fontSize={12}
-                                  circleBgColor={'white'}
-                                  choices={choicesProp}
-                                  onChange={value =>
-                                    this.updateCorrectStatus(item, value)
-                                  }
-                                />
-                              </View>
-
+                            <View key={index}>
                               <TouchableOpacity
-                                onPress={() => this.showEditModal(item, index)}
+                                onPress={() =>
+                                  this.openAccordianFun(index, item)
+                                }
                                 style={{
-                                  width: wp('50%'),
-                                  marginLeft: wp('5%'),
+                                  paddingVertical: 10,
+                                  paddingHorizontal: 20,
+                                  flexDirection: 'row',
+                                  backgroundColor: '#fff',
                                 }}>
-                                <Text
+                                <View
                                   style={{
-                                    color: '#161C27',
-                                    fontSize: 12,
-                                    fontFamily: 'Inter-SemiBold',
-                                    marginBottom: 8,
+                                    width: wp('30%'),
+                                    justifyContent: 'flex-start',
+                                    alignItems: 'flex-start',
                                   }}>
-                                  {item.inventoryMapping &&
-                                    item.inventoryMapping.inventoryName}
-                                </Text>
-                                <Text
+                                  <TriStateToggleSwitch
+                                    initialValue={
+                                      item.isCorrect === false
+                                        ? 'N'
+                                        : item.isCorrect === true
+                                        ? 'Y'
+                                        : 'Null'
+                                    }
+                                    width={80}
+                                    height={30}
+                                    selectedNoneBgColor={'#999999'}
+                                    selectedLeftBgColor={'#75CF41'}
+                                    selectedRightBgColor={'#D72E30'}
+                                    fontColor={'#fff'}
+                                    fontSize={12}
+                                    circleBgColor={'white'}
+                                    choices={choicesProp}
+                                    onChange={value =>
+                                      this.updateCorrectStatus(item, value)
+                                    }
+                                  />
+                                </View>
+
+                                <View
+                                  onPress={() =>
+                                    this.showEditModal(item, index)
+                                  }
                                   style={{
-                                    color: '#161C27',
-                                    fontSize: 12,
-                                    fontFamily: 'Inter-Regular',
+                                    width: wp('30%'),
+                                    marginLeft: wp('1%'),
                                   }}>
-                                  {item.productName}
-                                </Text>
-                              </TouchableOpacity>
-                              {/* <View
+                                  <Text
+                                    style={{
+                                      color: '#161C27',
+                                      fontSize: 12,
+                                      fontFamily: 'Inter-SemiBold',
+                                      marginBottom: 8,
+                                    }}>
+                                    {item.inventoryMapping &&
+                                      item.inventoryMapping.inventoryName}
+                                  </Text>
+                                  <Text
+                                    style={{
+                                      color: '#161C27',
+                                      fontSize: 12,
+                                      fontFamily: 'Inter-Regular',
+                                    }}>
+                                    {item.productName}
+                                  </Text>
+                                </View>
+                                {/* <View
                                 style={{
                                   width: wp('30%'),
                                   marginLeft: wp('5%'),
@@ -1607,80 +1662,646 @@ class ViewReviewOrder extends Component {
                                     moment(item.arrivedDate).format('L')}
                                 </Text>
                               </View> */}
-                              <View
-                                style={{
-                                  width: wp('30%'),
-                                  marginLeft: wp('5%'),
-                                }}>
-                                <Text
-                                  style={{
-                                    color: '#161C27',
-                                    fontSize: 12,
-                                    fontFamily: 'Inter-SemiBold',
-                                    marginBottom: 8,
-                                  }}>
-                                  {item.grainzVolume} {item.grainzUnit}
-                                </Text>
-                                <Text
-                                  style={{
-                                    color: '#161C27',
-                                    fontSize: 12,
-                                    fontFamily: 'Inter-Regular',
-                                  }}>
-                                  {item.displayQuantity}
-                                  {/* {`${item.quantityOrdered} X ${item.packSize}/${item.unit}`} */}
-                                </Text>
-                                <Text
-                                  style={{
-                                    color: 'red',
-                                    fontSize: 12,
-                                    fontFamily: 'Inter-Regular',
-                                    marginTop: 8,
-                                  }}>
-                                  {item.displayWarningQuantity
-                                    ? item.displayWarningQuantity
-                                    : null}
-                                  {/* {`${item.quantityOrdered} X ${item.packSize}/${item.unit}`} */}
-                                </Text>
-                              </View>
-                              <View
-                                style={{
-                                  width: wp('30%'),
-                                  marginLeft: wp('5%'),
-                                }}>
-                                <Text
-                                  style={{
-                                    color: '#161C27',
-                                    fontSize: 12,
-                                    fontFamily: 'Inter-Regular',
-                                  }}>
-                                  € {Number(item.orderValue).toFixed(2)}
-                                </Text>
-                              </View>
-                              <TouchableOpacity
-                                onPress={() => this.deleteFun(item)}
-                                style={{
-                                  width: wp('30%'),
-                                  alignItems: 'center',
-                                }}>
                                 <View
                                   style={{
-                                    backgroundColor: 'red',
-                                    paddingHorizontal: 15,
-                                    paddingVertical: 10,
-                                    borderRadius: 5,
+                                    width: wp('30%'),
+                                    marginLeft: wp('5%'),
                                   }}>
-                                  <Image
-                                    source={img.deleteIconNew}
+                                  <Text
                                     style={{
-                                      width: 18,
-                                      height: 18,
-                                      tintColor: '#fff',
-                                      resizeMode: 'contain',
-                                    }}
-                                  />
+                                      color: '#161C27',
+                                      fontSize: 12,
+                                      fontFamily: 'Inter-SemiBold',
+                                      marginBottom: 8,
+                                    }}>
+                                    {item.grainzVolume} {item.grainzUnit}
+                                  </Text>
+                                  <Text
+                                    style={{
+                                      color: '#161C27',
+                                      fontSize: 12,
+                                      fontFamily: 'Inter-Regular',
+                                    }}>
+                                    {item.displayQuantity}
+                                    {/* {`${item.quantityOrdered} X ${item.packSize}/${item.unit}`} */}
+                                  </Text>
+                                  <Text
+                                    style={{
+                                      color: 'red',
+                                      fontSize: 12,
+                                      fontFamily: 'Inter-Regular',
+                                      marginTop: 8,
+                                    }}>
+                                    {item.displayWarningQuantity
+                                      ? item.displayWarningQuantity
+                                      : null}
+                                    {/* {`${item.quantityOrdered} X ${item.packSize}/${item.unit}`} */}
+                                  </Text>
                                 </View>
+                                <View
+                                  style={{
+                                    width: wp('25%'),
+                                    marginLeft: wp('5%'),
+                                  }}>
+                                  <Text
+                                    style={{
+                                      color: '#161C27',
+                                      fontSize: 12,
+                                      fontFamily: 'Inter-Regular',
+                                    }}>
+                                    € {Number(item.orderValue).toFixed(2)}
+                                  </Text>
+                                </View>
+                                <TouchableOpacity
+                                  onPress={() => this.deleteFun(item)}
+                                  style={{
+                                    width: wp('12%'),
+                                    alignItems: 'center',
+                                  }}>
+                                  <View
+                                    style={{
+                                      backgroundColor: 'red',
+                                      paddingHorizontal: 15,
+                                      paddingVertical: 10,
+                                      borderRadius: 5,
+                                      marginLeft: 20,
+                                    }}>
+                                    <Image
+                                      source={img.deleteIconNew}
+                                      style={{
+                                        width: 18,
+                                        height: 18,
+                                        tintColor: '#fff',
+                                        resizeMode: 'contain',
+                                      }}
+                                    />
+                                  </View>
+                                </TouchableOpacity>
                               </TouchableOpacity>
+                              {index === listIndex ? (
+                                <View
+                                  style={{
+                                    backgroundColor: '#F0F4FF',
+                                  }}>
+                                  <View style={{backgroundColor: '#EFFBCF'}}>
+                                    <View>
+                                      <View
+                                        style={{
+                                          paddingVertical: 15,
+                                          paddingHorizontal: 5,
+                                          flexDirection: 'row',
+                                          backgroundColor: '#EFFBCF',
+                                          borderRadius: 6,
+                                        }}>
+                                        <View
+                                          style={{
+                                            width: wp('20%'),
+                                            alignItems: 'center',
+                                          }}></View>
+                                        <View
+                                          style={{
+                                            width: wp('30%'),
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                          }}>
+                                          <Text
+                                            style={{
+                                              color: '#161C27',
+                                              fontSize: 12,
+                                              fontFamily: 'Inter-SemiBold',
+                                            }}>
+                                            #
+                                          </Text>
+                                        </View>
+                                        <View
+                                          style={{
+                                            width: wp('30%'),
+                                            alignItems: 'center',
+                                          }}>
+                                          <Text
+                                            style={{
+                                              color: '#161C27',
+                                              fontSize: 12,
+                                              fontFamily: 'Inter-SemiBold',
+                                              textAlign: 'center',
+                                            }}>
+                                            {translate('Inventory')} Volume
+                                          </Text>
+                                        </View>
+                                      </View>
+                                      <View>
+                                        <View
+                                          style={{
+                                            paddingVertical: 10,
+                                            paddingHorizontal: 5,
+                                            flexDirection: 'row',
+                                            backgroundColor: '#fff',
+                                          }}>
+                                          <View
+                                            style={{
+                                              width: wp('20%'),
+                                              alignItems: 'center',
+                                              justifyContent: 'center',
+                                            }}>
+                                            <Text
+                                              style={{
+                                                color: '#161C27',
+                                                fontSize: 12,
+                                                fontFamily: 'Inter-SemiBold',
+                                              }}>
+                                              {translate('Ordered')}
+                                            </Text>
+                                          </View>
+                                          <View
+                                            style={{
+                                              width: wp('30%'),
+                                              alignItems: 'center',
+                                            }}>
+                                            <TextInput
+                                              placeholder="Ordered"
+                                              keyboardType="numeric"
+                                              editable={false}
+                                              value={String(
+                                                modalQuantityOrdered,
+                                              )}
+                                              style={{
+                                                borderRadius: 5,
+                                                padding: 8,
+                                                width: 80,
+                                                backgroundColor: '#E9ECEF',
+                                              }}
+                                            />
+                                          </View>
+                                          <View
+                                            style={{
+                                              width: wp('30%'),
+                                              alignItems: 'center',
+                                              flexDirection: 'row',
+                                              alignItems: 'center',
+                                            }}>
+                                            <TextInput
+                                              placeholder="Volume"
+                                              keyboardType="numeric"
+                                              value={Number(
+                                                modalOrderedInventoryVolume,
+                                              ).toFixed(2)}
+                                              editable={false}
+                                              style={{
+                                                borderRadius: 5,
+                                                padding: 8,
+                                                width: 80,
+                                                backgroundColor: '#E9ECEF',
+                                              }}
+                                            />
+                                            <Text
+                                              style={{
+                                                fontFamily: 'Inter-Regular',
+                                                marginLeft: 5,
+                                              }}>
+                                              {modalData && modalData.unit}
+                                            </Text>
+                                          </View>
+                                        </View>
+                                        <View
+                                          style={{
+                                            paddingVertical: 10,
+                                            paddingHorizontal: 5,
+                                            flexDirection: 'row',
+                                            backgroundColor: '#fff',
+                                          }}>
+                                          <View
+                                            style={{
+                                              width: wp('20%'),
+                                              alignItems: 'center',
+                                              justifyContent: 'center',
+                                            }}>
+                                            <Text
+                                              style={{
+                                                color: '#161C27',
+                                                fontSize: 12,
+                                                fontFamily: 'Inter-SemiBold',
+                                              }}>
+                                              Delivered
+                                            </Text>
+                                          </View>
+                                          <View
+                                            style={{
+                                              width: wp('30%'),
+                                              alignItems: 'center',
+                                            }}>
+                                            <TextInput
+                                              placeholder="Delivered"
+                                              keyboardType="numeric"
+                                              style={{
+                                                borderWidth: 0.5,
+                                                borderRadius: 5,
+                                                padding: 8,
+                                                width: 80,
+                                              }}
+                                              value={
+                                                modalQuantityDelivered &&
+                                                String(modalQuantityDelivered)
+                                              }
+                                              onChangeText={value =>
+                                                this.setState({
+                                                  modalQuantityDelivered: value,
+                                                  modalUserQuantityDelivered:
+                                                    value *
+                                                    modalOrderedInventoryVolume,
+                                                })
+                                              }
+                                            />
+                                          </View>
+                                          <View
+                                            style={{
+                                              width: wp('30%'),
+                                              alignItems: 'center',
+                                              flexDirection: 'row',
+                                              alignItems: 'center',
+                                            }}>
+                                            <TextInput
+                                              placeholder="Volume"
+                                              keyboardType="numeric"
+                                              value={
+                                                modalUserQuantityDelivered &&
+                                                String(
+                                                  modalUserQuantityDelivered,
+                                                )
+                                              }
+                                              style={{
+                                                borderWidth: 0.5,
+                                                borderRadius: 5,
+                                                padding: 8,
+                                                width: 80,
+                                              }}
+                                              onChangeText={value =>
+                                                this.setState({
+                                                  modalUserQuantityDelivered:
+                                                    value,
+                                                })
+                                              }
+                                            />
+                                            <Text
+                                              style={{
+                                                fontFamily: 'Inter-Regular',
+                                                marginLeft: 5,
+                                              }}>
+                                              {modalData && modalData.unit}
+                                            </Text>
+                                          </View>
+                                        </View>
+                                        <View
+                                          style={{
+                                            paddingVertical: 10,
+                                            paddingHorizontal: 5,
+                                            flexDirection: 'row',
+                                            backgroundColor: '#fff',
+                                          }}>
+                                          <View
+                                            style={{
+                                              width: wp('20%'),
+                                              alignItems: 'center',
+                                              justifyContent: 'center',
+                                            }}>
+                                            <Text
+                                              style={{
+                                                color: '#161C27',
+                                                fontSize: 12,
+                                                fontFamily: 'Inter-SemiBold',
+                                                marginBottom: 8,
+                                              }}>
+                                              {translate('Invoiced')}
+                                            </Text>
+                                          </View>
+                                          <View
+                                            style={{
+                                              width: wp('30%'),
+                                              alignItems: 'center',
+                                            }}>
+                                            <TextInput
+                                              placeholder="Invoiced"
+                                              keyboardType="numeric"
+                                              style={{
+                                                borderWidth: 0.5,
+                                                borderRadius: 5,
+                                                padding: 8,
+                                                width: 80,
+                                              }}
+                                              value={
+                                                modalQuantityInvoiced &&
+                                                String(modalQuantityInvoiced)
+                                              }
+                                              onChangeText={value =>
+                                                this.setState({
+                                                  modalQuantityInvoiced: value,
+                                                  modalUserQuantityInvoiced:
+                                                    value *
+                                                    modalOrderedInventoryVolume,
+                                                })
+                                              }
+                                            />
+                                          </View>
+                                          <View
+                                            style={{
+                                              width: wp('30%'),
+                                              alignItems: 'center',
+                                              flexDirection: 'row',
+                                              alignItems: 'center',
+                                            }}>
+                                            <TextInput
+                                              placeholder="Volume"
+                                              keyboardType="numeric"
+                                              style={{
+                                                borderWidth: 0.5,
+                                                borderRadius: 5,
+                                                padding: 8,
+                                                width: 80,
+                                              }}
+                                              value={
+                                                modalUserQuantityInvoiced &&
+                                                String(
+                                                  modalUserQuantityInvoiced,
+                                                )
+                                              }
+                                              onChangeText={value =>
+                                                this.setState({
+                                                  modalUserQuantityInvoiced:
+                                                    value,
+                                                })
+                                              }
+                                            />
+                                            <Text
+                                              style={{
+                                                fontFamily: 'Inter-Regular',
+                                                marginLeft: 5,
+                                              }}>
+                                              {modalData && modalData.unit}
+                                            </Text>
+                                          </View>
+                                        </View>
+                                        <View
+                                          style={{
+                                            paddingVertical: 10,
+                                            paddingHorizontal: 5,
+                                            flexDirection: 'row',
+                                            backgroundColor: '#fff',
+                                          }}>
+                                          <View
+                                            style={{
+                                              width: wp('20%'),
+                                              alignItems: 'center',
+                                              justifyContent: 'center',
+                                            }}>
+                                            <Text
+                                              style={{
+                                                color: '#161C27',
+                                                fontSize: 12,
+                                                fontFamily: 'Inter-SemiBold',
+                                              }}>
+                                              {translate('Price')}
+                                            </Text>
+                                          </View>
+                                          <View
+                                            style={{
+                                              width: wp('30%'),
+                                              alignItems: 'center',
+                                            }}>
+                                            <TextInput
+                                              placeholder="Price"
+                                              keyboardType="numeric"
+                                              style={{
+                                                borderWidth: 0.5,
+                                                borderRadius: 5,
+                                                padding: 8,
+                                                width: 100,
+                                              }}
+                                              value={
+                                                modalPricePaid &&
+                                                String(modalPricePaid)
+                                              }
+                                              onChangeText={value =>
+                                                this.setState({
+                                                  modalPricePaid: value,
+                                                })
+                                              }
+                                            />
+                                          </View>
+                                          <View
+                                            style={{
+                                              width: wp('30%'),
+                                              alignItems: 'center',
+                                            }}></View>
+                                        </View>
+                                        <View
+                                          style={{
+                                            paddingVertical: 8,
+                                            paddingHorizontal: 5,
+                                            flexDirection: 'row',
+                                          }}>
+                                          <View
+                                            style={{
+                                              width: wp('20%'),
+                                              alignItems: 'center',
+                                              justifyContent: 'center',
+                                            }}>
+                                            <Text
+                                              style={{
+                                                color: '#161C27',
+                                                fontSize: 12,
+                                                fontFamily: 'Inter-SemiBold',
+                                              }}>
+                                              Arrived Date
+                                            </Text>
+                                          </View>
+                                          <View
+                                            style={{
+                                              width: wp('30%'),
+                                              alignItems: 'center',
+                                            }}>
+                                            <View
+                                              style={{
+                                                marginBottom: hp('3%'),
+                                              }}>
+                                              <View
+                                                style={{
+                                                  marginTop: 12,
+                                                }}>
+                                                <TouchableOpacity
+                                                  onPress={() =>
+                                                    this.showDatePickerArrivalDateSpecific()
+                                                  }
+                                                  style={{
+                                                    width: 120,
+                                                    flexDirection: 'row',
+                                                    justifyContent:
+                                                      'space-between',
+                                                    backgroundColor: '#E9ECEF',
+                                                    borderRadius: 5,
+                                                    padding: 10,
+                                                    marginTop: 5,
+                                                  }}>
+                                                  <Text>
+                                                    {finalArrivalDateSpecific &&
+                                                      moment(
+                                                        finalArrivalDateSpecific,
+                                                      ).format('L')}
+                                                  </Text>
+                                                  <Image
+                                                    source={img.calenderIcon}
+                                                    style={{
+                                                      width: 15,
+                                                      height: 15,
+                                                      resizeMode: 'contain',
+                                                      marginTop:
+                                                        Platform.OS ===
+                                                        'android'
+                                                          ? 15
+                                                          : 0,
+                                                      marginRight:
+                                                        Platform.OS ===
+                                                        'android'
+                                                          ? 15
+                                                          : 0,
+                                                    }}
+                                                  />
+                                                </TouchableOpacity>
+                                                <DateTimePickerModal
+                                                  isVisible={
+                                                    isDatePickerArrivalDateSpecific
+                                                  }
+                                                  mode={'date'}
+                                                  onConfirm={
+                                                    this
+                                                      .handleConfirmArrivalDateSpecific
+                                                  }
+                                                  onCancel={
+                                                    this
+                                                      .hideDatePickerArrivalDateSpecific
+                                                  }
+                                                />
+                                              </View>
+                                            </View>
+                                          </View>
+                                          <View
+                                            style={{
+                                              width: wp('30%'),
+                                              alignItems: 'center',
+                                            }}></View>
+                                        </View>
+                                        <View
+                                          style={{
+                                            paddingVertical: 10,
+                                            paddingHorizontal: 5,
+                                            flexDirection: 'row',
+                                            backgroundColor: '#fff',
+                                          }}>
+                                          <View
+                                            style={{
+                                              width: wp('20%'),
+                                              alignItems: 'center',
+                                              justifyContent: 'center',
+                                            }}>
+                                            <Text
+                                              style={{
+                                                color: '#161C27',
+                                                fontSize: 12,
+                                                fontFamily: 'Inter-SemiBold',
+                                              }}>
+                                              Notes
+                                            </Text>
+                                          </View>
+                                          <View
+                                            style={{
+                                              width: wp('30%'),
+                                              alignItems: 'center',
+                                              marginLeft: wp('5%'),
+                                            }}>
+                                            <TextInput
+                                              placeholder="Notes"
+                                              multiline
+                                              style={{
+                                                borderWidth: 0.5,
+                                                borderRadius: 5,
+                                                padding: 8,
+                                                width: 150,
+                                                height: 100,
+                                              }}
+                                              value={
+                                                modalNotes && String(modalNotes)
+                                              }
+                                              onChangeText={value =>
+                                                this.setState({
+                                                  modalNotes: value,
+                                                })
+                                              }
+                                            />
+                                          </View>
+                                          <View
+                                            style={{
+                                              width: wp('30%'),
+                                              alignItems: 'center',
+                                            }}></View>
+                                        </View>
+                                      </View>
+                                    </View>
+                                    <View>
+                                      <View
+                                        style={{
+                                          flexDirection: 'row',
+                                          alignItems: 'center',
+                                          paddingVertical: 15,
+                                        }}>
+                                        <TouchableOpacity
+                                          onPress={() =>
+                                            this.saveFunInventoryItem()
+                                          }
+                                          style={{
+                                            width: wp('30%'),
+                                            height: hp('5%'),
+                                            alignSelf: 'flex-end',
+                                            backgroundColor: '#94C036',
+                                            justifyContent: 'center',
+                                            alignItems: 'center',
+                                            borderRadius: 100,
+                                          }}>
+                                          <Text
+                                            style={{
+                                              color: '#fff',
+                                              fontSize: 15,
+                                              fontWeight: 'bold',
+                                            }}>
+                                            {translate('Save')}
+                                          </Text>
+                                        </TouchableOpacity>
+                                        <TouchableOpacity
+                                          onPress={() =>
+                                            this.setModalVisibleFalse()
+                                          }
+                                          style={{
+                                            width: wp('30%'),
+                                            height: hp('5%'),
+                                            alignSelf: 'flex-end',
+                                            justifyContent: 'center',
+                                            alignItems: 'center',
+                                            marginLeft: wp('2%'),
+                                            borderRadius: 100,
+                                            borderWidth: 1,
+                                            borderColor: '#482813',
+                                          }}>
+                                          <Text
+                                            style={{
+                                              color: '#482813',
+                                              fontSize: 15,
+                                              fontWeight: 'bold',
+                                            }}>
+                                            {translate('Close')}
+                                          </Text>
+                                        </TouchableOpacity>
+                                      </View>
+                                    </View>
+                                  </View>
+                                </View>
+                              ) : null}
                             </View>
                           );
                         })
