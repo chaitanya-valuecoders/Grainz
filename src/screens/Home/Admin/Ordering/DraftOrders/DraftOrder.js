@@ -93,7 +93,7 @@ class DraftOrder extends Component {
       .then(res => {
         this.setState({
           draftsOrderData: res.data,
-          draftsOrderDataBackup: res.data.reverse(),
+          draftsOrderDataBackup: res.data,
           modalLoaderDrafts: false,
         });
       })
@@ -486,7 +486,7 @@ class DraftOrder extends Component {
                                 }}>
                                 <Text>
                                   {item.orderDate &&
-                                    moment(item.orderDate).format('DD/MM/YY')}
+                                    moment(item.orderDate).format('DD/MM/YYYY')}
                                 </Text>
                               </View>
                               <View

@@ -493,17 +493,25 @@ class EditDraftOrder extends Component {
   };
 
   editFun = () => {
-    this.setState({
-      editStatus: true,
-      actionModalStatus: false,
-    });
+    const {editStatus} = this.state;
+    if (editStatus) {
+      this.setState({
+        editStatus: false,
+        actionModalStatus: false,
+      });
+    } else {
+      this.setState({
+        editStatus: true,
+        actionModalStatus: false,
+      });
+    }
   };
 
-  deleteFun = () => {
+  deleteFun = (data, index) => {
     this.setState(
       {
         actionModalStatus: false,
-        inventoryType: 'action',
+        finalArrData: data,
       },
       () =>
         setTimeout(() => {
@@ -1058,7 +1066,6 @@ class EditDraftOrder extends Component {
                             style={{
                               width: wp('30%'),
                               justifyContent: 'center',
-                              marginLeft: wp('5%'),
                             }}>
                             <Text
                               style={{
@@ -1072,7 +1079,6 @@ class EditDraftOrder extends Component {
                             style={{
                               width: wp('30%'),
                               justifyContent: 'center',
-                              marginLeft: wp('5%'),
                             }}>
                             <Text
                               style={{
@@ -1082,11 +1088,27 @@ class EditDraftOrder extends Component {
                               HTVA €
                             </Text>
                           </View>
+                          <TouchableOpacity
+                            onPress={() => this.editFun()}
+                            style={{
+                              width: wp('20%'),
+                              justifyContent: 'center',
+                            }}>
+                            <Text
+                              style={{
+                                color: '#161C27',
+                                fontFamily: 'Inter-SemiBold',
+                              }}>
+                              {editStatus
+                                ? translate('Save')
+                                : translate('Edit')}
+                            </Text>
+                          </TouchableOpacity>
                         </View>
                         {inventoryData &&
                           inventoryData.map((item, index) => {
                             return (
-                              <TouchableOpacity
+                              <View
                                 onLongPress={() => this.actionFun(item, index)}>
                                 <View
                                   style={{
@@ -1122,7 +1144,6 @@ class EditDraftOrder extends Component {
                                     <View
                                       style={{
                                         width: wp('30%'),
-                                        marginLeft: wp('5%'),
                                         justifyContent: 'center',
                                       }}>
                                       <Text style={{marginBottom: 5}}>
@@ -1169,7 +1190,6 @@ class EditDraftOrder extends Component {
                                       style={{
                                         width: wp('30%'),
                                         justifyContent: 'center',
-                                        marginLeft: wp('5%'),
                                       }}>
                                       <Text style={{marginBottom: 5}}>
                                         {item.calculatedQuantity.toFixed(2)}{' '}
@@ -1188,14 +1208,37 @@ class EditDraftOrder extends Component {
                                     style={{
                                       width: wp('30%'),
                                       justifyContent: 'center',
-                                      marginLeft: wp('5%'),
                                     }}>
                                     <Text>
                                       € {Number(item.value).toFixed(2)}
                                     </Text>
                                   </View>
+                                  <TouchableOpacity
+                                    onPress={() => this.deleteFun(item, index)}
+                                    style={{
+                                      width: wp('20%'),
+                                      justifyContent: 'center',
+                                    }}>
+                                    <View
+                                      style={{
+                                        backgroundColor: 'red',
+                                        padding: 10,
+                                        alignItems: 'center',
+                                      }}>
+                                      <Image
+                                        source={img.deleteIconNew}
+                                        style={{
+                                          width: 18,
+                                          height: 18,
+                                          marginRight: 10,
+                                          resizeMode: 'contain',
+                                          tintColor: '#fff',
+                                        }}
+                                      />
+                                    </View>
+                                  </TouchableOpacity>
                                 </View>
-                              </TouchableOpacity>
+                              </View>
                             );
                           })}
 
