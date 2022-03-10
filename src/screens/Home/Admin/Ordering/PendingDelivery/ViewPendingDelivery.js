@@ -1683,12 +1683,10 @@ class ViewPendingDelivery extends Component {
                     <View>
                       {pageData && pageOrderItems.length > 0 ? (
                         pageOrderItems.map((item, index) => {
+                          console.log('item', item);
                           return (
                             <View key={index}>
-                              <TouchableOpacity
-                                onPress={() =>
-                                  this.openAccordianFun(index, item)
-                                }
+                              <View
                                 style={{
                                   paddingVertical: 10,
                                   paddingHorizontal: 20,
@@ -1724,10 +1722,13 @@ class ViewPendingDelivery extends Component {
                                   />
                                 </View>
 
-                                <View
+                                <TouchableOpacity
                                   onPress={() =>
-                                    this.showEditModal(item, index)
+                                    this.openAccordianFun(index, item)
                                   }
+                                  // onPress={() =>
+                                  //   this.showEditModal(item, index)
+                                  // }
                                   style={{
                                     width: wp('30%'),
                                     marginLeft: wp('1%'),
@@ -1759,7 +1760,7 @@ class ViewPendingDelivery extends Component {
                                     }}>
                                     {item.notes}
                                   </Text>
-                                </View>
+                                </TouchableOpacity>
                                 {/* <View
                                 style={{
                                   width: wp('30%'),
@@ -1848,7 +1849,7 @@ class ViewPendingDelivery extends Component {
                                     />
                                   </View>
                                 </TouchableOpacity>
-                              </TouchableOpacity>
+                              </View>
                               {index === listIndex ? (
                                 <View
                                   style={{
@@ -2000,12 +2001,23 @@ class ViewPendingDelivery extends Component {
                                             }}>
                                             <TextInput
                                               placeholder="Delivered"
+                                              editable={
+                                                item.canChangeDeliveredQuantity ===
+                                                true
+                                                  ? true
+                                                  : false
+                                              }
                                               keyboardType="numeric"
                                               style={{
                                                 borderWidth: 0.5,
                                                 borderRadius: 5,
                                                 padding: 8,
                                                 width: 80,
+                                                backgroundColor:
+                                                  item.canChangeDeliveredQuantity ===
+                                                  true
+                                                    ? '#fff'
+                                                    : '#E9ECEF',
                                               }}
                                               value={
                                                 modalQuantityDelivered &&
@@ -2095,12 +2107,23 @@ class ViewPendingDelivery extends Component {
                                             }}>
                                             <TextInput
                                               placeholder="Invoiced"
+                                              editable={
+                                                item.canChangeInvoiceQuantity ===
+                                                true
+                                                  ? true
+                                                  : false
+                                              }
                                               keyboardType="numeric"
                                               style={{
                                                 borderWidth: 0.5,
                                                 borderRadius: 5,
                                                 padding: 8,
                                                 width: 80,
+                                                backgroundColor:
+                                                  item.canChangeInvoiceQuantity ===
+                                                  true
+                                                    ? '#fff'
+                                                    : '#E9ECEF',
                                               }}
                                               value={
                                                 modalQuantityInvoiced &&

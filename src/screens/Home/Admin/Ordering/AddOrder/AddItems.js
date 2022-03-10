@@ -1110,6 +1110,7 @@ class AddItems extends Component {
   };
 
   filterDataDepartmentName = value => {
+    console.log('VALUE', value);
     //passing the inserted text in textinput
     const newData = this.state.SECTIONS_SEC_INVEN.filter(function (item) {
       //applying filter for the inserted text in search bar
@@ -1137,8 +1138,94 @@ class AddItems extends Component {
     );
   };
 
+  addToBasketFunHorizontal = () => {
+    const {
+      finalBasketData,
+      supplierId,
+      screenType,
+      basketId,
+      navigateType,
+      productId,
+      supplierName,
+    } = this.state;
+    if (screenType === 'New') {
+      console.log('NEWWW_HORIZONTAL');
+      let payload = {
+        supplierId: supplierId,
+        shopingBasketItemList: finalBasketData,
+      };
+      // console.log('Payload--> New', payload);
+      addBasketApi(payload)
+        .then(res => {
+          this.setState(
+            {
+              basketId: res.data && res.data.id,
+            },
+            () => this.getBasketDataFun(),
+          );
+        })
+        .catch(err => {
+          Alert.alert(
+            `Error - ${err.response.status}`,
+            'Something went wrong',
+            [
+              {
+                text: 'Okay',
+              },
+            ],
+          );
+        });
+    } else {
+      let payload = {
+        supplierId: supplierId,
+        shopingBasketItemList: finalBasketData,
+        id: basketId,
+      };
+      console.log('UPDATEEE_HORIZONTAL');
+      // console.log('Payload--> ELSE', payload);
+      updateBasketApi(payload)
+        .then(res => {
+          if (navigateType === 'EditDraft') {
+            this.setState(
+              {
+                basketLoader: false,
+              },
+              () => this.navigateToEditDraft(res),
+            );
+          } else {
+            this.setState(
+              {
+                basketLoader: false,
+                draftStatus: true,
+              },
+              () => this.navigateToBasket(),
+            );
+          }
+        })
+        .catch(err => {
+          Alert.alert(
+            `Error - ${err.response.status}`,
+            'Something went wrong',
+            [
+              {
+                text: 'Okay',
+                onPress: () =>
+                  this.setState({
+                    basketLoader: false,
+                  }),
+              },
+            ],
+          );
+        });
+    }
+  };
+
   navigateSubFun = item => {
-    const {inventoryStatus} = this.state;
+    const {inventoryStatus, finalBasketData, supplierId} = this.state;
+    if (finalBasketData.length > 0) {
+      console.log('addToBasketFunHorizontal-->');
+      this.addToBasketFunHorizontal();
+    }
     if (inventoryStatus) {
       const {
         SECTIONS,
@@ -1638,8 +1725,8 @@ class AddItems extends Component {
           },
           {
             text: 'No',
-            onPress: () =>
-              this.props.navigation.navigate('OrderingAdminScreen'),
+            // onPress: () =>
+            //   this.props.navigation.navigate('OrderingAdminScreen'),
           },
         ]);
       } else {
@@ -1686,9 +1773,11 @@ class AddItems extends Component {
       finalBasketData,
       modalDataBackup,
       innerIndex,
+      draftStatus,
+      SECTIONS_SEC_INVEN,
     } = this.state;
 
-    console.log('finalBasketData', finalBasketData);
+    console.log('SECTIONS_SEC_INVEN', SECTIONS_SEC_INVEN);
 
     return (
       <View style={styles.container}>
@@ -1822,8 +1911,8 @@ class AddItems extends Component {
                       value: 'Bar',
                     },
                     {
-                      label: 'Restaurant',
-                      value: 'Restaurant',
+                      label: 'Kitchen',
+                      value: 'Kitchen',
                     },
                     {
                       label: 'Retail',
@@ -1883,7 +1972,7 @@ class AddItems extends Component {
             </ScrollView>
           </View>
 
-          {SECTIONS.length > 0 || modalData.length > 0 ? (
+          {/* {SECTIONS.length > 0 || modalData.length > 0 ? (
             <View style={{justifyContent: 'center', alignItems: 'center'}}>
               {basketLoader ? (
                 <View
@@ -1935,36 +2024,57 @@ class AddItems extends Component {
                 </TouchableOpacity>
               )}
             </View>
-          ) : null}
+          ) : null} */}
 
           {SECTIONS.length > 0 || modalData.length > 0 ? (
             <View style={{justifyContent: 'center', alignItems: 'center'}}>
-              <TouchableOpacity
-                onPress={() => this.closeBasketFun()}
-                style={{
-                  height: hp('6%'),
-                  width: wp('80%'),
-                  backgroundColor: '#94C036',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  marginTop: hp('2%'),
-                  borderRadius: 100,
-                  marginBottom: hp('2%'),
-                }}>
+              {basketLoader ? (
                 <View
                   style={{
+                    height: hp('6%'),
+                    width: wp('80%'),
+                    backgroundColor: '#94C036',
+                    justifyContent: 'center',
                     alignItems: 'center',
+                    marginTop: hp('3%'),
+                    borderRadius: 100,
+                    marginBottom: hp('2%'),
                   }}>
-                  <Text
+                  <View
                     style={{
-                      color: 'white',
-                      marginLeft: 10,
-                      fontFamily: 'Inter-SemiBold',
+                      alignItems: 'center',
                     }}>
-                    {translate('Close')}
-                  </Text>
+                    <ActivityIndicator color="#fff" size="small" />
+                  </View>
                 </View>
-              </TouchableOpacity>
+              ) : (
+                <TouchableOpacity
+                  onPress={() => this.closeBasketFun()}
+                  style={{
+                    height: hp('6%'),
+                    width: wp('80%'),
+                    backgroundColor: '#94C036',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    marginTop: hp('3%'),
+                    borderRadius: 100,
+                    marginBottom: hp('2%'),
+                  }}>
+                  <View
+                    style={{
+                      alignItems: 'center',
+                    }}>
+                    <Text
+                      style={{
+                        color: 'white',
+                        marginLeft: 10,
+                        fontFamily: 'Inter-SemiBold',
+                      }}>
+                      {translate('Close')}
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              )}
             </View>
           ) : null}
 

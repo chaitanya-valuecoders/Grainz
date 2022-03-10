@@ -436,7 +436,7 @@ class EditPurchase extends Component {
   };
 
   handleConfirm = date => {
-    let newdate = moment(date).format('L');
+    let newdate = moment(date).format('DD-MM-YYYY');
     this.setState({
       finalDate: newdate,
       productionDate: date,
@@ -977,10 +977,11 @@ class EditPurchase extends Component {
                     }}>
                     <TextInput
                       placeholder={moment(yourOrder.orderDate).format(
-                        'MM/DD/YYYY',
+                        'DD-MM-YYYY',
                       )}
                       value={finalDate}
                       editable={false}
+                      style={{}}
                     />
                     <Image
                       source={img.calenderIcon}

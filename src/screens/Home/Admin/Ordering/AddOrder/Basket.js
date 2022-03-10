@@ -75,7 +75,7 @@ class Basket extends Component {
       itemType: '',
       basketId: '',
       finalArrData: [],
-      editStatus: false,
+      editStatus: true,
       totalHTVAVal: '',
       mailModalVisible: false,
       productId: '',
@@ -228,11 +228,14 @@ class Basket extends Component {
     this.props.navigation.navigate('MyProfile');
   };
 
-  actionFun = data => {
-    this.setState({
-      actionModalStatus: true,
-      finalArrData: data,
-    });
+  actionFun = (data, index) => {
+    this.setState(
+      {
+        actionModalStatus: false,
+        finalArrData: data,
+      },
+      () => this.deleteInventoryFun(),
+    );
   };
 
   setModalVisibleFalse = visible => {
@@ -331,7 +334,7 @@ class Basket extends Component {
   editInventoryFun = () => {
     this.setState({
       actionModalStatus: false,
-      editStatus: true,
+      // editStatus: true,
     });
   };
 
@@ -1140,7 +1143,7 @@ class Basket extends Component {
                             </View>
                             <View
                               style={{
-                                width: wp('25%'),
+                                width: wp('30%'),
                                 marginLeft: wp('5%'),
                               }}>
                               <Text
@@ -1160,6 +1163,20 @@ class Basket extends Component {
                                   fontFamily: 'Inter-SemiBold',
                                 }}>
                                 HTVA (€)
+                              </Text>
+                            </View>
+                            <View
+                              onPress={() => this.editFun()}
+                              style={{
+                                width: wp('20%'),
+                                justifyContent: 'center',
+                              }}>
+                              <Text
+                                style={{
+                                  color: '#161C27',
+                                  fontFamily: 'Inter-SemiBold',
+                                }}>
+                                {translate('Action')}
                               </Text>
                             </View>
                           </View>
@@ -1203,30 +1220,52 @@ class Basket extends Component {
                                       {editStatus ? (
                                         <View
                                           style={{
-                                            width: wp('25%'),
+                                            width: wp('30%'),
                                             justifyContent: 'center',
                                             marginLeft: wp('5%'),
                                           }}>
-                                          <TextInput
-                                            value={String(item.quantity)}
+                                          <Text style={{marginBottom: 5}}>
+                                            {item.calculatedQuantity.toFixed(2)}{' '}
+                                            {item.unit}
+                                          </Text>
+
+                                          <View
                                             style={{
-                                              borderWidth: 1,
-                                              borderRadius: 6,
-                                              padding: 10,
-                                              width: wp('22%'),
-                                            }}
-                                            onChangeText={value =>
-                                              this.editQuantityFun(
-                                                index,
-                                                'quantity',
-                                                value,
-                                                item,
-                                              )
-                                            }
-                                          />
+                                              flexDirection: 'row',
+                                              alignItems: 'center',
+                                            }}>
+                                            <TextInput
+                                              value={String(item.quantity)}
+                                              keyboardType="numeric"
+                                              style={{
+                                                borderWidth: 1,
+                                                borderRadius: 6,
+                                                padding: 10,
+                                                width: wp('10%'),
+                                              }}
+                                              onChangeText={value =>
+                                                this.editQuantityFun(
+                                                  index,
+                                                  'quantity',
+                                                  value,
+                                                  item,
+                                                )
+                                              }
+                                            />
+                                            <Text>
+                                              {' '}
+                                              X{' '}
+                                              {item.inventoryMapping &&
+                                                item.inventoryMapping.packSize}
+                                              /
+                                              {item.inventoryMapping &&
+                                                item.inventoryMapping
+                                                  .productUnit}
+                                            </Text>
+                                          </View>
                                         </View>
                                       ) : (
-                                        <TouchableOpacity
+                                        <View
                                           onLongPress={() =>
                                             this.actionFun(item)
                                           }
@@ -1252,7 +1291,7 @@ class Basket extends Component {
                                             item.inventoryMapping &&
                                             item.inventoryMapping.productUnit
                                           }`}</Text>
-                                        </TouchableOpacity>
+                                        </View>
                                       )}
 
                                       <View
@@ -1265,6 +1304,31 @@ class Basket extends Component {
                                           € {Number(item.value).toFixed(2)}
                                         </Text>
                                       </View>
+                                      <TouchableOpacity
+                                        onPress={() =>
+                                          this.actionFun(item, index)
+                                        }
+                                        style={{
+                                          width: wp('20%'),
+                                          justifyContent: 'center',
+                                        }}>
+                                        <View
+                                          style={{
+                                            backgroundColor: 'red',
+                                            padding: 10,
+                                            alignItems: 'center',
+                                          }}>
+                                          <Image
+                                            source={img.deleteIconNew}
+                                            style={{
+                                              width: 18,
+                                              height: 18,
+                                              resizeMode: 'contain',
+                                              tintColor: '#fff',
+                                            }}
+                                          />
+                                        </View>
+                                      </TouchableOpacity>
                                     </View>
                                   </View>
                                 );
@@ -1308,6 +1372,12 @@ class Basket extends Component {
                                   € {Number(totalHTVAVal).toFixed(2)}
                                 </Text>
                               </View>
+                              <View
+                                style={{
+                                  width: wp('25%'),
+                                  justifyContent: 'center',
+                                  marginLeft: wp('5%'),
+                                }}></View>
                             </View>
                           </View>
                         </View>
@@ -1318,7 +1388,61 @@ class Basket extends Component {
               )}
             </View>
           )}
-          <View style={{marginVertical: hp('3%')}}>
+
+          <View style={{justifyContent: 'center', alignItems: 'center'}}>
+            <TouchableOpacity
+              onPress={() => this.saveDraftFunGreen()}
+              style={{
+                height: hp('6%'),
+                width: wp('80%'),
+                backgroundColor: '#94C036',
+                justifyContent: 'center',
+                alignItems: 'center',
+                marginTop: hp('2%'),
+                borderRadius: 100,
+              }}>
+              <View
+                style={{
+                  alignItems: 'center',
+                }}>
+                <Text
+                  style={{
+                    color: 'white',
+                    marginLeft: 10,
+                    fontFamily: 'Inter-SemiBold',
+                  }}>
+                  {translate('Save')}
+                </Text>
+              </View>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => this.sendFun()}
+              style={{
+                height: hp('6%'),
+                width: wp('80%'),
+                backgroundColor: '#94C036',
+                justifyContent: 'center',
+                alignItems: 'center',
+                marginTop: hp('3%'),
+                borderRadius: 100,
+                marginBottom: hp('3%'),
+              }}>
+              <View
+                style={{
+                  alignItems: 'center',
+                }}>
+                <Text
+                  style={{
+                    color: 'white',
+                    marginLeft: 10,
+                    fontFamily: 'Inter-SemiBold',
+                  }}>
+                  {translate('Send')}
+                </Text>
+              </View>
+            </TouchableOpacity>
+          </View>
+          <View style={{}}>
             <FlatList
               horizontal
               data={buttons}
@@ -1371,60 +1495,6 @@ class Basket extends Component {
               keyExtractor={item => item.id}
               // numColumns={3}
             />
-          </View>
-
-          <View style={{justifyContent: 'center', alignItems: 'center'}}>
-            <TouchableOpacity
-              onPress={() => this.saveDraftFunGreen()}
-              style={{
-                height: hp('6%'),
-                width: wp('80%'),
-                backgroundColor: '#94C036',
-                justifyContent: 'center',
-                alignItems: 'center',
-                marginTop: hp('2%'),
-                borderRadius: 100,
-              }}>
-              <View
-                style={{
-                  alignItems: 'center',
-                }}>
-                <Text
-                  style={{
-                    color: 'white',
-                    marginLeft: 10,
-                    fontFamily: 'Inter-SemiBold',
-                  }}>
-                  {translate('Save draft')}
-                </Text>
-              </View>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => this.sendFun()}
-              style={{
-                height: hp('6%'),
-                width: wp('80%'),
-                backgroundColor: '#94C036',
-                justifyContent: 'center',
-                alignItems: 'center',
-                marginTop: hp('3%'),
-                borderRadius: 100,
-                marginBottom: hp('5%'),
-              }}>
-              <View
-                style={{
-                  alignItems: 'center',
-                }}>
-                <Text
-                  style={{
-                    color: 'white',
-                    marginLeft: 10,
-                    fontFamily: 'Inter-SemiBold',
-                  }}>
-                  {translate('Send')}
-                </Text>
-              </View>
-            </TouchableOpacity>
           </View>
           <Modal isVisible={mailModalVisible} backdropOpacity={0.35}>
             <View

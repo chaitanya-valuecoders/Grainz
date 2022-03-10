@@ -186,11 +186,15 @@ class EditDraftOrder extends Component {
       totalValue: draftsOrderData.totalValue,
       shopingBasketItemList: finalApiData,
     };
-    console.log('payload', payload);
+    console.log('payload-updateDraftFun', payload);
     updateDraftOrderNewApi(payload)
       .then(res => {
+        console.log('res-updateDraftFun', res);
         this.setState({
           loaderCompStatus: false,
+          finalDeliveryDate:
+            res.data.deliveryDate &&
+            moment(res.data && res.data.deliveryDate).format('DD/MM/YY'),
         });
       })
       .catch(err => {
@@ -313,16 +317,16 @@ class EditDraftOrder extends Component {
       });
     } else if (item.id === 1) {
       const {editStatus} = this.state;
-      if (editStatus) {
-        this.updateBasketFun();
-      } else {
-        this.setState(
-          {
-            loaderCompStatus: true,
-          },
-          this.updateDraftFun(),
-        );
-      }
+      // if (editStatus) {
+      this.updateBasketFun();
+
+      // } else {
+      // this.setState(
+      //   {
+      //     loaderCompStatus: true,
+      //   },
+      // );
+      // }
     } else {
       this.setState(
         {
@@ -496,7 +500,7 @@ class EditDraftOrder extends Component {
     const {editStatus} = this.state;
     if (editStatus) {
       this.setState({
-        editStatus: false,
+        // editStatus: false,
         actionModalStatus: false,
       });
     } else {
@@ -572,7 +576,7 @@ class EditDraftOrder extends Component {
   };
 
   getInventoryFun = () => {
-    const {productId, basketId} = this.state;
+    const {productId, basketId, apiDeliveryDate} = this.state;
 
     getBasketApi(basketId)
       .then(res => {
@@ -583,12 +587,17 @@ class EditDraftOrder extends Component {
             inventoryData: res.data && res.data.shopingBasketItemList,
             modalLoaderDrafts: false,
             supplierValue: res.data && res.data.supplierId,
-            finalOrderDate: moment(res.data && res.data.orderDate).format('L'),
+            finalOrderDate: moment(res.data && res.data.orderDate).format(
+              'DD/MM/YY',
+            ),
             finalOrderMinDate: new Date(),
             finalDeliveryDate:
               res.data.deliveryDate &&
-              moment(res.data && res.data.deliveryDate).format('L'),
-            apiDeliveryDate: res.data && res.data.deliveryDate,
+              moment(res.data && res.data.deliveryDate).format('DD/MM/YY'),
+            apiDeliveryDate:
+              res.data && res.data.deliveryDate !== null
+                ? res.data && res.data.deliveryDate
+                : apiDeliveryDate,
             apiOrderDate: res.data && res.data.orderDate,
             placedByValue: res.data && res.data.placedBy,
             productId,
@@ -625,9 +634,12 @@ class EditDraftOrder extends Component {
         value: item.value,
       });
     });
-    this.setState({
-      finalApiData: [...finalArr],
-    });
+    this.setState(
+      {
+        finalApiData: [...finalArr],
+      },
+      () => this.updateDraftFun(),
+    );
   };
 
   editQuantityFun = (index, type, value) => {
@@ -670,7 +682,7 @@ class EditDraftOrder extends Component {
         this.setState(
           {
             modalLoaderDrafts: true,
-            editStatus: false,
+            // editStatus: false,
             loaderCompStatus: false,
           },
           () => this.getInventoryFun(),
@@ -758,7 +770,10 @@ class EditDraftOrder extends Component {
       mailTitleValue,
       loaderCompStatus,
       finalOrderMinDate,
+      apiDeliveryDate,
     } = this.state;
+
+    console.log('apiDeliveryDate', apiDeliveryDate);
 
     return (
       <View style={styles.container}>
@@ -1088,7 +1103,7 @@ class EditDraftOrder extends Component {
                               HTVA €
                             </Text>
                           </View>
-                          <TouchableOpacity
+                          <View
                             onPress={() => this.editFun()}
                             style={{
                               width: wp('20%'),
@@ -1099,11 +1114,9 @@ class EditDraftOrder extends Component {
                                 color: '#161C27',
                                 fontFamily: 'Inter-SemiBold',
                               }}>
-                              {editStatus
-                                ? translate('Save')
-                                : translate('Edit')}
+                              {translate('Action')}
                             </Text>
-                          </TouchableOpacity>
+                          </View>
                         </View>
                         {inventoryData &&
                           inventoryData.map((item, index) => {
@@ -1230,7 +1243,6 @@ class EditDraftOrder extends Component {
                                         style={{
                                           width: 18,
                                           height: 18,
-                                          marginRight: 10,
                                           resizeMode: 'contain',
                                           tintColor: '#fff',
                                         }}

@@ -141,20 +141,20 @@ class ViewHistoryOrder extends Component {
     const {productId, supplierId, supplierName, basketId, listId} =
       this.props.route && this.props.route.params;
 
-    // this.props.navigation.addListener('focus', () => {
-    this.setState(
-      {
-        productId: productId,
-        arrivalDataStatus: false,
-        loaderCompStatus: true,
-        supplierId: supplierId,
-        supplierName: supplierName,
-        basketId: basketId,
-        listId: listId,
-      },
-      () => this.getOrderFun(),
-    );
-    // });
+    this.props.navigation.addListener('focus', () => {
+      this.setState(
+        {
+          productId: productId,
+          arrivalDataStatus: false,
+          loaderCompStatus: true,
+          supplierId: supplierId,
+          supplierName: supplierName,
+          basketId: basketId,
+          listId: listId,
+        },
+        () => this.getOrderFun(),
+      );
+    });
   }
 
   getOrderFun = () => {
@@ -1568,10 +1568,7 @@ class ViewHistoryOrder extends Component {
                         pageOrderItems.map((item, index) => {
                           return (
                             <View key={index}>
-                              <TouchableOpacity
-                                onPress={() =>
-                                  this.openAccordianFun(index, item)
-                                }
+                              <View
                                 style={{
                                   paddingVertical: 10,
                                   paddingHorizontal: 20,
@@ -1607,10 +1604,13 @@ class ViewHistoryOrder extends Component {
                                   />
                                 </View>
 
-                                <View
+                                <TouchableOpacity
                                   onPress={() =>
-                                    this.showEditModal(item, index)
+                                    this.openAccordianFun(index, item)
                                   }
+                                  // onPress={() =>
+                                  //   this.showEditModal(item, index)
+                                  // }
                                   style={{
                                     width: wp('30%'),
                                     marginLeft: wp('1%'),
@@ -1633,7 +1633,7 @@ class ViewHistoryOrder extends Component {
                                     }}>
                                     {item.productName}
                                   </Text>
-                                </View>
+                                </TouchableOpacity>
                                 {/* <View
                                 style={{
                                   width: wp('30%'),
@@ -1724,7 +1724,7 @@ class ViewHistoryOrder extends Component {
                                     />
                                   </View>
                                 </TouchableOpacity>
-                              </TouchableOpacity>
+                              </View>
                               {index === listIndex ? (
                                 <View
                                   style={{
@@ -1878,12 +1878,23 @@ class ViewHistoryOrder extends Component {
                                             }}>
                                             <TextInput
                                               placeholder="Delivered"
+                                              editable={
+                                                item.canChangeDeliveredQuantity ===
+                                                true
+                                                  ? true
+                                                  : false
+                                              }
                                               keyboardType="numeric"
                                               style={{
                                                 borderWidth: 0.5,
                                                 borderRadius: 5,
                                                 padding: 8,
                                                 width: 80,
+                                                backgroundColor:
+                                                  item.canChangeDeliveredQuantity ===
+                                                  true
+                                                    ? '#fff'
+                                                    : '#E9ECEF',
                                               }}
                                               value={
                                                 modalQuantityDelivered &&
@@ -1967,12 +1978,23 @@ class ViewHistoryOrder extends Component {
                                             }}>
                                             <TextInput
                                               placeholder="Invoiced"
+                                              editable={
+                                                item.canChangeInvoiceQuantity ===
+                                                true
+                                                  ? true
+                                                  : false
+                                              }
                                               keyboardType="numeric"
                                               style={{
                                                 borderWidth: 0.5,
                                                 borderRadius: 5,
                                                 padding: 8,
                                                 width: 80,
+                                                backgroundColor:
+                                                  item.canChangeInvoiceQuantity ===
+                                                  true
+                                                    ? '#fff'
+                                                    : '#E9ECEF',
                                               }}
                                               value={
                                                 modalQuantityInvoiced &&

@@ -48,6 +48,8 @@ class EditStock extends Component {
       screenType: '',
       deleteStatus: false,
       saveStatus: false,
+      finalSum: '',
+      finalUnit: '',
     };
   }
 
@@ -92,6 +94,7 @@ class EditStock extends Component {
     this.getData();
     const {item, pageDate, inventoryId, departmentId, categoryId, screenType} =
       this.props.route && this.props.route.params;
+    console.log('iten-->', item);
 
     let finalUnitData = item.units.map((item, index) => {
       return {
@@ -299,6 +302,7 @@ class EditStock extends Component {
 
   editOfferItemsFun = (index, type, value) => {
     const {modalData} = this.state;
+    console.log('modalData', modalData);
     let newArr = modalData.map((item, i) =>
       index === i
         ? {
@@ -307,9 +311,22 @@ class EditStock extends Component {
           }
         : item,
     );
+    const finalUnitTotal = modalData.map((item, i) => {
+      return item.isDefault === true ? item.unit : null;
+    });
+    var filtered = finalUnitTotal.filter(function (el) {
+      return el != null;
+    });
+    console.log('filtered', filtered);
+
+    const sum = newArr.reduce(function (sum, current) {
+      return sum + current.quantity * current.convertor;
+    }, 0);
     this.setState({
       modalData: [...newArr],
       saveStatus: value ? true : false,
+      finalSum: sum,
+      finalUnit: filtered[0],
     });
   };
 
@@ -378,6 +395,8 @@ class EditStock extends Component {
       screenType,
       deleteStatus,
       saveStatus,
+      finalSum,
+      finalUnit,
     } = this.state;
 
     return (
@@ -448,7 +467,6 @@ class EditStock extends Component {
                             <View>
                               {modalData && modalData.length > 0 ? (
                                 modalData.map((item, index) => {
-                                  console.log('item', item);
                                   return (
                                     <View
                                       style={{
@@ -564,6 +582,39 @@ class EditStock extends Component {
                                   </Text>
                                 </View>
                               )}
+                              <View
+                                style={{
+                                  flexDirection: 'row',
+                                  alignItems: 'center',
+                                  backgroundColor: '#EFFBCF',
+                                }}>
+                                <View
+                                  style={{
+                                    width: wp('30%'),
+                                    alignItems: 'center',
+                                    marginTop: hp('2%'),
+                                    marginBottom: hp('2%'),
+                                  }}>
+                                  <Text
+                                    styl={{
+                                      fontSize: 16,
+                                    }}>
+                                    Total
+                                  </Text>
+                                </View>
+                                <View
+                                  style={{
+                                    width: wp('30%'),
+                                    alignItems: 'center',
+                                  }}>
+                                  <Text
+                                    styl={{
+                                      fontSize: 16,
+                                    }}>
+                                    {finalSum} {finalUnit}
+                                  </Text>
+                                </View>
+                              </View>
                             </View>
                           </View>
                         </ScrollView>

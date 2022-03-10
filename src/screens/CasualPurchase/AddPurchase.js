@@ -43,7 +43,7 @@ minTime.setHours(0);
 minTime.setMinutes(0);
 minTime.setMilliseconds(0);
 
-let todayDate = moment(new Date()).format('DD-MM-YY');
+let todayDate = moment(new Date()).format('DD-MM-YYYY');
 let todayDateProd = moment.utc(new Date()).format();
 
 class index extends Component {
@@ -212,7 +212,7 @@ class index extends Component {
   }
 
   handleConfirm = date => {
-    let newdate = moment(date).format('L');
+    let newdate = moment(date).format('DD-MM-YYYY');
     this.setState({
       finalDate: newdate,
       productionDate: date,
@@ -277,12 +277,39 @@ class index extends Component {
   // }
 
   deletePurchaseLine(index) {
-    if (index > 0) {
-      let temp = this.state.orderItemsFinal;
-      temp.splice(index, 1);
-      this.setState({orderItemsFinal: temp});
-    }
+    let temp = this.state.orderItemsFinal;
+    temp.splice(index, 1);
+    this.setState({orderItemsFinal: temp});
   }
+
+  // deletePurchaseLine(index, type) {
+  //   // this.setState({yourOrderItems: temp});
+
+  //   const {yourOrderItems} = this.state;
+  //   // const {orderItemsFinal} = this.state;
+
+  //   // let newArr = orderItemsFinal.map((item, i) =>
+  //   let newArr = yourOrderItems.map((item, i) =>
+  //     index === i
+  //       ? {
+  //           ...item,
+  //           [type]: 'Delete',
+  //         }
+  //       : item,
+  //   );
+
+  //   // let temp = this.state.yourOrderItems;
+  //   // temp.splice(index, 1);
+
+  //   this.setState({
+  //     // orderItemsFinal: [...newArr],
+  //     orderItemsFinal: [...newArr],
+  //   });
+
+  //   // let temp = this.state.purchaseLines;
+  //   // temp.pop();
+  //   // this.setState({purchaseLines: temp});
+  // }
 
   payloadValidation = () => {
     let formIsValid = true;
@@ -784,8 +811,8 @@ class index extends Component {
                               value: 'Bar',
                             },
                             {
-                              label: 'Restaurant',
-                              value: 'Restaurant',
+                              label: 'Kitchen',
+                              value: 'Kitchen',
                             },
                             {
                               label: 'Retail',
@@ -1044,9 +1071,29 @@ class index extends Component {
 
                                   <View
                                     style={{
+                                      marginLeft: -11,
+                                      zIndex: 10,
+                                    }}>
+                                    <TouchableOpacity
+                                      // disabled={editDisabled}
+                                      onPress={() =>
+                                        this.deletePurchaseLine(index, 'action')
+                                      }>
+                                      <Image
+                                        source={img.cancelIcon}
+                                        style={{
+                                          width: 25,
+                                          height: 25,
+                                          resizeMode: 'contain',
+                                        }}
+                                      />
+                                    </TouchableOpacity>
+                                  </View>
+
+                                  <View
+                                    style={{
                                       flexDirection: 'row',
                                       alignItems: 'center',
-                                      marginTop: hp('2%'),
                                       flex: 1,
                                     }}>
                                     <View

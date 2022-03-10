@@ -219,7 +219,7 @@ class HistoryData extends Component {
         }}>
         <View style={styles.renderContentSubContainer}>
           <TouchableOpacity
-            onPress={() => this.arrangeListFun('NAME')}
+            // onPress={() => this.arrangeListFun('NAME')}
             style={{
               width: wp('20%'),
               justifyContent: 'center',
