@@ -37,6 +37,7 @@ const styles = StyleSheet.create({
     borderBottomColor: 'grey',
     paddingVertical: hp('1%'),
     marginTop: hp('2%'),
+    width: wp('72%'),
   },
   errorContainer: {
     height: hp('5%'),

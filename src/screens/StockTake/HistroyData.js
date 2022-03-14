@@ -298,7 +298,7 @@ class HistoryData extends Component {
                         </Text>
                       </View>
                       <TouchableOpacity
-                        // onPress={() => this.editUnitsFun(item)}
+                        onPress={() => this.editUnitsFun(item)}
                         style={{
                           ...styles.boxSizeSec,
                           marginLeft: wp('1%'),
@@ -383,10 +383,11 @@ class HistoryData extends Component {
   };
 
   editUnitsFun = item => {
-    const {pageDate, departmentId, categoryId} = this.state;
+    console.log('item', item);
+    const {departmentId, categoryId} = this.state;
     this.props.navigation.navigate('EditStockScreen', {
       item,
-      pageDate,
+      pageDate: item.stockTakeDate,
       inventoryId: item.inventoryId,
       departmentId,
       categoryId,

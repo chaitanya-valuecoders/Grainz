@@ -365,7 +365,7 @@ export async function getPreviousStockDatesDataApi(date) {
 
 export const updateStockTakeApi = async payload => {
   const token = await AsyncStorage.getItem('@appToken');
-  return axios.get(baseURL + '/StockTake/update stocktake', payload, {
+  return axios.post(baseURL + '/StockTake/update stocktake', payload, {
     headers: {
       Authorization: `Bearer ${token}`,
     },

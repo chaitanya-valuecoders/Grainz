@@ -20,7 +20,11 @@ import {
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
 import {UserTokenAction} from '../../redux/actions/UserTokenAction';
-import {getMyProfileApi, addStockTakeApi} from '../../connectivity/api';
+import {
+  getMyProfileApi,
+  addStockTakeApi,
+  updateStockTakeApi,
+} from '../../connectivity/api';
 import RNPickerSelect from 'react-native-picker-select';
 import styles from './style';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
@@ -94,7 +98,7 @@ class EditStock extends Component {
     this.getData();
     const {item, pageDate, inventoryId, departmentId, categoryId, screenType} =
       this.props.route && this.props.route.params;
-    console.log('iten-->', item);
+    console.log('pageDate-->', pageDate);
 
     let finalUnitData = item.units.map((item, index) => {
       return {
@@ -139,6 +143,8 @@ class EditStock extends Component {
         categoryId,
         screenType,
         deleteStatus: false,
+        finalSum: item.quantity ? item.quantity : '',
+        finalUnit: item.unit ? item.unit : '',
       });
     } else {
       let finalModalData =
@@ -155,8 +161,9 @@ class EditStock extends Component {
             unit: item.unit,
             unitId: item.unitId,
             createdBy: item.createdBy,
-            converter: item.converter,
+            convertor: item.converter,
             stockTakeInventoryId: item.stockTakeInventoryId,
+            stockTakeRecipeId: null,
           };
         });
       let unitData =
@@ -173,7 +180,7 @@ class EditStock extends Component {
             unit: item.name,
             unitId: item.id,
             createdBy: '',
-            converter: item.converter,
+            convertor: item.converter,
           };
         });
 
@@ -208,6 +215,8 @@ class EditStock extends Component {
         categoryId,
         screenType,
         deleteStatus: true,
+        finalSum: item.quantity ? item.quantity : '',
+        finalUnit: item.unit ? item.unit : '',
       });
     }
   }
@@ -234,12 +243,72 @@ class EditStock extends Component {
   };
 
   deleteFun = (item, index) => {
-    this.setState(
+    const {screenType} = this.state;
+    if (screenType === 'History') {
+      this.setState(
+        {
+          loaderCompStatus: true,
+        },
+        () => this.deleteHistoryFunSec(item, index),
+      );
+    } else {
+      this.setState(
+        {
+          loaderCompStatus: true,
+        },
+        () => this.deleteFunSec(item, index),
+      );
+    }
+  };
+
+  deleteHistoryFunSec = (item, index) => {
+    let payload = [
       {
-        loaderCompStatus: true,
+        action: 'Delete',
+        convertor: item.converter,
+        id: null,
+        inventoryId: item.inventoryId,
+        isDefault: item.isDefault,
+        quantity: item.quantity,
+        recipeId: null,
+        stockTakeDate: item.stockTakeDate,
+        stockTakeInventoryId: item.stockTakeInventoryId,
+        stockTakeRecipeId: null,
+        unit: item.unit,
+        unitId: item.unitId,
       },
-      () => this.deleteFunSec(item, index),
-    );
+    ];
+    if (item.action === 'Update') {
+      updateStockTakeApi(payload)
+        .then(res => {
+          this.setState(
+            {
+              isModalVisible: false,
+            },
+            () => this.removeFromList(index),
+          );
+          // Alert.alert('Grainz', 'Stock trade deleted successfully', [
+          //   {
+          //     text: 'Okay',
+          //     onPress: () => this.removeFromList(index),
+          //   },
+          // ]);
+        })
+        .catch(err => {
+          Alert.alert(
+            `Error - ${err.response.status}`,
+            'Something went wrong',
+            [
+              {
+                text: 'Okay',
+                onPress: () => this.props.navigation.goBack(),
+              },
+            ],
+          );
+        });
+    } else {
+      this.removeFromList(index);
+    }
   };
 
   deleteFunSec = (item, index) => {
@@ -302,7 +371,7 @@ class EditStock extends Component {
 
   editOfferItemsFun = (index, type, value) => {
     const {modalData} = this.state;
-    console.log('modalData', modalData);
+    // console.log('modalData', modalData);
     let newArr = modalData.map((item, i) =>
       index === i
         ? {
@@ -317,26 +386,88 @@ class EditStock extends Component {
     var filtered = finalUnitTotal.filter(function (el) {
       return el != null;
     });
-    console.log('filtered', filtered);
+    // console.log('filtered', filtered);
+
+    console.log('NEWARR', newArr);
 
     const sum = newArr.reduce(function (sum, current) {
-      return sum + current.quantity * current.convertor;
+      console.log('sum', sum);
+      console.log('current', current);
+
+      return sum + Number(current.quantity) * current.convertor;
     }, 0);
+
+    console.log('Sum', sum);
     this.setState({
       modalData: [...newArr],
       saveStatus: value ? true : false,
-      finalSum: sum,
+      finalSum: sum.toFixed(2),
       finalUnit: filtered[0],
     });
   };
 
   saveFun = () => {
-    this.setState(
-      {
-        loaderCompStatus: true,
-      },
-      () => this.saveFunSec(),
-    );
+    const {screenType} = this.state;
+    if (screenType === 'History') {
+      this.setState(
+        {
+          loaderCompStatus: true,
+        },
+        () => this.updateFun(),
+      );
+    } else {
+      this.setState(
+        {
+          loaderCompStatus: true,
+        },
+        () => this.saveFunSec(),
+      );
+    }
+  };
+
+  updateFun = () => {
+    const {modalData} = this.state;
+
+    const finalArr = modalData.map((item, index) => {
+      if (item.quantity) {
+        return item;
+      }
+    });
+
+    const finalArrSec = finalArr.filter(function (element) {
+      return element !== undefined;
+    });
+
+    let payload = finalArrSec;
+    console.log('PAYLOAD-UPDATE', payload);
+    updateStockTakeApi(payload)
+      .then(res => {
+        this.setState(
+          {
+            loaderCompStatus: false,
+          },
+          () => this.props.navigation.goBack(),
+        );
+
+        // Alert.alert('Grainz', 'Stock trade added successfully', [
+        //   {
+        //     text: 'Okay',
+        //     onPress: () =>
+        //       this.setState({
+        //         loaderCompStatus: false,
+        //       }),
+        //   },
+        // ]);
+      })
+      .catch(err => {
+        console.log('er', err.response);
+        Alert.alert(`Error - ${err.response.status}`, 'Something went wrong', [
+          {
+            text: 'Okay',
+            onPress: () => this.props.navigation.goBack(),
+          },
+        ]);
+      });
   };
 
   saveFunSec = () => {
@@ -398,6 +529,9 @@ class EditStock extends Component {
       finalSum,
       finalUnit,
     } = this.state;
+    console.log('modalData', modalData);
+
+    console.log('finalUnit', finalUnit);
 
     return (
       <View style={styles.container}>
@@ -461,7 +595,9 @@ class EditStock extends Component {
                               <View style={styles.headingSubContainer}>
                                 {screenType === 'New' && deleteStatus ? (
                                   <Text>{translate('Action')}</Text>
-                                ) : null}
+                                ) : (
+                                  <Text>{translate('Action')}</Text>
+                                )}
                               </View>
                             </View>
                             <View>
@@ -571,7 +707,27 @@ class EditStock extends Component {
                                             }}
                                           />
                                         </TouchableOpacity>
-                                      ) : null}
+                                      ) : (
+                                        <TouchableOpacity
+                                          onPress={() =>
+                                            this.deleteQuantityFun(item, index)
+                                          }
+                                          style={{
+                                            width: wp('30%'),
+                                            alignItems: 'center',
+                                            paddingVertical: 10,
+                                          }}>
+                                          <Image
+                                            source={img.deleteIconNew}
+                                            style={{
+                                              height: 18,
+                                              width: 18,
+                                              resizeMode: 'contain',
+                                              tintColor: 'red',
+                                            }}
+                                          />
+                                        </TouchableOpacity>
+                                      )}
                                     </View>
                                   );
                                 })

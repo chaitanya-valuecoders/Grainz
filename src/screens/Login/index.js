@@ -37,6 +37,7 @@ class index extends Component {
       buttonLoader: false,
       switchValue: false,
       loader: false,
+      passStatus: true,
     };
   }
 
@@ -156,7 +157,7 @@ class index extends Component {
   };
 
   render() {
-    const {loader} = this.state;
+    const {loader, passStatus} = this.state;
     return (
       <View style={styles.container}>
         <KeyboardAwareScrollView
@@ -198,18 +199,45 @@ class index extends Component {
                     {translate('Password')}*
                   </Text>
                 </View>
-                <TextInput
-                  value={this.state.password}
-                  secureTextEntry={true}
-                  onChangeText={value =>
-                    this.setState({
-                      password: value,
-                      passwordError: '',
-                    })
-                  }
-                  placeholder={translate('Password')}
-                  style={styles.textInputStyling}
-                />
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                  }}>
+                  <TextInput
+                    value={this.state.password}
+                    secureTextEntry={passStatus}
+                    onChangeText={value =>
+                      this.setState({
+                        password: value,
+                        passwordError: '',
+                      })
+                    }
+                    placeholder={translate('Password')}
+                    style={styles.textInputStyling}
+                  />
+                  <TouchableOpacity
+                    onPress={() =>
+                      this.setState({
+                        passStatus: !passStatus,
+                      })
+                    }
+                    style={{
+                      borderBottomColor: 'grey',
+                      borderBottomWidth: 1,
+                      paddingVertical: 7.9,
+                    }}>
+                    <Image
+                      source={passStatus ? img.eyeCloseIcon : img.eyeOpenIcon}
+                      style={{
+                        width: 25,
+                        height: 25,
+                        resizeMode: 'contain',
+                        marginTop: 10,
+                      }}
+                    />
+                  </TouchableOpacity>
+                </View>
                 {this.state.passwordError ? (
                   <View style={styles.errorContainer}>
                     <Text style={styles.errorStyling}>

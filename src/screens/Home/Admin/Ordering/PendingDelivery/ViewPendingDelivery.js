@@ -1002,7 +1002,8 @@ class ViewPendingDelivery extends Component {
       unitPrizeModal,
       listIndex,
     } = this.state;
-    console.log('listIn--->', listIndex);
+    console.log('isCheckedStatus--->', isCheckedStatus);
+    console.log('isCheckedEditableStatus', isCheckedEditableStatus);
 
     return (
       <View style={styles.container}>
@@ -2042,6 +2043,12 @@ class ViewPendingDelivery extends Component {
                                             <TextInput
                                               placeholder="Volume"
                                               keyboardType="numeric"
+                                              editable={
+                                                item.canChangeDeliveredQuantity ===
+                                                true
+                                                  ? true
+                                                  : false
+                                              }
                                               value={
                                                 modalUserQuantityDelivered &&
                                                 String(
@@ -2053,6 +2060,11 @@ class ViewPendingDelivery extends Component {
                                                 borderRadius: 5,
                                                 padding: 8,
                                                 width: 80,
+                                                backgroundColor:
+                                                  item.canChangeDeliveredQuantity ===
+                                                  true
+                                                    ? '#fff'
+                                                    : '#E9ECEF',
                                               }}
                                               onChangeText={value =>
                                                 this.setState({
@@ -2153,11 +2165,22 @@ class ViewPendingDelivery extends Component {
                                             <TextInput
                                               placeholder="Volume"
                                               keyboardType="numeric"
+                                              editable={
+                                                item.canChangeInvoiceQuantity ===
+                                                true
+                                                  ? true
+                                                  : false
+                                              }
                                               style={{
                                                 borderWidth: 0.5,
                                                 borderRadius: 5,
                                                 padding: 8,
                                                 width: 80,
+                                                backgroundColor:
+                                                  item.canChangeInvoiceQuantity ===
+                                                  true
+                                                    ? '#fff'
+                                                    : '#E9ECEF',
                                               }}
                                               value={
                                                 modalUserQuantityInvoiced &&
@@ -2219,6 +2242,14 @@ class ViewPendingDelivery extends Component {
                                               placeholder={translate(
                                                 'Order Value Ex-VAT',
                                               )}
+                                              editable={
+                                                item.canChangeInvoiceQuantity ===
+                                                  true &&
+                                                item.canChangeDeliveredQuantity ===
+                                                  true
+                                                  ? true
+                                                  : false
+                                              }
                                               keyboardType="numeric"
                                               style={{
                                                 borderWidth: 0.5,
@@ -2226,6 +2257,12 @@ class ViewPendingDelivery extends Component {
                                                 padding: 8,
                                                 width: 150,
                                                 marginLeft: wp('15%'),
+                                                backgroundColor:
+                                                  item.canChangeInvoiceQuantity ===
+                                                    true &&
+                                                  item.canChangeDeliveredQuantity
+                                                    ? '#fff'
+                                                    : '#E9ECEF',
                                               }}
                                               value={
                                                 modalPricePaid &&
@@ -2475,7 +2512,11 @@ class ViewPendingDelivery extends Component {
                       borderTopRightRadius: 5,
                       paddingHorizontal: 20,
                     }}>
-                    <View
+                    <TouchableOpacity
+                      onPress={() =>
+                        this.setState({isCheckedStatus: !isCheckedStatus})
+                      }
+                      disabled={isCheckedEditableStatus}
                       style={{
                         flex: 1.2,
                         justifyContent: 'center',
@@ -2490,11 +2531,11 @@ class ViewPendingDelivery extends Component {
                             : '#fff',
                         }}>
                         <CheckBox
-                          disabled={isCheckedEditableStatus}
+                          disabled={true}
                           value={isCheckedStatus}
-                          onValueChange={() =>
-                            this.setState({isCheckedStatus: !isCheckedStatus})
-                          }
+                          // onValueChange={() =>
+                          //   this.setState({isCheckedStatus: !isCheckedStatus})
+                          // }
                           style={{
                             height: 20,
                             width: 20,
@@ -2506,7 +2547,7 @@ class ViewPendingDelivery extends Component {
                         {' '}
                         Checked ?
                       </Text>
-                    </View>
+                    </TouchableOpacity>
                     <View
                       style={{
                         flex: 1,

@@ -719,6 +719,7 @@ class ViewReviewOrder extends Component {
   };
 
   openAccordianFun = (index, item) => {
+    console.log('item-->', item);
     const {listIndex} = this.state;
     if (listIndex || listIndex === 0) {
       this.setState({
@@ -729,7 +730,7 @@ class ViewReviewOrder extends Component {
         modalUserQuantityDelivered: item.userQuantityDelivered,
         modalQuantityInvoiced: item.quantityInvoiced,
         modalUserQuantityInvoiced: item.userQuantityInvoiced,
-        modalPricePaid: item.pricePaid,
+        modalPricePaid: item.orderValue,
         modalNotes: item.notes,
         finalArrivalDateSpecific: item.arrivedDate,
         listIndex: '',
@@ -743,7 +744,7 @@ class ViewReviewOrder extends Component {
         modalUserQuantityDelivered: item.userQuantityDelivered,
         modalQuantityInvoiced: item.quantityInvoiced,
         modalUserQuantityInvoiced: item.userQuantityInvoiced,
-        modalPricePaid: item.pricePaid,
+        modalPricePaid: item.orderValue,
         modalNotes: item.notes,
         finalArrivalDateSpecific: item.arrivedDate,
         listIndex: index,
@@ -1934,6 +1935,12 @@ class ViewReviewOrder extends Component {
                                             <TextInput
                                               placeholder="Volume"
                                               keyboardType="numeric"
+                                              editable={
+                                                item.canChangeDeliveredQuantity ===
+                                                true
+                                                  ? true
+                                                  : false
+                                              }
                                               value={
                                                 modalUserQuantityDelivered &&
                                                 String(
@@ -1945,6 +1952,11 @@ class ViewReviewOrder extends Component {
                                                 borderRadius: 5,
                                                 padding: 8,
                                                 width: 80,
+                                                backgroundColor:
+                                                  item.canChangeDeliveredQuantity ===
+                                                  true
+                                                    ? '#fff'
+                                                    : '#E9ECEF',
                                               }}
                                               onChangeText={value =>
                                                 this.setState({
@@ -2034,11 +2046,22 @@ class ViewReviewOrder extends Component {
                                             <TextInput
                                               placeholder="Volume"
                                               keyboardType="numeric"
+                                              editable={
+                                                item.canChangeInvoiceQuantity ===
+                                                true
+                                                  ? true
+                                                  : false
+                                              }
                                               style={{
                                                 borderWidth: 0.5,
                                                 borderRadius: 5,
                                                 padding: 8,
                                                 width: 80,
+                                                backgroundColor:
+                                                  item.canChangeInvoiceQuantity ===
+                                                  true
+                                                    ? '#fff'
+                                                    : '#E9ECEF',
                                               }}
                                               value={
                                                 modalUserQuantityInvoiced &&
@@ -2092,11 +2115,25 @@ class ViewReviewOrder extends Component {
                                             <TextInput
                                               placeholder="Price"
                                               keyboardType="numeric"
+                                              editable={
+                                                item.canChangeInvoiceQuantity ===
+                                                  true &&
+                                                item.canChangeDeliveredQuantity ===
+                                                  true
+                                                  ? true
+                                                  : false
+                                              }
                                               style={{
                                                 borderWidth: 0.5,
                                                 borderRadius: 5,
                                                 padding: 8,
                                                 width: 100,
+                                                backgroundColor:
+                                                  item.canChangeInvoiceQuantity ===
+                                                    true &&
+                                                  item.canChangeDeliveredQuantity
+                                                    ? '#fff'
+                                                    : '#E9ECEF',
                                               }}
                                               value={
                                                 modalPricePaid &&
@@ -2167,7 +2204,7 @@ class ViewReviewOrder extends Component {
                                                     {finalArrivalDateSpecific &&
                                                       moment(
                                                         finalArrivalDateSpecific,
-                                                      ).format('L')}
+                                                      ).format('DD-MM-YYYY')}
                                                   </Text>
                                                   <Image
                                                     source={img.calenderIcon}

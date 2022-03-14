@@ -824,7 +824,7 @@ class ViewHistoryOrder extends Component {
         modalUserQuantityDelivered: item.userQuantityDelivered,
         modalQuantityInvoiced: item.quantityInvoiced,
         modalUserQuantityInvoiced: item.userQuantityInvoiced,
-        modalPricePaid: item.pricePaid,
+        modalPricePaid: item.orderValue,
         modalNotes: item.notes,
         finalArrivalDateSpecific: item.arrivedDate,
         listIndex: '',
@@ -838,7 +838,7 @@ class ViewHistoryOrder extends Component {
         modalUserQuantityDelivered: item.userQuantityDelivered,
         modalQuantityInvoiced: item.quantityInvoiced,
         modalUserQuantityInvoiced: item.userQuantityInvoiced,
-        modalPricePaid: item.pricePaid,
+        modalPricePaid: item.orderValue,
         modalNotes: item.notes,
         finalArrivalDateSpecific: item.arrivedDate,
         listIndex: index,
@@ -1920,6 +1920,12 @@ class ViewHistoryOrder extends Component {
                                             <TextInput
                                               placeholder="Volume"
                                               keyboardType="numeric"
+                                              editable={
+                                                item.canChangeDeliveredQuantity ===
+                                                true
+                                                  ? true
+                                                  : false
+                                              }
                                               value={
                                                 modalUserQuantityDelivered &&
                                                 String(
@@ -1931,6 +1937,11 @@ class ViewHistoryOrder extends Component {
                                                 borderRadius: 5,
                                                 padding: 8,
                                                 width: 80,
+                                                backgroundColor:
+                                                  item.canChangeDeliveredQuantity ===
+                                                  true
+                                                    ? '#fff'
+                                                    : '#E9ECEF',
                                               }}
                                               onChangeText={value =>
                                                 this.setState({
@@ -2020,11 +2031,22 @@ class ViewHistoryOrder extends Component {
                                             <TextInput
                                               placeholder="Volume"
                                               keyboardType="numeric"
+                                              editable={
+                                                item.canChangeInvoiceQuantity ===
+                                                true
+                                                  ? true
+                                                  : false
+                                              }
                                               style={{
                                                 borderWidth: 0.5,
                                                 borderRadius: 5,
                                                 padding: 8,
                                                 width: 80,
+                                                backgroundColor:
+                                                  item.canChangeInvoiceQuantity ===
+                                                  true
+                                                    ? '#fff'
+                                                    : '#E9ECEF',
                                               }}
                                               value={
                                                 modalUserQuantityInvoiced &&
@@ -2078,11 +2100,25 @@ class ViewHistoryOrder extends Component {
                                             <TextInput
                                               placeholder="Price"
                                               keyboardType="numeric"
+                                              editable={
+                                                item.canChangeInvoiceQuantity ===
+                                                  true &&
+                                                item.canChangeDeliveredQuantity ===
+                                                  true
+                                                  ? true
+                                                  : false
+                                              }
                                               style={{
                                                 borderWidth: 0.5,
                                                 borderRadius: 5,
                                                 padding: 8,
                                                 width: 100,
+                                                backgroundColor:
+                                                  item.canChangeInvoiceQuantity ===
+                                                    true &&
+                                                  item.canChangeDeliveredQuantity
+                                                    ? '#fff'
+                                                    : '#E9ECEF',
                                               }}
                                               value={
                                                 modalPricePaid &&
@@ -2152,7 +2188,7 @@ class ViewHistoryOrder extends Component {
                                                     {finalArrivalDateSpecific &&
                                                       moment(
                                                         finalArrivalDateSpecific,
-                                                      ).format('L')}
+                                                      ).format('DD-MM-YYYY')}
                                                   </Text>
                                                   <Image
                                                     source={img.calenderIcon}

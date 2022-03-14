@@ -58,4 +58,6 @@ export default {
   emailIcon: require('../assests/Images/emailIcon.png'),
   introFirstIcon: require('../assests/Images/introFirstIcon.png'),
   introSecIcon: require('../assests/Images/introSecIcon.png'),
+  eyeOpenIcon: require('../assests/Images/eyeOpenIcon.png'),
+  eyeCloseIcon: require('../assests/Images/eyeCloseIcon.png'),
 };

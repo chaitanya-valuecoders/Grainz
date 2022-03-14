@@ -614,7 +614,7 @@ class PendingDelivery extends Component {
                               />
                             </View>
                           </TouchableOpacity>
-                          <View
+                          {/* <View
                             style={{
                               width: wp('30%'),
                               alignItems: 'center',
@@ -628,7 +628,7 @@ class PendingDelivery extends Component {
                               }}>
                               {translate('Action')}
                             </Text>
-                          </View>
+                          </View> */}
                         </View>
                         <View>
                           {deliveryPendingData && deliveryPendingData.length > 0
@@ -713,7 +713,7 @@ class PendingDelivery extends Component {
                                         </Text>
                                       </View>
                                     </TouchableOpacity>
-                                    <TouchableOpacity
+                                    {/* <TouchableOpacity
                                       onPress={() => this.openMailFun(item)}
                                       style={{
                                         width: wp('30%'),
@@ -727,7 +727,7 @@ class PendingDelivery extends Component {
                                         }}
                                         source={img.emailIcon}
                                       />
-                                    </TouchableOpacity>
+                                    </TouchableOpacity> */}
                                   </View>
                                 );
                               })
