@@ -2384,7 +2384,10 @@ class ViewReviewOrder extends Component {
                       borderTopRightRadius: 5,
                       paddingHorizontal: 20,
                     }}>
-                    <View
+                    <TouchableOpacity
+                      onPress={() =>
+                        this.setState({isAuditStatus: !isAuditStatus})
+                      }
                       style={{
                         flex: 1,
                         justifyContent: 'center',
@@ -2399,11 +2402,11 @@ class ViewReviewOrder extends Component {
                           //   : '#fff',
                         }}>
                         <CheckBox
-                          // disabled={isCheckedEditableStatus}
+                          disabled={true}
                           value={isAuditStatus}
-                          onValueChange={() =>
-                            this.setState({isAuditStatus: !isAuditStatus})
-                          }
+                          // onValueChange={() =>
+                          //   this.setState({isAuditStatus: !isAuditStatus})
+                          // }
                           style={{
                             height: 20,
                             width: 20,
@@ -2419,7 +2422,7 @@ class ViewReviewOrder extends Component {
                         {' '}
                         Audit Complete ?
                       </Text>
-                    </View>
+                    </TouchableOpacity>
                     <View
                       style={{
                         flex: 1,

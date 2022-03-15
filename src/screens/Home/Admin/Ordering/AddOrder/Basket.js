@@ -322,7 +322,7 @@ class Basket extends Component {
           );
         });
     } else {
-      Alert.alert(`Grainz`, 'Please select all values.', [
+      Alert.alert(`Grainz`, 'Please select delivery date.', [
         {
           text: 'Okay',
           onPress: () => this.closeLoaderComp(),
@@ -440,7 +440,7 @@ class Basket extends Component {
           );
         });
     } else {
-      Alert.alert(`Grainz`, 'Please select all values.', [
+      Alert.alert(`Grainz`, 'Please select delivery date.', [
         {
           text: 'Okay',
           onPress: () => this.closeLoaderComp(),
@@ -526,7 +526,7 @@ class Basket extends Component {
           );
         });
     } else {
-      Alert.alert(`Grainz`, 'Please select all values.', [
+      Alert.alert(`Grainz`, 'Please select delivery date.', [
         {
           text: 'Okay',
           onPress: () => this.closeLoaderComp(),

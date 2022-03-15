@@ -98,7 +98,7 @@ class EditStock extends Component {
     this.getData();
     const {item, pageDate, inventoryId, departmentId, categoryId, screenType} =
       this.props.route && this.props.route.params;
-    console.log('pageDate-->', pageDate);
+    console.log('item-->', item);
 
     let finalUnitData = item.units.map((item, index) => {
       return {

@@ -104,6 +104,7 @@ class AddItems extends Component {
       modalDataBackup: [],
       draftStatus: false,
       innerIndex: 0,
+      closeStatus: false,
     };
   }
 
@@ -1597,14 +1598,17 @@ class AddItems extends Component {
   };
 
   navigateToBasket = () => {
-    const {supplierId, productId, supplierName, basketId} = this.state;
-    // this.props.navigation.navigate('BasketOrderScreen', {
-    //   finalData: basketId,
-    //   supplierId,
-    //   itemType: 'Inventory',
-    //   productId,
-    //   supplierName,
-    // });
+    const {supplierId, productId, supplierName, basketId, closeStatus} =
+      this.state;
+    if (closeStatus) {
+      this.props.navigation.navigate('BasketOrderScreen', {
+        finalData: basketId,
+        supplierId,
+        itemType: 'Inventory',
+        productId,
+        supplierName,
+      });
+    }
   };
 
   saveDraftFun = () => {
@@ -1699,6 +1703,15 @@ class AddItems extends Component {
   };
 
   closeBasketFun = () => {
+    this.setState(
+      {
+        closeStatus: true,
+      },
+      () => this.closeBasketFunSec(),
+    );
+  };
+
+  closeBasketFunSec = () => {
     const {
       supplierId,
       productId,
@@ -1717,21 +1730,7 @@ class AddItems extends Component {
         supplierName,
       });
     } else {
-      if (finalBasketData.length > 0) {
-        Alert.alert(`Grainz`, 'Do you want to save the changes?', [
-          {
-            text: 'Yes',
-            onPress: () => this.saveChangesFun(),
-          },
-          {
-            text: 'No',
-            // onPress: () =>
-            //   this.props.navigation.navigate('OrderingAdminScreen'),
-          },
-        ]);
-      } else {
-        this.props.navigation.navigate('OrderingAdminScreen');
-      }
+      this.saveChangesFun();
     }
   };
 
