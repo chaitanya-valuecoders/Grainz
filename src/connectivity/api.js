@@ -1083,3 +1083,12 @@ export const createProspectApi = async payload => {
     headers: {},
   });
 };
+
+export const getCasualListNewApi = async () => {
+  const token = await AsyncStorage.getItem('@appToken');
+  return axios.get(baseURL + `/Inventory/get list`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};

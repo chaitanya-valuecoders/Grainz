@@ -35,6 +35,7 @@ import {
   getInventoryByIdApi,
   getInventoryListApi,
   getOrderImagesByIdApi,
+  getCasualListNewApi,
 } from '../../connectivity/api';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -43,6 +44,7 @@ import ImagePicker from 'react-native-image-crop-picker';
 import styles from './style';
 import ModalPicker from '../../components/ModalPicker';
 import RNPickerSelect from 'react-native-picker-select';
+import TreeSelect from 'react-native-tree-select';
 
 var minTime = new Date();
 minTime.setHours(0);
@@ -62,12 +64,13 @@ class EditPurchase extends Component {
       isDatePickerVisible: false,
       finalDate: '',
       productionDate: '',
-      purchaseLines: [0],
+      purchaseLines: [],
       htva: false,
       htvaIsSelected: false,
       auditIsSelected: false,
       note: '',
       supplierList: [],
+      treeselectDataBackup: [],
       object: {
         date: '',
         supplier: '',
@@ -88,9 +91,10 @@ class EditPurchase extends Component {
       selectedItems: [],
       selectedItemObjects: '',
       yourOrderItems: [],
+      yourOrderItemsBackup: [],
       newOrderItems: [],
       testItem: null,
-      orderTotal: null,
+      orderTotal: 0,
       photo: null,
       editDataLoader: true,
       orderId: '',
@@ -108,6 +112,8 @@ class EditPurchase extends Component {
       placeHolderTextDept: 'Select Supplier',
       dataListLoader: false,
       selectedTextUser: '',
+      treeselectData: [],
+      switchValue: false,
     };
   }
 
@@ -162,6 +168,44 @@ class EditPurchase extends Component {
     const order = route.params.orderData;
     this.showEditCasualPurchase(order);
     this.getImagesFun(order);
+    this.getNewCasualListFun();
+  }
+
+  getNewCasualListFun() {
+    getCasualListNewApi()
+      .then(res => {
+        console.log('resss-->getNewCasualListFun', res);
+        let finalArray = res.data.departments.map((item, index) => {
+          // console.log('item', item);
+
+          let subArray = item.categories.map((subItem, subIndex) => {
+            return {
+              id: subItem.id,
+              name: subItem.name,
+              sortNo: subItem.id,
+              parentId: subIndex,
+              children: subItem.items,
+            };
+          });
+          return {
+            id: item.id,
+            name: item.name,
+            sortNo: item.id,
+            parentId: index,
+            children: subArray,
+          };
+        });
+
+        this.setState({
+          treeselectData: finalArray,
+          treeselectDataBackup: finalArray,
+          supplierListLoader: false,
+        });
+      })
+      .catch(error => {
+        console.log('err', error.response);
+        // this.setState({supplierListLoader: false});
+      });
   }
 
   getImagesFun = order => {
@@ -211,9 +255,16 @@ class EditPurchase extends Component {
     let obj = {};
     getOrderByIdApi(id)
       .then(res => {
+        console.log('res-->getOrderByIdApi', res);
+        const orderTotal = res.data.orderItems.reduce(
+          (n, {unitPrice}) => n + Number(unitPrice),
+          0,
+        );
         this.setState({
           yourOrder: res.data,
+          orderTotal,
         });
+
         res.data.orderItems.map(item => {
           this.getItem(item.inventoryId, item);
           this.getFinalArray(item);
@@ -247,18 +298,22 @@ class EditPurchase extends Component {
   };
 
   getItem(id, item) {
+    console.log('item', item);
     let obj = {};
 
     getInventoryByIdApi(id)
       .then(res => {
+        console.log('res--> getInventoryByIdApi', res);
         const finalUnits = res.data.units.map((subItem, subIndex) => {
           return {
             label: subItem.name,
             value: subItem.id,
+            converter: subItem.converter,
+            isDefault: subItem.isDefault,
           };
         });
 
-        total = total + item.orderValue;
+        // total = total + item.orderValue;
         obj = {
           action: 'Update',
           id: item.id,
@@ -275,12 +330,15 @@ class EditPurchase extends Component {
           name: res.data.name,
           departmentName: res.data.departmentName,
           units: finalUnits,
+          isRollingAverageUsed: item.isRollingAverageUsed,
+          rollingAveragePrice: item.rollingAveragePrice,
         };
 
         list.push(obj);
         this.setState({
-          orderTotal: total,
+          // orderTotal: total,
           yourOrderItems: list,
+          yourOrderItemsBackup: list,
           editDataLoader: false,
           departmentName: res.data.departmentName,
         });
@@ -511,12 +569,13 @@ class EditPurchase extends Component {
         : item,
     );
 
-    // let temp = this.state.yourOrderItems;
-    // temp.splice(index, 1);
+    let temp = this.state.yourOrderItemsBackup;
+    temp.splice(index, 1);
 
     this.setState({
       // orderItemsFinal: [...newArr],
       yourOrderItems: [...newArr],
+      yourOrderItemsBackup: temp,
     });
 
     // let temp = this.state.purchaseLines;
@@ -637,15 +696,16 @@ class EditPurchase extends Component {
   payloadValidation = () => {
     let formIsValid = true;
     const {yourOrderItems} = this.state;
+    console.log('PAYVALIDATION', yourOrderItems);
     if (yourOrderItems.length > 0) {
       for (let i of yourOrderItems) {
-        if (i.quantityOrdered === '') {
+        if (i.quantityOrdered === '' && i.action !== 'Delete') {
           i.error = 'Quantity is required';
           formIsValid = false;
           // this.setState({
           //   quantityError: 'Quantity is required',
           // });
-        } else if (i.unitPrice === '') {
+        } else if (i.unitPrice === '' && i.action !== 'Delete') {
           i.error = 'Price is required';
           formIsValid = false;
           // this.setState({
@@ -653,6 +713,8 @@ class EditPurchase extends Component {
           // });
         }
       }
+    } else {
+      alert('NO');
     }
     this.setState({
       yourOrderItems,
@@ -700,6 +762,7 @@ class EditPurchase extends Component {
       {
         selectedItemObjects: finalValue,
         yourOrderItems: [...finalArray],
+        yourOrderItemsBackup: [...finalArray],
       },
       // ,
       // () => this.addDataFun(index, type, value, finalValue),
@@ -749,6 +812,7 @@ class EditPurchase extends Component {
     );
     this.setState({
       yourOrderItems: [...newArr],
+      yourOrderItemsBackup: [...newArr],
       // orderItemsFinal: [...newArr],
     });
   };
@@ -784,23 +848,186 @@ class EditPurchase extends Component {
     });
   };
 
-  addDataFun = (index, type, value, finalValue) => {
-    const {yourOrderItems, selectedItemObjects} = this.state;
+  addDataFun = (
+    index,
+    type,
+    value,
+    rollingAveragePrice,
+    quantityOrdered,
+    isRollingAverageUsed,
+    key,
+    item,
+    indexUnits,
+  ) => {
+    const {yourOrderItems} = this.state;
     // const finalUnitId =
     //   selectedItemObjects && selectedItemObjects[0].units[0].id;
-    let newArr = yourOrderItems.map((item, i) =>
-      index === i
-        ? {
-            ...item,
-            [type]: value,
-            // ['unitId']: finalUnitId,
-            // ['position']: index,
+    if (type === 'isRollingAverageUsed' && key === 'all') {
+      const finalVal = value;
+      console.log('finalVal', finalVal);
+      console.log('type', type);
+      console.log('key', key);
+
+      let newArr = yourOrderItems.map((item, i) =>
+        index === i
+          ? {
+              ...item,
+              [type]: finalVal,
+              ['unitPrice']: value === true ? item.rollingAveragePrice : '',
+            }
+          : {
+              ...item,
+              [type]: finalVal,
+              ['unitPrice']: value === true ? item.rollingAveragePrice : '',
+            },
+      );
+
+      console.log('NEWA--ALLITEMS', newArr);
+      const orderTotal = newArr.reduce(
+        (n, {rollingAveragePrice}) => n + Number(rollingAveragePrice),
+        0,
+      );
+
+      console.log('orderTotal--ALLITEMS', orderTotal);
+
+      this.setState({
+        yourOrderItems: [...newArr],
+        yourOrderItemsBackup: [...newArr],
+        orderTotal: value === true ? orderTotal : 0.0,
+        switchValue: finalVal,
+      });
+    } else {
+      if (type === 'isRollingAverageUsed') {
+        console.log('rollingAveragePrice', rollingAveragePrice);
+        const finalQuantity = quantityOrdered === '' ? 1 : quantityOrdered;
+        console.log('finalQuantity', finalQuantity);
+        const oldPrice = item.unitPrice;
+        const finalPrice = rollingAveragePrice * finalQuantity;
+        console.log('finalPrice', finalPrice);
+        console.log('valueee', value);
+
+        let newArr = yourOrderItems.map((item, i) =>
+          index === i
+            ? {
+                ...item,
+                [type]: value,
+                ['unitPrice']: value === true ? finalPrice : '',
+              }
+            : item,
+        );
+
+        console.log('NEWA', newArr);
+        const orderTotal = newArr.reduce(
+          (n, {unitPrice}) => n + Number(unitPrice),
+          0,
+        );
+
+        this.setState({
+          yourOrderItems: [...newArr],
+          yourOrderItemsBackup: [...newArr],
+          orderTotal,
+        });
+      } else {
+        if (type === 'quantityOrdered' && isRollingAverageUsed === true) {
+          console.log('rollingAveragePrice', rollingAveragePrice);
+          const finalQuantity = value ? value : 1;
+          console.log('finalQuantity', finalQuantity);
+          const finalPrice = rollingAveragePrice * finalQuantity;
+          console.log('finalPrice', finalPrice);
+          let newArr = yourOrderItems.map((item, i) =>
+            index === i
+              ? {
+                  ...item,
+                  [type]: value,
+                  ['unitPrice']: finalPrice,
+                }
+              : item,
+          );
+          console.log('NEWA', newArr);
+          const orderTotal = newArr.reduce(
+            (n, {unitPrice}) => n + Number(unitPrice),
+            0,
+          );
+
+          this.setState({
+            yourOrderItems: [...newArr],
+            yourOrderItemsBackup: [...newArr],
+            orderTotal,
+            // selectedItems: finalValue,
+          });
+        } else {
+          if (isRollingAverageUsed === true) {
+            console.log('va-->', value);
+            console.log('UNITS-->', item.units);
+            console.log('indexUnits-->', indexUnits);
+            const finalUnit = indexUnits - 1;
+            const isDefault = item.units[finalUnit].isDefault;
+            const converter = item.units[finalUnit].converter;
+
+            console.log('isDefault-->', isDefault);
+
+            console.log('rollingAveragePrice', rollingAveragePrice);
+            const finalQuantity = item.quantityOrdered
+              ? item.quantityOrdered
+              : 1;
+            console.log('finalQuantity', finalQuantity);
+            const finalPrice = rollingAveragePrice * finalQuantity;
+            const finalPriceSec =
+              rollingAveragePrice * finalQuantity * converter;
+            const lastPrice = isDefault === true ? finalPrice : finalPriceSec;
+            console.log('finalPrice', finalPrice);
+            console.log('valueee', value);
+
+            let newArr = yourOrderItems.map((item, i) =>
+              index === i
+                ? {
+                    ...item,
+                    [type]: value,
+                    ['unitPrice']: lastPrice,
+                    // ['unitId']: finalUnitId,
+                    // ['position']: index,
+                  }
+                : item,
+            );
+            console.log('NEWA', newArr);
+            const orderTotal = newArr.reduce(
+              (n, {unitPrice}) => n + Number(unitPrice),
+              0,
+            );
+
+            this.setState({
+              yourOrderItems: [...newArr],
+              yourOrderItemsBackup: [...newArr],
+              orderTotal,
+              // selectedItems: finalValue,
+            });
+          } else {
+            let newArr = yourOrderItems.map((item, i) =>
+              index === i
+                ? {
+                    ...item,
+                    [type]: value,
+                    // ['unitId']: finalUnitId,
+                    // ['position']: index,
+                  }
+                : item,
+            );
+            console.log('NEWA', newArr);
+            const orderTotal = newArr.reduce(
+              (n, {unitPrice}) => n + Number(unitPrice),
+              0,
+            );
+
+            this.setState({
+              yourOrderItems: [...newArr],
+              yourOrderItemsBackup: [...newArr],
+              orderTotal,
+              // selectedItems: finalValue,
+            });
           }
-        : item,
-    );
-    this.setState({
-      yourOrderItems: [...newArr],
-    });
+        }
+      }
+    }
   };
 
   // showSupplierList() {
@@ -811,6 +1038,231 @@ class EditPurchase extends Component {
   //   this.setState({supplier: param, supplierId: id, supplieReference: ref});
   //   this.showSupplierList();
   // }
+
+  _onClick = item => {
+    // console.log('itemmm', item);
+    // let finalArray = finalValue.map((item, index) => {
+    //   // const finalUnits = item.units.map((subItem, subIndex) => {
+    //   //   return {
+    //   //     label: subItem.name,
+    //   //     value: subItem.id,
+    //   //   };
+    //   // });
+    //   return {
+    //     action: 'New',
+    //     id: '',
+    //     inventoryId: item.id,
+    //     inventoryProductMappingId: '',
+    //     isCorrect: false,
+    //     notes: '',
+    //     position: index + 1,
+    //     quantityOrdered: '',
+    //     tdcVolume: 0,
+    //     unitId: item.units[0].id,
+    //     unitPrice: '',
+    //     name: item.name,
+    //     // units: finalUnits,
+    //   };
+    // });
+    // let finalArrayUnit = finalValue.map((item, index) => {
+    //   console.log('item', item);
+    //   return {
+    //     label: item,
+    //     value: item,
+    //   };
+    // });
+    // this.setState(
+    //   {
+    //     orderItemsFinal: [...finalArray],
+    //   },
+    //   // ,
+    //   // () => this.addDataFun(index, type, value, finalValue),
+    // );
+  };
+
+  _onClickLeaf = item => {
+    console.log('_onClickLeaf', item);
+
+    // deletePurchaseLine(index) {
+    //   const {orderItemsFinal, treeselectDataBackup} = this.state;
+    //   let temp = this.state.orderItemsFinal;
+    //   temp.splice(index, 1);
+    //   this.setState({
+    //     orderItemsFinal: temp,
+    //     treeselectData: treeselectDataBackup,
+    //   });
+    // }
+    const {yourOrderItems} = this.state;
+
+    const finalData = item.item;
+    console.log('finalData', finalData);
+
+    const finalArr = yourOrderItems;
+    // console.log('finalArr', finalArr);
+
+    const magenicIndexS = yourOrderItems.findIndex(vendor =>
+      console.log('vendor', vendor),
+    );
+
+    let obj = yourOrderItems.find(o => o.inventoryId === finalData.id);
+
+    console.log('obj', obj);
+
+    const magenicIndex = yourOrderItems.findIndex(
+      vendor => vendor.inventoryId === finalData.id,
+    );
+    console.log('magenicIndex', magenicIndex);
+
+    if (obj === undefined) {
+      finalArr.push(finalData);
+      let finalArray = finalArr.map((item, index) => {
+        console.log('item', item);
+        let finaUnitVal =
+          item &&
+          item.units.map((subItem, subIndex) => {
+            if (subItem.isDefault === true) {
+              return subItem.id ? subItem.id : subItem.value;
+            }
+          });
+        const filteredUnit = finaUnitVal.filter(elm => elm);
+        console.log('filteredUnit--->', filteredUnit);
+        const finalUnits = item.units.map((subItem, subIndex) => {
+          console.log('sunItem', subItem);
+          return {
+            label: subItem.name ? subItem.name : subItem.label,
+            value: subItem.id ? subItem.id : subItem.value,
+            converter: subItem.converter,
+            isDefault: subItem.isDefault,
+          };
+        });
+        return {
+          action: item.action === 'Update' ? 'Update' : 'New',
+          id: '',
+          inventoryId: item.inventoryId ? item.inventoryId : item.id,
+          inventoryProductMappingId: '',
+          isCorrect: false,
+          notes: '',
+          position: index + 1,
+          quantityOrdered: item.quantityOrdered ? item.quantityOrdered : '',
+          tdcVolume: 0,
+          unitId: filteredUnit[0],
+          unitPrice: item.unitPrice ? item.unitPrice : '',
+          name: item.name,
+          units: finalUnits,
+          rollingAveragePrice: item.rollingAveragePrice,
+          isRollingAverageUsed: item.isRollingAverageUsed,
+        };
+      });
+
+      this.setState({
+        yourOrderItems: [...finalArray],
+        yourOrderItemsBackup: [...finalArray],
+      });
+    } else {
+      if (obj.action === 'Delete') {
+        finalArr.push(finalData);
+        let finalArray = finalArr.map((item, index) => {
+          console.log('item', item);
+          let finaUnitVal =
+            item &&
+            item.units.map((subItem, subIndex) => {
+              if (subItem.isDefault === true) {
+                return subItem.id ? subItem.id : subItem.value;
+              }
+            });
+          const filteredUnit = finaUnitVal.filter(elm => elm);
+          console.log('filteredUnit--->', filteredUnit);
+          const finalUnits = item.units.map((subItem, subIndex) => {
+            console.log('sunItem', subItem);
+            return {
+              label: subItem.name ? subItem.name : subItem.label,
+              value: subItem.id ? subItem.id : subItem.value,
+              converter: subItem.converter,
+              isDefault: subItem.isDefault,
+            };
+          });
+          return {
+            action: item.action === 'Update' ? 'Update' : 'New',
+            id: '',
+            inventoryId: item.inventoryId ? item.inventoryId : item.id,
+            inventoryProductMappingId: '',
+            isCorrect: false,
+            notes: '',
+            position: index + 1,
+            quantityOrdered: item.quantityOrdered ? item.quantityOrdered : '',
+            tdcVolume: 0,
+            unitId: filteredUnit[0],
+            unitPrice: item.unitPrice ? item.unitPrice : '',
+            name: item.name,
+            units: finalUnits,
+            rollingAveragePrice: item.rollingAveragePrice,
+            isRollingAverageUsed: item.isRollingAverageUsed,
+          };
+        });
+
+        this.setState({
+          yourOrderItems: [...finalArray],
+          yourOrderItemsBackup: [...finalArray],
+        });
+      }
+    }
+    // if (magenicIndex === -1) {
+    //   finalArr.push(finalData);
+    //   let finalArray = finalArr.map((item, index) => {
+    //     console.log('item', item);
+    //     let finaUnitVal =
+    //       item &&
+    //       item.units.map((subItem, subIndex) => {
+    //         if (subItem.isDefault === true) {
+    //           return subItem.id ? subItem.id : subItem.value;
+    //         }
+    //       });
+    //     const filteredUnit = finaUnitVal.filter(elm => elm);
+    //     console.log('filteredUnit--->', filteredUnit);
+    //     const finalUnits = item.units.map((subItem, subIndex) => {
+    //       console.log('sunItem', subItem);
+    //       return {
+    //         label: subItem.name ? subItem.name : subItem.label,
+    //         value: subItem.id ? subItem.id : subItem.value,
+    //         converter: subItem.converter,
+    //         isDefault: subItem.isDefault,
+    //       };
+    //     });
+    //     return {
+    //       action: item.action === 'Update' ? 'Update' : 'New',
+    //       id: '',
+    //       inventoryId: item.inventoryId ? item.inventoryId : item.id,
+    //       inventoryProductMappingId: '',
+    //       isCorrect: false,
+    //       notes: '',
+    //       position: index + 1,
+    //       quantityOrdered: item.quantityOrdered ? item.quantityOrdered : '',
+    //       tdcVolume: 0,
+    //       unitId: filteredUnit[0],
+    //       unitPrice: item.unitPrice ? item.unitPrice : '',
+    //       name: item.name,
+    //       units: finalUnits,
+    //       rollingAveragePrice: item.rollingAveragePrice,
+    //       isRollingAverageUsed: item.isRollingAverageUsed,
+    //     };
+    //   });
+
+    //   this.setState({
+    //     yourOrderItems: [...finalArray],
+    //     yourOrderItemsBackup: [...finalArray],
+    //   });
+    // } else {
+    //   var filteredArray = yourOrderItems.filter(function (e) {
+    //     return e.inventoryId !== finalData.id;
+    //   });
+    //   console.log('filteredArray', filteredArray);
+
+    //   this.setState({
+    //     yourOrderItems: filteredArray,
+    //     yourOrderItemsBackup: filteredArray,
+    //   });
+    // }
+  };
 
   render() {
     const {
@@ -838,6 +1290,7 @@ class EditPurchase extends Component {
       selectedItemObjects,
       testItem,
       yourOrderItems,
+      yourOrderItemsBackup,
       orderTotal,
       photo,
       newOrderItems,
@@ -852,13 +1305,15 @@ class EditPurchase extends Component {
       imageDataEdit,
       buttonsSubHeader,
       recipeLoader,
-      orderItemsFinal,
       placeHolderTextDept,
       dataListLoader,
       selectedTextUser,
       selectedItems,
+      treeselectData,
+      switchValue,
     } = this.state;
-    console.log('selectedItems', selectedItems);
+    console.log('yourOrderItems', yourOrderItems);
+    console.log('yourOrderItemsBackup', yourOrderItemsBackup);
 
     return (
       <View style={styles.container}>
@@ -1043,6 +1498,53 @@ class EditPurchase extends Component {
                 </View>
               )}
 
+              {!editDisabled ? (
+                <View
+                  style={{
+                    marginBottom: 15,
+                  }}>
+                  <TreeSelect
+                    data={treeselectData}
+                    // isOpen
+                    // openIds={['A01']}
+                    // defaultSelectedId={['B062']}
+                    isShowTreeId={false}
+                    // selectType="single"
+                    selectType="multiple"
+                    itemStyle={{
+                      // backgroudColor: '#8bb0ee',
+                      fontSize: 12,
+                      color: '#995962',
+                    }}
+                    selectedItemStyle={{
+                      backgroudColor: '#f7edca',
+                      fontSize: 16,
+                      color: '#171e99',
+                    }}
+                    onClick={item => this._onClick(item)}
+                    onClickLeaf={item => this._onClickLeaf(item)}
+                    treeNodeStyle={{
+                      // openIcon: <Icon size={18} color="#171e99" style={{ marginRight: 10 }} name="ios-arrow-down" />,
+                      // closeIcon: <Icon size={18} color="#171e99" style={{ marginRight: 10 }} name="ios-arrow-forward" />
+                      openIcon: (
+                        <Image
+                          resizeMode="stretch"
+                          style={{width: 18, height: 15}}
+                          source={img.arrowDownIcon}
+                        />
+                      ),
+                      closeIcon: (
+                        <Image
+                          resizeMode="stretch"
+                          style={{width: 18, height: 15}}
+                          source={img.arrowRightIcon}
+                        />
+                      ),
+                    }}
+                  />
+                </View>
+              ) : null}
+              {/* 
               <View
                 style={{
                   marginBottom: hp('3%'),
@@ -1127,7 +1629,7 @@ class EditPurchase extends Component {
                     />
                   </View>
                 </View>
-              </View>
+              </View> */}
               {/* <View style={{flex: 2}}>
                 {showSuppliers ? (
                   <View
@@ -1157,7 +1659,7 @@ class EditPurchase extends Component {
                   </View>
                 ) : null}
               </View> */}
-              {editDisabled ? null : (
+              {/* {editDisabled ? null : (
                 <View style={{marginBottom: hp('3%')}}>
                   <SectionedMultiSelect
                     styles={{
@@ -1212,186 +1714,330 @@ class EditPurchase extends Component {
                     // selectedItems={[item.inventoryId]}
                   />
                 </View>
-              )}
-              <View>
-                {yourOrderItems.map((item, index) => {
-                  return (
-                    <View style={{marginBottom: hp('3%')}}>
-                      {item.action !== 'Delete' ? (
-                        <View>
-                          {!editDisabled && selectedItems.length === 0 ? (
-                            <View
-                              style={{
-                                marginLeft: -11,
-                                zIndex: 10,
-                              }}>
-                              <TouchableOpacity
-                                disabled={editDisabled}
-                                onPress={() =>
-                                  this.deletePurchaseLine(index, 'action')
-                                }>
-                                <Image
-                                  source={img.cancelIcon}
-                                  style={{
-                                    width: 25,
-                                    height: 25,
-                                    resizeMode: 'contain',
-                                  }}
-                                />
-                              </TouchableOpacity>
-                            </View>
-                          ) : null}
-                          <View
-                            style={{
-                              flexDirection: 'row',
-                              alignItems: 'center',
-                              flex: 1,
-                            }}>
-                            <View
-                              style={{
-                                flex: 0.7,
-                              }}>
-                              <Text>{item.name}</Text>
-                            </View>
+              )} */}
+              {!editDisabled ? (
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    marginBottom: hp('2%'),
+                  }}>
+                  <View>
+                    <Text
+                      style={{
+                        fontSize: 16,
+                        fontWeight: 'bold',
+                      }}>
+                      Items
+                    </Text>
+                  </View>
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                    }}>
+                    <View
+                      style={{
+                        marginRight: 10,
+                      }}>
+                      <Text
+                        style={{
+                          fontSize: 12,
+                        }}>
+                        Use average price for all items:
+                      </Text>
+                    </View>
+                    <View>
+                      <Switch
+                        thumbColor={'#94BB3B'}
+                        trackColor={{false: 'grey', true: 'grey'}}
+                        ios_backgroundColor="white"
+                        onValueChange={value =>
+                          this.addDataFun(
+                            'index',
+                            'isRollingAverageUsed',
+                            value,
+                            'rollingAveragePrice',
+                            'quantityOrdered',
+                            'isRollingAverageUsed',
+                            'all',
+                          )
+                        }
+                        value={switchValue}
+                      />
+                    </View>
+                  </View>
+                </View>
+              ) : null}
+              <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                <View>
+                  {yourOrderItems.map((item, indexOrder) => {
+                    return (
+                      <View style={{marginBottom: 10}}>
+                        {item.action !== 'Delete' ? (
+                          <View style={{marginLeft: wp('5%')}}>
+                            {!editDisabled && selectedItems.length === 0 ? (
+                              <View
+                                style={{
+                                  marginLeft: -11,
+                                  zIndex: 10,
+                                }}>
+                                <TouchableOpacity
+                                  disabled={editDisabled}
+                                  onPress={() =>
+                                    this.deletePurchaseLine(
+                                      indexOrder,
+                                      'action',
+                                    )
+                                  }>
+                                  <Image
+                                    source={img.cancelIcon}
+                                    style={{
+                                      width: 25,
+                                      height: 25,
+                                      resizeMode: 'contain',
+                                    }}
+                                  />
+                                </TouchableOpacity>
+                              </View>
+                            ) : null}
                             <View
                               style={{
                                 flexDirection: 'row',
                                 alignItems: 'center',
-                                flex: 2,
-                                marginLeft: wp('2%'),
+                                flex: 1,
                               }}>
-                              <View>
-                                <TextInput
-                                  editable={!editDisabled}
-                                  placeholder="Quantity"
-                                  style={{
-                                    padding: 12,
-                                    borderTopLeftRadius: 5,
-                                    borderBottomLeftRadius: 5,
-                                    backgroundColor: '#fff',
-                                    width: wp('20%'),
-                                  }}
-                                  keyboardType="number-pad"
-                                  value={item.quantityOrdered}
-                                  onChangeText={value =>
-                                    this.addDataFun(
-                                      index,
-                                      'quantityOrdered',
-                                      value,
-                                    )
-                                  }
-                                />
+                              <View
+                                style={{
+                                  flex: 0.7,
+                                  width: wp('20%'),
+                                }}>
+                                <Text>{item.name}</Text>
                               </View>
                               <View
                                 style={{
                                   flexDirection: 'row',
                                   alignItems: 'center',
+                                  flex: 2,
+                                  marginLeft: wp('2%'),
                                 }}>
+                                <View>
+                                  <TextInput
+                                    editable={!editDisabled}
+                                    placeholder="Quantity"
+                                    style={{
+                                      padding: 12,
+                                      borderTopLeftRadius: 5,
+                                      borderBottomLeftRadius: 5,
+                                      backgroundColor: '#fff',
+                                      width: wp('20%'),
+                                    }}
+                                    keyboardType="number-pad"
+                                    value={item.quantityOrdered}
+                                    onChangeText={value =>
+                                      this.addDataFun(
+                                        indexOrder,
+                                        'quantityOrdered',
+                                        value,
+                                        item.rollingAveragePrice,
+                                        item.quantityOrdered,
+                                        item.isRollingAverageUsed,
+                                      )
+                                    }
+                                  />
+                                </View>
                                 <View
                                   style={{
                                     flexDirection: 'row',
-                                    borderTopRightRadius: 5,
-                                    borderBottomRightRadius: 5,
-                                    backgroundColor: '#68AFFF',
+                                    alignItems: 'center',
                                   }}>
                                   <View
                                     style={{
-                                      alignSelf: 'center',
-                                      justifyContent: 'center',
-                                      width: wp('15%'),
+                                      flexDirection: 'row',
+                                      borderTopRightRadius: 5,
+                                      borderBottomRightRadius: 5,
+                                      backgroundColor: '#68AFFF',
                                     }}>
-                                    <RNPickerSelect
-                                      disabled={editDisabled}
-                                      placeholder={{
-                                        label: 'Unit*',
-                                        value: null,
-                                        color: 'black',
-                                      }}
-                                      onValueChange={value => {
-                                        this.addDataFun(index, 'unitId', value);
-                                      }}
+                                    <View
                                       style={{
-                                        inputIOS: {
-                                          fontSize: 14,
-                                          paddingHorizontal: '3%',
-                                          width: '100%',
-                                          alignSelf: 'center',
-                                          paddingVertical: 12,
-                                          marginLeft: 10,
-                                          color: '#fff',
-                                        },
-                                        inputAndroid: {
-                                          fontSize: 14,
-                                          paddingHorizontal: '3%',
-                                          color: '#161C27',
-                                          width: '100%',
-                                          alignSelf: 'center',
-                                        },
-                                        iconContainer: {
-                                          top: '40%',
-                                        },
-                                      }}
-                                      items={item.units}
-                                      value={item.unitId}
-                                      useNativeAndroidPickerStyle={false}
-                                    />
+                                        alignSelf: 'center',
+                                        justifyContent: 'center',
+                                        width: wp('15%'),
+                                      }}>
+                                      <RNPickerSelect
+                                        disabled={editDisabled}
+                                        placeholder={{
+                                          label: 'Unit*',
+                                          value: null,
+                                          color: 'black',
+                                        }}
+                                        onValueChange={(value, index) => {
+                                          this.addDataFun(
+                                            indexOrder,
+                                            'unitId',
+                                            value,
+                                            item.rollingAveragePrice,
+                                            item.quantityOrdered,
+                                            item.isRollingAverageUsed,
+                                            'key',
+                                            item,
+                                            index,
+                                          );
+                                        }}
+                                        style={{
+                                          inputIOS: {
+                                            fontSize: 14,
+                                            paddingHorizontal: '3%',
+                                            width: '100%',
+                                            alignSelf: 'center',
+                                            paddingVertical: 12,
+                                            marginLeft: 10,
+                                            color: '#fff',
+                                          },
+                                          inputAndroid: {
+                                            fontSize: 14,
+                                            paddingHorizontal: '3%',
+                                            color: '#161C27',
+                                            width: '100%',
+                                            alignSelf: 'center',
+                                          },
+                                          iconContainer: {
+                                            top: '40%',
+                                          },
+                                        }}
+                                        items={item.units}
+                                        value={item.unitId}
+                                        useNativeAndroidPickerStyle={false}
+                                      />
+                                    </View>
+                                    <View style={{marginRight: wp('4%')}}>
+                                      <Image
+                                        source={img.arrowDownIcon}
+                                        resizeMode="contain"
+                                        style={{
+                                          height: 15,
+                                          width: 15,
+                                          resizeMode: 'contain',
+                                          tintColor: '#fff',
+                                          marginTop:
+                                            Platform.OS === 'ios' ? 12 : 15,
+                                        }}
+                                      />
+                                    </View>
                                   </View>
-                                  <View style={{marginRight: wp('4%')}}>
-                                    <Image
-                                      source={img.arrowDownIcon}
-                                      resizeMode="contain"
-                                      style={{
-                                        height: 15,
-                                        width: 15,
-                                        resizeMode: 'contain',
-                                        tintColor: '#fff',
-                                        marginTop:
-                                          Platform.OS === 'ios' ? 12 : 15,
+                                </View>
+                              </View>
+
+                              <View
+                                style={{
+                                  flex: 1,
+                                  flexDirection: 'row',
+                                  alignItems: 'center',
+                                  marginLeft: 10,
+                                }}>
+                                <Text style={{}}>€</Text>
+                                <TextInput
+                                  editable={!editDisabled}
+                                  placeholder="Price"
+                                  style={{
+                                    padding: 15,
+                                    marginLeft: wp('2%'),
+                                    width: wp('25%'),
+                                    backgroundColor: '#fff',
+                                    borderRadius: 6,
+                                  }}
+                                  onChangeText={value =>
+                                    this.addDataFun(
+                                      indexOrder,
+                                      'unitPrice',
+                                      value,
+                                    )
+                                  }
+                                  value={String(item.unitPrice)}
+                                />
+                              </View>
+                              <View
+                                style={{
+                                  flex: 1,
+                                  flexDirection: 'row',
+                                  alignItems: 'center',
+                                  marginLeft: 10,
+                                }}>
+                                <Text
+                                  style={{
+                                    marginRight: 10,
+                                    fontSize: 10,
+                                  }}>
+                                  Use average price
+                                </Text>
+                                <View
+                                  style={{
+                                    backgroundColor: '#fff',
+                                    borderRadius: 6,
+                                    flexDirection: 'row',
+                                    alignItems: 'center',
+                                    paddingHorizontal: 10,
+                                  }}>
+                                  <TextInput
+                                    placeholder="Average Price"
+                                    editable={false}
+                                    style={{
+                                      padding: 15,
+                                      width: wp('25%'),
+                                    }}
+                                    onChangeText={value =>
+                                      this.addDataFun(
+                                        indexOrder,
+                                        'rollingAveragePrice',
+                                        value,
+                                      )
+                                    }
+                                    value={`€ ${String(
+                                      item.rollingAveragePrice,
+                                    )}`}
+                                  />
+                                  <View>
+                                    <Switch
+                                      disabled={editDisabled}
+                                      thumbColor={'#94BB3B'}
+                                      trackColor={{
+                                        false: 'grey',
+                                        true: 'grey',
                                       }}
+                                      ios_backgroundColor="white"
+                                      onValueChange={val =>
+                                        this.addDataFun(
+                                          indexOrder,
+                                          'isRollingAverageUsed',
+                                          val,
+                                          item.rollingAveragePrice,
+                                          item.quantityOrdered,
+                                          item.isRollingAverageUsed,
+                                          'keyRolling',
+                                          item,
+                                        )
+                                      }
+                                      value={item.isRollingAverageUsed}
                                     />
                                   </View>
                                 </View>
                               </View>
                             </View>
-
-                            <View
-                              style={{
-                                flex: 1,
-                                flexDirection: 'row',
-                                alignItems: 'center',
-                              }}>
-                              <Text style={{}}>€</Text>
-                              <TextInput
-                                editable={!editDisabled}
-                                placeholder="Price"
-                                style={{
-                                  padding: 15,
-                                  marginLeft: wp('2%'),
-                                  width: wp('18%'),
-                                  backgroundColor: '#fff',
-                                  borderRadius: 6,
-                                }}
-                                onChangeText={value =>
-                                  this.addDataFun(index, 'unitPrice', value)
-                                }
-                                value={item.unitPrice}
-                              />
-                            </View>
-                          </View>
-                          {item.error ? (
-                            <View>
-                              <Text
-                                style={{
-                                  color: 'red',
-                                  fontSize: 12,
-                                  fontFamily: 'Inter-Regular',
-                                  marginTop: 5,
-                                }}>
-                                {item.error}
-                              </Text>
-                            </View>
-                          ) : null}
-                          {/* <View>
+                            {item.error ? (
+                              <View>
+                                <Text
+                                  style={{
+                                    color: 'red',
+                                    fontSize: 12,
+                                    fontFamily: 'Inter-Regular',
+                                    marginTop: 5,
+                                  }}>
+                                  {item.error}
+                                </Text>
+                              </View>
+                            ) : null}
+                            {/* <View>
                         {!editDisabled ? (
                           <View
                             style={{
@@ -1584,12 +2230,13 @@ class EditPurchase extends Component {
                           </View>
                         </View>
                       </View> */}
-                        </View>
-                      ) : null}
-                    </View>
-                  );
-                })}
-              </View>
+                          </View>
+                        ) : null}
+                      </View>
+                    );
+                  })}
+                </View>
+              </ScrollView>
               {/* <View>
                 {editDisabled ? null : (
                   <View>
@@ -1651,7 +2298,7 @@ class EditPurchase extends Component {
                         fontSize: 16,
                         color: '#151B26',
                       }}>
-                      € {orderTotal}
+                      € {orderTotal.toFixed(2)}
                     </Text>
                   </View>
                 </View>
@@ -1951,32 +2598,34 @@ class EditPurchase extends Component {
                 justifyContent: 'center',
                 paddingVertical: 15,
               }}>
-              <TouchableOpacity
-                onPress={() => this.updateCasualPurchase()}
-                style={{
-                  width: wp('30%'),
-                  height: hp('5%'),
-                  alignSelf: 'flex-end',
-                  backgroundColor: '#94C036',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  borderRadius: 100,
-                }}>
-                <Text
+              {yourOrderItemsBackup.length > 0 ? (
+                <TouchableOpacity
+                  onPress={() => this.updateCasualPurchase()}
                   style={{
-                    color: '#fff',
-                    fontSize: 15,
-                    fontWeight: 'bold',
+                    width: wp('30%'),
+                    height: hp('5%'),
+                    alignSelf: 'flex-end',
+                    backgroundColor: '#94C036',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    borderRadius: 100,
                   }}>
-                  {updateLoader ? (
-                    <ActivityIndicator size="small" color="#fff" />
-                  ) : (
-                    translate('Save')
-                  )}
-                </Text>
-              </TouchableOpacity>
+                  <Text
+                    style={{
+                      color: '#fff',
+                      fontSize: 15,
+                      fontWeight: 'bold',
+                    }}>
+                    {updateLoader ? (
+                      <ActivityIndicator size="small" color="#fff" />
+                    ) : (
+                      translate('Save')
+                    )}
+                  </Text>
+                </TouchableOpacity>
+              ) : null}
               <TouchableOpacity
-                onPress={() => this.props.navigation.goBack()}
+                onPress={() => this.goBackFun()}
                 style={{
                   width: wp('30%'),
                   height: hp('5%'),
