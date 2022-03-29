@@ -22,6 +22,7 @@ import {UserTokenAction} from '../../../../../redux/actions/UserTokenAction';
 import {
   getMyProfileApi,
   draftOrderingApi,
+  deleteOrderApi,
 } from '../../../../../connectivity/api';
 import moment from 'moment';
 import styles from '../style';
@@ -84,8 +85,10 @@ class DraftOrder extends Component {
   };
 
   componentDidMount() {
-    this.getData();
-    this.getDraftOrderData();
+    this.props.navigation.addListener('focus', () => {
+      this.getData();
+      this.getDraftOrderData();
+    });
   }
 
   getDraftOrderData = () => {
@@ -250,6 +253,43 @@ class DraftOrder extends Component {
         draftsOrderData: finalData,
       });
     }
+  };
+
+  deleteDraftFun = param => {
+    Alert.alert('Are you sure?', "You won't be able to revert this!", [
+      {
+        text: 'Cancel',
+        style: 'cancel',
+      },
+      {
+        text: 'OK',
+        onPress: () => this.deleteFun(param),
+      },
+    ]);
+  };
+
+  deleteFun = param => {
+    this.setState(
+      {
+        recipeLoader: true,
+      },
+      () =>
+        deleteOrderApi(param.id)
+          .then(res => {
+            this.setState(
+              {
+                recipeLoader: false,
+              },
+              () => this.getDraftOrderData(),
+            );
+          })
+          .catch(error => {
+            this.setState({
+              deleteLoader: false,
+            });
+            console.warn('DELETEerror', error.response);
+          }),
+    );
   };
 
   render() {
@@ -433,12 +473,29 @@ class DraftOrder extends Component {
                           />
                         </View>
                       </TouchableOpacity>
+                      <View
+                        onPress={() => this.arrangeListFun('HTVA')}
+                        style={{
+                          flex: 0.5,
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                          flexDirection: 'row',
+                          alignItems: 'center',
+                        }}>
+                        <Text
+                          style={{
+                            color: '#161C27',
+                            fontFamily: 'Inter-SemiBold',
+                          }}>
+                          {translate('Action')}
+                        </Text>
+                      </View>
                     </View>
                     {draftsOrderData &&
                       draftsOrderData.map((item, index) => {
                         return (
                           <View>
-                            <TouchableOpacity
+                            <View
                               // onPress={() =>
                               //   this.props.navigation.navigate(
                               //     'ViewDraftOrdersScreen',
@@ -450,56 +507,82 @@ class DraftOrder extends Component {
                               //     },
                               //   )
                               // }
-                              onPress={() =>
-                                this.props.navigation.navigate(
-                                  'EditDraftOrderScreen',
-                                  {
-                                    productId: item.id,
-                                    basketId: item.shopingBasketId,
-                                  },
-                                )
-                              }
+
                               style={{
                                 flexDirection: 'row',
                                 justifyContent: 'space-between',
                                 flex: 1,
                                 backgroundColor:
                                   index % 2 === 0 ? '#FFFFFF' : '#F7F8F5',
-                                paddingVertical: hp('3%'),
-                                borderTopLeftRadius: 5,
-                                borderTopRightRadius: 5,
+                                // borderTopLeftRadius: 5,
+                                // borderTopRightRadius: 5,
                                 paddingHorizontal: wp('3%'),
                               }}>
-                              <View
+                              <TouchableOpacity
+                                onPress={() =>
+                                  this.props.navigation.navigate(
+                                    'EditDraftOrderScreen',
+                                    {
+                                      productId: item.id,
+                                      basketId: item.shopingBasketId,
+                                    },
+                                  )
+                                }
                                 style={{
-                                  flex: 1,
+                                  flexDirection: 'row',
+                                  flex: 2.2,
+                                  paddingVertical: hp('3%'),
+                                }}>
+                                <View
+                                  style={{
+                                    flex: 1,
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                  }}>
+                                  <Text style={{}}>{item.supplierName}</Text>
+                                </View>
+                                <View
+                                  style={{
+                                    flex: 1,
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                  }}>
+                                  <Text>
+                                    {item.orderDate &&
+                                      moment(item.orderDate).format(
+                                        'DD/MM/YYYY',
+                                      )}
+                                  </Text>
+                                </View>
+                                <View
+                                  style={{
+                                    flex: 1,
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                  }}>
+                                  <Text>
+                                    € {item.htva && item.htva.toFixed(2)}
+                                  </Text>
+                                </View>
+                              </TouchableOpacity>
+                              <TouchableOpacity
+                                onPress={() => this.deleteDraftFun(item)}
+                                style={{
+                                  flex: 0.5,
                                   justifyContent: 'center',
                                   alignItems: 'center',
                                 }}>
-                                <Text style={{}}>{item.supplierName}</Text>
-                              </View>
-                              <View
-                                style={{
-                                  flex: 1,
-                                  justifyContent: 'center',
-                                  alignItems: 'center',
-                                }}>
-                                <Text>
-                                  {item.orderDate &&
-                                    moment(item.orderDate).format('DD/MM/YYYY')}
-                                </Text>
-                              </View>
-                              <View
-                                style={{
-                                  flex: 1,
-                                  justifyContent: 'center',
-                                  alignItems: 'center',
-                                }}>
-                                <Text>
-                                  € {item.htva && item.htva.toFixed(2)}
-                                </Text>
-                              </View>
-                            </TouchableOpacity>
+                                <Image
+                                  style={{
+                                    width: 17,
+                                    height: 17,
+                                    resizeMode: 'contain',
+                                    tintColor: 'red',
+                                  }}
+                                  source={img.deleteIconNew}
+                                />
+                              </TouchableOpacity>
+                            </View>
                           </View>
                         );
                       })}

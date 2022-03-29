@@ -31,6 +31,7 @@ import {
   sendOrderApi,
   viewShoppingBasketApi,
   viewHTMLApi,
+  deleteOrderApi,
 } from '../../../../../connectivity/api';
 import moment from 'moment';
 import styles from '../style';
@@ -742,6 +743,45 @@ class EditDraftOrder extends Component {
 
   deleteOrderFun = () => {};
 
+  deleteDraftFun = () => {
+    Alert.alert('Are you sure?', "You won't be able to revert this!", [
+      {
+        text: 'Cancel',
+        style: 'cancel',
+      },
+      {
+        text: 'OK',
+        onPress: () => this.deleteFun(),
+      },
+    ]);
+  };
+
+  deleteFun = () => {
+    const {productId} = this.state;
+    console.log('productId', productId);
+    this.setState(
+      {
+        modalLoaderDrafts: true,
+      },
+      () =>
+        deleteOrderApi(productId)
+          .then(res => {
+            this.setState(
+              {
+                modalLoaderDrafts: false,
+              },
+              () => this.props.navigation.goBack(),
+            );
+          })
+          .catch(error => {
+            this.setState({
+              deleteLoader: false,
+            });
+            console.warn('DELETEerror', error.response);
+          }),
+    );
+  };
+
   render() {
     const {
       buttonsSubHeader,
@@ -795,10 +835,9 @@ class EditDraftOrder extends Component {
               <View style={{flex: 1}}>
                 <Text style={styles.adminTextStyle}>Order Edit</Text>
               </View>
+
               <TouchableOpacity
-                onPress={() =>
-                  this.props.navigation.navigate('OrderingAdminScreen')
-                }
+                onPress={() => this.props.navigation.goBack()}
                 style={styles.goBackContainer}>
                 <Text style={styles.goBackTextStyle}>
                   {translate('Go Back')}
@@ -1380,6 +1419,31 @@ class EditDraftOrder extends Component {
             </TouchableOpacity>
           </View> */}
           <View style={{justifyContent: 'center', alignItems: 'center'}}>
+            <TouchableOpacity
+              onPress={() => this.deleteDraftFun()}
+              style={{
+                height: hp('6%'),
+                width: wp('80%'),
+                backgroundColor: 'red',
+                justifyContent: 'center',
+                alignItems: 'center',
+                marginTop: hp('3%'),
+                borderRadius: 100,
+              }}>
+              <View
+                style={{
+                  alignItems: 'center',
+                }}>
+                <Text
+                  style={{
+                    color: 'white',
+                    marginLeft: 10,
+                    fontFamily: 'Inter-SemiBold',
+                  }}>
+                  {translate('Delete')}
+                </Text>
+              </View>
+            </TouchableOpacity>
             <TouchableOpacity
               onPress={() => this.sendFun()}
               style={{

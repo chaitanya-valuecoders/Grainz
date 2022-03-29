@@ -711,6 +711,12 @@ class EditPurchase extends Component {
           // this.setState({
           //   priceError: 'Price is required',
           // });
+        } else if (i.unitId === null) {
+          i.error = 'Please select unit';
+          formIsValid = false;
+          // this.setState({
+          //   priceError: 'Price is required',
+          // });
         }
       }
     } else {
@@ -956,7 +962,7 @@ class EditPurchase extends Component {
             // selectedItems: finalValue,
           });
         } else {
-          if (isRollingAverageUsed === true) {
+          if (isRollingAverageUsed === true && value !== null) {
             console.log('va-->', value);
             console.log('UNITS-->', item.units);
             console.log('indexUnits-->', indexUnits);
@@ -1868,7 +1874,7 @@ class EditPurchase extends Component {
                                       <RNPickerSelect
                                         disabled={editDisabled}
                                         placeholder={{
-                                          label: 'Unit*',
+                                          label: 'Select Unit*',
                                           value: null,
                                           color: 'black',
                                         }}

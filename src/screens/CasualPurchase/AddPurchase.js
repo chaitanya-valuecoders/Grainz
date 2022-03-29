@@ -369,15 +369,12 @@ class index extends Component {
         if (i.quantityOrdered === '') {
           i.error = 'Quantity is required';
           formIsValid = false;
-          // this.setState({
-          //   quantityError: 'Quantity is required',
-          // });
         } else if (i.unitPrice === '') {
           i.error = 'Price is required';
           formIsValid = false;
-          // this.setState({
-          //   priceError: 'Price is required',
-          // });
+        } else if (i.unitId === null) {
+          i.error = 'Please select a unit';
+          formIsValid = false;
         }
       }
     }
@@ -955,7 +952,7 @@ class index extends Component {
             // selectedItems: finalValue,
           });
         } else {
-          if (isRollingAverageUsed === true) {
+          if (isRollingAverageUsed === true && value !== null) {
             console.log('va-->', item.value);
             console.log('UNITS-->', item.units);
             console.log('indexUnits-->', indexUnits);
@@ -1659,7 +1656,7 @@ class index extends Component {
                                                 }}>
                                                 <RNPickerSelect
                                                   placeholder={{
-                                                    label: 'Unit*',
+                                                    label: 'Select Unit*',
                                                     value: null,
                                                     color: 'black',
                                                   }}
