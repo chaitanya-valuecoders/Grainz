@@ -171,7 +171,7 @@ class StockScreen extends Component {
   };
 
   editUnitsFun = item => {
-    const {pageDate, departmentId, categoryId} = this.state;
+    const {pageDate, departmentId, categoryId, topValueStatus} = this.state;
     this.props.navigation.navigate('EditStockScreen', {
       item,
       pageDate,
@@ -179,6 +179,7 @@ class StockScreen extends Component {
       departmentId,
       categoryId,
       screenType: 'New',
+      topValueStatus,
     });
   };
 

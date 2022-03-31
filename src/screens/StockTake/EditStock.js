@@ -54,6 +54,7 @@ class EditStock extends Component {
       saveStatus: false,
       finalSum: '',
       finalUnit: '',
+      topValueStatus: '',
     };
   }
 
@@ -96,8 +97,16 @@ class EditStock extends Component {
 
   componentDidMount() {
     this.getData();
-    const {item, pageDate, inventoryId, departmentId, categoryId, screenType} =
-      this.props.route && this.props.route.params;
+    const {
+      item,
+      pageDate,
+      inventoryId,
+      departmentId,
+      categoryId,
+      screenType,
+      topValueStatus,
+      activeSections,
+    } = this.props.route && this.props.route.params;
     console.log('item-->', item);
 
     let finalUnitData = item.units.map((item, index) => {
@@ -145,6 +154,8 @@ class EditStock extends Component {
         deleteStatus: false,
         finalSum: item.quantity ? item.quantity : '',
         finalUnit: item.unit ? item.unit : '',
+        topValueStatus,
+        activeSections,
       });
     } else {
       let finalModalData =
@@ -217,6 +228,8 @@ class EditStock extends Component {
         deleteStatus: true,
         finalSum: item.quantity ? item.quantity : '',
         finalUnit: item.unit ? item.unit : '',
+        topValueStatus,
+        activeSections,
       });
     }
   }
@@ -364,9 +377,7 @@ class EditStock extends Component {
   removeFromList = index => {
     let temp = this.state.modalData;
     temp.splice(index, 1);
-    this.setState({modalData: temp, loaderCompStatus: false}, () =>
-      this.props.navigation.goBack(),
-    );
+    this.setState({modalData: temp, loaderCompStatus: false});
   };
 
   editOfferItemsFun = (index, type, value) => {
@@ -446,7 +457,8 @@ class EditStock extends Component {
           {
             loaderCompStatus: false,
           },
-          () => this.props.navigation.goBack(),
+          // ,
+          // () => this.props.navigation.goBack(),
         );
 
         // Alert.alert('Grainz', 'Stock trade added successfully', [
@@ -491,7 +503,8 @@ class EditStock extends Component {
           {
             loaderCompStatus: false,
           },
-          () => this.props.navigation.goBack(),
+          // ,
+          // () => this.props.navigation.goBack(),
         );
 
         // Alert.alert('Grainz', 'Stock trade added successfully', [
@@ -514,6 +527,17 @@ class EditStock extends Component {
       });
   };
 
+  navigateFun = () => {
+    const {topValueStatus, activeSections} = this.state;
+    if (topValueStatus) {
+      this.props.navigation.goBack();
+    } else {
+      this.props.navigation.navigate('CategoryStockScreen', {
+        activeSections,
+      });
+    }
+  };
+
   render() {
     const {
       buttonsSubHeader,
@@ -528,10 +552,12 @@ class EditStock extends Component {
       saveStatus,
       finalSum,
       finalUnit,
+      topValueStatus,
+      activeSections,
     } = this.state;
-    console.log('modalData', modalData);
+    console.log('activeSections', activeSections);
 
-    console.log('finalUnit', finalUnit);
+    // console.log('finalUnit', finalUnit);
 
     return (
       <View style={styles.container}>
@@ -552,7 +578,7 @@ class EditStock extends Component {
                 <Text style={styles.adminTextStyle}> {finalName}</Text>
               </View>
               <TouchableOpacity
-                onPress={() => this.props.navigation.goBack()}
+                onPress={() => this.navigateFun()}
                 style={styles.goBackContainer}>
                 <Text style={styles.goBackTextStyle}>
                   {translate('Go Back')}

@@ -550,9 +550,7 @@ class EditHistoryOrder extends Component {
   };
 
   filterData(array) {
-    const restArray = array.filter(
-      item => item.departmentName === 'Restaurant',
-    );
+    const restArray = array.filter(item => item.departmentName === 'Kitchen');
     restArray.sort();
     const barArray = array.filter(item => item.departmentName === 'Bar');
     barArray.sort();
@@ -947,8 +945,8 @@ class EditHistoryOrder extends Component {
                                   value: 'Bar',
                                 },
                                 {
-                                  label: 'Restaurant',
-                                  value: 'Restaurant',
+                                  label: 'Kitchen',
+                                  value: 'Kitchen',
                                 },
                                 {
                                   label: 'Retail',

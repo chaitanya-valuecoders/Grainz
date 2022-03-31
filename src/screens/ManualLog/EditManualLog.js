@@ -408,8 +408,8 @@ class EditManualLog extends Component {
                                       value: 'Bar',
                                     },
                                     {
-                                      label: 'Restaurant',
-                                      value: 'Restaurant',
+                                      label: 'Kitchen',
+                                      value: 'Kitchen',
                                     },
                                     {
                                       label: 'Retail',

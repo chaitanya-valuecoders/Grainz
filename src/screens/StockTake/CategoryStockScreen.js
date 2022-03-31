@@ -58,6 +58,7 @@ class CategoryStockScreen extends Component {
       departmentId: '',
       pageDate: '',
       arrangeStatusName: 0,
+      topValueStatus: '',
     };
   }
 
@@ -104,7 +105,7 @@ class CategoryStockScreen extends Component {
   };
 
   createFirstData = () => {
-    const {departmentId} = this.state;
+    const {departmentId, activeSections} = this.state;
     lookupInventoryApi(departmentId)
       .then(res => {
         let finalArray = res.data.map((item, index) => {
@@ -116,10 +117,14 @@ class CategoryStockScreen extends Component {
 
         const result = finalArray;
 
-        this.setState({
-          SECTIONS: [...result],
-          recipeLoader: false,
-        });
+        this.setState(
+          {
+            SECTIONS: [...result],
+            recipeLoader: false,
+            activeSections,
+          },
+          () => this.updateSubFun(),
+        );
       })
       .catch(err => {
         console.log('ERR MEP', err);
@@ -192,24 +197,36 @@ class CategoryStockScreen extends Component {
   };
 
   editUnitsFun = item => {
-    const {pageDate, departmentId, categoryId} = this.state;
-    this.setState(
-      {
-        activeSections: [],
-        SECTIONS: [],
-      },
-      () =>
-        setTimeout(() => {
-          this.props.navigation.navigate('EditStockScreen', {
-            item,
-            pageDate,
-            inventoryId: item.inventoryId,
-            departmentId,
-            categoryId,
-            screenType: 'New',
-          });
-        }, 300),
-    );
+    const {pageDate, departmentId, categoryId, topValueStatus, activeSections} =
+      this.state;
+    this.props.navigation.navigate('EditStockScreen', {
+      item,
+      pageDate,
+      inventoryId: item.inventoryId,
+      departmentId,
+      categoryId,
+      screenType: 'New',
+      topValueStatus,
+      activeSections,
+    });
+    // this.setState(
+    //   {
+    //     // activeSections: [],
+    //     // SECTIONS: [],
+    //   },
+    //   () =>
+    //     setTimeout(() => {
+    //       this.props.navigation.navigate('EditStockScreen', {
+    //         item,
+    //         pageDate,
+    //         inventoryId: item.inventoryId,
+    //         departmentId,
+    //         categoryId,
+    //         screenType: 'New',
+    //         topValueStatus,
+    //       });
+    //     }, 300),
+    // );
   };
 
   arrangeListFun = funType => {
@@ -330,7 +347,6 @@ class CategoryStockScreen extends Component {
           <ScrollView nestedScrollEnabled showsVerticalScrollIndicator={false}>
             {catArray && catArray.length > 0 ? (
               catArray.map((item, index) => {
-                console.log('item', item);
                 let finaUnitVal =
                   item &&
                   item.units.map((subItem, subIndex) => {
@@ -498,6 +514,8 @@ class CategoryStockScreen extends Component {
   render() {
     const {recipeLoader, SECTIONS, activeSections, buttonsSubHeader} =
       this.state;
+
+    console.log('activeSections-->CATSDCreem', activeSections);
 
     return (
       <View style={styles.container}>

@@ -628,9 +628,7 @@ class EditPurchase extends Component {
   };
 
   filterData(array) {
-    const restArray = array.filter(
-      item => item.departmentName === 'Restaurant',
-    );
+    const restArray = array.filter(item => item.departmentName === 'Kitchen');
     restArray.sort();
     const barArray = array.filter(item => item.departmentName === 'Bar');
     barArray.sort();
@@ -1606,8 +1604,8 @@ class EditPurchase extends Component {
                           value: 'Bar',
                         },
                         {
-                          label: 'Restaurant',
-                          value: 'Restaurant',
+                          label: 'Kitchen',
+                          value: 'Kitchen',
                         },
                         {
                           label: 'Retail',
@@ -2077,8 +2075,8 @@ class EditPurchase extends Component {
                                   value: 'Bar',
                                 },
                                 {
-                                  label: 'Restaurant',
-                                  value: 'Restaurant',
+                                  label: 'Kitchen',
+                                  value: 'Kitchen',
                                 },
                                 {
                                   label: 'Retail',
@@ -2395,7 +2393,7 @@ class EditPurchase extends Component {
                   />
                 </TouchableOpacity>
               ) : null}
-              {/* {editDisabled ? null : (
+              {editDisabled ? null : (
                 <View>
                   <TouchableOpacity
                     onPress={() => this.handleChoosePhoto()}
@@ -2420,7 +2418,7 @@ class EditPurchase extends Component {
                     </View>
                   </TouchableOpacity>
                 </View>
-              )} */}
+              )}
 
               {/* {imageData && imageShow === false ? (
                 <View style={{marginTop: 15}}>

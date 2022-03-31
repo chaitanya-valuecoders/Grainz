@@ -191,6 +191,30 @@ class AddManualLog extends Component {
     });
   };
 
+  // payloadValidation = () => {
+  //   let formIsValid = true;
+  //   const {orderItemsFinal} = this.state;
+  //   console.log('order---->', orderItemsFinal);
+  //   if (orderItemsFinal.length > 0) {
+  //     for (let i of orderItemsFinal) {
+  //       if (i.quantityOrdered === '') {
+  //         i.error = 'Quantity is required';
+  //         formIsValid = false;
+  //       } else if (i.unitPrice === '') {
+  //         i.error = 'Price is required';
+  //         formIsValid = false;
+  //       } else if (i.unitId === null) {
+  //         i.error = 'Please select a unit';
+  //         formIsValid = false;
+  //       }
+  //     }
+  //   }
+  //   this.setState({
+  //     orderItemsFinal,
+  //   });
+  //   return formIsValid;
+  // };
+
   addManualLogFun = () => {
     const {
       productionDate,
@@ -208,7 +232,8 @@ class AddManualLog extends Component {
       quantity === '' ||
       departmentName === '' ||
       selectedItemObjects === '' ||
-      itemTypes === ''
+      itemTypes === '' ||
+      quantityName === null
     ) {
       alert('Please select all options');
     } else {
@@ -285,7 +310,7 @@ class AddManualLog extends Component {
   selectQuantityFun = item => {
     if (item) {
       this.setState({
-        quantityName: item.id,
+        quantityName: item,
       });
     }
   };
@@ -380,8 +405,8 @@ class AddManualLog extends Component {
                               value: 'Bar',
                             },
                             {
-                              label: 'Restaurant',
-                              value: 'Restaurant',
+                              label: 'Kitchen',
+                              value: 'Kitchen',
                             },
                             {
                               label: 'Retail',
@@ -516,7 +541,7 @@ class AddManualLog extends Component {
                                 }}>
                                 <RNPickerSelect
                                   placeholder={{
-                                    label: 'Unit*',
+                                    label: 'Select Unit*',
                                     value: null,
                                     color: 'black',
                                   }}
