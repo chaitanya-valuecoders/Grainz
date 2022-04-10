@@ -335,9 +335,11 @@ class index extends Component {
                         padding: 5,
                         flexDirection: 'row',
                         alignItems: 'center',
+                        width: wp('15%'),
+                        justifyContent: 'center',
                       }}>
                       <Image
-                        source={img.cancelIcon}
+                        source={img.deleteIconNew}
                         style={{
                           height: 15,
                           width: 15,
@@ -345,14 +347,14 @@ class index extends Component {
                           resizeMode: 'contain',
                         }}
                       />
-                      <Text
+                      {/* <Text
                         style={{
                           fontSize: 14,
                           color: '#fff',
                           textAlign: 'center',
                         }}>
                         Delete
-                      </Text>
+                      </Text> */}
                     </TouchableOpacity>
                   </View>
                 </View>

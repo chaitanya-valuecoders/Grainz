@@ -173,7 +173,7 @@ class ViewPendingDelivery extends Component {
         this.setState(
           {
             pageData: data,
-            finalDeliveryDate: data.deliveryDate,
+            finalDeliveryDate: moment(data.deliveryDate).format('DD-MM-YYYY'),
             pageInvoiceNumber: data.invoiceNumber,
             pageDeliveryNoteReference: data.deliveryNoteReference,
             pageAmbientTemp: data.ambientTemp,
@@ -183,7 +183,7 @@ class ViewPendingDelivery extends Component {
             apiDeliveryDate: data.deliveryDate,
             pageOrderItems: data.orderItems,
             apiArrivalDate: data.deliveredDate,
-            finalArrivalDate: data.deliveredDate,
+            finalArrivalDate: moment(data.deliveredDate).format('DD-MM-YYYY'),
             loaderCompStatus: false,
             totalValue: data.htva.toFixed(2),
           },
@@ -409,7 +409,7 @@ class ViewPendingDelivery extends Component {
   };
 
   handleConfirmDeliveryDate = date => {
-    let newdate = moment(date).format('MM/DD/YYYY');
+    let newdate = moment(date).format('DD-MM-YYYY');
     let apiDeliveryDate = date.toISOString();
     this.setState({
       finalDeliveryDate: newdate,
@@ -437,7 +437,7 @@ class ViewPendingDelivery extends Component {
   };
 
   handleConfirmArrivalDate = date => {
-    let newdate = moment(date).format('MM/DD/YYYY');
+    let newdate = moment(date).format('DD-MM-YYYY');
     let apiArrivalDate = date.toISOString();
     this.hideDatePickerArrivalDate();
     this.setState(
@@ -477,11 +477,12 @@ class ViewPendingDelivery extends Component {
   };
 
   handleConfirmArrivalDateSpecific = date => {
-    let newdate = moment(date).format('MM/DD/YYYY');
-    // let apiArrivalDate = date.toISOString();
+    let newdate = moment(date).format('DD-MM-YYYY');
+    let apiArrivalDateSpecific = date.toISOString();
     this.hideDatePickerArrivalDateSpecific();
     this.setState({
       finalArrivalDateSpecific: newdate,
+      apiArrivalDateSpecific,
     });
   };
 
@@ -724,7 +725,7 @@ class ViewPendingDelivery extends Component {
       modalUserQuantityInvoiced: item.userQuantityInvoiced,
       modalPricePaid: item.orderValue.toFixed(2),
       modalNotes: item.notes,
-      finalArrivalDateSpecific: item.arrivedDate,
+      finalArrivalDateSpecific: moment(item.arrivedDate).format('DD-MM-YYYY'),
       volume: item.inventoryMapping
         ? item.inventoryMapping.volume
         : item.grainzVolume,
@@ -779,9 +780,10 @@ class ViewPendingDelivery extends Component {
       modalUserQuantityInvoiced,
       modalPricePaid,
       modalNotes,
+      apiArrivalDateSpecific,
     } = this.state;
     let payload = {
-      arrivedDate: finalArrivalDateSpecific,
+      arrivedDate: apiArrivalDateSpecific,
       id: modalData.id,
       inventoryId: modalData.inventoryId,
       inventoryProductMappingId:
@@ -919,7 +921,7 @@ class ViewPendingDelivery extends Component {
         modalUserQuantityInvoiced: item.userQuantityInvoiced,
         modalPricePaid: item.orderValue.toFixed(2),
         modalNotes: item.notes,
-        finalArrivalDateSpecific: item.arrivedDate,
+        finalArrivalDateSpecific: moment(item.arrivedDate).format('DD-MM-YYYY'),
         volume: item.inventoryMapping
           ? item.inventoryMapping.volume
           : item.grainzVolume,
@@ -941,7 +943,7 @@ class ViewPendingDelivery extends Component {
         modalUserQuantityInvoiced: item.userQuantityInvoiced,
         modalPricePaid: item.orderValue.toFixed(2),
         modalNotes: item.notes,
-        finalArrivalDateSpecific: item.arrivedDate,
+        finalArrivalDateSpecific: moment(item.arrivedDate).format('DD-MM-YYYY'),
         volume: item.inventoryMapping
           ? item.inventoryMapping.volume
           : item.grainzVolume,
@@ -1002,8 +1004,8 @@ class ViewPendingDelivery extends Component {
       unitPrizeModal,
       listIndex,
     } = this.state;
-    console.log('isCheckedStatus--->', isCheckedStatus);
-    console.log('isCheckedEditableStatus', isCheckedEditableStatus);
+    console.log('finalDeliveryDate--->', finalDeliveryDate);
+    // console.log('isCheckedEditableStatus', isCheckedEditableStatus);
 
     return (
       <View style={styles.container}>
@@ -1060,10 +1062,7 @@ class ViewPendingDelivery extends Component {
                         }}>
                         <TextInput
                           placeholder="Delivery Date"
-                          value={
-                            finalDeliveryDate &&
-                            moment(finalDeliveryDate).format('L')
-                          }
+                          value={finalDeliveryDate}
                           editable={false}
                         />
                         <Image
@@ -1112,10 +1111,7 @@ class ViewPendingDelivery extends Component {
                         }}>
                         <TextInput
                           placeholder="Arrived Date"
-                          value={
-                            finalArrivalDate &&
-                            moment(finalArrivalDate).format('L')
-                          }
+                          value={finalArrivalDate}
                           editable={false}
                         />
                         <Image
@@ -1297,7 +1293,7 @@ class ViewPendingDelivery extends Component {
                             placeholder="Order Date"
                             value={
                               pageData.orderDate &&
-                              moment(pageData.orderDate).format('L')
+                              moment(pageData.orderDate).format('DD-MM-YYYY')
                             }
                             style={{
                               padding: 14,
@@ -1774,7 +1770,7 @@ class ViewPendingDelivery extends Component {
                                     fontFamily: 'Inter-Regular',
                                   }}>
                                   {item.arrivedDate &&
-                                    moment(item.arrivedDate).format('L')}
+                                    moment(item.arrivedDate).format('DD-MM-YYYY')}
                                 </Text>
                               </View> */}
                                 <View
@@ -2329,10 +2325,7 @@ class ViewPendingDelivery extends Component {
                                                     marginTop: 5,
                                                   }}>
                                                   <Text>
-                                                    {finalArrivalDateSpecific &&
-                                                      moment(
-                                                        finalArrivalDateSpecific,
-                                                      ).format('L')}
+                                                    {finalArrivalDateSpecific}
                                                   </Text>
                                                   <Image
                                                     source={img.calenderIcon}
@@ -3124,12 +3117,7 @@ class ViewPendingDelivery extends Component {
                                       padding: 10,
                                       marginTop: 5,
                                     }}>
-                                    <Text>
-                                      {finalArrivalDateSpecific &&
-                                        moment(finalArrivalDateSpecific).format(
-                                          'L',
-                                        )}
-                                    </Text>
+                                    <Text>{finalArrivalDateSpecific}</Text>
                                     <Image
                                       source={img.calenderIcon}
                                       style={{

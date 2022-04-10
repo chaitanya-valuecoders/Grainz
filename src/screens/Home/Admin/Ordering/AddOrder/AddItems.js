@@ -327,7 +327,7 @@ class AddItems extends Component {
                 fontSize: 12,
                 alignSelf: 'flex-end',
               }}>
-              ( Δ 0 {section.content[0] && section.content[0].unit} )
+              Δ 0 {section.content[0] && section.content[0].unit}
             </Text>
           )}
         </View>
@@ -2069,7 +2069,7 @@ class AddItems extends Component {
                         marginLeft: 10,
                         fontFamily: 'Inter-SemiBold',
                       }}>
-                      {translate('Close')}
+                      {translate('Save')}
                     </Text>
                   </View>
                 </TouchableOpacity>
@@ -2087,7 +2087,6 @@ class AddItems extends Component {
                     height: hp('7%'),
                     width: wp('90%'),
                     alignSelf: 'center',
-                    justifyContent: 'space-between',
                     marginVertical: hp('2%'),
                     borderRadius: 100,
                     backgroundColor: '#fff',
@@ -2101,6 +2100,25 @@ class AddItems extends Component {
                     }}
                     onChangeText={value => this.searchFunInventory(value)}
                   />
+                  <TouchableOpacity
+                    onPress={() =>
+                      this.setState({
+                        searchItemInventory: '',
+                      })
+                    }
+                    style={{
+                      marginLeft: wp('3%'),
+                      padding: 10,
+                    }}>
+                    <Image
+                      source={img.crossIcon}
+                      style={{
+                        height: 15,
+                        width: 15,
+                        resizeMode: 'contain',
+                      }}
+                    />
+                  </TouchableOpacity>
                   {/* 
               <TouchableOpacity
                 onPress={() => this.hitInventorySearch()}

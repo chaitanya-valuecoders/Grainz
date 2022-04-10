@@ -60,4 +60,5 @@ export default {
   introSecIcon: require('../assests/Images/introSecIcon.png'),
   eyeOpenIcon: require('../assests/Images/eyeOpenIcon.png'),
   eyeCloseIcon: require('../assests/Images/eyeCloseIcon.png'),
+  crossIcon: require('../assests/Images/crossIcon.png'),
 };

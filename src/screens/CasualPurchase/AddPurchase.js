@@ -323,7 +323,7 @@ class index extends Component {
 
   deletePurchaseLine(index) {
     const {orderItemsFinal, treeselectDataBackup} = this.state;
-    let temp = this.state.orderItemsFinal;
+    let temp = orderItemsFinal;
     temp.splice(index, 1);
     this.setState({
       orderItemsFinal: temp,
@@ -1149,50 +1149,52 @@ class index extends Component {
                     />
                   </View>
 
-                  <View
-                    style={{
-                      marginBottom: 15,
-                    }}>
-                    <TreeSelect
-                      data={treeselectData}
-                      // isOpen
-                      // openIds={['A01']}
-                      // defaultSelectedId={['B062']}
-                      isShowTreeId={false}
-                      // selectType="single"
-                      selectType="multiple"
-                      itemStyle={{
-                        // backgroudColor: '#8bb0ee',
-                        fontSize: 12,
-                        color: '#995962',
-                      }}
-                      selectedItemStyle={{
-                        backgroudColor: '#f7edca',
-                        fontSize: 16,
-                        color: '#171e99',
-                      }}
-                      onClick={item => this._onClick(item)}
-                      onClickLeaf={item => this._onClickLeaf(item)}
-                      treeNodeStyle={{
-                        // openIcon: <Icon size={18} color="#171e99" style={{ marginRight: 10 }} name="ios-arrow-down" />,
-                        // closeIcon: <Icon size={18} color="#171e99" style={{ marginRight: 10 }} name="ios-arrow-forward" />
-                        openIcon: (
-                          <Image
-                            resizeMode="stretch"
-                            style={{width: 18, height: 15}}
-                            source={img.arrowDownIcon}
-                          />
-                        ),
-                        closeIcon: (
-                          <Image
-                            resizeMode="stretch"
-                            style={{width: 18, height: 15}}
-                            source={img.arrowRightIcon}
-                          />
-                        ),
-                      }}
-                    />
-                  </View>
+                  {supplierId === '' ? null : (
+                    <View
+                      style={{
+                        marginBottom: 15,
+                      }}>
+                      <TreeSelect
+                        data={treeselectData}
+                        // isOpen
+                        // openIds={['A01']}
+                        // defaultSelectedId={['B062']}
+                        isShowTreeId={false}
+                        // selectType="single"
+                        selectType="multiple"
+                        itemStyle={{
+                          // backgroudColor: '#8bb0ee',
+                          fontSize: 12,
+                          color: '#995962',
+                        }}
+                        selectedItemStyle={{
+                          backgroudColor: '#f7edca',
+                          fontSize: 16,
+                          color: '#171e99',
+                        }}
+                        onClick={item => this._onClick(item)}
+                        onClickLeaf={item => this._onClickLeaf(item)}
+                        treeNodeStyle={{
+                          // openIcon: <Icon size={18} color="#171e99" style={{ marginRight: 10 }} name="ios-arrow-down" />,
+                          // closeIcon: <Icon size={18} color="#171e99" style={{ marginRight: 10 }} name="ios-arrow-forward" />
+                          openIcon: (
+                            <Image
+                              resizeMode="stretch"
+                              style={{width: 18, height: 15}}
+                              source={img.arrowDownIcon}
+                            />
+                          ),
+                          closeIcon: (
+                            <Image
+                              resizeMode="stretch"
+                              style={{width: 18, height: 15}}
+                              source={img.arrowRightIcon}
+                            />
+                          ),
+                        }}
+                      />
+                    </View>
+                  )}
                   {/* 
                   <View
                     style={{
@@ -1572,26 +1574,29 @@ class index extends Component {
                                     // selectedItems={[item.inventoryId]}
                                   /> */}
 
-                                      {/* <View
-                                    style={{
-                                      marginLeft: -11,
-                                      zIndex: 10,
-                                    }}>
-                                    <TouchableOpacity
-                                      // disabled={editDisabled}
-                                      onPress={() =>
-                                        this.deletePurchaseLine(index, 'action')
-                                      }>
-                                      <Image
-                                        source={img.cancelIcon}
+                                      <View
                                         style={{
-                                          width: 25,
-                                          height: 25,
-                                          resizeMode: 'contain',
-                                        }}
-                                      />
-                                    </TouchableOpacity>
-                                  </View> */}
+                                          marginLeft: -11,
+                                          zIndex: 10,
+                                        }}>
+                                        <TouchableOpacity
+                                          // disabled={editDisabled}
+                                          onPress={() =>
+                                            this.deletePurchaseLine(
+                                              indexOrder,
+                                              'action',
+                                            )
+                                          }>
+                                          <Image
+                                            source={img.cancelIcon}
+                                            style={{
+                                              width: 25,
+                                              height: 25,
+                                              resizeMode: 'contain',
+                                            }}
+                                          />
+                                        </TouchableOpacity>
+                                      </View>
                                       <View
                                         style={{
                                           flexDirection: 'row',
@@ -1652,7 +1657,7 @@ class index extends Component {
                                                 style={{
                                                   alignSelf: 'center',
                                                   justifyContent: 'center',
-                                                  width: wp('15%'),
+                                                  width: wp('18%'),
                                                 }}>
                                                 <RNPickerSelect
                                                   placeholder={{
@@ -1689,9 +1694,11 @@ class index extends Component {
                                                     inputAndroid: {
                                                       fontSize: 14,
                                                       paddingHorizontal: '3%',
-                                                      color: '#161C27',
+                                                      color: '#fff',
                                                       width: '100%',
                                                       alignSelf: 'center',
+                                                      paddingVertical: 15,
+                                                      marginLeft: 10,
                                                     },
                                                     iconContainer: {
                                                       top: '40%',
@@ -1911,120 +1918,134 @@ class index extends Component {
                     </TouchableOpacity>
                   </View> */}
 
-                  <View style={{marginTop: hp('3%')}}>
-                    <View
-                      style={{
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        marginBottom: hp('2%'),
-                      }}>
-                      <View>
+                  {supplierId === '' ? null : (
+                    <View style={{marginTop: hp('3%')}}>
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          marginBottom: hp('2%'),
+                        }}>
+                        <View>
+                          <Text
+                            style={{
+                              fontFamily: 'Inter-Regular',
+                              fontSize: 16,
+                              color: '#151B26',
+                            }}>
+                            {translate('Total')}
+                          </Text>
+                        </View>
+                        <View>
+                          <Text
+                            style={{
+                              fontFamily: 'Inter-Regular',
+                              fontSize: 16,
+                              color: '#151B26',
+                            }}>
+                            {orderTotal.toFixed(2)}
+                          </Text>
+                        </View>
+                      </View>
+                      <TouchableOpacity
+                        onPress={() =>
+                          this.setState({
+                            htvaIsSelected: !htvaIsSelected,
+                          })
+                        }
+                        style={{
+                          flexDirection: 'row',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          paddingVertical: 10,
+                        }}>
                         <Text
                           style={{
                             fontFamily: 'Inter-Regular',
-                            fontSize: 16,
+                            fontSize: 15,
                             color: '#151B26',
                           }}>
-                          {translate('Total')}
+                          HTVA?
                         </Text>
-                      </View>
-                      <View>
-                        <Text
+                        <CheckBox
+                          disabled
+                          value={htvaIsSelected}
+                          // onValueChange={() =>
+                          //   this.setState({htvaIsSelected: !htvaIsSelected})
+                          // }
                           style={{
-                            fontFamily: 'Inter-Regular',
-                            fontSize: 16,
-                            color: '#151B26',
-                          }}>
-                          {orderTotal.toFixed(2)}
-                        </Text>
-                      </View>
-                    </View>
-                    <View
-                      style={{
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        marginBottom: hp('2%'),
-                        justifyContent: 'space-between',
-                      }}>
-                      <Text
-                        style={{
-                          fontFamily: 'Inter-Regular',
-                          fontSize: 15,
-                          color: '#151B26',
-                        }}>
-                        HTVA?
-                      </Text>
-                      <CheckBox
-                        value={htvaIsSelected}
-                        onValueChange={() =>
-                          this.setState({htvaIsSelected: !htvaIsSelected})
-                        }
-                        style={{
-                          height: 20,
-                          width: 20,
-                        }}
-                      />
-                    </View>
-                    <View
-                      style={{
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        marginBottom: hp('2%'),
-                      }}>
-                      <Text
-                        style={{
-                          fontFamily: 'Inter-Regular',
-                          fontSize: 15,
-                          color: '#151B26',
-                        }}>
-                        {translate('Audit Complete')}
-                      </Text>
-                      <CheckBox
-                        value={auditIsSelected}
-                        style={{
-                          height: 20,
-                          width: 20,
-                        }}
-                        onValueChange={() =>
-                          this.setState({auditIsSelected: !auditIsSelected})
-                        }
-                      />
-                    </View>
-                  </View>
-                  <View>
-                    <TouchableOpacity
-                      onPress={() => this.handleChoosePhoto()}
-                      style={{
-                        marginTop: 10,
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                      }}>
-                      <View style={{}}>
-                        <Image
-                          source={img.addIconNew}
-                          style={{
-                            width: 20,
                             height: 20,
-                            resizeMode: 'contain',
-                            tintColor: '#94C01F',
+                            width: 20,
                           }}
                         />
-                      </View>
-                      <View style={{}}>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        onPress={() =>
+                          this.setState({auditIsSelected: !auditIsSelected})
+                        }
+                        style={{
+                          flexDirection: 'row',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          paddingVertical: 10,
+                        }}>
                         <Text
                           style={{
-                            color: '#94C01F',
-                            fontSize: 18,
                             fontFamily: 'Inter-Regular',
-                            marginLeft: 10,
+                            fontSize: 15,
+                            color: '#151B26',
                           }}>
-                          {translate('Add image')}
+                          {translate('Audit Complete')}
                         </Text>
-                      </View>
-                    </TouchableOpacity>
-                  </View>
+                        <CheckBox
+                          disabled
+                          value={auditIsSelected}
+                          style={{
+                            height: 20,
+                            width: 20,
+                          }}
+                          // onValueChange={() =>
+                          //   this.setState({auditIsSelected: !auditIsSelected})
+                          // }
+                        />
+                      </TouchableOpacity>
+                    </View>
+                  )}
+                  {supplierId === '' ? null : (
+                    <View>
+                      <TouchableOpacity
+                        onPress={() => this.handleChoosePhoto()}
+                        style={{
+                          marginTop: 10,
+                          flexDirection: 'row',
+                          alignItems: 'center',
+                        }}>
+                        <View style={{}}>
+                          <Image
+                            source={img.addIconNew}
+                            style={{
+                              width: 20,
+                              height: 20,
+                              resizeMode: 'contain',
+                              tintColor: '#94C01F',
+                            }}
+                          />
+                        </View>
+                        <View style={{}}>
+                          <Text
+                            style={{
+                              color: '#94C01F',
+                              fontSize: 18,
+                              fontFamily: 'Inter-Regular',
+                              marginLeft: 10,
+                            }}>
+                            {translate('Add image')}
+                          </Text>
+                        </View>
+                      </TouchableOpacity>
+                    </View>
+                  )}
 
                   {imageShow ? (
                     <View style={{marginTop: 15}}>
@@ -2038,27 +2059,29 @@ class index extends Component {
                       />
                     </View>
                   ) : null}
-                  <View style={{}}>
-                    <View
-                      style={{
-                        backgroundColor: '#fff',
-                        borderRadius: 6,
-                        marginTop: hp('3%'),
-                      }}>
-                      <TextInput
-                        placeholder="Notes"
+                  {supplierId === '' ? null : (
+                    <View style={{}}>
+                      <View
                         style={{
-                          paddingVertical: '20%',
-                          paddingLeft: 20,
-                          paddingTop: 10,
-                        }}
-                        multiline={true}
-                        numberOfLines={4}
-                        onChangeText={note => this.setState({note})}
-                        value={note}
-                      />
+                          backgroundColor: '#fff',
+                          borderRadius: 6,
+                          marginTop: hp('3%'),
+                        }}>
+                        <TextInput
+                          placeholder="Notes"
+                          style={{
+                            paddingVertical: '20%',
+                            paddingLeft: 20,
+                            paddingTop: 10,
+                          }}
+                          multiline={true}
+                          numberOfLines={4}
+                          onChangeText={note => this.setState({note})}
+                          value={note}
+                        />
+                      </View>
                     </View>
-                  </View>
+                  )}
                 </View>
               )}
             </View>
@@ -2296,32 +2319,34 @@ class index extends Component {
               justifyContent: 'center',
               paddingVertical: hp('2%'),
             }}>
-            {supplierId === '' || productionDate === '' ? (
-              <View
-                opacity={0.5}
-                style={{
-                  width: wp('30%'),
-                  height: hp('5%'),
-                  alignSelf: 'flex-end',
-                  backgroundColor: '#94C036',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  borderRadius: 100,
-                }}>
-                <Text
-                  style={{
-                    color: '#fff',
-                    fontSize: 15,
-                    fontWeight: 'bold',
-                  }}>
-                  {saveLoader ? (
-                    <ActivityIndicator size="small" color="#fff" />
-                  ) : (
-                    translate('Save')
-                  )}
-                </Text>
-              </View>
-            ) : (
+            {supplierId === '' || productionDate === '' ? null : (
+              //  (
+              //   <View
+              //     opacity={0.5}
+              //     style={{
+              //       width: wp('30%'),
+              //       height: hp('5%'),
+              //       alignSelf: 'flex-end',
+              //       backgroundColor: '#94C036',
+              //       justifyContent: 'center',
+              //       alignItems: 'center',
+              //       borderRadius: 100,
+              //     }}>
+              //     <Text
+              //       style={{
+              //         color: '#fff',
+              //         fontSize: 15,
+              //         fontWeight: 'bold',
+              //       }}>
+              //       {saveLoader ? (
+              //         <ActivityIndicator size="small" color="#fff" />
+              //       ) : (
+              //         translate('Save')
+              //       )}
+              //     </Text>
+              //   </View>
+              // )
+
               <TouchableOpacity
                 disabled={saveTouchableStatus}
                 onPress={() => this.createOrder()}
@@ -2348,28 +2373,30 @@ class index extends Component {
                 </Text>
               </TouchableOpacity>
             )}
-            <TouchableOpacity
-              onPress={() => this.props.navigation.goBack()}
-              style={{
-                width: wp('30%'),
-                height: hp('5%'),
-                alignSelf: 'flex-end',
-                justifyContent: 'center',
-                alignItems: 'center',
-                marginLeft: wp('2%'),
-                borderRadius: 100,
-                borderWidth: 1,
-                borderColor: '#482813',
-              }}>
-              <Text
+            {supplierId === '' ? null : (
+              <TouchableOpacity
+                onPress={() => this.props.navigation.goBack()}
                 style={{
-                  color: '#482813',
-                  fontSize: 15,
-                  fontWeight: 'bold',
+                  width: wp('30%'),
+                  height: hp('5%'),
+                  alignSelf: 'flex-end',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  marginLeft: wp('2%'),
+                  borderRadius: 100,
+                  borderWidth: 1,
+                  borderColor: '#482813',
                 }}>
-                {translate('Cancel')}
-              </Text>
-            </TouchableOpacity>
+                <Text
+                  style={{
+                    color: '#482813',
+                    fontSize: 15,
+                    fontWeight: 'bold',
+                  }}>
+                  {translate('Cancel')}
+                </Text>
+              </TouchableOpacity>
+            )}
           </View>
         </View>
       </View>

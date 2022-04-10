@@ -379,7 +379,11 @@ class CategoryStockScreen extends Component {
                           //   this.expandScreenFun(item, index)
                           // }
                         >
-                          <Text style={styles.boxTextDataStyling}>
+                          <Text
+                            style={{
+                              ...styles.boxTextDataStyling,
+                              fontWeight: 'bold',
+                            }}>
                             {item.name && item.name}
                           </Text>
                           {item.stockTakeLastUpdate ? (

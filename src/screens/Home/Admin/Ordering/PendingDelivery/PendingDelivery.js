@@ -686,15 +686,15 @@ class PendingDelivery extends Component {
                                           }}>
                                           {type === 'Pending'
                                             ? moment(item.deliveryDate).format(
-                                                'DD/MM/YY',
+                                                'DD/MM/YYYY',
                                               )
                                             : type === 'Review'
                                             ? moment(item.orderDate).format(
-                                                'DD/MM/YY',
+                                                'DD/MM/YYYY',
                                               )
                                             : type === 'History'
                                             ? moment(item.orderDate).format(
-                                                'DD/MM/YY',
+                                                'DD/MM/YYYY',
                                               )
                                             : null}
                                         </Text>

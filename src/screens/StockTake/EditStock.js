@@ -325,6 +325,7 @@ class EditStock extends Component {
   };
 
   deleteFunSec = (item, index) => {
+    console.log('item', item);
     let payload = [
       {
         action: 'Delete',
@@ -370,14 +371,39 @@ class EditStock extends Component {
           );
         });
     } else {
-      this.removeFromList(index);
+      this.setState({
+        loaderCompStatus: false,
+      });
     }
+
+    // else {
+    //   this.removeFromList(index);
+    // }
   };
 
   removeFromList = index => {
-    let temp = this.state.modalData;
-    temp.splice(index, 1);
-    this.setState({modalData: temp, loaderCompStatus: false});
+    // let temp = this.state.modalData;
+    // temp.splice(index, 1);
+    // this.setState({modalData: temp, loaderCompStatus: false});
+
+    const {modalData} = this.state;
+    // console.log('modalData', modalData);
+    let newArr = modalData.map((item, i) =>
+      index === i
+        ? {
+            ...item,
+            ['quantity']: '',
+            ['action']: 'New',
+          }
+        : item,
+    );
+
+    console.log('NEWARR', newArr);
+
+    this.setState({
+      modalData: [...newArr],
+      loaderCompStatus: false,
+    });
   };
 
   editOfferItemsFun = (index, type, value) => {
@@ -457,8 +483,7 @@ class EditStock extends Component {
           {
             loaderCompStatus: false,
           },
-          // ,
-          // () => this.props.navigation.goBack(),
+          () => this.props.navigation.goBack(),
         );
 
         // Alert.alert('Grainz', 'Stock trade added successfully', [
@@ -503,8 +528,7 @@ class EditStock extends Component {
           {
             loaderCompStatus: false,
           },
-          // ,
-          // () => this.props.navigation.goBack(),
+          () => this.props.navigation.goBack(),
         );
 
         // Alert.alert('Grainz', 'Stock trade added successfully', [
@@ -629,6 +653,7 @@ class EditStock extends Component {
                             <View>
                               {modalData && modalData.length > 0 ? (
                                 modalData.map((item, index) => {
+                                  console.log('item', item);
                                   return (
                                     <View
                                       style={{

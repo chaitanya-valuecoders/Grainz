@@ -167,7 +167,7 @@ class ViewReviewOrder extends Component {
         this.setState(
           {
             pageData: data,
-            finalDeliveryDate: data.deliveryDate,
+            finalDeliveryDate: moment(data.deliveryDate).format('DD-MM-YYYY'),
             pageInvoiceNumber: data.invoiceNumber,
             pageDeliveryNoteReference: data.deliveryNoteReference,
             pageAmbientTemp: data.ambientTemp,
@@ -177,7 +177,7 @@ class ViewReviewOrder extends Component {
             apiDeliveryDate: data.deliveryDate,
             pageOrderItems: data.orderItems,
             apiArrivalDate: data.deliveredDate,
-            finalArrivalDate: data.deliveredDate,
+            finalArrivalDate: moment(data.deliveredDate).format('DD-MM-YYYY'),
             loaderCompStatus: false,
             totalValue: data.htva.toFixed(2),
           },
@@ -400,7 +400,7 @@ class ViewReviewOrder extends Component {
   };
 
   handleConfirmDeliveryDate = date => {
-    let newdate = moment(date).format('MM/DD/YYYY');
+    let newdate = moment(date).format('DD-MM-YYYY');
     let apiDeliveryDate = date.toISOString();
     this.setState({
       finalDeliveryDate: newdate,
@@ -428,7 +428,7 @@ class ViewReviewOrder extends Component {
   };
 
   handleConfirmArrivalDate = date => {
-    let newdate = moment(date).format('MM/DD/YYYY');
+    let newdate = moment(date).format('DD-MM-YYYY');
     let apiArrivalDate = date.toISOString();
     this.hideDatePickerArrivalDate();
     this.setState(
@@ -468,11 +468,12 @@ class ViewReviewOrder extends Component {
   };
 
   handleConfirmArrivalDateSpecific = date => {
-    let newdate = moment(date).format('MM/DD/YYYY');
-    // let apiArrivalDate = date.toISOString();
+    let newdate = moment(date).format('DD-MM-YYYY');
+    let apiArrivalDateSpecific = date.toISOString();
     this.hideDatePickerArrivalDateSpecific();
     this.setState({
       finalArrivalDateSpecific: newdate,
+      apiArrivalDateSpecific,
     });
   };
 
@@ -714,7 +715,7 @@ class ViewReviewOrder extends Component {
       modalUserQuantityInvoiced: item.userQuantityInvoiced,
       modalPricePaid: item.pricePaid,
       modalNotes: item.notes,
-      finalArrivalDateSpecific: item.arrivedDate,
+      finalArrivalDateSpecific: moment(item.arrivedDate).format('DD-MM-YYYY'),
     });
   };
 
@@ -732,7 +733,7 @@ class ViewReviewOrder extends Component {
         modalUserQuantityInvoiced: item.userQuantityInvoiced,
         modalPricePaid: item.orderValue,
         modalNotes: item.notes,
-        finalArrivalDateSpecific: item.arrivedDate,
+        finalArrivalDateSpecific: moment(item.arrivedDate).format('DD-MM-YYYY'),
         listIndex: '',
       });
     } else {
@@ -746,7 +747,7 @@ class ViewReviewOrder extends Component {
         modalUserQuantityInvoiced: item.userQuantityInvoiced,
         modalPricePaid: item.orderValue,
         modalNotes: item.notes,
-        finalArrivalDateSpecific: item.arrivedDate,
+        finalArrivalDateSpecific: moment(item.arrivedDate).format('DD-MM-YYYY'),
         listIndex: index,
       });
     }
@@ -796,9 +797,10 @@ class ViewReviewOrder extends Component {
       modalPricePaid,
       modalNotes,
       totalValue,
+      apiArrivalDateSpecific,
     } = this.state;
     let payload = {
-      arrivedDate: finalArrivalDateSpecific,
+      arrivedDate: apiArrivalDateSpecific,
       id: modalData.id,
       inventoryId: modalData.inventoryId,
       inventoryProductMappingId:
@@ -955,10 +957,7 @@ class ViewReviewOrder extends Component {
                         }}>
                         <TextInput
                           placeholder="Delivery Date"
-                          value={
-                            finalDeliveryDate &&
-                            moment(finalDeliveryDate).format('L')
-                          }
+                          value={finalDeliveryDate}
                           editable={false}
                         />
                         <Image
@@ -1007,10 +1006,7 @@ class ViewReviewOrder extends Component {
                         }}>
                         <TextInput
                           placeholder="Arrived Date"
-                          value={
-                            finalArrivalDate &&
-                            moment(finalArrivalDate).format('L')
-                          }
+                          value={finalArrivalDate}
                           editable={false}
                         />
                         <Image
@@ -1118,7 +1114,7 @@ class ViewReviewOrder extends Component {
                             placeholder="Order Date"
                             value={
                               pageData.orderDate &&
-                              moment(pageData.orderDate).format('L')
+                              moment(pageData.orderDate).format('DD-MM-YYYY')
                             }
                             style={{
                               padding: 14,
@@ -1661,7 +1657,7 @@ class ViewReviewOrder extends Component {
                                     fontFamily: 'Inter-Regular',
                                   }}>
                                   {item.arrivedDate &&
-                                    moment(item.arrivedDate).format('L')}
+                                    moment(item.arrivedDate).format('DD-MM-YYYY')}
                                 </Text>
                               </View> */}
                                 <View
@@ -2201,10 +2197,7 @@ class ViewReviewOrder extends Component {
                                                     marginTop: 5,
                                                   }}>
                                                   <Text>
-                                                    {finalArrivalDateSpecific &&
-                                                      moment(
-                                                        finalArrivalDateSpecific,
-                                                      ).format('DD-MM-YYYY')}
+                                                    {finalArrivalDateSpecific}
                                                   </Text>
                                                   <Image
                                                     source={img.calenderIcon}
@@ -2958,12 +2951,7 @@ class ViewReviewOrder extends Component {
                                       padding: 10,
                                       marginTop: 5,
                                     }}>
-                                    <Text>
-                                      {finalArrivalDateSpecific &&
-                                        moment(finalArrivalDateSpecific).format(
-                                          'L',
-                                        )}
-                                    </Text>
+                                    <Text>{finalArrivalDateSpecific}</Text>
                                     <Image
                                       source={img.calenderIcon}
                                       style={{

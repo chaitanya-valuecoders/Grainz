@@ -365,7 +365,9 @@ class PdfView extends Component {
               <Text style={styles.adminTextStyle}>Order Details</Text>
             </View>
             <TouchableOpacity
-              onPress={() => this.props.navigation.navigate('HomeScreen')}
+              onPress={() =>
+                this.props.navigation.navigate('BasketOrderScreen')
+              }
               style={styles.goBackContainer}>
               <Text style={styles.goBackTextStyle}>Close</Text>
             </TouchableOpacity>

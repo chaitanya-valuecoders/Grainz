@@ -256,13 +256,13 @@ class DraftOrder extends Component {
   };
 
   deleteDraftFun = param => {
-    Alert.alert('Are you sure?', "You won't be able to revert this!", [
+    Alert.alert('Grainz!', 'Are you sure you want to delete this order?', [
       {
-        text: 'Cancel',
+        text: 'No',
         style: 'cancel',
       },
       {
-        text: 'OK',
+        text: 'Yes',
         onPress: () => this.deleteFun(param),
       },
     ]);
