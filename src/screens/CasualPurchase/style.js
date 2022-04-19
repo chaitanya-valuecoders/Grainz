@@ -81,7 +81,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   listTextStyling: {
-    fontSize: 14,
+    fontSize: 12,
     fontFamily: 'Inter-SemiBold',
     color: '#151B26',
   },

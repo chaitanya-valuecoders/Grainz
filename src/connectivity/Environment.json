@@ -4,5 +4,8 @@
     },
     "STAGING": {
         "BaseURL": "https://grainzwebapiq.azurewebsites.net/api"
+    },
+    "STAGING_TWO": {
+        "BaseURL": "https://grainzwebapia.azurewebsites.net/api"
     }
 }

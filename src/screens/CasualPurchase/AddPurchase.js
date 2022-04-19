@@ -116,6 +116,7 @@ class index extends Component {
       quantityError: '',
       priceError: '',
       treeselectData: [],
+      clickPhoto: false,
     };
   }
 
@@ -407,18 +408,7 @@ class index extends Component {
       deliveredDate: '',
       deliveryDate: '',
       frozenTemp: 0,
-      images: imageData
-        ? [
-            {
-              action: 'New',
-              description: imageDesc,
-              id: null,
-              imageText: `data:image/png;base64,${imageData.data}`,
-              name: imageName,
-              type: 'png',
-            },
-          ]
-        : [],
+      images: imageData.length > 0 ? imageData : [],
       invoiceNumber: 0,
       isAuditComplete: auditIsSelected,
       isPlaced: false,
@@ -594,11 +584,20 @@ class index extends Component {
     });
   };
 
+  // deleteImageFun = () => {
+  //   this.setState({
+  //     imageModalStatus: false,
+  //     imageData: '',
+  //     imageShow: false,
+  //   });
+  // };
+
   deleteImageFun = () => {
+    let temp = this.state.imageData;
+    temp.splice(index, 1);
+
     this.setState({
-      imageModalStatus: false,
-      imageData: '',
-      imageShow: false,
+      imageData: temp,
     });
   };
 
@@ -626,14 +625,29 @@ class index extends Component {
       () =>
         setTimeout(() => {
           ImagePicker.openPicker({
+            multiple: true,
             width: 300,
             height: 400,
             includeBase64: true,
             cropping: true,
           }).then(image => {
+            const finalImageData = image.map((item, index) => {
+              console.log('itemImage', item);
+              return {
+                action: 'New',
+                description: '',
+                imageText: `data:image/png;base64,${item.data}`,
+                name: '',
+                path: item.path,
+                position: 1,
+                type: 'png',
+              };
+            });
+            console.log('image', image);
             this.setState({
-              imageModalStatus: true,
-              imageData: image,
+              // imageModalStatus: true,
+              imageData: finalImageData,
+              // imageShow: true,
             });
           });
         }, 500),
@@ -653,8 +667,9 @@ class index extends Component {
             cropping: true,
           }).then(image => {
             this.setState({
-              imageModalStatus: true,
+              // imageModalStatus: true,
               imageData: image,
+              clickPhoto: true,
             });
           });
         }, 500),
@@ -751,10 +766,10 @@ class index extends Component {
           isCorrect: false,
           notes: '',
           position: index + 1,
-          quantityOrdered: '',
+          quantityOrdered: item.quantityOrdered ? item.quantityOrdered : '',
           tdcVolume: 0,
           unitId: filteredUnit[0],
-          unitPrice: '',
+          unitPrice: item.unitPrice ? item.unitPrice : '',
           name: item.name,
           units: finalUnits,
           rollingAveragePrice: item.rollingAveragePrice,
@@ -800,10 +815,10 @@ class index extends Component {
             isCorrect: false,
             notes: '',
             position: index + 1,
-            quantityOrdered: '',
+            quantityOrdered: item.quantityOrdered ? item.quantityOrdered : '',
             tdcVolume: 0,
             unitId: filteredUnit[0],
-            unitPrice: '',
+            unitPrice: item.unitPrice ? item.unitPrice : '',
             name: item.name,
             units: finalUnits,
             rollingAveragePrice: item.rollingAveragePrice,
@@ -1023,6 +1038,26 @@ class index extends Component {
       }
     }
   };
+
+  addImageDataFun = (index, type, value) => {
+    const {imageData} = this.state;
+    const finalVal = value;
+
+    let newArr = imageData.map((item, i) =>
+      index === i
+        ? {
+            ...item,
+            [type]: finalVal,
+          }
+        : {
+            ...item,
+          },
+    );
+
+    this.setState({
+      imageData: [...newArr],
+    });
+  };
   render() {
     const {
       isDatePickerVisible,
@@ -1060,8 +1095,9 @@ class index extends Component {
       quantityName,
       treeselectData,
       switchValue,
+      clickPhoto,
     } = this.state;
-    console.log('orderItemsFinal', orderItemsFinal);
+    console.log('imageData', imageData);
     return (
       <View style={styles.container}>
         <Header
@@ -1129,7 +1165,6 @@ class index extends Component {
                       </TouchableOpacity>
                     </View>
                   </View>
-
                   <DateTimePickerModal
                     isVisible={isDatePickerVisible}
                     mode={'date'}
@@ -1137,7 +1172,6 @@ class index extends Component {
                     onCancel={this.hideDatePicker}
                     // minimumDate={minTime}
                   />
-
                   <View style={{marginBottom: hp('3%')}}>
                     <ModalPicker
                       dataListLoader={dataListLoader}
@@ -1148,7 +1182,6 @@ class index extends Component {
                       onSelectFun={item => this.selectUserNameFun(item)}
                     />
                   </View>
-
                   {supplierId === '' ? null : (
                     <View
                       style={{
@@ -1917,7 +1950,6 @@ class index extends Component {
                       </View>
                     </TouchableOpacity>
                   </View> */}
-
                   {supplierId === '' ? null : (
                     <View style={{marginTop: hp('3%')}}>
                       <View
@@ -2046,8 +2078,7 @@ class index extends Component {
                       </TouchableOpacity>
                     </View>
                   )}
-
-                  {imageShow ? (
+                  {clickPhoto === true ? (
                     <View style={{marginTop: 15}}>
                       <Image
                         style={{
@@ -2059,6 +2090,99 @@ class index extends Component {
                       />
                     </View>
                   ) : null}
+                  {imageData.length > 0 && clickPhoto === false
+                    ? imageData.map((item, index) => {
+                        console.log('itemIMage', item);
+                        return (
+                          <View style={{marginTop: 15}}>
+                            <Image
+                              style={{
+                                width: wp('60%'),
+                                height: 100,
+                                resizeMode: 'cover',
+                              }}
+                              source={{uri: item.path}}
+                            />
+                            <View style={{}}>
+                              <TextInput
+                                placeholder="Enter Name"
+                                value={item.name}
+                                style={{
+                                  borderWidth: 1,
+                                  padding: 12,
+                                  marginBottom: hp('3%'),
+                                  justifyContent: 'space-between',
+                                  marginTop: 20,
+                                }}
+                                onChangeText={value =>
+                                  this.addImageDataFun(index, 'name', value)
+                                }
+                              />
+                            </View>
+                            <View style={{}}>
+                              <TextInput
+                                placeholder="Enter Description"
+                                value={item.description}
+                                style={{
+                                  borderWidth: 1,
+                                  padding: 12,
+                                  marginBottom: hp('3%'),
+                                  justifyContent: 'space-between',
+                                }}
+                                onChangeText={value =>
+                                  this.addImageDataFun(
+                                    index,
+                                    'description',
+                                    value,
+                                  )
+                                }
+                              />
+                            </View>
+                            <View
+                              style={{
+                                alignSelf: 'center',
+                              }}>
+                              <TouchableOpacity
+                                onPress={() => this.deleteImageFun()}
+                                style={{
+                                  width: wp('40%'),
+                                  height: hp('5%'),
+                                  backgroundColor: 'red',
+                                  justifyContent: 'center',
+                                  alignItems: 'center',
+                                }}>
+                                <Text
+                                  style={{
+                                    color: '#fff',
+                                    fontSize: 15,
+                                    fontWeight: 'bold',
+                                  }}>
+                                  {translate('Delete')}
+                                </Text>
+                              </TouchableOpacity>
+                              {/* <TouchableOpacity
+                                // onPress={() => this.saveImageFun()}
+                                style={{
+                                  width: wp('40%'),
+                                  height: hp('5%'),
+                                  backgroundColor: '#94C036',
+                                  justifyContent: 'center',
+                                  alignItems: 'center',
+                                }}>
+                                <Text
+                                  style={{
+                                    color: '#fff',
+                                    fontSize: 15,
+                                    fontWeight: 'bold',
+                                  }}>
+                                  {translate('Save')}
+                                </Text>
+                              </TouchableOpacity> */}
+                            </View>
+                          </View>
+                        );
+                      })
+                    : null}
                   {supplierId === '' ? null : (
                     <View style={{}}>
                       <View

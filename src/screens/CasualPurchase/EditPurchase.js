@@ -114,6 +114,7 @@ class EditPurchase extends Component {
       selectedTextUser: '',
       treeselectData: [],
       switchValue: false,
+      imagesLoader: true,
     };
   }
 
@@ -174,7 +175,7 @@ class EditPurchase extends Component {
   getNewCasualListFun() {
     getCasualListNewApi()
       .then(res => {
-        console.log('resss-->getNewCasualListFun', res);
+        // console.log('resss-->getNewCasualListFun', res);
         let finalArray = res.data.departments.map((item, index) => {
           // console.log('item', item);
 
@@ -209,15 +210,22 @@ class EditPurchase extends Component {
   }
 
   getImagesFun = order => {
+    console.log('order-->IMages', order);
+
     const id = order.id;
     getOrderImagesByIdApi(id)
       .then(res => {
+        console.log('res-->IMages', res);
         this.setState({
-          imageData: res.data.length > 0 ? res.data[0] : '',
+          imageData: res.data,
+          imagesLoader: false,
         });
       })
       .catch(error => {
-        console.warn(error);
+        this.setState({
+          imagesLoader: false,
+        });
+        console.log('ErrorImages', error);
       });
   };
 
@@ -255,7 +263,7 @@ class EditPurchase extends Component {
     let obj = {};
     getOrderByIdApi(id)
       .then(res => {
-        console.log('res-->getOrderByIdApi', res);
+        // console.log('res-->getOrderByIdApi', res);
         const orderTotal = res.data.orderItems.reduce(
           (n, {unitPrice}) => n + Number(unitPrice),
           0,
@@ -282,13 +290,14 @@ class EditPurchase extends Component {
       id: item.id,
       inventoryId: item.inventoryId,
       inventoryProductMappingId: '',
-      isCorrect: false,
+      isCorrect: item.isCorrect,
       notes: '',
       position: 1,
       quantityOrdered: item.quantityOrdered,
       tdcVolume: 0,
       unitId: item.unitId,
       unitPrice: item.unitPrice,
+      hasWarning: item.hasWarning,
     };
 
     newlist.push(objSec);
@@ -298,12 +307,12 @@ class EditPurchase extends Component {
   };
 
   getItem(id, item) {
-    console.log('item', item);
+    // console.log('item', item);
     let obj = {};
 
     getInventoryByIdApi(id)
       .then(res => {
-        console.log('res--> getInventoryByIdApi', res);
+        // console.log('res--> getInventoryByIdApi', res);
         const finalUnits = res.data.units.map((subItem, subIndex) => {
           return {
             label: subItem.name,
@@ -319,7 +328,7 @@ class EditPurchase extends Component {
           id: item.id,
           inventoryId: item.inventoryId,
           inventoryProductMappingId: '',
-          isCorrect: false,
+          isCorrect: item.isCorrect,
           notes: '',
           position: 1,
           quantityOrdered:
@@ -332,6 +341,7 @@ class EditPurchase extends Component {
           units: finalUnits,
           isRollingAverageUsed: item.isRollingAverageUsed,
           rollingAveragePrice: item.rollingAveragePrice,
+          hasWarning: item.hasWarning,
         };
 
         list.push(obj);
@@ -387,31 +397,7 @@ class EditPurchase extends Component {
       notes: note,
       orderItems: yourOrderItems,
       images: [],
-      images: imageDataEdit
-        ? [
-            {
-              // id: '',
-              description: imageDesc,
-              position: 0,
-              type: 'png',
-              imageText: `data:image/png;base64,${imageDataEdit.data}`,
-              action: 'New',
-              name: imageName,
-            },
-          ]
-        : imageData
-        ? [
-            {
-              action: null,
-              description: imageData.description,
-              id: imageData.id,
-              imageText: `${imageData.imageText}`,
-              name: imageData.name,
-              position: 0,
-              type: 'png       ',
-            },
-          ]
-        : [],
+      images: imageDataEdit ? imageDataEdit : imageData ? imageData : [],
     };
 
     // console.log('payload', payload);
@@ -505,14 +491,28 @@ class EditPurchase extends Component {
 
   handleChoosePhoto() {
     ImagePicker.openPicker({
+      multiple: true,
       width: 300,
       height: 400,
       includeBase64: true,
       cropping: true,
     }).then(image => {
+      const finalImageData = image.map((item, index) => {
+        console.log('itemImage', item);
+        return {
+          action: 'New',
+          description: item.description,
+          imageText: `data:image/png;base64,${item.data}`,
+          name: item.name,
+          path: item.path,
+          position: 1,
+          type: 'png',
+        };
+      });
       this.setState({
-        imageModalStatus: true,
-        imageDataEdit: image,
+        // imageModalStatus: true,
+        imageData: [],
+        imageDataEdit: finalImageData,
       });
     });
   }
@@ -546,6 +546,7 @@ class EditPurchase extends Component {
       unitId: '',
       unitPrice: '',
       name: '',
+      hasWarning: null,
     };
 
     newlist.push(obj);
@@ -615,7 +616,7 @@ class EditPurchase extends Component {
           };
         });
 
-        console.log('finArr', finalArray);
+        // console.log('finArr', finalArray);
 
         this.setState({
           items: [...finalArray],
@@ -694,7 +695,7 @@ class EditPurchase extends Component {
   payloadValidation = () => {
     let formIsValid = true;
     const {yourOrderItems} = this.state;
-    console.log('PAYVALIDATION', yourOrderItems);
+    // console.log('PAYVALIDATION', yourOrderItems);
     if (yourOrderItems.length > 0) {
       for (let i of yourOrderItems) {
         if (i.quantityOrdered === '' && i.action !== 'Delete') {
@@ -742,7 +743,7 @@ class EditPurchase extends Component {
         id: '',
         inventoryId: item.id,
         inventoryProductMappingId: '',
-        isCorrect: false,
+        isCorrect: item.isCorrect,
         notes: '',
         position: index + 1,
         quantityOrdered: '',
@@ -751,6 +752,7 @@ class EditPurchase extends Component {
         unitPrice: '',
         name: item.name,
         units: finalUnits,
+        hasWarning: item.hasWarning,
       };
     });
 
@@ -839,7 +841,7 @@ class EditPurchase extends Component {
   saveImageFun = () => {
     this.setState({
       imageModalStatus: false,
-      imageShow: true,
+      // imageShow: true,
     });
   };
 
@@ -868,9 +870,9 @@ class EditPurchase extends Component {
     //   selectedItemObjects && selectedItemObjects[0].units[0].id;
     if (type === 'isRollingAverageUsed' && key === 'all') {
       const finalVal = value;
-      console.log('finalVal', finalVal);
-      console.log('type', type);
-      console.log('key', key);
+      // console.log('finalVal', finalVal);
+      // console.log('type', type);
+      // console.log('key', key);
 
       let newArr = yourOrderItems.map((item, i) =>
         index === i
@@ -886,13 +888,13 @@ class EditPurchase extends Component {
             },
       );
 
-      console.log('NEWA--ALLITEMS', newArr);
+      // console.log('NEWA--ALLITEMS', newArr);
       const orderTotal = newArr.reduce(
         (n, {rollingAveragePrice}) => n + Number(rollingAveragePrice),
         0,
       );
 
-      console.log('orderTotal--ALLITEMS', orderTotal);
+      // console.log('orderTotal--ALLITEMS', orderTotal);
 
       this.setState({
         yourOrderItems: [...newArr],
@@ -902,13 +904,13 @@ class EditPurchase extends Component {
       });
     } else {
       if (type === 'isRollingAverageUsed') {
-        console.log('rollingAveragePrice', rollingAveragePrice);
+        // console.log('rollingAveragePrice', rollingAveragePrice);
         const finalQuantity = quantityOrdered === '' ? 1 : quantityOrdered;
-        console.log('finalQuantity', finalQuantity);
+        // console.log('finalQuantity', finalQuantity);
         const oldPrice = item.unitPrice;
         const finalPrice = rollingAveragePrice * finalQuantity;
-        console.log('finalPrice', finalPrice);
-        console.log('valueee', value);
+        // console.log('finalPrice', finalPrice);
+        // console.log('valueee', value);
 
         let newArr = yourOrderItems.map((item, i) =>
           index === i
@@ -920,7 +922,7 @@ class EditPurchase extends Component {
             : item,
         );
 
-        console.log('NEWA', newArr);
+        // console.log('NEWA', newArr);
         const orderTotal = newArr.reduce(
           (n, {unitPrice}) => n + Number(unitPrice),
           0,
@@ -933,11 +935,11 @@ class EditPurchase extends Component {
         });
       } else {
         if (type === 'quantityOrdered' && isRollingAverageUsed === true) {
-          console.log('rollingAveragePrice', rollingAveragePrice);
+          // console.log('rollingAveragePrice', rollingAveragePrice);
           const finalQuantity = value ? value : 1;
-          console.log('finalQuantity', finalQuantity);
+          // console.log('finalQuantity', finalQuantity);
           const finalPrice = rollingAveragePrice * finalQuantity;
-          console.log('finalPrice', finalPrice);
+          // console.log('finalPrice', finalPrice);
           let newArr = yourOrderItems.map((item, i) =>
             index === i
               ? {
@@ -947,7 +949,7 @@ class EditPurchase extends Component {
                 }
               : item,
           );
-          console.log('NEWA', newArr);
+          // console.log('NEWA', newArr);
           const orderTotal = newArr.reduce(
             (n, {unitPrice}) => n + Number(unitPrice),
             0,
@@ -961,26 +963,26 @@ class EditPurchase extends Component {
           });
         } else {
           if (isRollingAverageUsed === true && value !== null) {
-            console.log('va-->', value);
-            console.log('UNITS-->', item.units);
-            console.log('indexUnits-->', indexUnits);
+            // console.log('va-->', value);
+            // console.log('UNITS-->', item.units);
+            // console.log('indexUnits-->', indexUnits);
             const finalUnit = indexUnits - 1;
             const isDefault = item.units[finalUnit].isDefault;
             const converter = item.units[finalUnit].converter;
 
-            console.log('isDefault-->', isDefault);
+            // console.log('isDefault-->', isDefault);
 
-            console.log('rollingAveragePrice', rollingAveragePrice);
+            // console.log('rollingAveragePrice', rollingAveragePrice);
             const finalQuantity = item.quantityOrdered
               ? item.quantityOrdered
               : 1;
-            console.log('finalQuantity', finalQuantity);
+            // console.log('finalQuantity', finalQuantity);
             const finalPrice = rollingAveragePrice * finalQuantity;
             const finalPriceSec =
               rollingAveragePrice * finalQuantity * converter;
             const lastPrice = isDefault === true ? finalPrice : finalPriceSec;
-            console.log('finalPrice', finalPrice);
-            console.log('valueee', value);
+            // console.log('finalPrice', finalPrice);
+            // console.log('valueee', value);
 
             let newArr = yourOrderItems.map((item, i) =>
               index === i
@@ -993,7 +995,7 @@ class EditPurchase extends Component {
                   }
                 : item,
             );
-            console.log('NEWA', newArr);
+            // console.log('NEWA', newArr);
             const orderTotal = newArr.reduce(
               (n, {unitPrice}) => n + Number(unitPrice),
               0,
@@ -1016,7 +1018,7 @@ class EditPurchase extends Component {
                   }
                 : item,
             );
-            console.log('NEWA', newArr);
+            // console.log('NEWA', newArr);
             const orderTotal = newArr.reduce(
               (n, {unitPrice}) => n + Number(unitPrice),
               0,
@@ -1085,7 +1087,7 @@ class EditPurchase extends Component {
   };
 
   _onClickLeaf = item => {
-    console.log('_onClickLeaf', item);
+    // console.log('_onClickLeaf', item);
 
     // deletePurchaseLine(index) {
     //   const {orderItemsFinal, treeselectDataBackup} = this.state;
@@ -1099,7 +1101,7 @@ class EditPurchase extends Component {
     const {yourOrderItems} = this.state;
 
     const finalData = item.item;
-    console.log('finalData', finalData);
+    // console.log('finalData', finalData);
 
     const finalArr = yourOrderItems;
     // console.log('finalArr', finalArr);
@@ -1110,17 +1112,17 @@ class EditPurchase extends Component {
 
     let obj = yourOrderItems.find(o => o.inventoryId === finalData.id);
 
-    console.log('obj', obj);
+    // console.log('obj', obj);
 
     const magenicIndex = yourOrderItems.findIndex(
       vendor => vendor.inventoryId === finalData.id,
     );
-    console.log('magenicIndex', magenicIndex);
+    // console.log('magenicIndex', magenicIndex);
 
     if (obj === undefined) {
       finalArr.push(finalData);
       let finalArray = finalArr.map((item, index) => {
-        console.log('item', item);
+        // console.log('item', item);
         let finaUnitVal =
           item &&
           item.units.map((subItem, subIndex) => {
@@ -1129,9 +1131,9 @@ class EditPurchase extends Component {
             }
           });
         const filteredUnit = finaUnitVal.filter(elm => elm);
-        console.log('filteredUnit--->', filteredUnit);
+        // console.log('filteredUnit--->', filteredUnit);
         const finalUnits = item.units.map((subItem, subIndex) => {
-          console.log('sunItem', subItem);
+          // console.log('sunItem', subItem);
           return {
             label: subItem.name ? subItem.name : subItem.label,
             value: subItem.id ? subItem.id : subItem.value,
@@ -1144,7 +1146,8 @@ class EditPurchase extends Component {
           id: '',
           inventoryId: item.inventoryId ? item.inventoryId : item.id,
           inventoryProductMappingId: '',
-          isCorrect: false,
+          isCorrect: item.isCorrect,
+          hasWarning: item.hasWarning,
           notes: '',
           position: index + 1,
           quantityOrdered: item.quantityOrdered ? item.quantityOrdered : '',
@@ -1166,7 +1169,7 @@ class EditPurchase extends Component {
       if (obj.action === 'Delete') {
         finalArr.push(finalData);
         let finalArray = finalArr.map((item, index) => {
-          console.log('item', item);
+          // console.log('item', item);
           let finaUnitVal =
             item &&
             item.units.map((subItem, subIndex) => {
@@ -1175,9 +1178,9 @@ class EditPurchase extends Component {
               }
             });
           const filteredUnit = finaUnitVal.filter(elm => elm);
-          console.log('filteredUnit--->', filteredUnit);
+          // console.log('filteredUnit--->', filteredUnit);
           const finalUnits = item.units.map((subItem, subIndex) => {
-            console.log('sunItem', subItem);
+            // console.log('sunItem', subItem);
             return {
               label: subItem.name ? subItem.name : subItem.label,
               value: subItem.id ? subItem.id : subItem.value,
@@ -1190,8 +1193,9 @@ class EditPurchase extends Component {
             id: '',
             inventoryId: item.inventoryId ? item.inventoryId : item.id,
             inventoryProductMappingId: '',
-            isCorrect: false,
+            isCorrect: item.isCorrect,
             notes: '',
+            hasWarning: item.hasWarning,
             position: index + 1,
             quantityOrdered: item.quantityOrdered ? item.quantityOrdered : '',
             tdcVolume: 0,
@@ -1315,9 +1319,10 @@ class EditPurchase extends Component {
       selectedItems,
       treeselectData,
       switchValue,
+      imagesLoader,
     } = this.state;
-    console.log('yourOrderItems', yourOrderItems);
-    console.log('yourOrderItemsBackup', yourOrderItemsBackup);
+    console.log('imageData', imageData);
+    console.log('imageDataEdit', imageDataEdit);
 
     return (
       <View style={styles.container}>
@@ -1777,6 +1782,7 @@ class EditPurchase extends Component {
               <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                 <View>
                   {yourOrderItems.map((item, indexOrder) => {
+                    // console.log('item', item);
                     return (
                       <View style={{marginBottom: 10}}>
                         {item.action !== 'Delete' ? (
@@ -2023,6 +2029,79 @@ class EditPurchase extends Component {
                                         )
                                       }
                                       value={item.isRollingAverageUsed}
+                                    />
+                                  </View>
+                                </View>
+                              </View>
+                              <View
+                                style={{
+                                  flex: 1,
+                                  flexDirection: 'row',
+                                  alignItems: 'center',
+                                  marginLeft: 10,
+                                }}>
+                                <View
+                                  style={{
+                                    borderRadius: 6,
+                                    flexDirection: 'row',
+                                    alignItems: 'center',
+                                    paddingHorizontal: 10,
+                                  }}>
+                                  {item.hasWarning ? (
+                                    <View style={styles.listDataContainer}>
+                                      <Image
+                                        style={{
+                                          width: 15,
+                                          height: 15,
+                                          resizeMode: 'contain',
+                                        }}
+                                        source={img.errorIcon}
+                                      />
+                                    </View>
+                                  ) : (
+                                    <View
+                                      style={{
+                                        width: 15,
+                                        height: 15,
+                                      }}></View>
+                                  )}
+                                  <View
+                                    style={{
+                                      marginLeft: 15,
+                                      flexDirection: 'row',
+                                      alignItems: 'center',
+                                    }}>
+                                    <Text
+                                      style={{
+                                        fontWeight: 'bold',
+                                        fontSize: 14,
+                                        marginRight: 10,
+                                      }}>
+                                      Correct
+                                    </Text>
+                                    <Switch
+                                      disabled={editDisabled}
+                                      thumbColor={'#fff'}
+                                      trackColor={{
+                                        false: '#94BB3B',
+                                        true: 'red',
+                                      }}
+                                      ios_backgroundColor={
+                                        item.hasWarning ? '#fff' : 'green'
+                                      }
+                                      // onValueChange={val =>
+                                      //   this.addDataFun(
+                                      //     indexOrder,
+                                      //     'isRollingAverageUsed',
+                                      //     val,
+                                      //     item.rollingAveragePrice,
+                                      //     item.quantityOrdered,
+                                      //     item.isRollingAverageUsed,
+                                      //     'keyRolling',
+                                      //     item,
+                                      //   )
+                                      // }
+                                      value={item.hasWarning}
                                     />
                                   </View>
                                 </View>
@@ -2363,19 +2442,43 @@ class EditPurchase extends Component {
                   />
                 </View>
               </View>
-              {imageData && !imageShow ? (
-                <View style={{marginTop: 15}}>
-                  <Image
-                    style={{
-                      width: wp('50%'),
-                      height: 150,
-                      resizeMode: 'cover',
-                    }}
-                    source={{uri: imageData && imageData.imageText}}
-                  />
-                </View>
+              {imageData.length > 0 ? (
+                imageData.map((item, index) => {
+                  console.log('item-----<Imaee', item);
+                  return (
+                    <View style={{marginTop: 15}}>
+                      <Image
+                        style={{
+                          width: wp('50%'),
+                          height: 150,
+                          resizeMode: 'cover',
+                        }}
+                        source={{uri: item.imageText}}
+                      />
+                    </View>
+                  );
+                })
+              ) : imagesLoader ? (
+                <ActivityIndicator size="small" color="green" />
               ) : null}
-              {imageShow ? (
+              {imageDataEdit.length > 0
+                ? imageDataEdit.map((item, index) => {
+                    console.log('item-----<Imaee', item);
+                    return (
+                      <View style={{marginTop: 15}}>
+                        <Image
+                          style={{
+                            width: wp('50%'),
+                            height: 150,
+                            resizeMode: 'cover',
+                          }}
+                          source={{uri: item.imageText}}
+                        />
+                      </View>
+                    );
+                  })
+                : null}
+              {/* {imageShow ? (
                 <TouchableOpacity
                   style={{marginTop: 15}}
                   onPress={() =>
@@ -2392,7 +2495,7 @@ class EditPurchase extends Component {
                     source={{uri: imageDataEdit.path}}
                   />
                 </TouchableOpacity>
-              ) : null}
+              ) : null} */}
               {editDisabled ? null : (
                 <View>
                   <TouchableOpacity

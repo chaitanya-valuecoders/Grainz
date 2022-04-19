@@ -287,11 +287,13 @@ class ViewPurchase extends Component {
                   />
                 </View>
               </TouchableOpacity>
+              <View style={styles.listSubHeading}></View>
             </View>
             {casualListLoader ? (
               <ActivityIndicator color="grey" size="large" />
             ) : (
               casualPurchases.map((item, index) => {
+                console.log('ITEM', item);
                 const date = moment(item.orderDate).format('DD/MM/YYYY');
                 const price = Math.round(item.htva);
                 return (
@@ -316,6 +318,20 @@ class ViewPurchase extends Component {
                           € {price}
                         </Text>
                       </View>
+                      {item.hasWarning ? (
+                        <View style={styles.listDataContainer}>
+                          <Image
+                            style={{
+                              width: 15,
+                              height: 15,
+                              resizeMode: 'contain',
+                            }}
+                            source={img.errorIcon}
+                          />
+                        </View>
+                      ) : (
+                        <View style={styles.listDataContainer}></View>
+                      )}
                     </TouchableOpacity>
                   </View>
                 );

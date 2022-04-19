@@ -110,6 +110,8 @@ class index extends Component {
         grant_type: 'password',
       };
 
+      console.log('payload', payload);
+
       const finalData = querystring.stringify(payload);
       this.setState({
         buttonLoader: true,
