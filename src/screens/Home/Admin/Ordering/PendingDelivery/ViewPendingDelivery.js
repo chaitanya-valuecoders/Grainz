@@ -169,7 +169,7 @@ class ViewPendingDelivery extends Component {
     getOrderByIdApi(productId)
       .then(res => {
         const {data} = res;
-        console.log('data', data);
+        console.log('data----->', data);
         this.setState(
           {
             pageData: data,
@@ -183,7 +183,9 @@ class ViewPendingDelivery extends Component {
             apiDeliveryDate: data.deliveryDate,
             pageOrderItems: data.orderItems,
             apiArrivalDate: data.deliveredDate,
-            finalArrivalDate: moment(data.deliveredDate).format('DD-MM-YYYY'),
+            finalArrivalDate:
+              data.deliveredDate &&
+              moment(data.deliveredDate).format('DD-MM-YYYY'),
             loaderCompStatus: false,
             totalValue: data.htva.toFixed(2),
           },

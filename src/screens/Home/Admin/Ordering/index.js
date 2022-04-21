@@ -204,19 +204,21 @@ class index extends Component {
                         top: 5,
                       }}>
                       {item.id === 1 ? (
-                        <Text style={{color: '#fff', fontSize: hp('1.5%')}}>
+                        <Text style={{color: '#fff', fontSize: 10}}>
                           {countData.draftOrdersCount}
                         </Text>
                       ) : item.id === 2 ? (
-                        <Text style={{color: '#fff', fontSize: hp('1.5%')}}>
+                        <Text style={{color: '#fff', fontSize: 10}}>
                           {countData.pendingOrdersCount}
                         </Text>
                       ) : item.id === 3 ? (
-                        <Text style={{color: '#fff', fontSize: hp('1.5%')}}>
+                        <Text style={{color: '#fff', fontSize: 10}}>
                           {countData.deliveredOrdersCount}
                         </Text>
                       ) : (
-                        <Text style={{color: '#fff', fontSize: hp('1.5%')}}>
+                        <Text
+                          style={{color: '#fff', fontSize: 10}}
+                          numberOfLines={1}>
                           {countData.historyOrdersCount}
                         </Text>
                       )}

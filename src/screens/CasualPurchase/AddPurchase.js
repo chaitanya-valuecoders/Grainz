@@ -2219,7 +2219,7 @@ class index extends Component {
                         style={{
                           width: wp('60%'),
                           height: 100,
-                          resizeMode: 'cover',
+                          resizeMode: 'contain',
                         }}
                         source={{uri: imageData.path}}
                       />

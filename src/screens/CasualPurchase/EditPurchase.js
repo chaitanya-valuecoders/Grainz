@@ -2673,7 +2673,7 @@ class EditPurchase extends Component {
                       style={{
                         width: wp('60%'),
                         height: 100,
-                        resizeMode: 'cover',
+                        resizeMode: 'contain',
                       }}
                       source={{uri: imageDataEdit.path}}
                     />
