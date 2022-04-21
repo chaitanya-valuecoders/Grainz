@@ -10,6 +10,7 @@ import {
   Pressable,
   Alert,
   Switch,
+  Platform,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {connect} from 'react-redux';
@@ -543,7 +544,7 @@ class index extends Component {
         id: '',
         inventoryId: item.id,
         inventoryProductMappingId: '',
-        isCorrect: false,
+        isCorrect: item.isCorrect,
         notes: '',
         position: index + 1,
         quantityOrdered: '',
@@ -592,7 +593,7 @@ class index extends Component {
   //   });
   // };
 
-  deleteImageFun = () => {
+  deleteImageFun = index => {
     let temp = this.state.imageData;
     temp.splice(index, 1);
 
@@ -763,7 +764,7 @@ class index extends Component {
           id: '',
           inventoryId: item.id,
           inventoryProductMappingId: '',
-          isCorrect: false,
+          isCorrect: item.isCorrect,
           notes: '',
           position: index + 1,
           quantityOrdered: item.quantityOrdered ? item.quantityOrdered : '',
@@ -812,7 +813,7 @@ class index extends Component {
             id: '',
             inventoryId: item.inventoryId ? item.inventoryId : item.id,
             inventoryProductMappingId: '',
-            isCorrect: false,
+            isCorrect: item.isCorrect,
             notes: '',
             position: index + 1,
             quantityOrdered: item.quantityOrdered ? item.quantityOrdered : '',
@@ -878,6 +879,7 @@ class index extends Component {
   ) => {
     const {orderItemsFinal} = this.state;
     if (type === 'isRollingAverageUsed' && key === 'all') {
+      console.log('1---->');
       const finalVal = value;
       console.log('finalVal', finalVal);
       console.log('type', type);
@@ -888,18 +890,24 @@ class index extends Component {
           ? {
               ...item,
               [type]: finalVal,
-              ['unitPrice']: value === true ? item.rollingAveragePrice : '',
+              ['unitPrice']:
+                value === true
+                  ? (item.rollingAveragePrice * item.quantityOrdered).toFixed(2)
+                  : '',
             }
           : {
               ...item,
               [type]: finalVal,
-              ['unitPrice']: value === true ? item.rollingAveragePrice : '',
+              ['unitPrice']:
+                value === true
+                  ? (item.rollingAveragePrice * item.quantityOrdered).toFixed(2)
+                  : '',
             },
       );
 
       console.log('NEWA--ALLITEMS', newArr);
       const orderTotal = newArr.reduce(
-        (n, {rollingAveragePrice}) => n + Number(rollingAveragePrice),
+        (n, {unitPrice}) => n + Number(unitPrice),
         0,
       );
 
@@ -911,20 +919,31 @@ class index extends Component {
         switchValue: finalVal,
       });
     } else {
+      console.log('2');
       if (type === 'isRollingAverageUsed') {
+        console.log('3');
+
         console.log('rollingAveragePrice', rollingAveragePrice);
-        const finalQuantity = quantityOrdered === '' ? 1 : quantityOrdered;
+        const finalQuantity = quantityOrdered === '' ? 0 : quantityOrdered;
         console.log('finalQuantity', finalQuantity);
-        const finalPrice = rollingAveragePrice * finalQuantity;
-        console.log('finalPrice', finalPrice);
+
         console.log('valueee', value);
+        var indexUnitsSec = item.units.findIndex(p => p.value == item.unitId);
+        const converter = item.units[indexUnitsSec].converter;
+
+        console.log('converter', converter);
+
+        const finalPrice = rollingAveragePrice * finalQuantity * converter;
+        console.log('finalPrice', finalPrice);
+
+        console.log('indexUnitsSec', indexUnitsSec);
 
         let newArr = orderItemsFinal.map((item, i) =>
           index === i
             ? {
                 ...item,
                 [type]: value,
-                ['unitPrice']: value === true ? finalPrice : '',
+                ['unitPrice']: value === true ? finalPrice.toFixed(2) : '',
               }
             : item,
         );
@@ -940,18 +959,26 @@ class index extends Component {
           orderTotal,
         });
       } else {
+        console.log('4');
         if (type === 'quantityOrdered' && isRollingAverageUsed === true) {
+          console.log('5');
           console.log('rollingAveragePrice', rollingAveragePrice);
-          const finalQuantity = value ? value : 1;
+          const finalQuantity = value ? value : 0;
           console.log('finalQuantity', finalQuantity);
-          const finalPrice = rollingAveragePrice * finalQuantity;
+
+          var indexUnitsSec = item.units.findIndex(p => p.value == item.unitId);
+          const converter = item.units[indexUnitsSec].converter;
+
+          console.log('converter', converter);
+
+          const finalPrice = rollingAveragePrice * finalQuantity * converter;
           console.log('finalPrice', finalPrice);
           let newArr = orderItemsFinal.map((item, i) =>
             index === i
               ? {
                   ...item,
                   [type]: value,
-                  ['unitPrice']: finalPrice,
+                  ['unitPrice']: finalPrice.toFixed(2),
                 }
               : item,
           );
@@ -967,7 +994,9 @@ class index extends Component {
             // selectedItems: finalValue,
           });
         } else {
+          console.log('6');
           if (isRollingAverageUsed === true && value !== null) {
+            console.log('7');
             console.log('va-->', item.value);
             console.log('UNITS-->', item.units);
             console.log('indexUnits-->', indexUnits);
@@ -980,12 +1009,14 @@ class index extends Component {
             console.log('rollingAveragePrice', rollingAveragePrice);
             const finalQuantity = item.quantityOrdered
               ? item.quantityOrdered
-              : 1;
+              : 0;
             console.log('finalQuantity', finalQuantity);
             const finalPrice = rollingAveragePrice * finalQuantity;
             const finalPriceSec =
               rollingAveragePrice * finalQuantity * converter;
-            const lastPrice = isDefault === true ? finalPrice : finalPriceSec;
+            const lastPrice =
+              isDefault === true ? finalPriceSec : finalPriceSec;
+            // const lastPrice = isDefault === true ? finalPrice : finalPriceSec;
             console.log('finalPrice', finalPrice);
             console.log('valueee', value);
 
@@ -994,7 +1025,7 @@ class index extends Component {
                 ? {
                     ...item,
                     [type]: value,
-                    ['unitPrice']: lastPrice,
+                    ['unitPrice']: lastPrice.toFixed(2),
                     // ['unitId']: finalUnitId,
                     // ['position']: index,
                   }
@@ -1012,6 +1043,7 @@ class index extends Component {
               // selectedItems: finalValue,
             });
           } else {
+            console.log('8');
             let newArr = orderItemsFinal.map((item, i) =>
               index === i
                 ? {
@@ -1098,6 +1130,8 @@ class index extends Component {
       clickPhoto,
     } = this.state;
     console.log('imageData', imageData);
+    console.log('OrederItemsFinal', orderItemsFinal);
+
     return (
       <View style={styles.container}>
         <Header
@@ -1143,7 +1177,7 @@ class index extends Component {
                         onPress={() => this.showDatePickerFun()}
                         style={{
                           backgroundColor: '#fff',
-                          padding: 15,
+                          padding: Platform.OS === 'ios' ? 15 : 0,
                           marginBottom: hp('3%'),
                           flexDirection: 'row',
                           justifyContent: 'space-between',
@@ -1160,6 +1194,9 @@ class index extends Component {
                             width: 20,
                             height: 20,
                             resizeMode: 'contain',
+                            alignSelf:
+                              Platform.OS === 'android' ? 'center' : null,
+                            marginRight: Platform.OS === 'android' ? 10 : 0,
                           }}
                         />
                       </TouchableOpacity>
@@ -1402,7 +1439,25 @@ class index extends Component {
                           </Text>
                         </View>
                         <View>
-                          <Switch
+                          <CheckBox
+                            value={switchValue}
+                            onValueChange={value =>
+                              this.addDataFun(
+                                'index',
+                                'isRollingAverageUsed',
+                                value,
+                                'rollingAveragePrice',
+                                'quantityOrdered',
+                                'isRollingAverageUsed',
+                                'all',
+                              )
+                            }
+                            style={{
+                              height: 20,
+                              width: 20,
+                            }}
+                          />
+                          {/* <Switch
                             thumbColor={'#94BB3B'}
                             trackColor={{false: 'grey', true: 'grey'}}
                             ios_backgroundColor="white"
@@ -1418,7 +1473,7 @@ class index extends Component {
                               )
                             }
                             value={switchValue}
-                          />
+                          /> */}
                         </View>
                       </View>
                     </View>
@@ -1427,7 +1482,7 @@ class index extends Component {
                     <View>
                       {orderItemsFinal.length > 0 &&
                         orderItemsFinal.map((item, indexOrder) => {
-                          console.log('item--->', item);
+                          console.log('item--->ORDERSS', item);
                           // let finaUnitVal =
                           //   item &&
                           //   item.units.map((subItem, subIndex) => {
@@ -1609,8 +1664,8 @@ class index extends Component {
 
                                       <View
                                         style={{
-                                          marginLeft: -11,
                                           zIndex: 10,
+                                          width: wp('10%'),
                                         }}>
                                         <TouchableOpacity
                                           // disabled={editDisabled}
@@ -1670,6 +1725,8 @@ class index extends Component {
                                                   item.rollingAveragePrice,
                                                   item.quantityOrdered,
                                                   item.isRollingAverageUsed,
+                                                  'quanOrdered',
+                                                  item,
                                                 )
                                               }
                                             />
@@ -1859,19 +1916,42 @@ class index extends Component {
                                                 padding: 15,
                                                 width: wp('25%'),
                                               }}
-                                              onChangeText={value =>
-                                                this.addDataFun(
-                                                  indexOrder,
-                                                  'unitPrice',
-                                                  value,
-                                                )
-                                              }
-                                              value={`€ ${String(
-                                                item.rollingAveragePrice,
+                                              // onChangeText={value =>
+                                              //   this.addDataFun(
+                                              //     indexOrder,
+                                              //     'unitPrice',
+                                              //     value,
+                                              //   )
+                                              // }
+                                              value={`€ ${Number(
+                                                item.rollingAveragePrice.toFixed(
+                                                  2,
+                                                ),
                                               )}`}
                                             />
                                             <View>
-                                              <Switch
+                                              <CheckBox
+                                                value={
+                                                  item.isRollingAverageUsed
+                                                }
+                                                onValueChange={val =>
+                                                  this.addDataFun(
+                                                    indexOrder,
+                                                    'isRollingAverageUsed',
+                                                    val,
+                                                    item.rollingAveragePrice,
+                                                    item.quantityOrdered,
+                                                    item.isRollingAverageUsed,
+                                                    'singleRolling',
+                                                    item,
+                                                  )
+                                                }
+                                                style={{
+                                                  height: 20,
+                                                  width: 20,
+                                                }}
+                                              />
+                                              {/* <Switch
                                                 thumbColor={'#94BB3B'}
                                                 trackColor={{
                                                   false: 'grey',
@@ -1890,6 +1970,61 @@ class index extends Component {
                                                 value={
                                                   item.isRollingAverageUsed
                                                 }
+                                              /> */}
+                                            </View>
+                                          </View>
+                                        </View>
+                                        <View
+                                          style={{
+                                            flex: 1,
+                                            flexDirection: 'row',
+                                            alignItems: 'center',
+                                            marginLeft: 10,
+                                          }}>
+                                          <Text
+                                            style={{
+                                              marginRight: 10,
+                                              fontSize: 10,
+                                            }}>
+                                            Correct
+                                          </Text>
+                                          <View style={{}}>
+                                            <View>
+                                              {/* <CheckBox
+                                                value={
+                                                  item.isRollingAverageUsed
+                                                }
+                                                onValueChange={val =>
+                                                  this.addDataFun(
+                                                    indexOrder,
+                                                    'isRollingAverageUsed',
+                                                    val,
+                                                    item.rollingAveragePrice,
+                                                    item.quantityOrdered,
+                                                  )
+                                                }
+                                                style={{
+                                                  height: 20,
+                                                  width: 20,
+                                                }}
+                                              /> */}
+                                              <Switch
+                                                thumbColor={'#fff'}
+                                                trackColor={{
+                                                  false: 'red',
+                                                  true: 'green',
+                                                }}
+                                                ios_backgroundColor="red"
+                                                onValueChange={val =>
+                                                  this.addDataFun(
+                                                    indexOrder,
+                                                    'isCorrect',
+                                                    val,
+                                                    item.rollingAveragePrice,
+                                                    item.quantityOrdered,
+                                                  )
+                                                }
+                                                value={item.isCorrect}
                                               />
                                             </View>
                                           </View>
@@ -1976,7 +2111,7 @@ class index extends Component {
                               fontSize: 16,
                               color: '#151B26',
                             }}>
-                            {orderTotal.toFixed(2)}
+                            € {orderTotal.toFixed(2)}
                           </Text>
                         </View>
                       </View>
@@ -2099,7 +2234,7 @@ class index extends Component {
                               style={{
                                 width: wp('60%'),
                                 height: 100,
-                                resizeMode: 'cover',
+                                resizeMode: 'contain',
                               }}
                               source={{uri: item.path}}
                             />
@@ -2143,7 +2278,7 @@ class index extends Component {
                                 alignSelf: 'center',
                               }}>
                               <TouchableOpacity
-                                onPress={() => this.deleteImageFun()}
+                                onPress={() => this.deleteImageFun(index)}
                                 style={{
                                   width: wp('40%'),
                                   height: hp('5%'),

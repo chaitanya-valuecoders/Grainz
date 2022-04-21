@@ -293,7 +293,7 @@ class ViewPurchase extends Component {
               <ActivityIndicator color="grey" size="large" />
             ) : (
               casualPurchases.map((item, index) => {
-                console.log('ITEM', item);
+                // console.log('ITEM', item);
                 const date = moment(item.orderDate).format('DD/MM/YYYY');
                 const price = Math.round(item.htva);
                 return (

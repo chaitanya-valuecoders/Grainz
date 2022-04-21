@@ -8,6 +8,7 @@ import {
   ActivityIndicator,
   TextInput,
   Alert,
+  Platform,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {connect} from 'react-redux';
@@ -374,7 +375,7 @@ class AddManualLog extends Component {
                       <TouchableOpacity
                         onPress={() => this.showDatePickerFun()}
                         style={{
-                          padding: 12,
+                          padding: Platform.OS === 'ios' ? 12 : 0,
                           marginBottom: hp('3%'),
                           flexDirection: 'row',
                           justifyContent: 'space-between',
@@ -392,6 +393,9 @@ class AddManualLog extends Component {
                             width: 20,
                             height: 20,
                             resizeMode: 'contain',
+                            alignSelf:
+                              Platform.OS === 'android' ? 'center' : null,
+                            marginRight: Platform.OS === 'android' ? 10 : 0,
                           }}
                         />
                       </TouchableOpacity>

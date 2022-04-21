@@ -10,6 +10,7 @@ import {
   TextInput,
   Pressable,
   Alert,
+  Platform,
 } from 'react-native';
 import Modal from 'react-native-modal';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -396,11 +397,11 @@ class EditPurchase extends Component {
       orderDate: productionDate,
       notes: note,
       orderItems: yourOrderItems,
-      images: [],
+      // images: [],
       images: imageDataEdit ? imageDataEdit : imageData ? imageData : [],
     };
 
-    // console.log('payload', payload);
+    console.log('payload', payload);
 
     if (this.payloadValidation()) {
       if (yourOrderItems.length > 0) {
@@ -879,18 +880,24 @@ class EditPurchase extends Component {
           ? {
               ...item,
               [type]: finalVal,
-              ['unitPrice']: value === true ? item.rollingAveragePrice : '',
+              ['unitPrice']:
+                value === true
+                  ? (item.rollingAveragePrice * item.quantityOrdered).toFixed(2)
+                  : '',
             }
           : {
               ...item,
               [type]: finalVal,
-              ['unitPrice']: value === true ? item.rollingAveragePrice : '',
+              ['unitPrice']:
+                value === true
+                  ? (item.rollingAveragePrice * item.quantityOrdered).toFixed(2)
+                  : '',
             },
       );
 
       // console.log('NEWA--ALLITEMS', newArr);
       const orderTotal = newArr.reduce(
-        (n, {rollingAveragePrice}) => n + Number(rollingAveragePrice),
+        (n, {unitPrice}) => n + Number(unitPrice),
         0,
       );
 
@@ -905,10 +912,16 @@ class EditPurchase extends Component {
     } else {
       if (type === 'isRollingAverageUsed') {
         // console.log('rollingAveragePrice', rollingAveragePrice);
-        const finalQuantity = quantityOrdered === '' ? 1 : quantityOrdered;
+        const finalQuantity = quantityOrdered === '' ? 0 : quantityOrdered;
         // console.log('finalQuantity', finalQuantity);
-        const oldPrice = item.unitPrice;
-        const finalPrice = rollingAveragePrice * finalQuantity;
+        // const finalPrice = rollingAveragePrice * finalQuantity;
+
+        var indexUnitsSec = item.units.findIndex(p => p.value == item.unitId);
+        const converter = item.units[indexUnitsSec].converter;
+
+        console.log('converter', converter);
+
+        const finalPrice = rollingAveragePrice * finalQuantity * converter;
         // console.log('finalPrice', finalPrice);
         // console.log('valueee', value);
 
@@ -917,7 +930,7 @@ class EditPurchase extends Component {
             ? {
                 ...item,
                 [type]: value,
-                ['unitPrice']: value === true ? finalPrice : '',
+                ['unitPrice']: value === true ? finalPrice.toFixed(2) : '',
               }
             : item,
         );
@@ -938,14 +951,21 @@ class EditPurchase extends Component {
           // console.log('rollingAveragePrice', rollingAveragePrice);
           const finalQuantity = value ? value : 1;
           // console.log('finalQuantity', finalQuantity);
-          const finalPrice = rollingAveragePrice * finalQuantity;
+          // const finalPrice = rollingAveragePrice * finalQuantity;
           // console.log('finalPrice', finalPrice);
+
+          var indexUnitsSec = item.units.findIndex(p => p.value == item.unitId);
+          const converter = item.units[indexUnitsSec].converter;
+
+          console.log('converter', converter);
+
+          const finalPrice = rollingAveragePrice * finalQuantity * converter;
           let newArr = yourOrderItems.map((item, i) =>
             index === i
               ? {
                   ...item,
                   [type]: value,
-                  ['unitPrice']: finalPrice,
+                  ['unitPrice']: finalPrice.toFixed(2),
                 }
               : item,
           );
@@ -980,7 +1000,8 @@ class EditPurchase extends Component {
             const finalPrice = rollingAveragePrice * finalQuantity;
             const finalPriceSec =
               rollingAveragePrice * finalQuantity * converter;
-            const lastPrice = isDefault === true ? finalPrice : finalPriceSec;
+            const lastPrice =
+              isDefault === true ? finalPriceSec : finalPriceSec;
             // console.log('finalPrice', finalPrice);
             // console.log('valueee', value);
 
@@ -989,7 +1010,7 @@ class EditPurchase extends Component {
                 ? {
                     ...item,
                     [type]: value,
-                    ['unitPrice']: lastPrice,
+                    ['unitPrice']: lastPrice.toFixed(2),
                     // ['unitId']: finalUnitId,
                     // ['position']: index,
                   }
@@ -1323,6 +1344,7 @@ class EditPurchase extends Component {
     } = this.state;
     console.log('imageData', imageData);
     console.log('imageDataEdit', imageDataEdit);
+    console.log('yourOrderItms', yourOrderItems);
 
     return (
       <View style={styles.container}>
@@ -1432,7 +1454,7 @@ class EditPurchase extends Component {
                     disabled={editDisabled}
                     onPress={() => this.showDatePickerFun()}
                     style={{
-                      padding: 15,
+                      padding: Platform.OS === 'ios' ? 14 : 0,
                       marginBottom: hp('3%'),
                       flexDirection: 'row',
                       justifyContent: 'space-between',
@@ -1453,6 +1475,8 @@ class EditPurchase extends Component {
                         width: 20,
                         height: 20,
                         resizeMode: 'contain',
+                        alignSelf: Platform.OS === 'android' ? 'center' : null,
+                        marginRight: Platform.OS === 'android' ? 10 : 0,
                       }}
                     />
                   </TouchableOpacity>
@@ -1758,7 +1782,25 @@ class EditPurchase extends Component {
                       </Text>
                     </View>
                     <View>
-                      <Switch
+                      <CheckBox
+                        value={switchValue}
+                        onValueChange={value =>
+                          this.addDataFun(
+                            'index',
+                            'isRollingAverageUsed',
+                            value,
+                            'rollingAveragePrice',
+                            'quantityOrdered',
+                            'isRollingAverageUsed',
+                            'all',
+                          )
+                        }
+                        style={{
+                          height: 20,
+                          width: 20,
+                        }}
+                      />
+                      {/* <Switch
                         thumbColor={'#94BB3B'}
                         trackColor={{false: 'grey', true: 'grey'}}
                         ios_backgroundColor="white"
@@ -1774,7 +1816,7 @@ class EditPurchase extends Component {
                           )
                         }
                         value={switchValue}
-                      />
+                      /> */}
                     </View>
                   </View>
                 </View>
@@ -1782,7 +1824,7 @@ class EditPurchase extends Component {
               <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                 <View>
                   {yourOrderItems.map((item, indexOrder) => {
-                    // console.log('item', item);
+                    console.log('item-->YPOURORDERITMS', item);
                     return (
                       <View style={{marginBottom: 10}}>
                         {item.action !== 'Delete' ? (
@@ -1853,6 +1895,8 @@ class EditPurchase extends Component {
                                         item.rollingAveragePrice,
                                         item.quantityOrdered,
                                         item.isRollingAverageUsed,
+                                        'quanOrdered',
+                                        item,
                                       )
                                     }
                                   />
@@ -1996,19 +2040,38 @@ class EditPurchase extends Component {
                                       padding: 15,
                                       width: wp('25%'),
                                     }}
-                                    onChangeText={value =>
-                                      this.addDataFun(
-                                        indexOrder,
-                                        'rollingAveragePrice',
-                                        value,
-                                      )
-                                    }
-                                    value={`€ ${String(
-                                      item.rollingAveragePrice,
+                                    // onChangeText={value =>
+                                    //   this.addDataFun(
+                                    //     indexOrder,
+                                    //     'rollingAveragePrice',
+                                    //     value,
+                                    //   )
+                                    // }
+                                    value={`€ ${Number(
+                                      item.rollingAveragePrice.toFixed(2),
                                     )}`}
                                   />
                                   <View>
-                                    <Switch
+                                    <CheckBox
+                                      value={item.isRollingAverageUsed}
+                                      onValueChange={val =>
+                                        this.addDataFun(
+                                          indexOrder,
+                                          'isRollingAverageUsed',
+                                          val,
+                                          item.rollingAveragePrice,
+                                          item.quantityOrdered,
+                                          item.isRollingAverageUsed,
+                                          'singleRolling',
+                                          item,
+                                        )
+                                      }
+                                      style={{
+                                        height: 20,
+                                        width: 20,
+                                      }}
+                                    />
+                                    {/* <Switch
                                       disabled={editDisabled}
                                       thumbColor={'#94BB3B'}
                                       trackColor={{
@@ -2029,7 +2092,7 @@ class EditPurchase extends Component {
                                         )
                                       }
                                       value={item.isRollingAverageUsed}
-                                    />
+                                    /> */}
                                   </View>
                                 </View>
                               </View>
@@ -2047,7 +2110,8 @@ class EditPurchase extends Component {
                                     alignItems: 'center',
                                     paddingHorizontal: 10,
                                   }}>
-                                  {item.hasWarning ? (
+                                  {item.isRollingAverageUsed ? (
+                                    // {item.hasWarning ? (
                                     <View style={styles.listDataContainer}>
                                       <Image
                                         style={{
@@ -2083,25 +2147,22 @@ class EditPurchase extends Component {
                                       disabled={editDisabled}
                                       thumbColor={'#fff'}
                                       trackColor={{
-                                        false: '#94BB3B',
-                                        true: 'red',
+                                        false: 'red',
+                                        true: 'green',
                                       }}
                                       ios_backgroundColor={
-                                        item.hasWarning ? '#fff' : 'green'
+                                        item.isCorrect ? 'green' : 'red'
                                       }
-                                      // onValueChange={val =>
-                                      //   this.addDataFun(
-                                      //     indexOrder,
-                                      //     'isRollingAverageUsed',
-                                      //     val,
-                                      //     item.rollingAveragePrice,
-                                      //     item.quantityOrdered,
-                                      //     item.isRollingAverageUsed,
-                                      //     'keyRolling',
-                                      //     item,
-                                      //   )
-                                      // }
-                                      value={item.hasWarning}
+                                      onValueChange={val =>
+                                        this.addDataFun(
+                                          indexOrder,
+                                          'isCorrect',
+                                          val,
+                                          item.rollingAveragePrice,
+                                          item.quantityOrdered,
+                                        )
+                                      }
+                                      value={item.isCorrect}
                                     />
                                   </View>
                                 </View>
